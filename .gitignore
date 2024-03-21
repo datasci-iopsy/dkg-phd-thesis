@@ -55,3 +55,4 @@ rsconnect/
 # misc
 .DS_Store
 supplements/
+**.csv
