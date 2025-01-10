@@ -1,6 +1,7 @@
 # config
 .vscode
 .python-version
+*.html
 
 # History files
 .Rhistory
