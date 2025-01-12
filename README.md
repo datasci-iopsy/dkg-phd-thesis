@@ -208,7 +208,7 @@ Negative Affect
 3. Gender (What best describes your gender identity?)
    - Woman
    - Man
-   - Nonbinary
+   - Non-binary
    - Other
    - Prefer not to say
 
@@ -232,21 +232,6 @@ Negative Affect
    - True
    - False
 
-```mermaid
-graph TD;
-    A[Psychological Need Thwarting] --> B[Competency Thwarting];
-    A --> C[Autonomy Thwarting];
-    A --> D[Relatedness Thwarting];
-    E[Burnout] --> F[Physical Fatigue];
-    E --> G[Cognitive Weariness];
-    E --> H[Emotional Exhaustion];
-    B --> I[Work Meeting];
-    C --> I;
-    D --> I;
-    F --> J[Turnover Intention];
-    G --> J;
-    H --> J;
-    I --> J;
-    J --> K[Marker Variable: Attitudes Toward the Color Blue];
-    J --> L[Control Variables: Age, Ethnicity, Gender, Role Tenure, Education Level, Remote Flag, PANAS];
-```
+## Process Model
+
+![Alt text](src/run_gen_data/images/thesis-process-model.svg)
