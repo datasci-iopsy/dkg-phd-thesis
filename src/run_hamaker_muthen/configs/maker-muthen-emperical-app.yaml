@@ -1,0 +1,15 @@
+default:
+  data_dir: "src/run_hamaker_muthen/data"
+  col_names:
+  - id
+  - day_num
+  - beep_num
+  - informat04
+  - st_period
+  - cheerful
+  - pleasant
+  - worry
+  - fearful
+  - somber
+  - relaxed
+  - neurotic
