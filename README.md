@@ -2,9 +2,9 @@
 
 Demetrius K. Green
 
-North Carolina State University (2024)
+North Carolina State University (2025)
 
-Psychology Department: Industrial-Organizational Psychology
+Department: Industrial-Organizational Psychology
 
 ## Overview
 
@@ -234,4 +234,10 @@ Negative Affect
 
 ## Process Model
 
-![Alt text](src/run_gen_data/images/thesis-process-model.svg)
+![thesis-process-model](images/thesis-process-model.svg)
+
+## Limitations 
+
+latent mean centering is far superior for un-smushing fixed and random effects but this wss difficult in R software; a Bayesian approach would prove better since it could model means as distributions thus dirextly modeling uncertainty 
+
+need satisfaction and need frustration predict positive and negative outcomes differentially. This study focuses specifically on need thwarting or frustration and so only one side of the story is being told.
