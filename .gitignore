@@ -1,7 +1,13 @@
 # config
 .vscode
-.python-version
 *.html
+
+# python files
+.python-version
+*.__init__.py
+*__pycache__/
+*.env
+*.venv
 
 # History files
 .Rhistory
@@ -36,8 +42,6 @@ vignettes/*.pdf
 # knitr and R markdown default cache directories
 *_cache/
 /cache/
-*__pycache__/
-*.__init__.py
 
 # Temporary files created by R markdown
 *.utf8.md
@@ -61,3 +65,4 @@ supplements/
 **.csv
 archive/
 *tempCodeRunnerFile*
+*.keys/

@@ -238,6 +238,8 @@ Negative Affect
 
 ## Limitations 
 
+Most likely a WEIRD sample and only working during 9-5 shifts; perhaps there are differences across shifts?
+
 latent mean centering is far superior for un-smushing fixed and random effects but this wss difficult in R software; a Bayesian approach would prove better since it could model means as distributions thus dirextly modeling uncertainty 
 
 need satisfaction and need frustration predict positive and negative outcomes differentially. This study focuses specifically on need thwarting or frustration and so only one side of the story is being told.
