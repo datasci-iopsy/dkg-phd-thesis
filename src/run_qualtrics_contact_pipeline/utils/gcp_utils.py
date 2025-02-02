@@ -4,30 +4,26 @@ import logging
 
 from google.cloud import secretmanager
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-
 
 def get_secret_payload(
     project_id: str,
     secret_id: str,
     version_id: str = "latest",
-    hash_output: bool = False,  # New argument to control hashing
+    hash_output: bool = False,  # argument to control hashing
 ) -> str:
-    """
-    Retrieve a secret payload from Google Secret Manager and optionally hash it.
+    """_summary_
 
     Args:
-        project_id (str): The GCP project ID.
-        secret_id (str): The ID of the secret.
-        version_id (str, optional): The version of the secret. Defaults to "latest".
-        hash_output (bool, optional): Whether to return the hashed payload. Defaults to False.
+        project_id (str): _description_
+        secret_id (str): _description_
+        version_id (str, optional): _description_. Defaults to "latest".
+        hash_output (bool, optional): _description_. Defaults to False.
 
     Raises:
-        ValueError: If there is an error retrieving or processing the secret.
+        ValueError: _description_
 
     Returns:
-        str: The secret payload as a string or its hashed value.
+        str: _description_
     """
     try:
         client = secretmanager.SecretManagerServiceClient()
@@ -43,12 +39,12 @@ def get_secret_payload(
         secret_json = json.loads(secret_payload)
 
         if hash_output:
-            # Hash the response and return it
+            # hash the response and return it
             hashed_response = hashlib.sha224(secret_payload.encode("utf-8")).hexdigest()
             logging.info(f"Hashed response: {hashed_response}")
             return hashed_response
 
-        # Otherwise, return the plain payload
+        # otherwise, return the plain payload
         logging.info("Secret payload retrieved successfully.")
         return secret_json
 

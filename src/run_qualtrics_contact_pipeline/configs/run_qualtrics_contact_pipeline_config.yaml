@@ -1,0 +1,9 @@
+params:
+  gcp:
+    project_id: dkg-phd-thesis
+    secret_id: dkg-gsheets-sa-key
+    version_id: latest
+  gspread:
+    use_method: key
+    spreadsheet_id: 1Afv09f_ne06Ji67c044CWDoZU9AM55VAu3KQcTZsGAk
+    sheet_name: raw_distrib_ls
