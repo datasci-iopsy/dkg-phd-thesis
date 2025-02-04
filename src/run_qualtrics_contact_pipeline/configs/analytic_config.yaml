@@ -1,0 +1,17 @@
+analytic_params:
+  rename_map:
+    SurveyID: SURVEY_ID
+    ResponseID: RESPONSE_ID
+    InformedConsent: INFORMED_CONSENT_FLAG
+    ProlificPIDEmbedded: PROLIFIC_PID_EMBEDDED
+    ProlificPIDEntry: PROLIFIC_PID_ENTRY
+    FTEFlag: FTE_FLAG
+    LocationFlag: LOCATION_FLAG
+    AgeFlag: AGE_FLAG
+    LanguageFlag: LANGUAGE_FLAG
+    Phone: PHONE
+    LocalTZ: LOCAL_TZ
+    Date: DATE
+    Status: STATUS
+  boolean_key: _FLAG
+  boolean_value: 'Yes'

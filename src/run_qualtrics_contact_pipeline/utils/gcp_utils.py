@@ -10,7 +10,7 @@ def get_secret_payload(
     secret_id: str,
     version_id: str = "latest",
     hash_output: bool = False,  # argument to control hashing
-) -> str:
+) -> dict[str, str]:
     """_summary_
 
     Args:
@@ -23,13 +23,18 @@ def get_secret_payload(
         ValueError: _description_
 
     Returns:
-        str: _description_
+        dict[str, str]: _description_
     """
     try:
         client = secretmanager.SecretManagerServiceClient()
+        logging.info("Client created successfully.")
 
         # Build the FULL secret version path
-        name = client.secret_version_path(project_id, secret_id, version_id)
+        name = client.secret_version_path(
+            project=project_id,
+            secret=secret_id,
+            secret_version=version_id,
+        )
 
         # Access the secret version
         response = client.access_secret_version(request={"name": name})

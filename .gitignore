@@ -2,12 +2,13 @@
 .vscode
 *.html
 
-# python files
+# python
 .python-version
 *.__init__.py
 *__pycache__/
 *.env
 *.venv
+*.egg-info
 
 # History files
 .Rhistory
