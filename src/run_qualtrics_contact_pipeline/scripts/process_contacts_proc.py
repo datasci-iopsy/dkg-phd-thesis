@@ -45,16 +45,6 @@ def get_raw_and_clean_sheets(client: gspread.Client, config: Box):
 
 
 def get_processed_contacts(clean_sheet: list[dict], id_column: str):
-    """
-    Retrieve a set of processed IDs from a list of dictionaries.
-
-    Args:
-        clean_sheet_data (list[dict]): The data from the clean sheet as a list of dictionaries.
-        id_column (str): The header name of the column containing IDs.
-
-    Returns:
-        set: A set of unique processed IDs.
-    """
     clean_sheet_data = clean_sheet.get_all_records()
 
     # Check if there are any rows and if the header exists
@@ -81,8 +71,8 @@ def main():
     # print(type(client))
 
     raw_sheet, clean_sheet = get_raw_and_clean_sheets(client=client, config=config)
-    # print(raw_sheet.get_all_records())
-    # print(clean_sheet.get_all_records())
+    print(raw_sheet.get_all_records())
+    print(clean_sheet.get_all_records())
 
     processed_contacts = get_processed_contacts(
         clean_sheet=clean_sheet,
