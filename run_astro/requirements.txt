@@ -1,4 +1,4 @@
-cachetools==5.5.1
+# Astro Runtime includes the following pre-installed providers packages: https://www.astronomer.io/docs/astro/runtime-image-architecture#provider-packagescachetools==5.5.1
 certifi==2025.1.31
 cffi==1.17.0
 charset-normalizer==3.4.1
