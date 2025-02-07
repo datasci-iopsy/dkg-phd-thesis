@@ -12,6 +12,6 @@ analytic_params:
     Phone: PHONE
     LocalTZ: LOCAL_TZ
     Date: DATE
-    Processed: STATUS
-  boolean_key: _FLAG
+    Processed: PROCESSED
+  boolean_key: FLAG
   boolean_value: "Yes"

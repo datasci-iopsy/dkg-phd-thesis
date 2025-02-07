@@ -57,7 +57,7 @@ dependencies = [
     "urllib3==2.3.0",
     "wcwidth==0.2.13",
 ]
-keywords = ["thesis", "automation", "qualtrics", "pipeline"]
+keywords = [""]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -65,9 +65,9 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/dkg-phd-thesis"
-Repository = "https://github.com/yourusername/dkg-phd-thesis"
-Issues = "https://github.com/yourusername/dkg-phd-thesis/issues"
+Homepage = "https://github.com/datasci-iopsy"
+Repository = "https://github.com/datasci-iopsy/dkg-phd-thesis"
+Issues = "https://github.com/datasci-iopsy/dkg-phd-thesis/issues"
 
 [project.scripts]
 run-qualtrics-pipeline = "src.run_qualtrics_contact_pipeline.run_qualtrics_contact_pipeline:main"
