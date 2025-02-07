@@ -1,12 +1,7 @@
 params:
-  paths:
-    raw_contacts_json: "data/raw/raw_contacts_data.json"
-    raw_study_vars_json: "data/raw/raw_study_vars_data.json"
-
   gcp:
     project_id: dkg-phd-thesis
     version_id: latest
-
   gspread:
     secret_id: dkg-gsheets-sa-key
     use_method: key

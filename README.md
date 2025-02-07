@@ -90,13 +90,16 @@ Autonomy Thwarting
 3. I feel obliged to follow training decisions made for me
 4. I feel under pressure to agree with the training regimen I am provided
 
-Relatedness Thwarting	
+Relatedness Thwarting
+
 1. I feel I am rejected by those around me
 2. I feel others can be dismissive of me
 3. I feel other people dislike me
 4. I feel some of the coworkers around me are envious when I achieve success
 
 ### Moderating Variables
+
+Meetings
 
 Number of Work Meetings
 
@@ -109,6 +112,34 @@ Time in Work Meetings
 1. How much time (in hours) have you spent in meetings? *Note*: use divisible increments (15 mins = .25 hours, 30 mins = .50 hours, 60 mins = 1 hour, etc.). 
     - Response Anchors: Continuous
       - 0 to *n*
+
+### Moderating Variables (Cross-level)
+
+Psychological Contract (*Robinson & Morrison, 2000*)
+
+Response Anchors: Agreement-based
+- Strongly agree
+- Somewhat agree
+- Neither agree nor disagree
+- Somewhat disagree
+- Strongly disagree
+
+Subscale
+
+Perceived Contract Breach
+
+1. Almost none of the promises made by my employer have been kept so far.
+2. I feel that my employer has failed to fulfill the promises made to me when I was hired.
+3. So far, my employer has done a poor job of fulfilling its promises to me.
+4. I have not received everything my employer promised to me in exchange for my contributions.
+5. My employer has broken many of its promises to me, even though I have upheld my side of the deal.
+
+Feelings of Violation
+
+1. I feel a significant amount of anger toward my organization.
+2. I feel deeply betrayed by my organization.
+3. I feel that my organization has seriously violated the contract between us.
+4. I feel extremely frustrated with how I have been treated by my organization.
 
 ### Marker Variables
 
@@ -240,6 +271,6 @@ Negative Affect
 
 Most likely a WEIRD sample and only working during 9-5 shifts; perhaps there are differences across shifts?
 
-latent mean centering is far superior for un-smushing fixed and random effects but this wss difficult in R software; a Bayesian approach would prove better since it could model means as distributions thus dirextly modeling uncertainty 
+latent mean centering is far superior for "un-smushing" the fixed and random effects but this wss difficult in R software; a Bayesian approach would prove better since it could model means as distributions thus directly modeling uncertainty 
 
 need satisfaction and need frustration predict positive and negative outcomes differentially. This study focuses specifically on need thwarting or frustration and so only one side of the story is being told.
