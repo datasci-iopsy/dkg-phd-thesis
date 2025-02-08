@@ -145,6 +145,8 @@ Feelings of Violation
 
 Attitude Toward the Color Blue (ATCB; *Miller et al., 2024; Miller & Simmering, 2023*)
 
+Note: 4-item ATCB functioned as reliably as the 7-item measure (Miller et al. 2024)
+
 Response Anchors: Agreement-based
 - Strongly agree
 - Somewhat agree
@@ -156,12 +158,12 @@ Subscale
 
 Color Blue
 1. Blue is a beautiful color
-2. Blue is a lovely color
+2. *Blue is a lovely color*
 3. Blue is a pleasant color
 4. The color blue is wonderful
-5. Blue is a nice color
-6. I think blue is a pretty color
-7. I like the color blue
+5. *Blue is a nice color*
+6. *I think blue is a pretty color*
+7. *I like the color blue*
 
 ### Attention Checks
 
@@ -268,6 +270,8 @@ Negative Affect
 ![thesis-process-model](images/thesis-process-model.svg)
 
 ## Limitations 
+
+Used mostly vague response anchors to access frequency. Tong et al., 2020 showed that precise response options perform better, but due to the quick turnaround times of the study, it made more sense to use vague. Perhaps if this study were extended across months or years or was cross sectional, it would be more appropriate.
 
 Most likely a WEIRD sample and only working during 9-5 shifts; perhaps there are differences across shifts?
 
