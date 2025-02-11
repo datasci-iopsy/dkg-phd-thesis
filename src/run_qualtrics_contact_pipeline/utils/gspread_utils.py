@@ -9,22 +9,21 @@ import logging
 
 # TODO: expand to have scopes
 def auth_gspread(credentials: dict[str, str]) -> gspread.Client:
-    """_summary_
+    """Authenticates with Google Sheets using service account credentials.
+
+    Applies default scopes for both spreadsheets and Drive access.
 
     Args:
-        credentials (dict[str, str]): _description_
+        credentials (dict[str, str]): Service account credentials provided as a dictionary.
 
     Returns:
-        gspread.Client: _description_
+        gspread.Client: An authenticated client for interacting with Google Sheets.
     """
     try:
-        # default scopes within gspread api
-        # https://docs.gspread.org/en/latest/api/auth.html#gspread.auth.service_account_from_dict
         scopes = [
             "https://spreadsheets.google.com/feeds",
             "https://www.googleapis.com/auth/drive",
         ]
-
         client = gspread.service_account_from_dict(credentials, scopes=scopes)
         logging.info("Successfully authenticated with Google Sheets.")
         return client
@@ -43,46 +42,44 @@ def get_gsheet(
     spreadsheet_id: str,
     sheet_name: str,
 ) -> gspread.Worksheet:
-    """_summary_
+    """Retrieves a worksheet from a Google spreadsheet based on the specified access method.
+
+    Depending on the method provided ('key' or 'url'), opens the spreadsheet accordingly
+    and returns the worksheet by its name.
 
     Args:
-        client (gspread.Client): _description_
-        use_method (str): _description_
-        spreadsheet_id (str): _description_
-        sheet_name (str): _description_
+        client (gspread.Client): An authenticated gspread client.
+        use_method (str): The method for opening the spreadsheet; must be either "key" or "url".
+        spreadsheet_id (str): The identifier of the spreadsheet. For 'key', this is the spreadsheet key;
+                              for 'url', the full spreadsheet URL.
+        sheet_name (str): The name of the worksheet to retrieve.
 
     Raises:
-        ValueError: _description_
+        ValueError: If the provided use_method is not "key" or "url".
+        Exception: For any other error encountered while accessing the spreadsheet or worksheet.
 
     Returns:
-        gspread.Worksheet: _description_
+        gspread.Worksheet: The worksheet matching the provided sheet_name.
     """
-
-    # TODO: expand control flow and try-except blocks to check if sheet exists
-    # TODO cont: create it if one wants; should be a parameter in function
-    # def ensure_sheet_exists(client, spreadsheet_id, sheet_name):
-    # try:
-    #     return gspread_utils.get_gsheet(client=client, use_method="title", spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
-    # except Exception:  # Replace with specific exception for missing sheets
-    #     # Create a new sheet if it doesn't exist
-    #     spreadsheet = client.open_by_key(spreadsheet_id)
-    #     spreadsheet.add_worksheet(title=sheet_name, rows="100", cols="20")
-    #     return spreadsheet.worksheet(sheet_name)
     try:
         if use_method == "key":
             sheet = client.open_by_key(spreadsheet_id).worksheet(sheet_name)
-            logging.info(f"Client successfully open {sheet_name} using {use_method}.")
+            logging.info(
+                f"Client successfully opened {sheet_name} using method '{use_method}'."
+            )
         elif use_method == "url":
             sheet = client.open_by_url(spreadsheet_id).worksheet(sheet_name)
-            logging.info(f"Client successfully open {sheet_name} using {use_method}.")
+            logging.info(
+                f"Client successfully opened {sheet_name} using method '{use_method}'."
+            )
         else:
-            logging.error(f"{use_method} could not be used.", exc_info=True)
+            logging.error(f"{use_method} is not a valid access method.", exc_info=True)
             raise ValueError(f"{use_method} must be 'key' or 'url'.")
         return sheet
 
     except Exception as e:
         logging.error(
-            f"Client failed to open sheet {sheet_name} using {use_method}: {e}",
+            f"Client failed to open sheet {sheet_name} using method '{use_method}': {e}",
             exc_info=True,
         )
         raise
