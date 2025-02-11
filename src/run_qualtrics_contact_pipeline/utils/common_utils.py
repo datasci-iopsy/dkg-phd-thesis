@@ -7,22 +7,23 @@ from pathlib import Path
 
 
 def load_configs(dir_path: str, use_box: bool = True) -> dict | Box:
-    """
-    Load multiple configuration files from a directory. Optionally wrap the result in a Box object.
-    Files must have '_config' in their names to be loaded.
+    """Loads and merges YAML configuration files from a directory.
+
+    Scans the specified directory for files with '_config' in their names, loads and merges their contents,
+    and optionally wraps the merged data in a Box object.
 
     Args:
-        dir_path (str): The path to the directory containing configuration files.
-        use_box (bool): Whether to wrap the resulting configuration dictionary in a Box object.
+        dir_path (str): Path of the directory containing YAML configuration files.
+        use_box (bool, optional): If True, returns the merged data wrapped in a Box object. Defaults to True.
 
     Returns:
-        dict or Box: A merged dictionary (or Box object) containing configurations from all loaded files.
+        dict or Box: Merged configuration data as a dictionary or a Box instance.
 
     Raises:
-        FileNotFoundError: If the directory does not exist or no config files are found.
-        yaml.YAMLError: If any YAML file cannot be parsed.
+        FileNotFoundError: If the directory does not exist or no matching config files are found.
+        yaml.YAMLError: If any YAML file fails to parse.
     """
-    # Check if the directory exists
+    # check if the directory exists
     config_dir = Path(dir_path)
     if not config_dir.exists() or not config_dir.is_dir():
         logging.error("Config directory not found: %s", dir_path, exc_info=True)
@@ -70,28 +71,28 @@ def load_configs(dir_path: str, use_box: bool = True) -> dict | Box:
     return merged_config
 
 
-# TODO: reconfigure function to do write, read, etc.
-def write_json_data(file_path: str, data: dict[str, any]) -> None:
-    """Write JSON data to file with robust error handling.
+# # TODO: reconfigure function to do write, read, etc.
+# def write_json_data(file_path: str, data: dict[str, any]) -> None:
+#     """Write JSON data to file with robust error handling.
 
-    Args:
-        file_path: Path to the target JSON file
-        data: Dictionary data to serialize
+#     Args:
+#         file_path: Path to the target JSON file
+#         data: Dictionary data to serialize
 
-    Raises:
-        TypeError: If non-serializable data types are found
-        OSError: For file system errors (permissions, path issues)
-        RuntimeError: For unexpected errors during serialization
-    """
-    try:
-        with open(file_path, "w") as f:
-            json.dump(data, f, indent=4)
-    except (TypeError, OverflowError) as e:
-        raise TypeError(f"Serialization failure: {e}") from e
-    except OSError as e:
-        raise OSError(f"File operation failed: {e.strerror}") from e
-    except Exception as e:
-        raise RuntimeError(f"Unexpected error: {e}") from e
+#     Raises:
+#         TypeError: If non-serializable data types are found
+#         OSError: For file system errors (permissions, path issues)
+#         RuntimeError: For unexpected errors during serialization
+#     """
+#     try:
+#         with open(file_path, "w") as f:
+#             json.dump(data, f, indent=4)
+#     except (TypeError, OverflowError) as e:
+#         raise TypeError(f"Serialization failure: {e}") from e
+#     except OSError as e:
+#         raise OSError(f"File operation failed: {e.strerror}") from e
+#     except Exception as e:
+#         raise RuntimeError(f"Unexpected error: {e}") from e
 
 
 # ! ---------------------------------------------------------------------------
