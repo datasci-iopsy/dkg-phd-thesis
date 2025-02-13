@@ -94,8 +94,8 @@ def get_processed_contacts(clean_sheet: gspread.Worksheet, clean_id_col: str):
         ValueError: If the column specified by clean_id_col is not present in the clean sheet headers.
 
     Returns:
-        set: A set of identifiers (as strings) corresponding to contacts that have already been processed.
-             An empty set is returned if the clean sheet has no data.
+        set: A set of identifiers (as strings) corresponding to contacts that have already been processed. 
+        An empty set is returned if the clean sheet has no data.
     """
     clean_sheet_data = clean_sheet.get_all_records()
     if not clean_sheet_data:
