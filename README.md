@@ -295,6 +295,7 @@ $$
 $$
 
 Composite Notation:
+
 $$
 \begin{aligned}
 \quad TI_{it} = \beta_{0} + \mu_{0i} + \epsilon_{it}
@@ -314,10 +315,9 @@ $$
 $$
 
 Composite Notation:
+
 $$
-\begin{aligned}
 \quad TI_{it} = \beta_{0} + \beta_{1}(TIME_{it}) + \mu_{0i} + \epsilon_{it}
-\end{aligned}
 $$
 
   - Intraclass Correlation (ICC)
