@@ -317,7 +317,25 @@ $$
 Composite Notation:
 
 $$
-\quad TI_{it} = \beta_{0} + \beta_{1}(TIME_{it}) + \mu_{0i} + \epsilon_{it}
+\quad TI_{it} = \gamma_{00} + \gamma_{10}(TIME_{it}) + \mu_{0i} + \epsilon_{it}
+$$
+
+---
+
+**Random (Time) Effect, Random Intercept Model**:
+
+$$
+\begin{aligned}
+\text{Level 1:}& \quad TI_{it} = \beta_{0i} + \beta_{1i}(TIME_{it}) + \epsilon_{it} \\
+\text{Level 2:}& \quad \beta_{0i} = \gamma_{00} + \mu_{0i} \\
+& \quad \beta_{1i} = \gamma_{10} + \mu_{1i}
+\end{aligned}
+$$
+
+Composite Notation:
+
+$$
+\quad TI_{it} = \gamma_{00} + \gamma_{10}(TIME_{it}) + \mu_{0i} + \mu_{1i}(TIME_{it}) + \epsilon_{it}
 $$
 
   - Intraclass Correlation (ICC)
