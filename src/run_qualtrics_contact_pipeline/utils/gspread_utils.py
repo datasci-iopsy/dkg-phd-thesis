@@ -51,7 +51,7 @@ def get_gsheet(
         client (gspread.Client): An authenticated gspread client.
         use_method (str): The method for opening the spreadsheet; must be either "key" or "url".
         spreadsheet_id (str): The identifier of the spreadsheet. For 'key', this is the spreadsheet key;
-                              for 'url', the full spreadsheet URL.
+        for 'url', the full spreadsheet URL.
         sheet_name (str): The name of the worksheet to retrieve.
 
     Raises:

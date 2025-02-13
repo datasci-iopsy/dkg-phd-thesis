@@ -267,26 +267,61 @@ Response Anchors: Frequency-based
 
 ## Analytical Strategy
 
-Reliability
+### Reliability
 - Composite index (McDonald’s omega, see *Geldhof et al., 2014; Fu, Wen, & Wang, 2022; Yang et al., 2022* for theoretical justification)
 
-Correlation
+### Correlation
 - Between-persons
 - Within-persons
 
-Common Method Variance & Factor Structure
+### Common Method Variance & Factor Structure
 - CFA Marker Technique (see *Williams, Hartman, & Cavazotte, 2010*)
 - Multilevel CFA
 
-Power Analysis
+### Power Analysis
 
-Mixed Effects Modeling | Latent Growth Curve Modeling (see *McNeish & Matta, 2018*)
+### Mixed Effects Modeling | Latent Growth Curve Modeling 
+(see *McNeish & Matta, 2018*)
+
+---
+
+**Empty/Null/Unconditional Model**:
+
+$$
+\begin{aligned}
+\text{Level 1:}& \quad TI_{it} = \beta_{0i} + \epsilon_{it} \\
+\text{Level 2:}& \quad \beta_{0i} = \gamma_{00} + \mu_{0i}
+\end{aligned}
+$$
+
+Composite Notation:
+$$
+\quad TI_{it} = \beta_{0} + \mu_{0i} + \epsilon_{it}
+$$
+
+---
+
+**Fixed (Time) Effect, Random Intercept Model**:
+
+$$
+\begin{aligned}
+\text{Level 1:}& \quad TI_{it} = \beta_{0i} + \beta_{1i}(TIME_{it}) + \epsilon_{it} \\
+\text{Level 2:}& \quad \beta_{0i} = \gamma_{00} + \mu_{0i} \\
+& \quad \beta_{1i} = \gamma_{10}
+\end{aligned}
+$$
+
+Composite Notation:
+$$
+\quad TI_{it} = \beta_{0} + \beta_{1}(TIME_{it}) + \mu_{0i} + \epsilon_{it}
+$$
+
   - Intraclass Correlation (ICC)
   - Moderation
     - Within- and Cross-level interactions
   - Group mean centering *L1* variables
 
-## Limitations 
+## Limitations
 
 Primarily, vague response anchors were used to assess frequency. While Tong et al. (2020) demonstrated that precise response options yield superior performance, the expedited timeline of this study necessitated the use of less specific anchors. In future research, particularly longitudinal studies spanning months or years or cross-sectional designs, employing more precise response options would likely enhance measurement reliability and validity.
 
