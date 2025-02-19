@@ -1,4 +1,4 @@
-from scripts import process_contacts_dict_ls
+from scripts import process_contacts
 
 # * run entry point
-process_contacts_dict_ls.main()
+process_contacts.main()
