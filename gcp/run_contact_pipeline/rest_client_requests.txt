@@ -1,0 +1,2 @@
+# functions-framework --target=main --host=localhost --port=8080
+http://localhost:8080/
