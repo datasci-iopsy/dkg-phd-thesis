@@ -1,0 +1,4 @@
+### request 1
+GET http://localhost:8080/
+
+### cloud unauthenticated request 1

@@ -1,0 +1,10 @@
+params:
+  gcp:
+    project_id: dkg-phd-thesis
+    version_id: latest
+  gspread:
+    secret_id: dkg-gsheets-sa-key
+    use_method: key
+    spreadsheet_id: 1Afv09f_ne06Ji67c044CWDoZU9AM55VAu3KQcTZsGAk
+    raw_contacts_sheet_name: raw_contacts
+    clean_contacts_sheet_name: clean_contacts
