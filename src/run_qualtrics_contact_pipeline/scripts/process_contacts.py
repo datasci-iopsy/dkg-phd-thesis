@@ -260,6 +260,7 @@ def main():
 
     client = auth_gspread_via_secret_manager(config)
     raw_sheet, clean_sheet = get_raw_and_clean_sheets(client=client, config=config)
+    print(raw_sheet.get_all_records())
     process_new_records(
         raw_sheet=raw_sheet,
         clean_sheet=clean_sheet,
