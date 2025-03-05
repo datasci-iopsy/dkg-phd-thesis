@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # export GCP_REGION="us-east4"
-gcp_region="us-east4"
+gcp_region=$(gcloud config get compute/region)
 dataset_description="Dataset comprising all tables for PhD thesis project."
 project_id="$(gcloud config get project)"
 dataset_id="dkg_phd_thesis_db"
