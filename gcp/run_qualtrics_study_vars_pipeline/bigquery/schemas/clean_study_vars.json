@@ -1,204 +1,252 @@
 [
     {
-        "name": "survey_id",
+        "name": "SURVEY_ID",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "response_id",
+        "name": "RESPONSE_ID",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "start_date",
+        "name": "START_DATE",
+        "type": "DATETIME",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "END_DATE",
+        "type": "DATETIME",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "FINISHED",
+        "type": "BOOL",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "TOTAL_DURATION",
+        "type": "INT64",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "TIMEPOINT",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "end_date",
+        "name": "PROLIFIC_PID_ENTRY",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "finished",
+        "name": "BURNOUT_PHYSICAL_FATIGUE1",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "total_duration",
+        "name": "BURNOUT_PHYSICAL_FATIGUE2",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "timepoint",
+        "name": "BURNOUT_PHYSICAL_FATIGUE3",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "prolific_pid_entry",
+        "name": "BURNOUT_PHYSICAL_FATIGUE4",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "prolific_pid_embedded",
+        "name": "BURNOUT_PHYSICAL_FATIGUE5",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "age",
+        "name": "BURNOUT_PHYSICAL_FATIGUE6",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "ethnicity",
+        "name": "BURNOUT_COGNITIVE_WEARINESS1",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "gender",
+        "name": "BURNOUT_COGNITIVE_WEARINESS2",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "job_tenure",
+        "name": "BURNOUT_COGNITIVE_WEARINESS3",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "edu_level",
+        "name": "BURNOUT_COGNITIVE_WEARINESS4",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "remote_flag",
+        "name": "BURNOUT_COGNITIVE_WEARINESS5",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "pa1_alert",
+        "name": "ATTENTION_CHECK",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "pa2_inspired",
+        "name": "BURNOUT_EMOTIONAL_EXHAUSTION1",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "pa3_determined",
+        "name": "BURNOUT_EMOTIONAL_EXHAUSTION2",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "pa4_attentive",
+        "name": "BURNOUT_EMOTIONAL_EXHAUSTION3",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "pa5_active",
+        "name": "ATTITUDE_TOWARD_BLUE2",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "na1_upset",
+        "name": "ATTITUDE_TOWARD_BLUE5",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "na2_hostile",
+        "name": "ATTITUDE_TOWARD_BLUE6",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "na3_ashamed",
+        "name": "ATTITUDE_TOWARD_BLUE7",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "na4_nervous",
+        "name": "NEED_FRUSTRATION_COMPETENCY1",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "na5_afraid",
+        "name": "NEED_FRUSTRATION_COMPETENCY2",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "psych_contract_breach1",
+        "name": "NEED_FRUSTRATION_COMPETENCY3",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "psych_contract_breach2",
+        "name": "NEED_FRUSTRATION_COMPETENCY4",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "psych_contract_breach3",
+        "name": "NEED_FRUSTRATION_AUTONOMY1",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "psych_contract_breach4",
+        "name": "NEED_FRUSTRATION_AUTONOMY2",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "psych_contract_breach5",
+        "name": "NEED_FRUSTRATION_AUTONOMY3",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "psych_contract_violate1",
+        "name": "NEED_FRUSTRATION_AUTONOMY4",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "psych_contract_violate2",
+        "name": "NEED_FRUSTRATION_RELATEDNESS1",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "psych_contract_violate3",
+        "name": "NEED_FRUSTRATION_RELATEDNESS2",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "psych_contract_violate4",
+        "name": "NEED_FRUSTRATION_RELATEDNESS3",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "NEED_FRUSTRATION_RELATEDNESS4",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "MEETING_COUNT",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "MEETING_MINUTES",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "TURNOVER_INTENTION",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
