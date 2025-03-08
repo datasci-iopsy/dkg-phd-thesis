@@ -1,204 +1,204 @@
 [
     {
-        "name": "survey_id",
+        "name": "SURVEY_ID",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "response_id",
+        "name": "RESPONSE_ID",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "start_date",
+        "name": "START_DATE",
+        "type": "DATETIME",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "END_DATE",
+        "type": "DATETIME",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "FINISHED",
+        "type": "BOOL",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "TOTAL_DURATION",
+        "type": "INT64",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "TIMEPOINT",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "end_date",
+        "name": "PROLIFIC_PID_ENTRY",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "finished",
+        "name": "PROLIFIC_PID_EMBEDDED",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "total_duration",
+        "name": "AGE",
+        "type": "INT64",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "ETHNICITY",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "timepoint",
+        "name": "GENDER",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "prolific_pid_entry",
+        "name": "JOB_TENURE",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "prolific_pid_embedded",
+        "name": "EDU_LEVEL",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "age",
+        "name": "REMOTE_FLAG",
+        "type": "BOOL",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "PA1_ALERT",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "ethnicity",
+        "name": "PA2_INSPIRED",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "gender",
+        "name": "PA3_DETERMINED",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "job_tenure",
+        "name": "PA4_ATTENTIVE",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "edu_level",
+        "name": "PA5_ACTIVE",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "remote_flag",
+        "name": "NA1_UPSET",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "pa1_alert",
+        "name": "NA2_HOSTILE",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "pa2_inspired",
+        "name": "NA3_ASHAMED",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "pa3_determined",
+        "name": "NA4_NERVOUS",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "pa4_attentive",
+        "name": "NA5_AFRAID",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "pa5_active",
+        "name": "PSYCH_CONTRACT_BREACH1",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "na1_upset",
+        "name": "PSYCH_CONTRACT_BREACH2",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "na2_hostile",
+        "name": "PSYCH_CONTRACT_BREACH3",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "na3_ashamed",
+        "name": "PSYCH_CONTRACT_BREACH4",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "na4_nervous",
+        "name": "PSYCH_CONTRACT_BREACH5",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "na5_afraid",
+        "name": "PSYCH_CONTRACT_VIOLATE1",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "psych_contract_breach1",
+        "name": "PSYCH_CONTRACT_VIOLATE2",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "psych_contract_breach2",
+        "name": "PSYCH_CONTRACT_VIOLATE3",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "psych_contract_breach3",
-        "type": "STRING",
-        "mode": "NULLABLE",
-        "description": ""
-    },
-    {
-        "name": "psych_contract_breach4",
-        "type": "STRING",
-        "mode": "NULLABLE",
-        "description": ""
-    },
-    {
-        "name": "psych_contract_breach5",
-        "type": "STRING",
-        "mode": "NULLABLE",
-        "description": ""
-    },
-    {
-        "name": "psych_contract_violate1",
-        "type": "STRING",
-        "mode": "NULLABLE",
-        "description": ""
-    },
-    {
-        "name": "psych_contract_violate2",
-        "type": "STRING",
-        "mode": "NULLABLE",
-        "description": ""
-    },
-    {
-        "name": "psych_contract_violate3",
-        "type": "STRING",
-        "mode": "NULLABLE",
-        "description": ""
-    },
-    {
-        "name": "psych_contract_violate4",
+        "name": "PSYCH_CONTRACT_VIOLATE4",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
