@@ -7,8 +7,8 @@ set -euo pipefail
 # Configuration
 declare DATASET="qualtrics_db"
 declare -A TABLES=(
-    ["raw_contact_directory"]="schemas/raw_contact_directory.json"
-    ["clean_contact_directory"]="schemas/clean_contact_directory.json"
+    ["raw_demo_control_vars"]="schemas/raw_demo_control_vars.json"
+    ["raw_study_vars"]="schemas/raw_study_vars.json"
 )
 
 # Enhanced logging functions
