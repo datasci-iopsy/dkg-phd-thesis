@@ -1,103 +1,103 @@
 [
     {
-        "name": "survey_id",
+        "name": "SURVEY_ID",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "response_id",
+        "name": "RESPONSE_ID",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "start_date",
+        "name": "START_DATE",
+        "type": "DATETIME",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "END_DATE",
+        "type": "DATETIME",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "FINISHED",
+        "type": "BOOL",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "TOTAL_DURATION",
+        "type": "INT64",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "TIMEPOINT",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "end_date",
+        "name": "PROLIFIC_PID_ENTRY",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "recorded_date",
+        "name": "PROLIFIC_PID_EMBEDDED",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "finished",
+        "name": "INFORMED_CONSENT",
+        "type": "BOOL",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "FTE_FLAG",
+        "type": "BOOL",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "LOCATION_FLAG",
+        "type": "BOOL",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "AGE_FLAG",
+        "type": "BOOL",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "LANGUAGE_FLAG",
+        "type": "BOOL",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "PHONE",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "total_duration",
+        "name": "LOCAL_TZ",
         "type": "STRING",
         "mode": "NULLABLE",
         "description": ""
     },
     {
-        "name": "informed_consent",
-        "type": "STRING",
-        "mode": "NULLABLE",
-        "description": ""
-    },
-    {
-        "name": "prolific_pid_embedded",
-        "type": "STRING",
-        "mode": "NULLABLE",
-        "description": ""
-    },
-    {
-        "name": "prolific_pid_entry",
-        "type": "STRING",
-        "mode": "NULLABLE",
-        "description": ""
-    },
-    {
-        "name": "fte_flag",
-        "type": "STRING",
-        "mode": "NULLABLE",
-        "description": ""
-    },
-    {
-        "name": "location_flag",
-        "type": "STRING",
-        "mode": "NULLABLE",
-        "description": ""
-    },
-    {
-        "name": "age_flag",
-        "type": "STRING",
-        "mode": "NULLABLE",
-        "description": ""
-    },
-    {
-        "name": "language_flag",
-        "type": "STRING",
-        "mode": "NULLABLE",
-        "description": ""
-    },
-    {
-        "name": "phone_number",
-        "type": "STRING",
-        "mode": "NULLABLE",
-        "description": ""
-    },
-    {
-        "name": "local_tz",
-        "type": "STRING",
-        "mode": "NULLABLE",
-        "description": ""
-    },
-    {
-        "name": "date",
-        "type": "STRING",
+        "name": "DATE",
+        "type": "DATE",
         "mode": "NULLABLE",
         "description": ""
     }

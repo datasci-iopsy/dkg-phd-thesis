@@ -3,17 +3,3 @@ params:
     project_id: dkg-phd-thesis
   secret_mgr:
     version_id: latest
-  pubsub:
-    required_keys:
-      - SurveyID
-      - ResponseID
-      - InformedConsent
-      - ProlificPIDEmbedded
-      - ProlificPIDEntry
-      - FTEFlag
-      - LocationFlag
-      - AgeFlag
-      - LanguageFlag
-      - Phone
-      - LocalTZ
-      - Dates
