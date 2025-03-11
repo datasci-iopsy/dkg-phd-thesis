@@ -1,0 +1,54 @@
+### request 1
+POST http://localhost:8080/
+
+### local-cloud unauthenticated request
+curl -X POST http://localhost:8080 \
+-H "Content-Type: application/json" \
+-d '{
+    "study_id": "SV_86vMYNR8SdVDfEi",
+    "response_id": "R_2K1g4Q10yyaSzTe",
+    "start_date": "Yes",
+    "end_date": "",
+    "finished": "",
+    "total_duration": "",
+    "timepoint": "",
+    "prolific_pid_entry": "",
+    "prolific_pid_embedded": "",
+    "informed_consent": "",
+    "fte_flag": "",
+    "location_flag": "",
+    "age_flag": "",
+    "language_flag": "",
+    "phone": "",
+    "local_tz": "",
+    "date": ""
+}'
+
+### cloud unauthenticated request
+
+// run this command to generate token
+// gcloud auth print-identity-token --impersonate-service-account=dkg-cloud-funs@dkg-phd-thesis.iam.gserviceaccount.com
+@api_token = eyJhbGciOiJSUzI1NiIsImtpZCI6IjkxNGZiOWIwODcxODBiYzAzMDMyODQ1MDBjNWY1NDBjNmQ0ZjVlMmYiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiIzMjU1NTk0MDU1OS5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsImF6cCI6IjEwNzM4Mjk0NjYwODUwMTI4NjYzOCIsImV4cCI6MTc0MTY2MjA4NCwiaWF0IjoxNzQxNjU4NDg0LCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJzdWIiOiIxMDczODI5NDY2MDg1MDEyODY2MzgifQ.PizBN0AIr-F1Ml2ued6Jibj3MrHjXrUxiY5L3gHsvpw6Trmb6JvP7eZAZnXuTM81qaRpuvUd1HEWSE00A4jcte3MN4xDRSJbH2YtZMkv_YTp6_7v3S8cqZ6NB5t1rVYGjMPpiJ9tRBXQeaZABwshwh9rTftsG0cXVfcLAXm3uewAZi7cqXp59DBTZyGU-cv9-ukFELGuVqqMW-LttvqJsU2I8JRcszv5rlnPFskox69hKbpHEZNoIxC8E0HHymSVPi2sN2iIYuHRo-dW9cuUZ_qdWiX-gwSZBt6GrFi03jwES6zDTICcEofiezzHtF4TrY-sF_ZWxEcqNa5JWKrw8A
+
+curl -X POST https://run-qualtrics-contact-pipeline-uep2ub7uja-uk.a.run.app \
+-H "Authorization: Bearer {{api_token}}" \
+-H "Content-Type: application/json" \
+-d '{
+    "study_id": "SV_86vMYNR8SdVDfEi",
+    "response_id": "R_2K1g4Q10yyaSzTe",
+    "start_date": "Yes",
+    "end_date": "",
+    "finished": "",
+    "total_duration": "",
+    "timepoint": "",
+    "prolific_pid_entry": "",
+    "prolific_pid_embedded": "",
+    "informed_consent": "",
+    "fte_flag": "",
+    "location_flag": "",
+    "age_flag": "",
+    "language_flag": "",
+    "phone": "",
+    "local_tz": "",
+    "date": ""
+}'
