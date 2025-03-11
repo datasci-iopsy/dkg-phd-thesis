@@ -9,6 +9,7 @@
 *.env
 *.venv
 *.egg-info
+*.ipynb*
 
 # History files
 .Rhistory
