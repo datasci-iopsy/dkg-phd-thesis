@@ -1,5 +1,0 @@
-params:
-  gcp:
-    project_id: dkg-phd-thesis
-  secret_mgr:
-    version_id: latest

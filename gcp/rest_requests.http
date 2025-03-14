@@ -5,50 +5,50 @@ POST http://localhost:8080/
 curl -X POST http://localhost:8080 \
 -H "Content-Type: application/json" \
 -d '{
-    "study_id": "SV_86vMYNR8SdVDfEi",
-    "response_id": "R_2K1g4Q10yyaSzTe",
-    "start_date": "Yes",
-    "end_date": "",
-    "finished": "",
-    "total_duration": "",
-    "timepoint": "",
-    "prolific_pid_entry": "",
-    "prolific_pid_embedded": "",
-    "informed_consent": "",
-    "fte_flag": "",
-    "location_flag": "",
-    "age_flag": "",
-    "language_flag": "",
-    "phone": "",
-    "local_tz": "",
-    "date": ""
+    "survey_id": "test_survey_id",
+    "response_id": "test_response_id",
+    "start_date": "0000-00-00 00:00:00",
+    "end_date": "0000-00-00 00:00:00",
+    "finished": "test_finished",
+    "total_duration": "test_finished",
+    "timepoint": "test_timepoint",
+    "prolific_pid_entry": "test_prolific_pid_entry",
+    "prolific_pid_embedded": "test_prolific_pid_embedded",
+    "informed_consent": "test_informed_consent",
+    "fte_flag": "test_fte_flag",
+    "location_flag": "test_location_flag",
+    "age_flag": "test_age_flag",
+    "language_flag": "test_language_flag",
+    "phone": "000000000",
+    "local_tz": "test_local_tz",
+    "date": "0/00/000"
 }'
 
 ### cloud unauthenticated request
 
 // run this command to generate token
 // gcloud auth print-identity-token --impersonate-service-account=dkg-cloud-funs@dkg-phd-thesis.iam.gserviceaccount.com
-@api_token = eyJhbGciOiJSUzI1NiIsImtpZCI6IjkxNGZiOWIwODcxODBiYzAzMDMyODQ1MDBjNWY1NDBjNmQ0ZjVlMmYiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiIzMjU1NTk0MDU1OS5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsImF6cCI6IjEwNzM4Mjk0NjYwODUwMTI4NjYzOCIsImV4cCI6MTc0MTY2MjA4NCwiaWF0IjoxNzQxNjU4NDg0LCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJzdWIiOiIxMDczODI5NDY2MDg1MDEyODY2MzgifQ.PizBN0AIr-F1Ml2ued6Jibj3MrHjXrUxiY5L3gHsvpw6Trmb6JvP7eZAZnXuTM81qaRpuvUd1HEWSE00A4jcte3MN4xDRSJbH2YtZMkv_YTp6_7v3S8cqZ6NB5t1rVYGjMPpiJ9tRBXQeaZABwshwh9rTftsG0cXVfcLAXm3uewAZi7cqXp59DBTZyGU-cv9-ukFELGuVqqMW-LttvqJsU2I8JRcszv5rlnPFskox69hKbpHEZNoIxC8E0HHymSVPi2sN2iIYuHRo-dW9cuUZ_qdWiX-gwSZBt6GrFi03jwES6zDTICcEofiezzHtF4TrY-sF_ZWxEcqNa5JWKrw8A
+@api_token = eyJhbGciOiJSUzI1NiIsImtpZCI6IjkxNGZiOWIwODcxODBiYzAzMDMyODQ1MDBjNWY1NDBjNmQ0ZjVlMmYiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiIzMjU1NTk0MDU1OS5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsImF6cCI6IjEwNzM4Mjk0NjYwODUwMTI4NjYzOCIsImV4cCI6MTc0MTkyMzcxOSwiaWF0IjoxNzQxOTIwMTE5LCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJzdWIiOiIxMDczODI5NDY2MDg1MDEyODY2MzgifQ.RBdNm19UmyqyWu7Bu51g65aA0GXqUNBugtyoGU-4Wp3cuu6fZClvKDdtrQUnMlUK1Fr81qAPENawhxdj7UVK5B3i_DxVbCX_0dv1b_Zsa9hwX0AeZEOMKjB9bXJ3p6_wvsoMU6N7V6cNQiWn-ab_oziPNgtqA8w_JO5knO957En8Gzg1JENwll3e4XgPeB6xdMfH9bCAADlS12zEDDP-nSXKbLG8gOvrbcGHUguaBWzwAW08qk5ait4Y7lQ57xHBjg2cwZsv8c4jYcGsNuLkC90DFQ-gD_AgX1NlFZQgI7HGWY1DPAtcXpO0FZ9PC3DpxMCMWl4qaPDecVKRVF45NQ
 
-curl -X POST https://run-qualtrics-contact-pipeline-uep2ub7uja-uk.a.run.app \
+curl -X POST https://run-qualtrics-contact-extraction-uep2ub7uja-uk.a.run.app \
 -H "Authorization: Bearer {{api_token}}" \
 -H "Content-Type: application/json" \
 -d '{
-    "study_id": "SV_86vMYNR8SdVDfEi",
-    "response_id": "R_2K1g4Q10yyaSzTe",
-    "start_date": "Yes",
-    "end_date": "",
-    "finished": "",
-    "total_duration": "",
-    "timepoint": "",
-    "prolific_pid_entry": "",
-    "prolific_pid_embedded": "",
-    "informed_consent": "",
-    "fte_flag": "",
-    "location_flag": "",
-    "age_flag": "",
-    "language_flag": "",
-    "phone": "",
-    "local_tz": "",
-    "date": ""
+    "survey_id": "test_survey_id",
+    "response_id": "test_response_id",
+    "start_date": "0000-00-00 00:00:00",
+    "end_date": "0000-00-00 00:00:00",
+    "finished": "test_finished",
+    "total_duration": "test_finished",
+    "timepoint": "test_timepoint",
+    "prolific_pid_entry": "test_prolific_pid_entry",
+    "prolific_pid_embedded": "test_prolific_pid_embedded",
+    "informed_consent": "test_informed_consent",
+    "fte_flag": "test_fte_flag",
+    "location_flag": "test_location_flag",
+    "age_flag": "test_age_flag",
+    "language_flag": "test_language_flag",
+    "phone": "000000000",
+    "local_tz": "test_local_tz",
+    "date": "0/00/000"
 }'
