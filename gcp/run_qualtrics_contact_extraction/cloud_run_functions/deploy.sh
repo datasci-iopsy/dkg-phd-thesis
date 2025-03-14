@@ -12,7 +12,7 @@ if [ -z "$sa_address" ]; then
     exit 1
 fi
 
-fun_name="run-qualtrics-contact-pipeline"
+fun_name="run_qualtrics_contact_extraction"
 region="us-east4"
 project_id=$(gcloud config get project)
 # * gcloud functions runtimes list
@@ -48,5 +48,5 @@ gcloud functions deploy $fun_name \
 #     --impersonate-service-account=dkg-cloud-funs@dkg-phd-thesis.iam.gserviceaccount.com
 
 # # # ! TO DELETE RUN:
-# # gcloud functions delete run_contact_pipeline --region=us-east4 --gen2
-# # gcloud artifacts repositories delete gcf-artifacts
+# # gcloud functions delete run-qualtrics-contact-pipeline --region=us-east4 --gen2
+# # gcloud artifacts repositories delete gcf-artifacts --location=us-east4
