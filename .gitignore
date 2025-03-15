@@ -1,6 +1,7 @@
 # config
 .vscode
 *.html
+*.http
 
 # python
 .python-version
