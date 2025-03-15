@@ -19,7 +19,7 @@ project_id=$(gcloud config get project)
 
 # * to see list of runtimes RUN: gcloud functions runtimes list
 runtime="python311"
-entry_point="gspread_handler"
+entry_point="qualtrics_gsheet_db_handler"
 memory="512Mi"
 cpu=1
 min_instances=1
