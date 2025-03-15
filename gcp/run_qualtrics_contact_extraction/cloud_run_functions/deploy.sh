@@ -12,12 +12,14 @@ if [ -z "$sa_address" ]; then
     exit 1
 fi
 
+# * NOTE: function names can use underscores but the respective url will convert to dashes
 fun_name="run_qualtrics_contact_extraction"
 region="us-east4"
 project_id=$(gcloud config get project)
-# * gcloud functions runtimes list
+
+# * to see list of runtimes RUN: gcloud functions runtimes list
 runtime="python311"
-entry_point="qualtrics_receiver"
+entry_point="gspread_handler"
 memory="512Mi"
 cpu=1
 min_instances=1
@@ -43,10 +45,8 @@ gcloud functions deploy $fun_name \
     --trigger-http \
     --no-allow-unauthenticated
 
-# gcloud auth print-identity-token \
-#     --audiences=https://run-qualtrics-contact-pipeline-uep2ub7uja-uk.a.run.app \
-#     --impersonate-service-account=dkg-cloud-funs@dkg-phd-thesis.iam.gserviceaccount.com
-
-# # # ! TO DELETE RUN:
+# # # !!! to delete cloud run function RUN:
 # # gcloud functions delete run-qualtrics-contact-pipeline --region=us-east4 --gen2
+
+# # # !!! to delete entire artifact repository RUN:
 # # gcloud artifacts repositories delete gcf-artifacts --location=us-east4

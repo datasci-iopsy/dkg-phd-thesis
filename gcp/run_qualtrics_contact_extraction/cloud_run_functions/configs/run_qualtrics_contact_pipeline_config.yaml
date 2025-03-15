@@ -22,6 +22,26 @@ params:
       - phone
       - local_tz
       - date
-  clean_table: clean_contact_directory
+    clean_table: clean_contact_directory
+    clean_table_fields:
+      - SURVEY_ID
+      - RESPONSE_ID
+      - START_DATE
+      - END_DATE
+      - FINISHED
+      - TOTAL_DURATION
+      - TIMEPOINT
+      - PROLIFIC_PID_ENTRY
+      - PROLIFIC_PID_EMBEDDED
+      - INFORMED_CONSENT
+      - FTE_FLAG
+      - LOCATION_FLAG
+      - AGE_FLAG
+      - LANGUAGE_FLAG
+      - PHONE
+      - LOCAL_TZ
+      - DATE
   secret_mgr:
+    service_account_secret_id: dkg-gsheets-sa-key
+    api_key_secret_id: cloud-fun-api-key-gsheets-2-bq
     version_id: latest
