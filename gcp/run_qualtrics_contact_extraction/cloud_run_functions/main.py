@@ -22,18 +22,18 @@ print(f"Loaded config: {json.dumps(config, indent=2)}")
 
 @functions_framework.http
 def qualtrics_gsheet_db_handler(request):
-    # verify API key
-    EXPECTED_API_KEY = gcp_utils.get_secret_payload(
-        project_id=config.params.gcp.project_id,
-        secret_id=config.params.secret_mgr.api_key_secret_id,
-        version_id=config.params.secret_mgr.version_id,
-    )
-    print(EXPECTED_API_KEY)
+    # # verify API key
+    # EXPECTED_API_KEY = gcp_utils.get_secret_payload(
+    #     project_id=config.params.gcp.project_id,
+    #     secret_id=config.params.secret_mgr.api_key_secret_id,
+    #     version_id=config.params.secret_mgr.version_id,
+    # )
+    # print(EXPECTED_API_KEY)
 
-    api_key = request.headers.get("X-API-KEY")
-    if api_key != EXPECTED_API_KEY.get("key"):
-        print(f"Received API key: {api_key}")
-        return jsonify({"error": "Unauthorized"}), 401
+    # api_key = request.headers.get("X-API-KEY")
+    # if api_key != EXPECTED_API_KEY.get("key"):
+    #     print(f"Received API key: {api_key}")
+    #     return jsonify({"error": "Unauthorized"}), 401
 
     # check if the request is JSON
     if not request.is_json:
