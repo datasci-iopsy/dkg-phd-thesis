@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 
+# echo $BASH_VERSION
+
 set -euo pipefail
 
-# echo $BASH_VERSION
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+pushd "$SCRIPT_DIR" >/dev/null
+# cd "$SCRIPT_DIR" # ! <-- THIS IS CRITICAL
 
 # Configuration
 declare DATASET="qualtrics_db"
 declare -A TABLES=(
-    ["raw_contact_directory"]="schemas/raw_contact_directory.json"
-    ["clean_contact_directory"]="schemas/clean_contact_directory.json"
+    ["raw_contact_directory"]="$SCRIPT_DIR/schemas/raw_contact_directory.json"
+    ["clean_contact_directory"]="$SCRIPT_DIR/schemas/clean_contact_directory.json"
 )
 
 # Enhanced logging functions
@@ -60,3 +64,5 @@ for table in "${!TABLES[@]}"; do
 done
 
 log_success "All operations completed"
+
+popd >/dev/null

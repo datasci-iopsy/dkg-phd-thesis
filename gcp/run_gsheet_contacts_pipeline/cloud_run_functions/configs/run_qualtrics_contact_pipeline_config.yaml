@@ -1,6 +1,13 @@
 params:
   gcp:
     project_id: dkg-phd-thesis
+  secret_mgr:
+    service_account_secret_id: dkg-gsheets-sa-key
+    version_id: latest
+  gspread:
+    use_method: key
+    spreadsheet_id: 1KUawlkxvzI-FR15AULX-7MKxxbB3Sv3ZS5-LPoY8Vjw
+    sheet_name: raw_contact_directory
   bq:
     dataset_id: qualtrics_db
     raw_table: raw_contact_directory
@@ -41,7 +48,3 @@ params:
       - PHONE
       - LOCAL_TZ
       - DATE
-  secret_mgr:
-    service_account_secret_id: dkg-gsheets-sa-key
-    api_key_secret_id: cloud-fun-api-key-gsheets-2-bq
-    version_id: latest

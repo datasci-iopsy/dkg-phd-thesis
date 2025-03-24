@@ -1,4 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+cd "$SCRIPT_DIR" # ! <-- THIS IS CRITICAL
+
+# * run the bq deploy script
+echo -e "Now deploying the BigQuery script..."
+source "../bigquery/bq_deploy.sh"
 
 sa_name="dkg-cloud-funs"
 sa_address=$(gcloud iam service-accounts list \
@@ -13,13 +20,13 @@ if [ -z "$sa_address" ]; then
 fi
 
 # * NOTE: function names can use underscores but the respective url will convert to dashes
-fun_name="run_qualtrics_contact_extraction"
+fun_name="run-gsheet-contacts-pipeline"
 region="us-east4"
 project_id=$(gcloud config get project)
 
 # * to see list of runtimes RUN: gcloud functions runtimes list
 runtime="python311"
-entry_point="qualtrics_gsheet_db_handler"
+entry_point="stream_raw_contact_directory"
 memory="512Mi"
 cpu=1
 min_instances=1
@@ -45,8 +52,26 @@ gcloud functions deploy $fun_name \
     --trigger-http \
     --no-allow-unauthenticated
 
-# # # !!! to delete cloud run function RUN:
-# # gcloud functions delete run-qualtrics-contact-pipeline --region=us-east4 --gen2
+job_name="${fun_name}-job"
+cron_sched="*/15 * * * *"
+fun_uri=$(gcloud functions describe $fun_name \
+    --region=$region \
+    --format="value(serviceConfig.uri)")
 
-# # # !!! to delete entire artifact repository RUN:
-# # gcloud artifacts repositories delete gcf-artifacts --location=us-east4
+# echo "Function URI: $function_uri"
+gcloud scheduler jobs create http "${job_name}" \
+    --location=$region \
+    --schedule="$cron_sched" \
+    --http-method=POST \
+    --uri=$fun_uri \
+    --oidc-service-account-email=$sa_address \
+    --oidc-token-audience=$fun_uri
+
+# # !!! to delete cloud run function RUN:
+# gcloud functions delete $fun_name --region=$region --gen2
+
+# # !!! to delete entire artifact repository RUN:
+# gcloud artifacts repositories delete gcf-artifacts --location=$region
+
+# # !!! to delete cloud scheduler job RUN:
+# gcloud scheduler jobs delete run_gsheet_contacts_pipeline_job --location=$region
