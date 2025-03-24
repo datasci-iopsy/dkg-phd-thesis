@@ -4,4 +4,4 @@
 .python-version
 *.ipynb
 *.http
-*.js
+*.sh
