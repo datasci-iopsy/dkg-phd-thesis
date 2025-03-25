@@ -5,7 +5,7 @@ cd "$SCRIPT_DIR" # ! <-- THIS IS CRITICAL
 
 # * run the bq deploy script
 echo -e "Now deploying the BigQuery script..."
-source "../bigquery/bq_deploy.sh"
+source "$SCRIPT_DIR/bigquery/bq_deploy.sh"
 
 sa_name="dkg-cloud-funs"
 sa_address=$(gcloud iam service-accounts list \
@@ -27,6 +27,7 @@ project_id=$(gcloud config get project)
 # * to see list of runtimes RUN: gcloud functions runtimes list
 runtime="python311"
 entry_point="stream_raw_contact_directory"
+source="cloud_run_functions"
 memory="512Mi"
 cpu=1
 min_instances=1
@@ -43,6 +44,7 @@ gcloud functions deploy $fun_name \
     --region=$region \
     --runtime=$runtime \
     --entry-point=$entry_point \
+    --source=$source \
     --memory=$memory \
     --cpu=$cpu \
     --min-instances=$min_instances \
@@ -58,7 +60,8 @@ fun_uri=$(gcloud functions describe $fun_name \
     --region=$region \
     --format="value(serviceConfig.uri)")
 
-# echo "Function URI: $function_uri"
+# # echo "Function URI: $function_uri"
+
 gcloud scheduler jobs create http "${job_name}" \
     --location=$region \
     --schedule="$cron_sched" \
@@ -66,12 +69,3 @@ gcloud scheduler jobs create http "${job_name}" \
     --uri=$fun_uri \
     --oidc-service-account-email=$sa_address \
     --oidc-token-audience=$fun_uri
-
-# # !!! to delete cloud run function RUN:
-# gcloud functions delete $fun_name --region=$region --gen2
-
-# # !!! to delete entire artifact repository RUN:
-# gcloud artifacts repositories delete gcf-artifacts --location=$region
-
-# # !!! to delete cloud scheduler job RUN:
-# gcloud scheduler jobs delete run_gsheet_contacts_pipeline_job --location=$region

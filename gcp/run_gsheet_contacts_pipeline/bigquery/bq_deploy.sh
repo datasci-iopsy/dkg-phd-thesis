@@ -5,8 +5,7 @@
 set -euo pipefail
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-pushd "$SCRIPT_DIR" >/dev/null
-# cd "$SCRIPT_DIR" # ! <-- THIS IS CRITICAL
+pushd "$SCRIPT_DIR" >/dev/null # ! <-- THIS IS CRITICAL
 
 # Configuration
 declare DATASET="qualtrics_db"
@@ -56,7 +55,7 @@ for table in "${!TABLES[@]}"; do
     else
         if [[ $output == *"already exists"* ]]; then
             log_warning "Table $table already exists - skipping"
-            bq show --schema --format=prettyjson ${PROJECT_ID}:${DATASET}.${table}
+            # bq show --schema --format=prettyjson ${PROJECT_ID}:${DATASET}.${table}
         else
             log_error "Failed to create table $table: $output"
         fi
