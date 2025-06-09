@@ -110,7 +110,7 @@ Response Anchors: Agreement-based
 
 #### Marker Variable
 
-Attitude Toward the Color Blue ([*ATCB; Miller et al., 2024](https://pubmed.ncbi.nlm.nih.gov/39009822/); [Miller & Simmering, 2023*](https://journals.sagepub.com/doi/abs/10.1177/10944281221075361))
+Attitude Toward the Color Blue ([*ATCB; Miller et al., 2024*](https://pubmed.ncbi.nlm.nih.gov/39009822/); [*Miller & Simmering, 2023*](https://journals.sagepub.com/doi/abs/10.1177/10944281221075361))
 
 *{Timepoint-stem}*, indicate the extent to which you agree or disagree with the following statements.
 
