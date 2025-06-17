@@ -1,4 +1,4 @@
-# "If you only knew the power of the dark side:" Examining fluctuations in psychological need frustration, burnout, and turnover intentions over the course of a workday.
+# “If You Only Knew the Power of the Dark Side”: Examining Within-Person Fluctuation in Psychological Need Frustration, Burnout, and Turnover Intentions over the Course of a Workday.
 
 By: Demetrius K. Green
 
@@ -354,3 +354,7 @@ The sample is likely WEIRD (Western, Educated, Industrialized, Rich, Democratic)
 Latent mean centering is recognized as a superior technique for disentangling fixed and random effects. However, implementing this approach in R presented significant challenges. A Bayesian framework may offer a more robust alternative by modeling means as distributions, thereby directly accounting for uncertainty in the estimates (see *Hamaker & Muthén, 2020*).
 
 Need satisfaction and need frustration are known to predict positive and negative outcomes differentially. This study focuses specifically on need thwarting or frustration, thereby capturing only one aspect of the broader dynamic. Future research should aim to provide a more balanced perspective by examining both need satisfaction and frustration.
+
+Perhaps there is a curvilinear (i.e., quadratic) trend in turnover intentions across the measurement occasions for which the present study did not account.
+
+The sample size is too small to test the moderating relationships in a single model; in fact, some of the global constructs might have to be used due to power issues. Separate models will most likely have to be tested to get an understanding of the phenomena. 
