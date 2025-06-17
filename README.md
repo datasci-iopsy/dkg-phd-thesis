@@ -358,6 +358,8 @@ Need satisfaction and need frustration are known to predict positive and negativ
 
 Only a general correlation structure was used in estimating the model parameters. This is a longitudinal study and thus most likely best suited for an autoregressive correlation structure. Sample size restrictions may impact the calculation of an autoregressive correlation structure so this is just a limitation of the study design.
 
+Only a general correlation structure was used in estimating the model parameters. This is a longitudinal study and thus most likely best suited for an autoregressive correlation structure. Sample size restrictions may impact the calculation of an autoregressive correlation structure so this is just a limitation of the study design.
+
 Perhaps there is a curvilinear (i.e., quadratic) trend in turnover intentions across the measurement occasions for which the present study did not account.
 
 The sample size is too small to test the moderating relationships in a single model; in fact, some of the global constructs might have to be used due to power issues. Separate models will most likely have to be tested to get an understanding of the phenomena. 
