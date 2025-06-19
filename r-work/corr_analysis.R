@@ -66,3 +66,10 @@ rmcorr::rmcorr_mat(
     CI.level = 0.95
 ) -> rmc_mat
 rmc_mat
+
+corrplot::corrplot(rmc_mat$matrix, type = "lower", addCoef.col = "black")
+
+corr_graphs <- list()
+map(rmc_mat$models, function(.x) {
+    plot(.x)
+}) -> corr_graphs
