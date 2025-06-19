@@ -1,18 +1,12 @@
 library(easystats)
-library(haven)
-library(here)
+# library(ggeffects) # masks modelbased::pool_predicts; easystats::install_latest
+library(glmmTMB) # todo: determine if necessary; https://glmmtmb.r-universe.dev/glmmTMB
+library(modelsummary)
 library(lme4) # masks tidyr::expand, pack, unpack
 library(lmerTest) # masks lme4::lmer; stats::step
-library(modelsummary) # masks parameters::supported_models; insight::supported_models
-library(patchwork)
-library(tidyverse)
-library(tinytable)
-library(rmcorr)
-library(sjPlot)
-library(summarytools) # masks tibble::view
-# library(glmmTMB) # todo: determine if necessary; https://glmmtmb.r-universe.dev/glmmTMB
-# library(ggeffects) # masks modelbased::pool_predicts; easystats::install_latest
 # library(marginaleffects)
+library(sjPlot)
+library(tidyverse)
 
 # options for script
 options(tibble.width = Inf)
@@ -20,128 +14,15 @@ options(tibble.width = Inf)
 # proj root; build paths from here ;)
 here::here()
 
-# * data load & prep
-haven::read_sav(file = here::here("CurranLong.sav")) %>%
-    tibble::tibble() %>%
-    dplyr::mutate(
-        id = as.character(id),
-        kidgen = factor(if_else(kidgen == 0, "Female", "Male"))
-        # occasion_fct = factor(occasion) # // necessary for glmmTMB
-    ) %>%
-    # create person/group means; review centering by Lesa Hoffman:
-    # https://www.lesahoffman.com/PSYC944/944_Lecture09_TVPredictors_Fluctuation.pdf
-    dplyr::group_by(id) %>%
-    dplyr::mutate(
-        # group means
-        momage_grp_mean = mean(momage, na.rm = TRUE),
-        kidage_grp_mean = mean(kidage, na.rm = TRUE),
-        homecog_grp_mean = mean(homecog, na.rm = TRUE),
-        homeemo_grp_mean = mean(homeemo, na.rm = TRUE),
-        # occasion_grp_mean = mean(occasion, na.rm = TRUE),
-        anti_grp_mean = mean(anti, na.rm = TRUE),
-        read_grp_mean = mean(read, na.rm = TRUE),
-        kidagetv_grp_mean = mean(kidagetv, na.rm = TRUE),
+file_names <- c("df_processed", "df_lvl_1_vars", "df_lvl_1_grp_mean_vars", "df_lvl_2_vars")
+tbls <- list()
 
-        # group mean centering
-        # occasion_wpc = occasion - occasion_grp_mean,
-        kidagetv_wpc = kidagetv - kidagetv_grp_mean,
-        read_wpc = read - read_grp_mean
-    ) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(
-        # grand mean centering
-        occasion_gmc = occasion - mean(occasion, na.rm = TRUE),
-        momage_gmc = momage - mean(momage, na.rm = TRUE),
-        homecog_gmc = homecog - mean(homecog, na.rm = TRUE),
-        homeemo_gmc = homeemo - mean(homeemo, na.rm = TRUE)
-    ) -> dat
+# * data load
+purrr::map(file_names, function(.x) {
+    readr::read_csv(here::here("r-work", paste0(.x, ".csv")))
+}) %>%
+    purrr::set_names(file_names) -> tbls
 
-# write data to file
-readr::write_csv(dat, file = here::here("CurranLong_clean.csv"))
-
-# quick views of data
-dplyr::glimpse(dat)
-modelsummary::datasummary_skim(dat)
-
-# # add'l data exploration views of data
-# dat %>%
-#     dplyr::select(!id) %>%
-#     summarytools::dfSummary() %>%
-#     summarytools::stview()
-
-# dat %>%
-#     dplyr::select(!id) %>%
-#     summarytools::descr() %>%
-#     summarytools::stview()
-
-# dat %>%
-#     dplyr::select(where(is.factor)) %>%
-#     summarytools::freq() %>%
-#     summarytools::stview()
-
-# extract variables used in study (sans transformations)
-dat %>%
-    dplyr::select(
-        id,
-        occasion,
-        momage,
-        homecog,
-        homeemo,
-        kidagetv,
-        anti,
-        read
-    ) -> init_vars
-
-# review correlations
-dat %>%
-    dplyr::select(
-        momage_gmc,
-        homecog_gmc,
-        homeemo_gmc,
-        occasion,
-        anti,
-        read
-    )
-modelsummary::datasummary_correlation(init_vars[, -1]) # occasion & kidagetv r = .96 or 92% shared variance
-
-# ! repeated measures violate the independence assumption; try alt approach
-init_vars %>%
-    dplyr::select(occasion, anti, read, kidagetv) -> rmcorr_vars
-
-print(round(rmcorr_mat, 3))
-rmcorr::rmcorr_mat(
-    participant = init_vars$id,
-    variables = c(
-        # "momage",
-        # "homecog",
-        # "homeemo",
-        "occasion",
-        "anti",
-        "read",
-        "kidagetv"
-    ),
-    dataset = init_vars,
-    CI.level = 0.95
-) -> rmc_mat
-rmc_mat
-
-map(rmc_mat$models, function(x) {
-    plot(x)
-})
-
-# extract variables of interest
-dat %>%
-    dplyr::select(
-        id,
-        occasion,
-        kidgen,
-        momage_gmc,
-        homecog_gmc,
-        homeemo_gmc,
-        read_grp_mean,
-        read_wpc,
-        anti
-    ) -> mod_vars
 
 # quick viz
 ggplot2::ggplot(data = dat, aes(x = occasion, y = anti, group = id)) +
@@ -337,13 +218,6 @@ ggplot(dat, aes(x = kidgen, y = anti)) +
 # dat %>% dplyr::filter(across(all_of(names(.), !is.na()))
 # # pred_ri_rs <- modelbased::estimate_expectation(mod)
 
-
-
-
-
-
-
-
 # Plot group-level effects
 ggplot2::ggplot(re, aes(x = Level, y = Coefficient, colour = Parameter)) +
     geom_point() +
@@ -353,73 +227,3 @@ ggplot2::ggplot(re, aes(x = Level, y = Coefficient, colour = Parameter)) +
         x = "Child ID", y = "Deviation from Fixed Effect",
         title = "Random Intercepts and Slopes by Child"
     )
-
-
-# !!!!!!!
-
-
-
-
-
-
-
-
-# # # Create a simulated dataset based on your design
-# # load(url("https://github.com/m-clark/mixed-models-with-R/raw/master/data/gpa.RData?raw=true"))
-# # head(gpa)
-# # summary(gpa)
-# # set.seed(123)  # For reproducibility
-
-# # summary(mod_0_anti)
-# # summary(mixed_2a)
-# # performance::compare_performance(mod_0_anti, mod_0_read, mod_ri_fs_01, mod_ri_rs_01)
-
-# # parameters::parameters(model = mixed_2a)
-# # summary(mixed_2a)
-# # performance::model_performance(mixed_2a)
-
-# # performance::icc(mixed_null)
-# # summary(mixed_init)
-
-# # # Define parameters
-# # n_subjects <- 500 # Number of subjects
-# # n_timepoints <- 3 # Number of timepoints per subject
-# # effect_size <- 0.4 # Medium effect size
-# # sigma_subject <- 1.0 # Between-subject standard deviation
-# # sigma_error <- 1.0 # Within-subject standard deviation
-
-# # # Create data frame
-# # subject_id <- rep(1:n_subjects, each = n_timepoints)
-# # time <- rep(0:(n_timepoints - 1), times = n_subjects)
-# # df <- data.frame(subject_id = factor(subject_id), time = time)
-
-# # # Simulate random effects
-# # b0 <- rnorm(n_subjects, 2.4, sigma_subject) # Random intercepts
-# # b1 <- rnorm(n_subjects, 0, sigma_subject * 0.2) # Random slopes
-
-# # # Calculate expected values and add noise
-# # df$y <- rep(b0, each = n_timepoints) + time * effect_size + rep(b1, each = n_timepoints) * time + rnorm(n_subjects * n_timepoints, 0, sigma_error)
-
-# # # Fit the model
-# # model <- lmer(y ~ time + (1 + time | subject_id), data = df)
-# # summary(model)
-
-# # # Perform power analysis
-# # # For the fixed effect of time
-# # time_power <- powerSim(model, nsim = 200, test = fixed("time"))
-# # print(time_power)
-
-# # # Create a power curve for different sample sizes
-# # pc <- powerCurve(model, along = "subject_id", breaks = c(10, 20, 30, 40, 50, 60, 70, 80), nsim = 100)
-# # plot(pc)
-
-# # # You can also extend the model to test different effect sizes
-# # model_small <- model
-# # fixef(model_small)["time"] <- 0.2 # Set to small effect size
-# # power_small <- powerSim(model_small, nsim = 200, test = fixed("time"))
-# # print(power_small)
-
-# # model_large <- model
-# # fixef(model_large)["time"] <- 0.6 # Set to large effect size
-# # power_large <- powerSim(model_large, nsim = 200, test = fixed("time"))
-# # print(power_large)
