@@ -10,8 +10,12 @@ options(tibble.width = Inf)
 # proj root; build paths from here ;)
 here::here()
 
+file_name <- "claude-syn-data-raw-v2.csv"
+# file_name <- "claude-syn-data-raw-v3.csv"
+
 # * data load from file
-readr::read_csv(file = here::here("r-work/claude-syn-data-raw.csv")) -> df_raw
+# readr::read_csv(file = here::here("r-work/claude-syn-data-raw.csv")) -> df_raw
+readr::read_csv(file = here::here("r-work/", file_name)) -> df_raw
 dplyr::glimpse(df_raw)
 
 # * create empty list for tables
@@ -112,6 +116,8 @@ tbls$df_processed %>%
     ) %>%
     dplyr::distinct() -> tbls[["df_lvl_2_vars"]]
 
+dplyr::glimpse(tbls$df_lvl_2_vars)
+
 # tbls$df_lvl_2_vars %>%
 #     summarytools::dfSummary() %>%
 #     summarytools::stview()
@@ -143,6 +149,8 @@ tbls$df_processed %>%
         turnover_int
     ) -> tbls[["df_lvl_1_vars"]]
 
+dplyr::glimpse(tbls$df_lvl_1_vars)
+
 # tbls$df_lvl_1_vars %>%
 #     summarytools::dfSummary() %>%
 #     summarytools::stview()
@@ -151,12 +159,27 @@ tbls$df_processed %>%
 #     summarytools::descr() %>%
 #     summarytools::stview()
 
-# * level 1 variables with group means
+# * level 1 variables
 tbls$df_processed %>%
     dplyr::select(
         id,
         time,
         time_fct,
+        pa_gmc,
+        na_gmc,
+        pcb_gmc,
+        pcv_gmc,
+        job_sat_gmc,
+        burn_pf_gmc,
+        burn_cw_gmc,
+        burn_ee_gmc,
+        nf_comp_gmc,
+        nf_auto_gmc,
+        nf_rel_gmc,
+        atcb_gmc,
+        n_meetings_gmc,
+        min_meetings_gmc,
+        turnover_int_gmc,
         burn_pf_grp_mean,
         burn_cw_grp_mean,
         burn_ee_grp_mean,
@@ -166,8 +189,36 @@ tbls$df_processed %>%
         atcb_grp_mean,
         n_meetings_grp_mean,
         min_meetings_grp_mean,
+        turnover_int_grp_mean
+    ) -> tbls[["df_cent_vars"]]
+
+# * item-level items
+tbls$df_processed %>%
+    dplyr::select(
+        id,
+        pa_1:pa_5,
+        na_1:na_5,
+        pcb_1:pcb_5,
+        pcv_1:pcv_4,
+        job_sat,
+        pf_1:pf_6,
+        cw_1:cw_5,
+        ee_1:ee_3,
+        nf_comp_1:nf_comp_4,
+        nf_auto_1:nf_auto_4,
+        nf_rel_1:nf_rel_4,
+        blue_1:blue_4,
         turnover_int
-    ) -> tbls[["df_lvl_1_grp_mean_vars"]]
+    ) -> tbls[["df_item_lvl_vars"]]
+
+dplyr::glimpse(tbls$df_item_lvl_vars)
+
+# tbls$df_item_lvl_vars %>%
+#     summarytools::dfSummary() %>%
+#     summarytools::stview()
+
+# * save list of tables to an R object
+saveRDS(tbls, file = here::here("r-work", "tbls_ls.rds"))
 
 # * download files
 purrr::iwalk(tbls, function(.x, .y) {

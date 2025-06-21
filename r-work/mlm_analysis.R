@@ -14,21 +14,21 @@ options(tibble.width = Inf)
 # proj root; build paths from here ;)
 here::here()
 
-file_names <- c("df_processed", "df_lvl_1_vars", "df_lvl_1_grp_mean_vars", "df_lvl_2_vars")
+# list of tables
 tbls <- list()
 
-# * data load
-purrr::map(file_names, function(.x) {
-    readr::read_csv(here::here("r-work", paste0(.x, ".csv")))
-}) %>%
-    purrr::set_names(file_names) -> tbls
+# list of tables
+tbls <- readRDS(file = here::here("r-work", "tbls_ls.rds"))
 
+# # full data
+# tbls$df_lvl_2_vars %>%
+#     dplyr::inner_join(tbls$df_lvl_1_vars, by = "id")
 
 # quick viz
-ggplot2::ggplot(data = dat, aes(x = occasion, y = anti, group = id)) +
+ggplot2::ggplot(data = dat, aes(x = time, y = turnover_int, group = id)) +
     geom_line() +
     geom_smooth(
-        aes(group = kidgen, color = kidgen),
+        aes(group = edu, color = kidgen),
         method = "lm", se = FALSE, linewidth = 1
     ) -> p1
 
