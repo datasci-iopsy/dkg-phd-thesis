@@ -1,11 +1,15 @@
 library(easystats)
 # library(ggeffects) # masks modelbased::pool_predicts; easystats::install_latest
-library(glmmTMB) # todo: determine if necessary; https://glmmtmb.r-universe.dev/glmmTMB
-library(modelsummary)
-library(lme4) # masks tidyr::expand, pack, unpack
+library(ggplot2)
+# library(glmmTMB) # todo: determine if necessary; https://glmmtmb.r-universe.dev/glmmTMB
+library(modelsummary) # masks parameters::supported_models; insights::supported_models
+library(multilevelmod) # masks insight::null_model
+library(nlme)
+library(lme4) # masks nlme::lmList
 library(lmerTest) # masks lme4::lmer; stats::step
 # library(marginaleffects)
 library(sjPlot)
+library(tidymodels)
 library(tidyverse)
 
 # options for script
@@ -15,215 +19,240 @@ options(tibble.width = Inf)
 here::here()
 
 # list of tables
-tbls <- list()
+list() -> tbl_ls
 
 # list of tables
-tbls <- readRDS(file = here::here("r-work", "tbls_ls.rds"))
+readRDS(file = here::here("r-work", "tbls_ls.rds")) -> tbl_ls
 
-# # full data
-# tbls$df_lvl_2_vars %>%
-#     dplyr::inner_join(tbls$df_lvl_1_vars, by = "id")
+# full data
+tbl_ls$df_lvl_1_vars %>%
+    dplyr::left_join(tbl_ls$df_lvl_2_vars, by = "id") |>
+    dplyr::inner_join(tbl_ls$df_cent_vars, by = c("id", "time", "time_fct")) -> dat
 
-# quick viz
-ggplot2::ggplot(data = dat, aes(x = time, y = turnover_int, group = id)) +
-    geom_line() +
-    geom_smooth(
-        aes(group = edu, color = kidgen),
-        method = "lm", se = FALSE, linewidth = 1
-    ) -> p1
+# quick review of dataframe
+dplyr::glimpse(dat)
 
-ggplot2::ggplot(data = dat, aes(x = occasion, y = read, group = id)) +
-    geom_line() +
-    geom_smooth(
-        aes(group = kidgen, color = kidgen),
-        method = "lm", se = FALSE, linewidth = 1
-    ) -> p2
+# # quick viz
+# dat %>%
+#     # group_by(id) %>%
+#     # dplyr::slice_sample(n = 10) %>%
+#     dplyr::filter(id %in% sample(id, size = 50)) %>%
+#     ggplot2::ggplot(aes(x = time_fct, y = nf_comp_score, group = id)) +
+#     ggplot2::geom_point() +
+#     ggplot2::geom_line()
+# # geom_smooth(
+# #     aes(group = job_tenure, color = job_tenure),
+# #     method = "lm", se = FALSE, linewidth = 1
+# # ) #-> p1
 
-patchwork::wrap_plots(p1, p2)
+# ggplot2::ggplot(data = dat, aes(x = time, y = turnover_int, group = id)) +
+#     geom_line() +
+#     geom_point()
+# # geom_smooth(
+# #     aes(group = id, color = kidgen),
+# #     method = "lm", se = FALSE, linewidth = 1
+# # ) #-> p2
 
-# * mixed modeling
-list() -> mod_ls # list to hold models
+# patchwork::wrap_plots(p1, p2)
 
-# null/empty models
-lmerTest::lmer(anti ~ 1 + (1 | id), data = dat, REML = FALSE) -> mod_null_anti
-lmerTest::lmer(read ~ 1 + (1 | id), data = dat, REML = FALSE) -> mod_null_read
+# * list comprising modeling specifications
+list() -> mod_spec_ls
 
+# null model specs
+parsnip::linear_reg() %>%
+    parsnip::set_engine(
+        engine = "lme",
+        random = ~ 1 | id,
+        correlation = NULL,
+        method = "ML"
+        # control = lmeControl(
+        #     maxIter = 1000,
+        #     msMaxIter = 1000,
+        #     tolerance = 1e-6,
+        #     niterEM = 50,
+        #     opt = "optim",
+        #     optimMethod = "L-BFGS-B",
+        # )
+    ) -> mod_spec_ls[["lme_fix_slp_un"]]
 
-# # todo: determine if specified cor structure is necessary
-# glmmTMB::glmmTMB(anti ~ 1 + (1 | id), data = dat, family = gaussian(), REML = FALSE)
-# specify cor structure:
-# review: https://padme.arising.com.au:3004/node-repository/CRAN/web/packages/glmmTMB/vignettes/covstruct.html
-# review: https://glmmtmb.r-universe.dev/articles/glmmTMB/covstruct.html
-# glmmTMB::glmmTMB(anti ~ 1 + (1 | id) + ar1(occasion_fct + 0 | id), data = dat, family = gaussian(), REML = FALSE)
+parsnip::linear_reg() %>%
+    parsnip::set_engine(
+        engine = "lme",
+        random = ~ 1 | id,
+        correlation = corAR1(form = ~ 1 | id),
+        method = "ML"
+        # control = lmeControl(
+        #     maxIter = 1000,
+        #     msMaxIter = 1000,
+        #     tolerance = 1e-6,
+        #     niterEM = 50,
+        #     opt = "optim",
+        #     optimMethod = "L-BFGS-B"
+        # )
+    ) -> mod_spec_ls[["lme_fix_slp_ar1"]]
 
-# determine if mlm is necessary
-purrr::map(list(mod_null_anti, mod_null_read), function(x) {
-    performance::icc(x)
-}) # 48.1% of variability in anti between ids; 11.1% of variability in read between ids
+parsnip::linear_reg() %>%
+    parsnip::set_engine(
+        engine = "lme",
+        random = ~ 1 | id,
+        correlation = corSymm(form = ~ 1 | id),
+        method = "ML"
+        # control = lmeControl(
+        #     maxIter = 1000,
+        #     msMaxIter = 1000,
+        #     tolerance = 1e-6,
+        #     niterEM = 50,
+        #     opt = "optim",
+        #     optimMethod = "L-BFGS-B"
+        # )
+    ) -> mod_spec_ls[["lme_fix_slp_symm"]]
 
-
-# random intercepts, fixed slopes
-lmerTest::lmer(
-    anti ~ occasion + (1 | id),
-    data = mod_vars,
-    REML = FALSE,
-    lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e5))
-) -> mod_ls[["ri_fs_time"]]
-
-# random intercepts, random slopes
-lmerTest::lmer(
-    anti ~ occasion + (1 + occasion | id),
-    data = mod_vars,
-    REML = FALSE,
-    lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e5))
-) -> mod_ls[["ri_rs_time"]]
-
-# random intercepts, fixed slopes models but different codings of time; full
-lmerTest::lmer(
-    anti ~ occasion + read_wpc +
-        read_grp_mean + kidgen + momage_gmc + homecog_gmc + homeemo_gmc +
-        (1 | id),
-    data = dat,
-    REML = FALSE,
-    lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e5))
-) -> mod_ls[["ri_fs_full"]]
-
-# random intercepts, random slopes models but different codings of time; full
-lmerTest::lmer(
-    anti ~ occasion + read_wpc +
-        read_grp_mean + kidgen + momage_gmc + homecog_gmc + homeemo_gmc +
-        (1 + occasion | id),
-    data = dat,
-    REML = FALSE,
-    lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e5))
-) -> mod_ls[["ri_rs_full"]]
-
-performance::compare_performance(mod_ls)
-
-sjPlot::plot_model(mod_ls$ri_rs_time)
-sjPlot::plot_model(mod_ls$ri_rs_full)
-
-sjPlot::tab_model(mod_ls) # p.style = "stars")
-
-purrr::map(mod_ls, function(x) {
-    performance::check_model(x)
+# * check required packages for model specifications
+lapply(mod_spec_ls, function(.x) {
+    parsnip::required_pkgs(.x)
 })
 
-modelsummary::modelsummary(mod_ls$ri_rs_full, output = "tinytable")
-anova(mod_ls$ri_rs_time, mod_ls$ri_rs_full)
+#* list comprising sets of variable names
+list() -> var_name_ls
 
-# https://modelsummary.com
-# https://tilburgsciencehub.com/topics/visualization/data-visualization/regression-results/model-summary/
-modelsummary::modelsummary(
-    list(
-        "Null" = mod_0_anti,
-        "Fixed Slopes" = mod_randint_fixsl,
-        "Random Slopes" = mod_randint_randsl
-    ),
-    output = "tinytable",
-    stars = TRUE,
-    estimate = "{estimate}",
-    statistic = "{p.value} [{conf.low}, {conf.high}]",
-    fmt = 2
-)
+# list comprising time-varying scale scores
+names(dat) %>%
+    stringr::str_subset("^((burn|nf|atcb).*score|turnover_int)$") -> var_name_ls[["lvl_1_scale_scores"]]
 
-# https://strengejacke.github.io/sjPlot/articles/tab_mixed.html
-sjPlot::tab_model(mod_0_anti, mod_randint_fixsl, mod_randint_randsl, p.style = "stars")
-sjPlot::plot_model(mod_randint_randsl)
-sjPlot::plot_model(mod_randint_randsl, type = "pred", terms = c("occasion_gmc [all]", "kidgen"))
+# list comprising group means for level 1 variables
+names(dat) %>%
+    stringr::str_subset("grp") -> var_name_ls[["lvl_1_grp_means"]]
 
-# broom.mixed::tidy(mod_randint_randsl)
+# list comprising time-varying group mean centered variables
+names(dat) %>%
+    stringr::str_subset("pmc") -> var_name_ls[["lvl_1_pmc_vars"]]
 
-purrr::map(
-    list(
-        "null" = mod_0_anti,
-        "random intercepts, fixed slopes" = mod_randint_fixsl,
-        "random intercepts, random slopes" = mod_randint_randsl
-    ), function(x) {
-        performance::check_model(x)
-    }
-)
+# list comprising time-invariant grand mean centered variables
+names(dat) %>%
+    stringr::str_subset("^(pa|na|pcb|pcv|job_sat)_gmc$") -> var_name_ls[["lvl_2_gmc_vars"]]
 
-performance::compare_performance(
-    mod_0_anti,
-    glmm_mod_0_anti,
-    mod_randint_fixsl,
-    mod_randint_randsl,
-    metrics = "all"
-    # rank = TRUE
-)
+# * mixed modeling list
+list() -> mod_fit_ls # list to hold models
 
-mod <- mod_randint_randsl
-# # 1. Predicted antisocial behavior across occasions
-# pred_time <- predict_response(mod, terms = "occasion [all]")
+purrr::set_names(var_name_ls$lvl_1_scale_scores) %>%
+    lapply(., function(.x) {
+        mod_spec_ls$lme_fix_slp_un %>%
+            parsnip::fit(as.formula(paste(.x, " ~ 1")), data = dat) %>%
+            parsnip::extract_fit_engine()
+    }) -> mod_fit_ls[["null"]][["lme_fix_slp_un"]]
 
-# # 2. Predicted effects of emotional support (homeemo)
-# pred_emo <- predict_response(mod, terms = "homeemo_between")
+purrr::set_names(var_name_ls$lvl_1_scale_scores) %>%
+    lapply(., function(.x) {
+        mod_spec_ls$lme_fix_slp_ar1 %>%
+            parsnip::fit(as.formula(paste(.x, " ~ 1")), data = dat) %>%
+            parsnip::extract_fit_engine()
+    }) -> mod_fit_ls[["null"]][["lme_fix_slp_ar1"]]
 
-# # 3. Predicted occasion effect by child gender
-# pred_time_gender <- predict_response(mod, terms = c("occasion [all]", "kidgen"))
+purrr::set_names(var_name_ls$lvl_1_scale_scores) %>%
+    lapply(., function(.x) {
+        mod_spec_ls$lme_fix_slp_symm %>%
+            parsnip::fit(as.formula(paste(.x, " ~ 1")), data = dat) %>%
+            parsnip::extract_fit_engine()
+    }) -> mod_fit_ls[["null"]][["lme_fix_slp_symm"]]
 
-# p1 <- plot(pred_time) +
-#     labs(x = "Measurement Occasion", y = "Predicted Antisocial Score")
+# lapply(mod_fit_ls$null_lme_fix_slp_un, function(.x) {
+#     performance::check_model(.x)
+# })
 
-# p2 <- plot(pred_emo) +
-#     labs(x = "Emotional Support", y = "Predicted Antisocial Score")
+# lapply(mod_fit_ls$null_lme_rand_slp_ar1, function(.x) {
+#     performance::check_model(.x)
+# })
 
-# p3 <- plot(pred_time_gender) +
-#     labs(x = "Occasion", colour = "Gender") +
-#     ggtitle("Occasion Effect by Gender")
+list() -> icc_ls
 
-# p1 + p2 + p3
-
-# Estimate random intercepts and slopes by child
-re <- estimate_grouplevel(mod)
-
-# View first rows
-head(re)
-
-kidgen_means <- modelbased::estimate_means(mod, by = "kidgen")
-plot(kidgen_means)
-
-ggplot(dat, aes(x = kidgen, y = anti)) +
-    # Add base data
-    geom_violin(aes(fill = kidgen), color = "white") +
-    geom_jitter(width = 0.1, height = 0, alpha = 0.5, size = 3) +
-    # Add pointrange and line for means
-    geom_line(data = kidgen_means, aes(y = Mean, group = 1), linewidth = 1) +
-    geom_pointrange(
-        data = kidgen_means,
-        aes(y = Mean, ymin = CI_low, ymax = CI_high),
-        size = 1,
-        color = "white"
-    ) +
-    # Improve colors
-    scale_fill_manual(values = c("pink", "lightblue")) +
-    theme_minimal()
+lapply(mod_fit_ls$null$lme_fix_slp_un, function(.x) {
+    performance::icc(.x)
+}) -> icc_ls[["lme_fix_slp_un"]]
 
 
-# kidgen_contrasts <- estimate_contrasts(mod, contrast = "kidgen")
-# kidgen_contrasts
-# plot(kidgen_contrasts, kidgen_means)
+lapply(mod_fit_ls$null$lme_fix_slp_ar1, function(.x) {
+    performance::icc(.x)
+}) -> icc_ls[["lme_rand_slp_ar1"]]
 
+lapply(mod_fit_ls$null$lme_fix_slp_symm, function(.x) {
+    performance::icc(.x)
+}) -> icc_ls[["lme_rand_slp_symm"]]
 
-# modelbased::estimate_expectation(mod) %>% glimpse()
+# * long format iccs
+imap_dfr(icc_ls, function(model_results, model_name) {
+    imap_dfr(model_results, function(icc_result, variable_name) {
+        data.frame(
+            mod_name = model_name,
+            var_name = variable_name,
+            adj_icc = icc_result$ICC_adjusted, # Adjust based on actual object structure
+            unadj_icc = icc_result$ICC_unadjusted, # Adjust based on actual object structure
+            stringsAsFactors = FALSE
+        )
+    })
+}) -> icc_df
+icc_df
 
-# preds <- dat  %>%
-# tidyr::drop_na()  %>%
-# bind_cols(modelbased::estimate_expectation(mod))
+# * icc graph
+icc_df %>%
+    ggplot2::ggplot(aes(
+        x = var_name,
+        y = adj_icc,
+        fill = mod_name,
+        group = mod_name,
+        color = mod_name
+    )) +
+    # ggplot2::geom_col(position = "dodge")
+    ggplot2::geom_point() +
+    ggplot2::geom_segment(aes(x = var_name, xend = var_name, y = 0, yend = adj_icc))
 
-# # preds pred_ri_fs <- modelbased::estimate_expectation(mod) %>%
-# #     dplyr::bind_cols(filter(!is.na(dat, anti)))
+# # // wide format
+# map_dfr(names(icc_ls$lme_fix_slp_un), function(var_name) {
+#     data.frame(
+#         variable = var_name,
+#         fix_slp_adjusted = icc_ls$lme_fix_slp_un[[var_name]]$ICC_adjusted,
+#         fix_slp_unadjusted = icc_ls$lme_fix_slp_un[[var_name]]$ICC_unadjusted,
+#         rand_slp_adjusted = icc_ls$lme_rand_slp_ar1[[var_name]]$ICC_adjusted,
+#         rand_slp_unadjusted = icc_ls$lme_rand_slp_ar1[[var_name]]$ICC_unadjusted,
+#         stringsAsFactors = FALSE
+#     )
+# })
 
-# dat %>% dplyr::filter(across(all_of(names(.), !is.na()))
-# # pred_ri_rs <- modelbased::estimate_expectation(mod)
-
-# Plot group-level effects
-ggplot2::ggplot(re, aes(x = Level, y = Coefficient, colour = Parameter)) +
-    geom_point() +
-    # geom_errorbar(aes(ymin = `95% CI low`, ymax = `95% CI high`), width = 0.2) +
-    facet_wrap(~Parameter, scales = "free_y") +
-    labs(
-        x = "Child ID", y = "Deviation from Fixed Effect",
-        title = "Random Intercepts and Slopes by Child"
+# * output summary table
+# sjPlot::tab_model(mod_fit_ls$null$lme_fix_slp_un$turnover_int)
+lapply(set_names(var_name_ls$lvl_1_scale_scores), function(.x) {
+    modelsummary::modelsummary(
+        list(
+            mod_fit_ls$null$lme_fix_slp_un[[.x]],
+            mod_fit_ls$null$lme_fix_slp_ar1[[.x]],
+            mod_fit_ls$null$lme_fix_slp_symm[[.x]]
+        ),
+        output = "tinytable"
     )
+})
+
+anova(
+    mod_fit_ls$null$lme_fix_slp_un$turnover_int,
+    mod_fit_ls$null$lme_fix_slp_ar1$turnover_int,
+    mod_fit_ls$null$lme_fix_slp_symm$turnover_int
+)
+
+nlme::lme(
+    turnover_int ~ time + burn_pf_pmc + burn_cw_pmc + burn_ee_pmc +
+        nf_comp_pmc + nf_auto_pmc + nf_rel_pmc + n_meetings_pmc +
+        burn_pf_grp_mean + burn_cw_grp_mean + burn_ee_grp_mean +
+        nf_comp_grp_mean + nf_auto_grp_mean + nf_rel_grp_mean + n_meetings_grp_mean,
+    random = ~ 1 | id,
+    correlation = NULL,
+    # correlation = corAR1(form = ~ 1 | id),
+    method = "ML",
+    data = dat,
+    control = lmeControl(
+        maxIter = 1000,
+        msMaxIter = 1000,
+        tolerance = 1e-6,
+        niterEM = 50,
+        opt = "nlminb",
+        # optimMethod = "L-BFGS-B"
+    )
+) -> x
+summary(x)
