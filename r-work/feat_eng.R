@@ -189,7 +189,17 @@ tbls$df_processed %>%
         atcb_grp_mean,
         n_meetings_grp_mean,
         min_meetings_grp_mean,
-        turnover_int_grp_mean
+        turnover_int_grp_mean,
+        burn_pf_pmc,
+        burn_cw_pmc,
+        burn_ee_pmc,
+        nf_comp_pmc,
+        nf_auto_pmc,
+        nf_rel_pmc,
+        atcb_pmc,
+        n_meetings_pmc,
+        min_meetings_pmc,
+        turnover_int_pmc
     ) -> tbls[["df_cent_vars"]]
 
 # * item-level items
