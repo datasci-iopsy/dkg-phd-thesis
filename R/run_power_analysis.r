@@ -105,7 +105,7 @@ run_power_analysis_safe <- function(params_row) {
 }
 
 # Run parallel analysis with progress tracking
-power_results <- split(param_grid$run_id) |>
+power_results <- split(param_grid, param_grid$run_id) |>
     future_map_dfr(
         run_power_analysis_safe,
         .progress = TRUE,
@@ -136,44 +136,44 @@ if (nrow(failed_results) > 0) {
         print()
 }
 
-# # Display successful results
-# if (nrow(successful_results) > 0) {
-#     cat("\nSample of successful results:\n")
-#     successful_results |>
-#         select(-success) |>
-#         slice_head(n = 10) |>
-#         print()
+# Display successful results
+if (nrow(successful_results) > 0) {
+    cat("\nSample of successful results:\n")
+    successful_results |>
+        select(-success) |>
+        slice_head(n = 10) |>
+        print()
 
-#     # Save results with timestamp
-#     timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
-#     write_rds(power_results, paste0("power_analysis_results_", timestamp, ".rds"))
-#     write_csv(
-#         successful_results |> select(-success),
-#         paste0("power_analysis_results_", timestamp, ".csv")
-#     )
+    # Save results with timestamp
+    timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+    readr::write_rds(power_results, paste0("power_analysis_results_", timestamp, ".rds"))
+    readr::write_csv(
+        successful_results |> select(-success),
+        paste0("power_analysis_results_", timestamp, ".csv")
+    )
 
-#     cat(paste0("\nResults saved as power_analysis_results_", timestamp, ".rds/csv\n"))
-# }
+    cat(paste0("\nResults saved as power_analysis_results_", timestamp, ".rds/csv\n"))
+}
 
 # # Display final results
 # power_results |>
 #     filter(success == TRUE) |>
 #     select(-success, -run_id, -elapsed_time)
 
-# Plot power curves
-library(ggplot2)
-ggplot2::ggplot(power_results, aes(x = N_Level2, y = Power, color = Effect)) +
-    geom_line(linewidth = 1) +
-    geom_point(size = 2) +
-    geom_hline(yintercept = 0.8, linetype = "dashed", alpha = 0.5) +
-    labs(
-        title = "Power Analysis: Sample Size Effects",
-        x = "Level 2 Sample Size (n_lvl2)",
-        y = "Statistical Power",
-        color = "Effect Type"
-    ) +
-    theme_minimal() +
-    ylim(0, 1)
+# # Plot power curves
+# library(ggplot2)
+# ggplot2::ggplot(power_results, aes(x = N_Level2, y = Power, color = Effect)) +
+#     geom_line(linewidth = 1) +
+#     geom_point(size = 2) +
+#     geom_hline(yintercept = 0.8, linetype = "dashed", alpha = 0.5) +
+#     labs(
+#         title = "Power Analysis: Sample Size Effects",
+#         x = "Level 2 Sample Size (n_lvl2)",
+#         y = "Statistical Power",
+#         color = "Effect Type"
+#     ) +
+#     theme_minimal() +
+#     ylim(0, 1)
 
 # # Create comparison plot across different sample sizes
 # sample_sizes <- c(100, 300, 500)
