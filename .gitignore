@@ -68,5 +68,6 @@ rsconnect/
 supplements/
 **.csv
 archive/
+data/
 *tempCodeRunnerFile*
 *.keys/

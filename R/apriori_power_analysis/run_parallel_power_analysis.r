@@ -1,4 +1,4 @@
-library(dplyr)
+library(dplyr) # masks stats::filter, lag; base::intersect, setdiff, setequal, union
 library(here)
 library(furrr) # loads required package: future
 library(parallel)
@@ -6,17 +6,16 @@ library(tibble)
 library(tictoc)
 library(tidyr)
 
-# review directory
+# review project and working directories
 here::dr_here()
 
-# load utils
-source(here::here("R/utils/load_config.r"))
-source(here::here("R/utils/power_analysis_two_level.r"))
+# run util scripts
+source(here::here("R/apriori_power_analysis/utils/common_utils.r"))
+source(here::here("R/apriori_power_analysis/utils/power_analysis_two_level.r"))
 
 # load config file
-config <- load_config(here::here("R/configs/run_power_analysis.yaml"))
-# print(config)
-str(config)
+config <- load_config(here::here("R/apriori_power_analysis/configs/run_parallel_power_analysis.yaml"))
+dplyr::glimpse(config)
 
 # Set up parallel processing
 n_cores <- min(parallel::detectCores() - 2) # cap by -2 cores to avoid overloading
@@ -42,14 +41,13 @@ param_grid <- tidyr::expand_grid(
         rand_seed = config$params$rand_seed + run_id # Unique seeds for each combination
     )
 
-# print(param_grid)
-str(param_grid)
+dplyr::glimpse(param_grid)
 
 cat("Created parameter grid with", nrow(param_grid), "combinations\n")
 cat("Running across", n_cores, "cores...\n")
 
 # Enhanced function wrapper with error handling
-run_power_analysis_safe <- function(params_row) {
+run_parallel_power_analysis <- function(params_row) {
     tryCatch(
         {
             # Parameter validation
@@ -107,7 +105,7 @@ run_power_analysis_safe <- function(params_row) {
 # Run parallel analysis with progress tracking
 power_results <- split(param_grid, param_grid$run_id) |>
     future_map_dfr(
-        run_power_analysis_safe,
+        run_parallel_power_analysis,
         .progress = TRUE,
         .options = furrr_options(
             seed = TRUE,
@@ -118,11 +116,12 @@ power_results <- split(param_grid, param_grid$run_id) |>
 # Clean up parallel backend
 plan(sequential)
 
-tibble::tibble(power_results)
-
 # Check results
-successful_results <- power_results |> filter(success == TRUE)
-failed_results <- power_results |> filter(success == FALSE)
+successful_results <- power_results |> dplyr::filter(success == TRUE)
+dplyr::glimpse(successful_results)
+
+failed_results <- power_results |> dplyr::filter(success == FALSE)
+dplyr::glimpse(failed_results)
 
 cat("\nResults Summary:\n")
 cat("Total parameter combinations:", nrow(param_grid), "\n")
@@ -143,73 +142,20 @@ if (nrow(successful_results) > 0) {
         select(-success) |>
         slice_head(n = 10) |>
         print()
-
-    # Save results with timestamp
-    timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
-    readr::write_rds(power_results, paste0("power_analysis_results_", timestamp, ".rds"))
-    readr::write_csv(
-        successful_results |> select(-success),
-        paste0("power_analysis_results_", timestamp, ".csv")
-    )
-
-    cat(paste0("\nResults saved as power_analysis_results_", timestamp, ".rds/csv\n"))
 }
 
-# # Display final results
-# power_results |>
-#     filter(success == TRUE) |>
-#     select(-success, -run_id, -elapsed_time)
+# Save results with timestamp
+timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+cat("\nSaving results with timestamp:", timestamp, "\n")
 
-# # Plot power curves
-# library(ggplot2)
-# ggplot2::ggplot(power_results, aes(x = N_Level2, y = Power, color = Effect)) +
-#     geom_line(linewidth = 1) +
-#     geom_point(size = 2) +
-#     geom_hline(yintercept = 0.8, linetype = "dashed", alpha = 0.5) +
-#     labs(
-#         title = "Power Analysis: Sample Size Effects",
-#         x = "Level 2 Sample Size (n_lvl2)",
-#         y = "Statistical Power",
-#         color = "Effect Type"
-#     ) +
-#     theme_minimal() +
-#     ylim(0, 1)
+readr::write_rds(
+    power_results,
+    here::here("R/apriori_power_analysis/data", paste0("power_analysis_results_", timestamp, ".rds"))
+)
 
-# # Create comparison plot across different sample sizes
-# sample_sizes <- c(100, 300, 500)
-# power_comparison <- tibble::tibble()
+readr::write_csv(
+    power_results,
+    here::here("R/apriori_power_analysis/data", paste0("power_analysis_results_", timestamp, ".csv"))
+)
 
-# for (n in sample_sizes) {
-#     temp_df <- power_analysis_two_level(
-#         n_lvl1 = 3,
-#         n_lvl2 = n,
-#         lvl1_effect_std = 0.1,
-#         lvl2_effect_std = 0.3,
-#         xlvl_effect_std = 0.5,
-#         icc = 0.42, # avg for repeated measures; pg. 4
-#         rand_slope_std = 0.09, # medium tau_11_std; pg. 7
-#         alpha = 0.05,
-#         use_REML = TRUE,
-#         n_sims = 10,
-#         verbose = TRUE,
-#         return_df = TRUE,
-#         rand_seed = 8762
-#     )
-#     power_comparison <- rbind(power_comparison, temp_df)
-# }
-
-# tibble::tibble(power_comparison)
-
-# # Plot power curves
-# ggplot(power_comparison, aes(x = N_Level2, y = Power, color = Effect)) +
-#     geom_line(linewidth = 1) +
-#     geom_point(size = 2) +
-#     geom_hline(yintercept = 0.8, linetype = "dashed", alpha = 0.5) +
-#     labs(
-#         title = "Power Analysis: Sample Size Effects",
-#         x = "Level 2 Sample Size (n_lvl2)",
-#         y = "Statistical Power",
-#         color = "Effect Type"
-#     ) +
-#     theme_minimal() +
-#     ylim(0, 1)
+cat(paste0("\nResults saved as power_analysis_results_", timestamp, ".rds/csv\n"))
