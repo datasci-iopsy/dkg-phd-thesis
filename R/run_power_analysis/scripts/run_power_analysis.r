@@ -1,3 +1,6 @@
+#!/usr/bin/env Rscript
+
+# import packages
 library(dplyr) # masks stats::filter, lag; base::intersect, setdiff, setequal, union
 library(here)
 library(furrr) # loads required package: future
@@ -9,15 +12,36 @@ library(tidyr)
 # review project and working directories
 here::dr_here()
 
-# run util scripts
-source(here::here("R/apriori_power_analysis/utils/common_utils.r"))
-source(here::here("R/apriori_power_analysis/utils/power_analysis_two_level.r"))
+# get command line arguments; # todo: use the argparse package
+args <- commandArgs(trailingOnly = TRUE)
+
+# check if arguments are provided
+if (length(args) < 1) {
+    stop("One argument is required: version (i.e., 'dev' or 'prod')")
+}
+
+version <- args[1]
+
+# # !--- NOT RUN: only uncomment when sourcing this script directly
+# version <- "dev"
+# print(version)
+# # !---
+
+# run/source shared common utils script
+source(here::here("R/shared/utils/common_utils.r"))
 
 # load config file
-config <- load_config(here::here("R/apriori_power_analysis/configs/run_parallel_power_analysis.yaml"))
+config_path <- here::here(
+    "R/run_power_analysis/configs",
+    glue::glue("run_power_analysis.{version}.yaml")
+)
+config <- load_config(config_path)
 dplyr::glimpse(config)
 
-# Set up parallel processing
+# * run/source power analysis util script
+source(here::here("R/run_power_analysis/utils/power_analysis_utils.r"))
+
+# set up parallel processing
 n_cores <- min(parallel::detectCores() - 2) # cap by -2 cores to avoid overloading
 future::plan(multisession, workers = n_cores)
 
@@ -150,12 +174,12 @@ cat("\nSaving results with timestamp:", timestamp, "\n")
 
 readr::write_rds(
     power_results,
-    here::here("R/apriori_power_analysis/data", paste0("power_analysis_results_", timestamp, ".rds"))
+    here::here("R/run_power_analysis/data", glue::glue("power_analysis_results_{timestamp}.rds"))
 )
 
 readr::write_csv(
     power_results,
-    here::here("R/apriori_power_analysis/data", paste0("power_analysis_results_", timestamp, ".csv"))
+    here::here("R/run_power_analysis/data", glue::glue("power_analysis_results_{timestamp}.csv"))
 )
 
 cat(paste0("\nResults saved as power_analysis_results_", timestamp, ".rds/csv\n"))
