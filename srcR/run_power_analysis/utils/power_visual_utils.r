@@ -1,6 +1,10 @@
 #!/usr/bin/env Rscript
-# Plot power curves
+
+# import packages
 library(ggplot2)
+library(dplyr)
+
+# Plot power curves
 power_results |>
     dplyr::filter(
         Level1_Effect_Std == 0.3 &
