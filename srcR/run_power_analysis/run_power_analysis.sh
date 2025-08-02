@@ -32,12 +32,33 @@ echo -e "Config directory: ${config_dir}\n"
 config_path="${config_dir}/${proj_name}.${version}.yaml"
 echo -e "Config path: ${config_path}\n"
 
+# data_dir="${proj_dir}/data"
+# echo -e "Data directory: ${data_dir}\n"
+
+# # generate timestamp for log file
+# timestamp=$(date +"%Y%m%d_%H%M%S")
+# log_dir="${proj_dir}/logs"
+# echo -e "Log directory: ${log_dir}\n"
+# log_file="${log_dir}/$1_${timestamp}.txt"
+
+# Define data and log directories
 data_dir="${proj_dir}/data"
+
+# Check if data directory exists, create if not
+if [ ! -d "${data_dir}" ]; then
+    echo "Data directory not found. Creating ${data_dir}..."
+    mkdir -p "${data_dir}"
+fi
 echo -e "Data directory: ${data_dir}\n"
 
-# generate timestamp for log file
-timestamp=$(date +"%Y%m%d_%H%M%S")
-log_file="${proj_dir}/logs/$1_${timestamp}.txt"
+log_dir="${proj_dir}/logs"
+
+# Check if log directory exists, create if not
+if [ ! -d "${log_dir}" ]; then
+    echo "Log directory not found. Creating ${log_dir}..."
+    mkdir -p "${log_dir}"
+fi
+echo -e "Log directory: ${log_dir}\n"
 
 # Function to log with timestamp
 log_with_timestamp() {
