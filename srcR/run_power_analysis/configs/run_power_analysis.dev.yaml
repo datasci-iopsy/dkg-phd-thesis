@@ -1,6 +1,7 @@
-# Power Analysis Configuration
+# * Power Analysis Configuration
+# * Version: Dev
 params:
-  # max_cores: 8 # ! ADJUST AS NEEDED; default is conservative of 4 cores
+  max_cores: # 8 ! ADJUST AS NEEDED; default is conservative of 4 cores
   n_lvl1: 3
   n_lvl2: [50, 100]
   lvl1_effect_std: [0.30]

@@ -1,5 +1,7 @@
-# Power Analysis Configuration
+# * Power Analysis Configuration
+# * Version: Prod
 params:
+  max_cores: 10 # ! ADJUST AS NEEDED
   n_lvl1: 3
   n_lvl2: [100, 300, 500, 700, 900]
   lvl1_effect_std: [0.10, 0.30, 0.50]
