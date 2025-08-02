@@ -18,4 +18,5 @@ Author: Demetrius K. Green
 In order to run this program:
 1. Navigate to the [run_power_analysis project directory](./) (i.e., the same directory as this README.md file).
 2. Enter `bash run_power_analysis.sh > logs/run_power_analysis_$(date +"%Y%m%d_%H%M%S").log 2>&1 &` in the terminal/commandline.
-3. The program's standard output (i.e., stdout) will be printed in a timestamped log file and saved in the program's [log directory](./logs/).
+3. The program's standard output (i.e., stdout) will be printed to a log file and saved in the program's log directory.
+   1. Note. The log directory is currently listed in the [.gitignore](../../.gitignore) file and thus is not tracked by version control.
