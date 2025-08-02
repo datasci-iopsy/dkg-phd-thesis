@@ -8,8 +8,8 @@ start_time_readable=$(date '+%Y-%m-%d %H:%M:%S')
 # *** UPDATE ABSOLUTE PATH ***
 src_dir="${HOME}/Documents/icloud-docs/prof-edu/projects/dkg-phd-thesis/srcR"
 echo -e "Source directory: ${src_dir}\n"
-
 # ****************************
+
 proj_name='run_power_analysis'
 echo -e "Project name: ${proj_name}\n"
 
@@ -19,8 +19,8 @@ echo -e "Project directory: ${proj_dir}\n"
 # *** UPDATE PROJECT VERSION ***
 version='dev'
 echo -e "Version: ${version}\n"
-
 # ******************************
+
 shared_utils_dir="${src_dir}/shared/utils"
 echo -e "Shared utils directory: ${shared_utils_dir}\n"
 
