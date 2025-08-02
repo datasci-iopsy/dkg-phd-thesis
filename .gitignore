@@ -63,6 +63,11 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 
+# In your .gitignore at project root
+renv/library/
+renv/staging/
+renv/local/
+
 # misc
 .DS_Store
 supplements/

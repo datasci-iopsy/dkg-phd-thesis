@@ -2,8 +2,8 @@
 
 # import packages
 library(dplyr) # masks stats::filter, lag; base::intersect, setdiff, setequal, union
-library(here)
 library(furrr) # loads required package: future
+library(here)
 library(parallel)
 library(tibble)
 library(tictoc)
