@@ -69,5 +69,6 @@ supplements/
 **.csv
 archive/
 data/
+logs/
 *tempCodeRunnerFile*
 *.keys/

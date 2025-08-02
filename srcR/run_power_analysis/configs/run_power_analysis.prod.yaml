@@ -10,6 +10,6 @@ params:
   alpha: 0.05
   use_REML: TRUE
   n_sims: 1
-  verbose: TRUE
+  verbose: FALSE
   return_df: TRUE
   rand_seed: 8762
