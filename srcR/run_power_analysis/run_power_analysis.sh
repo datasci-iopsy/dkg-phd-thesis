@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 # bash run_power_analysis.sh > logs/run_power_analysis_$(date +"%Y%m%d_%H%M%S").log 2>&1 &
 
+# Capture start time for overall timing
+start_time=$(date +%s)
+start_time_readable=$(date '+%Y-%m-%d %H:%M:%S')
+
 # *** UPDATE ABSOLUTE PATH ***
 src_dir="${HOME}/Documents/icloud-docs/prof-edu/projects/dkg-phd-thesis/srcR"
 echo -e "Source directory: ${src_dir}\n"
-# ****************************
 
+# ****************************
 proj_name='run_power_analysis'
 echo -e "Project name: ${proj_name}\n"
 
@@ -15,8 +19,8 @@ echo -e "Project directory: ${proj_dir}\n"
 # *** UPDATE PROJECT VERSION ***
 version='dev'
 echo -e "Version: ${version}\n"
-# ******************************
 
+# ******************************
 shared_utils_dir="${src_dir}/shared/utils"
 echo -e "Shared utils directory: ${shared_utils_dir}\n"
 
@@ -31,15 +35,6 @@ echo -e "Config directory: ${config_dir}\n"
 
 config_path="${config_dir}/${proj_name}.${version}.yaml"
 echo -e "Config path: ${config_path}\n"
-
-# data_dir="${proj_dir}/data"
-# echo -e "Data directory: ${data_dir}\n"
-
-# # generate timestamp for log file
-# timestamp=$(date +"%Y%m%d_%H%M%S")
-# log_dir="${proj_dir}/logs"
-# echo -e "Log directory: ${log_dir}\n"
-# log_file="${log_dir}/$1_${timestamp}.txt"
 
 # Define data and log directories
 data_dir="${proj_dir}/data"
@@ -67,24 +62,42 @@ log_with_timestamp() {
     done
 }
 
-# Add system resource monitoring (macOS compatible)
-echo "<- System info at start" | log_with_timestamp
+# Function to calculate and format elapsed time
+calculate_elapsed_time() {
+    local start=$1
+    local end=$2
+    local elapsed=$((end - start))
+    
+    local hours=$((elapsed / 3600))
+    local minutes=$(((elapsed % 3600) / 60))
+    local seconds=$((elapsed % 60))
+    
+    if [ $hours -gt 0 ]; then
+        printf "%02d:%02d:%02d" $hours $minutes $seconds
+    elif [ $minutes -gt 0 ]; then
+        printf "%02d:%02d" $minutes $seconds
+    else
+        printf "%ds" $seconds
+    fi
+}
+
+# Add system resource monitoring and timing info
+echo "Process started at: ${start_time_readable}" | log_with_timestamp
+echo "System info at start" | log_with_timestamp
 echo "Available cores: $(sysctl -n hw.ncpu)" | log_with_timestamp
 echo "Physical memory: $(sysctl -n hw.memsize | awk '{printf "%.1f GB", $1/1024/1024/1024}')" | log_with_timestamp
 echo "Available memory (vm_stat): $(vm_stat | grep 'Pages free' | awk '{printf "%.1f GB", $3 * 4096 / 1024 / 1024 / 1024}')" | log_with_timestamp
 echo "Available memory (top): $(top -l 1 | grep -E '^CPU|^Phys')" | log_with_timestamp
-# echo "Load average: $(uptime | awk -F'load average:' '{print $2}')" | log_with_timestamp
 
 if [[ "${proj_dir}" == "$(pwd)" ]]; then
     echo "Project Directory & Current Working Directory Match" | log_with_timestamp
     echo "Initiating ${proj_name}" | log_with_timestamp
     
-    # Run R script with timestamped logging and resource limits
+    # Capture R script start time
+    r_start_time=$(date +%s)
+    
+    # Run R script with timestamped logging
     {
-        # # Set resource limits to prevent system overload; # ! NOT RUN ON MACOS
-        # ulimit -u 200  # Limit number of processes
-        # ulimit -v 8388608  # Limit virtual memory to 8GB (in KB)
-        
         Rscript "./scripts/${proj_name}.R" \
             ${src_dir} \
             ${proj_name} \
@@ -99,7 +112,18 @@ if [[ "${proj_dir}" == "$(pwd)" ]]; then
         exit 1
     }
     
-    echo "Process completed at $(date)" | log_with_timestamp
+    # Calculate R script elapsed time
+    r_end_time=$(date +%s)
+    r_elapsed=$(calculate_elapsed_time $r_start_time $r_end_time)
+    echo "R script completed in: ${r_elapsed}" | log_with_timestamp
+    
+    # Calculate total elapsed time
+    end_time=$(date +%s)
+    end_time_readable=$(date '+%Y-%m-%d %H:%M:%S')
+    total_elapsed=$(calculate_elapsed_time $start_time $end_time)
+    
+    echo "Process completed at: ${end_time_readable}" | log_with_timestamp
+    echo "Total execution time: ${total_elapsed}" | log_with_timestamp
     
 else
     echo "ERROR: Project Directory & Current Working Directory DO NOT Match" | log_with_timestamp
