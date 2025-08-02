@@ -1,5 +1,6 @@
 # Power Analysis Configuration
 params:
+  # max_cores: 8 # ! ADJUST AS NEEDED; default is conservative of 4 cores
   n_lvl1: 3
   n_lvl2: [50, 100]
   lvl1_effect_std: [0.30]
@@ -10,6 +11,6 @@ params:
   alpha: 0.05
   use_REML: TRUE
   n_sims: 1
-  verbose: TRUE
+  verbose: FALSE
   return_df: TRUE
   rand_seed: 1879

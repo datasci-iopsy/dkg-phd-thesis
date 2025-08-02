@@ -9,7 +9,10 @@ library(tibble)
 library(tictoc)
 library(tidyr)
 
-# review project and working directories
+# set up options
+options(tibble.width = Inf)
+
+# review project and working directories using here
 here::dr_here()
 
 # get command line arguments; # todo: use the argparse package
@@ -20,32 +23,39 @@ if (length(args) < 1) {
     stop("One argument is required: version (i.e., 'dev' or 'prod')")
 }
 
-version <- args[1]
+src_dir <- args[1]
+proj_name <- args[2]
+version <- args[3]
+common_utils_path <- args[4]
+config_path <- args[5]
+utils_dir <- args[6]
+data_dir <- args[7]
 
-# # !--- NOT RUN: only uncomment when sourcing this script directly
+# # !--- NOT RUN: only uncomment when sourcing this script directly in R console
 # version <- "dev"
 # print(version)
 # # !---
 
-# run/source shared common utils script
-source(here::here("R/shared/utils/common_utils.r"))
+# run/source shared common utils script; # todo: use as argparse argument
+source(glue::glue("{common_utils_path}"))
 
-# load config file
-config_path <- here::here(
-    "R/run_power_analysis/configs",
-    glue::glue("run_power_analysis.{version}.yaml")
-)
-config <- load_config(config_path)
+# load config file; # todo: use as argparse argument
+config <- load_config(glue::glue("{config_path}"))
 dplyr::glimpse(config)
 
 # * run/source power analysis util script
-source(here::here("R/run_power_analysis/utils/power_analysis_utils.r"))
+source(glue::glue("{utils_dir}/power_analysis_utils.r"))
 
 # set up parallel processing
-n_cores <- min(parallel::detectCores() - 2) # cap by -2 cores to avoid overloading
+# use config value if available, otherwise default to conservative setting
+n_cores <- if (!is.null(config$params$max_cores)) {
+    min(config$params$max_cores, parallel::detectCores() - 2)
+} else {
+    min(4, max(1, parallel::detectCores() - 4))
+}
 future::plan(multisession, workers = n_cores)
 
-# Create all parameter combinations using expand_grid
+# create all parameter combinations using expand_grid
 param_grid <- tidyr::expand_grid(
     n_lvl1 = config$params$n_lvl1,
     n_lvl2 = config$params$n_lvl2,
@@ -70,7 +80,7 @@ dplyr::glimpse(param_grid)
 cat("Created parameter grid with", nrow(param_grid), "combinations\n")
 cat("Running across", n_cores, "cores...\n")
 
-# Enhanced function wrapper with error handling
+# enhanced function wrapper with error handling
 run_parallel_power_analysis <- function(params_row) {
     tryCatch(
         {
@@ -126,7 +136,7 @@ run_parallel_power_analysis <- function(params_row) {
     )
 }
 
-# Run parallel analysis with progress tracking
+# run parallel analysis with progress tracking
 power_results <- split(param_grid, param_grid$run_id) |>
     future_map_dfr(
         run_parallel_power_analysis,
@@ -137,10 +147,10 @@ power_results <- split(param_grid, param_grid$run_id) |>
         )
     )
 
-# Clean up parallel backend
+# clean up parallel backend
 plan(sequential)
 
-# Check results
+# check results
 successful_results <- power_results |> dplyr::filter(success == TRUE)
 dplyr::glimpse(successful_results)
 
@@ -159,7 +169,7 @@ if (nrow(failed_results) > 0) {
         print()
 }
 
-# Display successful results
+# display successful results
 if (nrow(successful_results) > 0) {
     cat("\nSample of successful results:\n")
     successful_results |>
@@ -168,18 +178,12 @@ if (nrow(successful_results) > 0) {
         print()
 }
 
-# Save results with timestamp
+# save results with timestamp
 timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
 cat("\nSaving results with timestamp:", timestamp, "\n")
 
-readr::write_rds(
-    power_results,
-    here::here("R/run_power_analysis/data", glue::glue("power_analysis_results_{timestamp}.rds"))
-)
-
-readr::write_csv(
-    power_results,
-    here::here("R/run_power_analysis/data", glue::glue("power_analysis_results_{timestamp}.csv"))
-)
+# save the results in two formats: rds and csv
+readr::write_rds(power_results, glue::glue("{data_dir}/power_analysis_results_{timestamp}.rds"))
+readr::write_csv(power_results, glue::glue("{data_dir}/power_analysis_results_{timestamp}.csv"))
 
 cat(paste0("\nResults saved as power_analysis_results_", timestamp, ".rds/csv\n"))
