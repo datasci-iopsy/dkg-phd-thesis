@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 # ============================================================================
 # Power Analysis for Two-Level Models
 # Based on: Arend & Schäfer (2019) - Enhanced with data extraction methods

@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 # Plot power curves
 library(ggplot2)
 power_results |>
