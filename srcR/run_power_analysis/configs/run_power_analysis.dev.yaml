@@ -3,11 +3,11 @@
 params:
   max_cores: # 8 ! ADJUST AS NEEDED; default is conservative of 4 cores
   n_lvl1: 3
-  n_lvl2: [50, 100]
+  n_lvl2: [50, 100, 150]
   lvl1_effect_std: [0.30]
   lvl2_effect_std: [0.30]
   xlvl_effect_std: [0.30]
-  icc: [0.10, 0.30, 0.50]
+  icc: [0.30]
   rand_slope_std: [0.09]
   alpha: 0.05
   use_REML: TRUE
