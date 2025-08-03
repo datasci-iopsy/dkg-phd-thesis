@@ -16,6 +16,8 @@ Author: Demetrius K. Green
 - R (`>= 4.2.0`)
   - The package `renv` handles the R dependencies across this project so only a handful of manual packages may need to be downloaded.
   - The author developed this project using VS Code, so functionality using RStudio is unknown. Users should be able to generate the output using only the command line.
+- mail (`>=3.14`)
+  - This lightweight utility is used to send emails to user comprising the output. It is automatically included in macOS. Follow this helpful [post](https://www.digitalocean.com/community/tutorials/send-email-linux-command-line) to install on Linux.
 - *Homebrew (`>=4.5.13`)* is optional but an exceptional package manager for macOS.
 - *apt* and *dpkg* are used by Ubuntu for package management.
 
