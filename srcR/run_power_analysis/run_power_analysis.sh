@@ -10,9 +10,10 @@ echo -e "\nCurrent working directory: $(pwd)"
 endpath=$(basename "$(pwd)")
 echo -e "Basename: ${endpath}\n"
 
-# *** ALTHOUGH HARDCODED, TREAT AS IMMUTABLE ***
-proj_name='run_power_analysis'
+# *** ALTHOUGH HARD-CODED, TREAT AS IMMUTABLE ***
+proj_name='run_power_analysis' # ? maybe use variable instead of hard-coded value?
 echo -e "Project name: ${proj_name}\n"
+# **********************************************
 
 if [ ${endpath} == ${proj_name} ]; then
     echo -e "Current directory is ${endpath} and being moved up one level to srcR..."
@@ -26,8 +27,10 @@ echo -e "Source directory: ${src_dir}\n"
 proj_dir="${src_dir}/${proj_name}"
 echo -e "Project directory: ${proj_dir}\n"
 
+# *** UPDATE BASED ON ENV RUN ***
 version='dev'
 echo -e "Version: ${version}\n"
+# *******************************
 
 shared_utils_dir="${src_dir}/shared/utils"
 echo -e "Shared utils directory: ${shared_utils_dir}\n"
