@@ -48,6 +48,7 @@ source(glue::glue("{utils_dir}/power_analysis_utils.r"))
 
 # set up parallel processing
 # use config value if available, otherwise default to conservative setting
+# todo: update the logic to account for overzealous max_cores in config...
 n_cores <- if (!is.null(config$params$max_cores)) {
     min(config$params$max_cores, parallel::detectCores() - 2)
 } else {
