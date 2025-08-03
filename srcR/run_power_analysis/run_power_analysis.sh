@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TO RUN: bash run_power_analysis.sh > logs/run_power_analysis_$(date +"%Y%m%d_%H%M%S").log 2>&1 &
+# TO RUN: nohup bash run_power_analysis.sh > logs/run_power_analysis_$(date +"%Y%m%d_%H%M%S").log 2>&1 &
 
 # capture start time for overall timing
 start_time=$(date +%s)
