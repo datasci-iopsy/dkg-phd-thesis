@@ -28,7 +28,7 @@ proj_dir="${src_dir}/${proj_name}"
 echo -e "Project directory: ${proj_dir}\n"
 
 # *** UPDATE BASED ON ENV RUN ***
-version='dev'
+version='prod'
 echo -e "Version: ${version}\n"
 # *******************************
 
@@ -156,8 +156,8 @@ else
     exit 1
 fi
 
-# ! WARNING: Linux users may have to install mail from apt: 
-# ! https://www.digitalocean.com/community/tutorials/send-email-linux-command-line
+# * WARNING: Linux users may have to install mail from apt: 
+# * https://www.digitalocean.com/community/tutorials/send-email-linux-command-line
 email_subject=${proj_name}
 email_recipient="dkgreen@ncsu.edu"
 email_message="Attached is a compressed archive containing all output files generated from the '${proj_name}' script."
