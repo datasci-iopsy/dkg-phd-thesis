@@ -156,38 +156,40 @@ else
     exit 1
 fi
 
-# * WARNING: Linux users may have to install mail from apt: 
-# * https://www.digitalocean.com/community/tutorials/send-email-linux-command-line
-email_subject=${proj_name}
-email_recipient="dkgreen@ncsu.edu"
-email_message="Attached is a compressed archive containing all output files generated from the '${proj_name}' script."
+echo -e "Bash process complete. Please review appropriate log in the following directory: ${log_dir}"
 
-# create tar archive of all files in data directory
-tar_file="${proj_name}_data_${start_time}.tar.gz"
-tar -czf "${tar_file}" -C "${data_dir}" .
-
-# send email with single archive attachment
-echo "${email_message}" | mail -s "${email_subject}" -A "${tar_file}" "${email_recipient}"
-
-# clean up temporary archive (optional)
-rm "${tar_file}"
-
-echo -e "Email sent and temporary tar file deleted."
-
-# # todo: figure out how to include multiple attachments from different directories;
-# # TODO: better yet, rsync would be even more seemless!
+# # * WARNING: Linux users may have to install mail from apt: 
+# # * https://www.digitalocean.com/community/tutorials/send-email-linux-command-line
 # email_subject=${proj_name}
 # email_recipient="dkgreen@ncsu.edu"
-# email_message="Attached is a compressed archive containing all output files and log file generated from the '${proj_name}' script."
+# email_message="Attached is a compressed archive containing all output files generated from the '${proj_name}' script."
 
-# # specify both the data directory and log file explicitly
-# tar_file="${proj_name}_results.tar.gz"
-# log_file="${log_dir}/${proj_name}_${start_time_log}.log"  # Replace with actual log file path
+# # create tar archive of all files in data directory
+# tar_file="${proj_name}_data_${start_time}.tar.gz"
+# tar -czf "${tar_file}" -C "${data_dir}" .
 
-# tar -czf "${tar_file}" -C "${data_dir}"/* "${log_file}"
-
-# # send email
+# # send email with single archive attachment
 # echo "${email_message}" | mail -s "${email_subject}" -A "${tar_file}" "${email_recipient}"
 
-# # clean up
+# # clean up temporary archive (optional)
 # rm "${tar_file}"
+
+# echo -e "Email sent and temporary tar file deleted."
+
+# # # todo: figure out how to include multiple attachments from different directories;
+# # # TODO: better yet, rsync would be even more seemless!
+# # email_subject=${proj_name}
+# # email_recipient="dkgreen@ncsu.edu"
+# # email_message="Attached is a compressed archive containing all output files and log file generated from the '${proj_name}' script."
+
+# # # specify both the data directory and log file explicitly
+# # tar_file="${proj_name}_results.tar.gz"
+# # log_file="${log_dir}/${proj_name}_${start_time_log}.log"  # Replace with actual log file path
+
+# # tar -czf "${tar_file}" -C "${data_dir}"/* "${log_file}"
+
+# # # send email
+# # echo "${email_message}" | mail -s "${email_subject}" -A "${tar_file}" "${email_recipient}"
+
+# # # clean up
+# # rm "${tar_file}"
