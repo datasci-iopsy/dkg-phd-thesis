@@ -2,7 +2,7 @@
 
 By: Demetrius K. Green
 
-A dissertation submitted to the Graduate Faculty of North Carolina State University in partial fulfillment of the requirements for the degree of Doctor of Philosophy.
+A dissertation **TO BE** submitted to the Graduate Faculty of North Carolina State University in partial fulfillment of the requirements for the degree of Doctor of Philosophy.
 
 Industrial-Organizational Psychology
 
@@ -10,7 +10,7 @@ Raleigh, North Carolina (2025)
 
 ## Overview
 
-The objective of this study is to investigate, parse, quantify, and compare the within- and between-person variability of burnout and basic psychological need frustrations when predicting turnover intentions over the course of a workday. Given the longitudinal nature of this study, a repeated measures design is utilized and analyzed using a mixed-effects paradigm for enhanced statistically flexibility.
+The objective of this study is to investigate, parse, quantify, and compare the within- and between-person variability of burnout and basic psychological need frustrations when predicting turnover intentions over the course of a workday. Given the longitudinal nature of this study, a repeated measures design is employed and analyzed using a mixed-effects model approach for enhanced statistically flexibility.
 
 ## Conceptual Framework & Measurement Model
 
@@ -353,46 +353,6 @@ Each power analysis calculated detection probability for three effects:
 By systematically varying key assumptions (ICC, effect sizes, random slope variance, etc.) and running simulations, the program provided insights into the sensitivity of power estimates under different conditions.
 
 ~~The results were visualized using `ggplot2` to illustrate how power varies with sample size, effect size, ICC, and random slope variance.~~
-
-The process took over 72 hours to complete on a local machine using `Total Number of Cores - 2` with the following specs:
-
-```bash
-Software:
-
-    System Software Overview:
-
-      System Version: macOS 15.5 (24F74)
-      Kernel Version: Darwin 24.5.0
-      Boot Volume: Macintosh HD
-      Boot Mode: Normal
-      Computer Name: ${hostname}
-      User Name: ${whoami}
-      Secure Virtual Memory: Enabled
-      System Integrity Protection: Enabled
-      Time since boot: X days, X hours, X minutes
-
-Hardware:
-
-    Hardware Overview:
-
-      Model Name: MacBook Pro
-      Model Identifier: MacBookPro18,4
-      Model Number: Z15H00106LL/A
-      Chip: Apple M1 Max
-      Total Number of Cores: 10 (8 performance and 2 efficiency)
-      Memory: 32 GB
-      System Firmware Version: 11881.121.1
-      OS Loader Version: 11881.121.1
-      Serial Number (system): XXXXXXXXXX
-      Hardware UUID: 00000000-0000-0000-0000-000000000000
-      Provisioning UDID: 00000000-000000000000000E
-```
-
-This overhead could (and most likely will) be reduced by leveraging Google Cloud platform's (GCP) compute engine API to run the simulations in parallel on a larger scale. For example, a virtual machine (VM) instance with the following specs could theoretically run the simulations in 3 to 6 hours (i.e., 8-16x performance improvement...but at a cost :money_with_wings:):
-
-- Compute-Optimized C2D (Best Price-Performance)
-    - Machine Type: `c2d-highcpu-56` or `c2d-highcpu-112`
-    - 56-112 vCPUs, 4-8 GB RAM per vCPU
 
 
 ### Mixed Effects Modeling | Latent Growth Curve Modeling 
