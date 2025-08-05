@@ -9,11 +9,12 @@ Author & Maintainer: Demetrius K. Green ([Email](mailto:dkgreen.iopsych@gmail.co
   - [Dependencies](#dependencies)
 - [Usage](#usage)
 - [Troubleshooting](#troubleshooting)
+    - [](#)
 - [Contributing](#contributing)
 
 # Overview
 
-The [run_power_analysis](/srcR/run_power_analysis/) program conducts a simulation-based sensitivity analysis to evaluate statistical power across a fully customizable design matrix of parameters. The program is fully compatible with macOS and Linux (i.e., Ubuntu), but not Windows. The program is designed to be run directly from the user's command line and does not require RStudio or any other IDE to generate results; simply clone the project repo and follow the instructions found in the [Usage](#usage) section.
+The [run_power_analysis](/srcR/run_power_analysis/) program conducts a simulation-based sensitivity analysis based on the work of *Arend & Schäfer 2019* to evaluate statistical power across a fully customizable design matrix of parameters. The program is fully compatible with macOS and Linux (i.e., Ubuntu), but not Windows. The program leverages `furrr` (for parallelization) and `simr` packages in R and is designed to run from the user's command line, eliminating the need for IDEs to generate and review the results (e.g., RStudio, VS Code, etc.); To get started, simply clone the project repo and follow the instructions found in the [Usage](#usage) section.
 
 # Requirements
 
@@ -62,10 +63,10 @@ The [run_power_analysis](/srcR/run_power_analysis/) program is designed to be ru
     ```
     - *Note. The user can also download the project as a zip file and extract it to their desired location, but cloning the repo is recommended for version control and collaboration purposes.*
 
-2. Navigate to the [srcR](/srcR/) directory and run the [run_renv_restore](../run_renv_restore.r) script to ensure that `renv` and other necessary R packages are installed.
+2. Navigate to the [srcR](/srcR/) directory and run the [run_renv_restore.r](../run_renv_restore.r) script to ensure that `renv` and other necessary R packages are installed.
 
     ```bash
-    Rscript run_renv_restore.sh
+    Rscript run_renv_restore.r
     ```
 
     - *Note. The user also has the option to open the script and simply run it rather than sourcing it from the command line. This is particularly useful if the user is already working in RStudio or another IDE*.
@@ -87,8 +88,8 @@ The [run_power_analysis](/srcR/run_power_analysis/) program is designed to be ru
    - This command will run the program in the background, even if the session closes, allowing the user to continue with other tasks.
 
 6. The program's standard output (i.e., stdout) will be printed to a log file and saved in the program's log directory.
-7. Once the program has completed, the user can check the log file for any potential errors and review the output (i.e., .csv/.rds) which is redirected to the [data](./data/) directory.
-   - *Note. The log and data directories are currently listed in the [.gitignore](../../.gitignore) file and thus are not tracked by version control. The program automatically creates the required directories not tracked by git. The log and data files will be named with a timestamp to ensure uniqueness and relatively easy identification of when the program was run.*
+7. Once the program has completed, the user can check the log file for any potential errors and review the output (i.e., .csv/.rds) which is redirected to the data directory.
+   - *Note. The log and data directories are currently listed in the [.gitignore](../../.gitignore) file and thus are not tracked by version control; the program automatically creates the required directories not tracked by git. The log and data files will be named with a timestamp to ensure uniqueness and relatively easy identification of when the program was run.*
 
 # Troubleshooting
 
@@ -96,6 +97,79 @@ The following sections provide troubleshooting tips for common issues, particula
 
 <details>
 
+<summary>Long-running processes?</summary>
+Since the program is based on running a number of iterations across a design matrix of parameters, the time it takes for the program to complete can vary significantly based on the complexity of the matrix. For example, the following parameter matrix was used for the author's dissertation (i.e., production run):
+
+###
+- Level 1 sample size (3)
+- Level 2 sample sizes (200, 400, 600, 800, 1000)
+- Level 1 direct effect size (0.10, 0.30, 0.50)
+- Level 2 direct effect size (0.10, 0.30, 0.50)
+- Cross-level effect size (0.10, 0.30, 0.50)
+- ICC values (0.10, 0.30, 0.50)
+- Random slope variance values (0.01, 0.09, 0.25)
+- Significance level (0.05)
+
+This setup yielded a 5 × 3 × 3 × 3 × 3 × 3 = **1,215 parameter matrix** where each cell represented a unique combination of parameters. The simulations were run for 1,000 iterations per cell, resulting in a total of **1,215,000 simulations**. Suffice to say, this is a very large matrix and will take a long time to run on most local systems. Here is a snapshot of the author's local setup: 
+
+```bash
+Software:
+
+    System Software Overview:
+
+      System Version: macOS 15.5 (24F74)
+      Kernel Version: Darwin 24.5.0
+      Boot Volume: Macintosh HD
+      Boot Mode: Normal
+      Computer Name: ${hostname}
+      User Name: ${whoami}
+      Secure Virtual Memory: Enabled
+      System Integrity Protection: Enabled
+      Time since boot: X days, X hours, X minutes
+
+Hardware:
+
+    Hardware Overview:
+
+      Model Name: MacBook Pro
+      Model Identifier: MacBookPro18,4
+      Model Number: Z15H00106LL/A
+      Chip: Apple M1 Max
+      Total Number of Cores: 10 (8 performance and 2 efficiency)
+      Memory: 32 GB
+      System Firmware Version: 11881.121.1
+      OS Loader Version: 11881.121.1
+      Serial Number (system): XXXXXXXXXX
+      Hardware UUID: 00000000-0000-0000-0000-000000000000
+      Provisioning UDID: 00000000-000000000000000E
+```
+
+Here is a snippet of the output from the respective log file: 
+
+```bash
+[2025-08-05 14:30:52] Rows: 3,645
+[2025-08-05 14:30:52] Columns: 16
+...
+[2025-08-05 14:30:52] Results Summary:
+[2025-08-05 14:30:52] Total parameter combinations: 1215 
+[2025-08-05 14:30:52] Successful runs: 3645 
+[2025-08-05 14:30:52] Failed runs: 0 
+...
+[2025-08-05 14:30:52] Results saved as power_analysis_results_20250805_143050.rds/csv
+[2025-08-05 14:30:52] Process started at: 2025-08-04 19:53:31
+[2025-08-05 14:30:52] Process completed at: 2025-08-05 14:30:52
+[2025-08-05 14:30:52] Total execution time: 18:37:21
+Bash process complete. Please review appropriate log in the following directory: <user_path>/dkg-phd-thesis/srcR/run_power_analysis/logs
+```
+
+As you can see, it took the system over 18 hours to complete the run. This overhead could (and most likely will) be reduced by leveraging a cloud-based virtual machine (VM), such as Google Cloud platform's (GCP) compute engine API, to run the simulations in parallel on a larger scale. For example, a virtual machine (VM) instance with the following specs could theoretically run the simulations in 2 to 5 hours, albeit at a literal cost :money_with_wings::money_with_wings::money_with_wings::
+
+- Compute-Optimized C2D (Best Price-Performance)
+    - Machine Type: `c2d-highcpu-56` or `c2d-highcpu-112`
+    - 56-112 vCPUs, 4-8 GB RAM per vCPU
+</details>
+
+<details>
 <summary>Having kernel issues?</summary>
 
 ```bash
