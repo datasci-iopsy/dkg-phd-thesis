@@ -61,3 +61,68 @@ power_results |>
         limits = c(0, max(power_results$N_Level2)),
         breaks = seq(min(power_results$N_Level2), max(power_results$N_Level2), by = 100)
     )
+
+
+# library(tidyverse)
+# library(lme4)
+# library(MASS)
+
+# # Function to simulate multilevel data with specified slope-intercept covariance
+# simulate_multilevel_data <- function(n_groups = 50, n_per_group = 10,
+#                                      tau_00 = 1.0, tau_11 = 0.25, tau_10 = 0) {
+#     # Create covariance matrix for random effects
+#     Tau <- matrix(c(
+#         tau_00, tau_10,
+#         tau_10, tau_11
+#     ), nrow = 2)
+
+#     # Generate random effects
+#     random_effects <- mvrnorm(n_groups, mu = c(0, 0), Sigma = Tau)
+
+#     # Create data structure
+#     data <- expand_grid(
+#         group = 1:n_groups,
+#         individual = 1:n_per_group
+#     ) %>%
+#         mutate(
+#             x = rnorm(n(), 0, 1), # Level-1 predictor
+#             u_0j = random_effects[group, 1], # Random intercept
+#             u_1j = random_effects[group, 2], # Random slope
+#             y = 2.0 + u_0j + (0.5 + u_1j) * x + rnorm(n(), 0, 1) # Outcome
+#         )
+
+#     return(list(
+#         data = data, true_covariance = tau_10,
+#         correlation = tau_10 / sqrt(tau_00 * tau_11)
+#     ))
+# }
+
+# # Demonstrate three covariance scenarios
+# scenarios <- list(
+#     "Positive Covariance" = simulate_multilevel_data(tau_10 = 0.3),
+#     "Zero Covariance" = simulate_multilevel_data(tau_10 = 0.0),
+#     "Negative Covariance" = simulate_multilevel_data(tau_10 = -0.3)
+# )
+
+# # Visualize the patterns
+# plot_data <- map_dfr(scenarios, ~ {
+#     .x$data %>%
+#         group_by(group) %>%
+#         summarise(
+#             intercept = unique(u_0j),
+#             slope = unique(u_1j),
+#             .groups = "drop"
+#         )
+# }, .id = "scenario")
+
+# plot_data %>%
+#     ggplot(aes(x = slope, y = intercept)) +
+#     geom_point(alpha = 0.6) +
+#     geom_smooth(method = "lm", se = TRUE) +
+#     facet_wrap(~scenario) +
+#     labs(
+#         title = "Slope-Intercept Relationships Across Scenarios",
+#         x = "Random Slope (U₁ⱼ)",
+#         y = "Random Intercept (U₀ⱼ)"
+#     ) +
+#     theme_minimal()
