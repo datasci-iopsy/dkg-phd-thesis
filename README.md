@@ -15,7 +15,7 @@ Raleigh, North Carolina (2025)
 - [Table of Contents](#table-of-contents)
 - [Overview](#overview)
 - [Conceptual Framework](#conceptual-framework)
-  - [Structural Model (Proposed)](#structural-model-proposed)
+  - [Research Model (Proposed)](#research-model-proposed)
 - [Measures](#measures)
   - [Level 1 Variables (L1)](#level-1-variables-l1)
   - [Level 2 Variables (L2)](#level-2-variables-l2)
@@ -63,9 +63,9 @@ Participants will be measured across three timepoints within a single respective
 
 - Attitude Toward the Color Blue (*L1*)
 
-## Structural Model (Proposed)
+## Research Model (Proposed)
 
-![thesis-process-model](images/thesis-process-model.svg)
+![thesis-research-model](images/thesis-research-model.svg)
 
 # Measures
 
@@ -462,7 +462,7 @@ Although statistical analyses were conducted to assess the extent of same-source
 
 The sample is likely WEIRD (Western, Educated, Industrialized, Rich, Democratic) and limited to participants working standard 9-to-5 shifts. It is plausible that differences may emerge across non-standard shifts, warranting further investigation to explore potential variations (See *Alley & Cortina, 2023*).
 
-The power analysis was conducted using a custom R program that simulates data based on the proposed model but including a single L1 and L2 variable. While this approach provides a robust framework for estimating power, it is important to note that the results are contingent upon the assumptions made in the simulation; the inclusion of multiple predictors typically means an increase in multicollinearity which leads to more inflated standard error estimates (i.e., reduced power). *Arend & Schäfer (2019)* state that multicollinearity has to be very high in order to cause a noticeable downward bias in power estimates so VIFs are reported to address this concern. Variations in effect sizes, ICC values, and other parameters can also significantly influence the power estimates, albeit some are more influential than others. Therefore, while the analysis offers valuable insights, it should be interpreted with caution and in the context of the specific research design and hypotheses.
+The power analysis was conducted using a custom R program that simulates data based on the proposed model but including a single L1 and L2 variable. While this approach provides a robust framework for estimating power, it is important to note that the results are contingent upon the assumptions made in the simulation; the inclusion of multiple predictors typically means an increase in multicollinearity which leads to more inflated standard error estimates (i.e., reduced power). *Arend & Schäfer (2019)* state that multicollinearity has to be very high in order to cause a noticeable downward bias in power estimates (i.e., VIF ≥ 2 and VIF ≥ 5), so VIFs are reported to address this concern. Variations in effect sizes, ICC values, and other parameters can also significantly influence the power estimates, albeit some are more influential than others. Therefore, while the analysis offers valuable insights, it should be interpreted with caution and in the context of the specific research design and hypotheses.
 
 Latent mean centering is recognized as a superior technique for disentangling fixed and random effects. However, implementing this approach in R presented significant challenges. A Bayesian framework may offer a more robust alternative by modeling means as distributions, thereby directly accounting for uncertainty in the estimates (see *Hamaker & Muthén, 2020*). In addition, sampling error in the group means exists because the literal group means were used as the L2 estimates. As with the previous point, there are ways to address this (empirical Bayes) but none are easily implemented with the R software..hence the limitation. See this [article](https://centerstat.org/biased-between-group-effects/) by Curran and Bauer. Additionally, check out this link which explains why one should check for random slopes in the predictors as well [Perplexity](https://www.perplexity.ai/search/can-you-provide-a-comprehensiv-zuN14_igRg2ZVKnuFg.vCg#1)
 
