@@ -1,4 +1,4 @@
-# “If You Only Knew the Power of the Dark Side”: Examining Within-Person Change in Psychological Need Frustration, Burnout, and Turnover Intentions across a Workday.
+# “If You Only Knew the Power of the Dark Side”: Examining Within-Person Fluctuation in Psychological Need Frustration, Burnout, and Turnover Intentions across a Workday.
 
 Author & Maintainer: Demetrius K. Green 
 
@@ -11,20 +11,31 @@ Industrial-Organizational Psychology
 Raleigh, North Carolina (2025)
 
 # Table of Contents
-- [“If You Only Knew the Power of the Dark Side”: Examining Within-Person Change in Psychological Need Frustration, Burnout, and Turnover Intentions across a Workday.](#if-you-only-knew-the-power-of-the-dark-side-examining-within-person-change-in-psychological-need-frustration-burnout-and-turnover-intentions-across-a-workday)
+- [“If You Only Knew the Power of the Dark Side”: Examining Within-Person Fluctuation in Psychological Need Frustration, Burnout, and Turnover Intentions across a Workday.](#if-you-only-knew-the-power-of-the-dark-side-examining-within-person-fluctuation-in-psychological-need-frustration-burnout-and-turnover-intentions-across-a-workday)
 - [Table of Contents](#table-of-contents)
 - [Overview](#overview)
 - [Conceptual Framework](#conceptual-framework)
+  - [Hypotheses (Proposed)](#hypotheses-proposed)
   - [Research Model (Proposed)](#research-model-proposed)
 - [Measures](#measures)
   - [Level 1 Variables (L1)](#level-1-variables-l1)
+    - [Shirom-Melamed Burnout Measure (*SMBM; Shirom \& Melamed, 2006*)](#shirom-melamed-burnout-measure-smbm-shirom--melamed-2006)
+    - [Basic Psychological Needs Thwarting Scale (*PNTS; Bartholomew et al., 2011*)](#basic-psychological-needs-thwarting-scale-pnts-bartholomew-et-al-2011)
+    - [Attitude Toward the Color Blue (*ATCB; Miller et al., 2024*; *Miller \& Simmering, 2023*)](#attitude-toward-the-color-blue-atcb-miller-et-al-2024-miller--simmering-2023)
+    - [Meeting Characteristics](#meeting-characteristics)
+    - [Turnover Intentions (*Spector et al., 1988*)](#turnover-intentions-spector-et-al-1988)
   - [Level 2 Variables (L2)](#level-2-variables-l2)
+    - [Psychological Contract (*Robinson \& Morrison, 2000*)](#psychological-contract-robinson--morrison-2000)
+    - [Job Satisfaction (*Fisher et al., 2016, p. 20*)](#job-satisfaction-fisher-et-al-2016-p-20)
+    - [International Positive and Negative Affect Schedule Short Form (*I-PANAS-SF; Thompson, 2007*)](#international-positive-and-negative-affect-schedule-short-form-i-panas-sf-thompson-2007)
+    - [Demographic Variables (*Hughes et al., 2022*)](#demographic-variables-hughes-et-al-2022)
   - [Analytical Strategy (Proposed)](#analytical-strategy-proposed)
     - [Descriptive Statistics](#descriptive-statistics)
     - [Reliability](#reliability)
     - [Common Method Variance \& Factor Structure](#common-method-variance--factor-structure)
     - [A Priori Sensitivity Analysis of Power](#a-priori-sensitivity-analysis-of-power)
     - [Mixed Effects Modeling | Latent Growth Curve Modeling](#mixed-effects-modeling--latent-growth-curve-modeling)
+  - [$$](#)
 - [Limitations](#limitations)
 
 # Overview
@@ -63,6 +74,25 @@ Participants will be measured across three timepoints within a single respective
 
 - Attitude Toward the Color Blue (*L1*)
 
+## Hypotheses (Proposed)
+
+- **H1.**  Burnout (i.e., (a) physical fatigue, (b) cognitive weariness, and (c) emotional exhaustion) will be positively related to turnover intentions at the within-person level.
+
+- **H2.** Need frustration (i.e., (a) competency thwarting, (b) autonomy thwarting, and (c) relatedness thwarting) will be positively related to turnover intentions at the within-person level.
+
+- **H3.** The positive within-person relationship between burnout and turnover intentions will be moderated by meeting characteristics, such that meeting characteristics (i.e., (a) number of meetings and (b) amount of time spent in meetings) strengthens the relationship. 
+
+- **H4.** The positive within-person relationship between need frustration and turnover intentions will be moderated by meeting characteristics, such that meeting characteristics (i.e., (a) number of meetings and (b) amount of time spent in meetings) strengthens the relationship.
+
+- **H5.** The positive within-person relationship between burnout and turnover intentions will be moderated by psychological contract perceptions, such that psychological contract perceptions (i.e., (a) perceived breach and (b) violation) at the between-level strengthen the within-person relationship.
+
+- **H6.** The positive within-person relationship between need frustration and turnover intentions will be moderated by psychological contract perceptions, such that psychological contract perceptions (i.e., (a) perceived breach and (b) violation) at the between-level strengthen the within-person relationship.
+
+- **H7.** The positive within-person relationship between burnout and turnover intentions will be moderated by job satisfaction, such that job satisfaction at the between-level weaken the within-person relationship.
+
+- **H8.** The positive within-person relationship between need frustration and turnover intentions will be moderated by job satisfaction, such that job satisfaction at the between-level weaken the within-person relationship.
+
+
 ## Research Model (Proposed)
 
 ![thesis-research-model](images/thesis-research-model.svg)
@@ -71,7 +101,7 @@ Participants will be measured across three timepoints within a single respective
 
 ## Level 1 Variables (L1)
 
-**Shirom-Melamed Burnout Measure** ([*SMBM; Shirom & Melamed, 2006*](https://psycnet.apa.org/record/2006-07100-003))
+### Shirom-Melamed Burnout Measure ([*SMBM; Shirom & Melamed, 2006*](https://psycnet.apa.org/record/2006-07100-003))
 
 *{Timepoint-stem}*, indicate how often you have experienced the following feelings or behaviors?
 
@@ -113,7 +143,7 @@ Response Anchors: Frequency-based (see [*Tong et al., 2020*](https://pubmed.ncbi
 
 ---
 
-**Basic Psychological Needs Thwarting Scale** ([*PNTS; Bartholomew et al., 2011*](https://pubmed.ncbi.nlm.nih.gov/21451172/))
+### Basic Psychological Needs Thwarting Scale ([*PNTS; Bartholomew et al., 2011*](https://pubmed.ncbi.nlm.nih.gov/21451172/))
 
 *{Timepoint-stem}*, indicate the extent to which you agree or disagree with the following statements about your experiences so far at work.
 
@@ -153,7 +183,7 @@ Response Anchors: Agreement-based
 
 ---
 
-**Attitude Toward the Color Blue** ([*ATCB; Miller et al., 2024*](https://pubmed.ncbi.nlm.nih.gov/39009822/); [*Miller & Simmering, 2023*](https://journals.sagepub.com/doi/abs/10.1177/10944281221075361))
+### Attitude Toward the Color Blue ([*ATCB; Miller et al., 2024*](https://pubmed.ncbi.nlm.nih.gov/39009822/); [*Miller & Simmering, 2023*](https://journals.sagepub.com/doi/abs/10.1177/10944281221075361))
 
 *{Timepoint-stem}*, indicate the extent to which you agree or disagree with the following statements.
 
@@ -180,7 +210,7 @@ Response Anchors: Agreement-based
 
 ---
 
-**Meeting Characteristics**
+### Meeting Characteristics
 
 <details>
 <summary>Expand for items</summary>
@@ -197,7 +227,9 @@ Response Anchors: Agreement-based
 
 ---
 
-**Turnover Intentions** ([*Spector et al., 1988*](https://psycnet.apa.org/record/1989-10417-001); see [*Matthews et al., 2022*](https://psycnet.apa.org/record/2022-55095-001) for theoretical justification of single item measures)
+### Turnover Intentions ([*Spector et al., 1988*](https://psycnet.apa.org/record/1989-10417-001))
+
+*Note*. See [*Matthews et al., 2022*](https://psycnet.apa.org/record/2022-55095-001) for theoretical justification of single item measures.
 
 *{Timepoint-stem}*, how often have you thought about leaving your current employer?
 
@@ -208,9 +240,11 @@ Response Anchors: Frequency-based
 - 4 = A few times
 - 5 = Very often
 
+---
+
 ## Level 2 Variables (L2)
 
-**Psychological Contract** ([*Robinson & Morrison, 2000*](https://psycnet.apa.org/record/2000-00379-003))
+### Psychological Contract ([*Robinson & Morrison, 2000*](https://psycnet.apa.org/record/2000-00379-003))
 
 Indicate the extent to which you agree or disagree with the following statements regarding your experiences with your current employer.
 
@@ -243,7 +277,7 @@ Response Anchors: Agreement-based
 
 ---
 
-**Job Satisfaction** ([*Fisher et al., 2016, p. 20*](https://psycnet.apa.org/record/2015-17466-001))
+### Job Satisfaction ([*Fisher et al., 2016, p. 20*](https://psycnet.apa.org/record/2015-17466-001))
 
 Overall, I am satisfied with my job.
 
@@ -256,7 +290,7 @@ Response Anchors: Agreement-based
 
 ---
 
-**International Positive and Negative Affect Schedule Short Form** ([*I-PANAS-SF; Thompson, 2007*](https://psycnet.apa.org/record/2007-03451-007))
+### International Positive and Negative Affect Schedule Short Form ([*I-PANAS-SF; Thompson, 2007*](https://psycnet.apa.org/record/2007-03451-007))
 
 Thinking about yourself and your general emotional tendencies, how often do you feel:
 
@@ -291,7 +325,7 @@ Response Anchors: Frequency-based
 
 ---
 
-**Demographic Variables** ([*Hughes et al., 2022*](https://psycnet.apa.org/record/2023-67175-001))
+### Demographic Variables ([*Hughes et al., 2022*](https://psycnet.apa.org/record/2023-67175-001))
 
 <details>
 <summary>Expand for items</summary>
@@ -339,6 +373,8 @@ Response Anchors: Frequency-based
 
 </details>
 
+---
+
 ## Analytical Strategy (Proposed)
 
 ### Descriptive Statistics
@@ -356,12 +392,18 @@ Response Anchors: Frequency-based
 - Correlations between variables and visualizations of relationships
   - Pearson's *r* for continuous variables (L1 variables will be aggregated up to L2 level)
   - `rmcorr` exclusively for continuous variables at the L1 level
-- Intraclass Correlation Coefficients (ICCs) to assess within- and between-person variability
+- Intraclass Correlation Coefficients (ICCs) to assess within- and between-person variability (this will also determine if the within-person variables show intraindividual variability)
+  - Low ICC implies more within-person fluctuation, high ICC implies more between-person stability
+  - If within-person predictor meaningfully varies, include person mean at Level 2
+  - If within-person predictor does not vary, treat it as a Level 2 predictor instead (or drop the within-person term for that variable)
+  - In order to test within- and between-person difference, grand mean center the Level 1 tim-varying variable and include the person mean at Level 2; this parameterization directly tests the contextual difference (BP - WP) and is algebraically equivalent to person-mean centering under fixed within-person slopes.
 
 ### Reliability
+
 - Composite index (McDonald’s omega, see *Geldhof et al., 2014; Fu, Wen, & Wang, 2022; Yang et al., 2022* for theoretical justification)
 
 ### Common Method Variance & Factor Structure
+
 - CFA Marker Technique (see *Williams, Hartman, & Cavazotte, 2010*)
 - Multilevel CFA
 
@@ -396,11 +438,13 @@ By systematically varying key assumptions (ICC, effect sizes, random slope varia
 
 ---
 
-**Empty | Null | Unconditional Means Model**:
+**Empty/Null/Unconditional Means, Random Intercept**:
+
+*Note*. Replace *TI* with all other Level 1 variables (i.e., SMBM, PNTS, ATCB, etc.) to get the respective ICCs.
 
 $$
 \begin{aligned}
-\text{Level 1:}& \quad TI_{it} = \beta_{0i} + \epsilon_{it} \\
+\text{Level 1:}& \quad TI_{ti} = \beta_{0i} + \epsilon_{ti} \\
 \text{Level 2:}& \quad \beta_{0i} = \gamma_{00} + \mu_{0i}
 \end{aligned}
 $$
@@ -409,35 +453,52 @@ Composite Notation:
 
 $$
 \begin{aligned}
-\quad TI_{it} = \beta_{0} + \mu_{0i} + \epsilon_{it}
+\quad TI_{ti} = \gamma_{00} + \mu_{0i} + \epsilon_{ti}
 \end{aligned}
 $$
 
 ---
 
-**Random Intercepts, Fixed (Time) Slopes | Unconditional Growth Model**:
+**Random Intercepts, Fixed Slopes**:
 
 $$
 \begin{aligned}
-\text{Level 1:}& \quad TI_{it} = \beta_{0i} + \beta_{1i}(TIME_{it}) + \epsilon_{it} \\
-\text{Level 2:}& \quad \beta_{0i} = \gamma_{00} + \mu_{0i} \\
-& \quad \beta_{1i} = \gamma_{10}
+\text{Level 1:}& \quad TI_{ti} = \beta_{0i} + \beta_{1i}(BURN.PHY_{ti} - BURN.PHY_{i}) + \beta_{2i}(BURN.COG_{ti} - BURN.COG_{i}) + \beta_{3i}(BURN.EMO_{ti} - BURN.EMO_{i}) \\
+& \quad\quad\quad\ + \beta_{4i}(NF.COMP_{ti} - NF.COMP_{i}) + \beta_{5i}(NF.AUTO_{ti} - NF.AUTO_{i}) + \beta_{6i}(NF.RLTD_{ti} - NF.RLTD_{i}) \\
+& \quad\quad\quad\ + \beta_{7i}(MEET.COUNT_{ti} - MEET.COUNT_{i}) + \beta_{8i}(MEET.TIME_{ti} - MEET.TIME_{i}) \\
+& \quad\quad\quad\ + \epsilon_{ti} \\
+\text{Level 2:}& \quad \beta_{0i} = \gamma_{00} + \gamma_{01}(BURN.PHY_{i}) + \gamma_{02}(BURN.COG_{i}) + \gamma_{03}(BURN.EMO_{i}) \\
+&\quad\quad\quad\ + \gamma_{04}(NF.COMP_{i}) + \gamma_{05}(NF.AUTO_{i}) + \gamma_{06}(NF.RLTD_{i}) \\
+&\quad\quad\quad\ + \gamma_{07}(MEET.COUNT_{i}) + \gamma_{08}(MEET.TIME_{i}) \\
+&\quad\quad\quad\ + \gamma_{09}(PSYK.BR_{i}) + \gamma_{010}(PSYK.VIO_{i}) + \gamma_{011}(JOBSAT_{i})\\
+&\quad\quad\quad\ + \mu_{0i} \\
+
+& \quad \beta_{1i} = \gamma_{10} \\
+& \quad \beta_{2i} = \gamma_{20} \\
+& \quad \beta_{3i} = \gamma_{30} \\
+& \quad \beta_{4i} = \gamma_{40} \\
+& \quad \beta_{5i} = \gamma_{50} \\
+& \quad \beta_{6i} = \gamma_{60} \\
+& \quad \beta_{7i} = \gamma_{70} \\
+& \quad \beta_{8i} = \gamma_{80}
 \end{aligned}
 $$
 
 Composite Notation:
 
+TO BE DETERMINED...
+
 $$
-\quad TI_{it} = \gamma_{00} + \gamma_{10}(TIME_{it}) + \mu_{0i} + \epsilon_{it}
+\quad TI_{ti} = \gamma_{00} + \gamma_{01}(BURN.PHY_{i}) + \gamma_{02}(BURN.COG_{i}) + \gamma_{03}(BURN.EMO_{i}) + \gamma_{04}(NF.COMP_{i}) + \gamma_{05}(NF.AUTO_{i}) + \gamma_{06}(NF.RLTD_{i}) + \gamma_{07}(MEET.COUNT_{i}) + \gamma_{08}(MEET.TIME_{i}) + \gamma_{09}(PSYK.BR_{i}) + \gamma_{010}(PSYK.VIO_{i}) + \gamma_{011}(JOBSAT_{i}) + \mu_{0i} + \epsilon_{ti}
 $$
 
 ---
 
-**Random Intercepts, Random (Time) Slopes Model**:
+**Random Intercepts, Random (Time) Slopes Model**: 
 
 $$
 \begin{aligned}
-\text{Level 1:}& \quad TI_{it} = \beta_{0i} + \beta_{1i}(TIME_{it}) + \epsilon_{it} \\
+\text{Level 1:}& \quad TI_{ti} = \beta_{0i} + \beta_{1i}(TIME_{ti}) + \epsilon_{ti} \\
 \text{Level 2:}& \quad \beta_{0i} = \gamma_{00} + \mu_{0i} \\
 & \quad \beta_{1i} = \gamma_{10} + \mu_{1i}
 \end{aligned}
@@ -446,19 +507,21 @@ $$
 Composite Notation:
 
 $$
-\quad TI_{it} = \gamma_{00} + \gamma_{10}(TIME_{it}) + \mu_{0i} + \mu_{1i}(TIME_{it}) + \epsilon_{it}
+\quad T I_{ti} = \gamma_{00} + \gamma_{10}(TIME_{ti}) + \mu_{0i} + \mu_{1i}(TIME_{ti}) + \epsilon_{ti}
 $$
-
-  - Intraclass Correlation (ICC)
-  - Moderation
-    - Within- and Cross-level interactions
-  - Group mean centering *L1* variables
+---
 
 # Limitations
 
 Primarily, vague response anchors were used to assess frequency. While Tong et al. (2020) demonstrated that precise response options yield superior performance, the expedited timeline of this study necessitated the use of less specific anchors. In future research, particularly longitudinal studies spanning months or years or cross-sectional designs, employing more precise response options would likely enhance measurement reliability and validity.
 
-Although statistical analyses were conducted to assess the extent of same-source bias or common method bias, these methods cannot entirely eliminate its potential influence on the findings (See *Williams, Hartman, & Cavazotte, 2010**).
+The outcome variable, turnover intentions, was measured using a single item. While this approach is justified in the context of this study (see *Matthews et al., 2022*), it is important to acknowledge that single-item measures may not capture the full complexity of the construct. Future research should consider using multi-item measures to provide a more comprehensive assessment of turnover intentions.
+
+All variables used in the study were self-reported, which raises concerns about common method variance (CMV) or same-source bias. This limitation is particularly relevant in the context of psychological constructs, where self-report measures are often used. While the study employed statistical techniques to assess and mitigate the impact of CMV, it is important to recognize that these methods cannot completely eliminate the potential influence of same-source bias on the findings (see *Williams, Hartman, & Cavazotte, 2010*). Future research should consider using multi-source data collection or longitudinal designs with lagged outcomes to address this concern more effectively.
+
+In addition, all variables used in the study were measured using a 5-point agreement-based Likert scale (1 to 5), which are ordinal in nature. While this approach is common in psychological research, it is important to acknowledge that treating ordinal data as interval data can lead to potential biases in parameter estimates and attenuated effect sizes.
+
+Although statistical analyses were conducted to assess the extent of same-source bias or common method bias, these methods cannot entirely eliminate its potential influence on the findings (See *Williams, Hartman, & Cavazotte, 2010**). Because this study was not an extensive longitudinal design, I decided not to use lagged outcomes as controls. It is plausible that common method variance may have influenced the results given the concurrent relationships between the predictors and turnover intentions (Gabriel et. al, 2019, Kim et. al, 2025). Future research should consider employing a more robust design to mitigate this concern, such as using multi-source data collection or longitudinal designs with lagged outcomes.
 
 The sample is likely WEIRD (Western, Educated, Industrialized, Rich, Democratic) and limited to participants working standard 9-to-5 shifts. It is plausible that differences may emerge across non-standard shifts, warranting further investigation to explore potential variations (See *Alley & Cortina, 2023*).
 
