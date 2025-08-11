@@ -471,7 +471,6 @@ $$
 &\quad\quad\quad\ + \gamma_{07}(MEET.COUNT_{i}) + \gamma_{08}(MEET.TIME_{i}) \\
 &\quad\quad\quad\ + \gamma_{09}(PSYK.BR_{i}) + \gamma_{010}(PSYK.VIO_{i}) + \gamma_{011}(JOBSAT_{i}) \\
 &\quad\quad\quad\ + \mu_{0i} \\
-
 & \quad \beta_{1i} = \gamma_{10} \\
 & \quad \beta_{2i} = \gamma_{20} \\
 & \quad \beta_{3i} = \gamma_{30} \\
