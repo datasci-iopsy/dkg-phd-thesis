@@ -35,7 +35,6 @@ Raleigh, North Carolina (2025)
     - [Common Method Variance \& Factor Structure](#common-method-variance--factor-structure)
     - [A Priori Sensitivity Analysis of Power](#a-priori-sensitivity-analysis-of-power)
     - [Mixed Effects Modeling | Latent Growth Curve Modeling](#mixed-effects-modeling--latent-growth-curve-modeling)
-  - [$$](#)
 - [Limitations](#limitations)
 
 # Overview
@@ -470,7 +469,7 @@ $$
 \text{Level 2:}& \quad \beta_{0i} = \gamma_{00} + \gamma_{01}(BURN.PHY_{i}) + \gamma_{02}(BURN.COG_{i}) + \gamma_{03}(BURN.EMO_{i}) \\
 &\quad\quad\quad\ + \gamma_{04}(NF.COMP_{i}) + \gamma_{05}(NF.AUTO_{i}) + \gamma_{06}(NF.RLTD_{i}) \\
 &\quad\quad\quad\ + \gamma_{07}(MEET.COUNT_{i}) + \gamma_{08}(MEET.TIME_{i}) \\
-&\quad\quad\quad\ + \gamma_{09}(PSYK.BR_{i}) + \gamma_{010}(PSYK.VIO_{i}) + \gamma_{011}(JOBSAT_{i})\\
+&\quad\quad\quad\ + \gamma_{09}(PSYK.BR_{i}) + \gamma_{010}(PSYK.VIO_{i}) + \gamma_{011}(JOBSAT_{i}) \\
 &\quad\quad\quad\ + \mu_{0i} \\
 
 & \quad \beta_{1i} = \gamma_{10} \\
@@ -509,6 +508,7 @@ Composite Notation:
 $$
 \quad T I_{ti} = \gamma_{00} + \gamma_{10}(TIME_{ti}) + \mu_{0i} + \mu_{1i}(TIME_{ti}) + \epsilon_{ti}
 $$
+
 ---
 
 # Limitations
