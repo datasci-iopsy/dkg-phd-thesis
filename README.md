@@ -478,7 +478,7 @@ $$
 \begin{aligned}
 \text{Level 2:}& \quad \beta_{0i} = \gamma_{00} + \gamma_{01}(BURN.PHY.BP_{i}) + \gamma_{02}(BURN.COG.BP_{i}) + \gamma_{03}(BURN.EMO.BP_{i}) + \gamma_{04}(NF.COMP.BP_{i}) + \gamma_{05}(NF.AUTO.BP_{i}) + \gamma_{06}(NF.RLTD.BP_{i}) \\
 & \quad\quad\quad\ + \gamma_{07}(MEET.COUNT.BP_{i}) + \gamma_{08}(MEET.TIME.BP_{i}) \\
-& \quad\quad\quad\ + \gamma_{09}(PSYK.BR_{i}) + \gamma_{10}(PSYK.VIO_{i}) + \gamma_{11}(JOBSAT_{i}) + \gamma_{12}(PA_{i}) + \gamma_{13}(NA_{i}) + \gamma_{14}(AGE_{i}) + \gamma_{15}(JOB.TENURE_{i}) + \gamma_{16}(REMOTE.FLAG_{i}) \\
+& \quad\quad\quad\ + \gamma_{09}(PSYK.BR_{i}) + \gamma_{10}(PSYK.VIO_{i}) + \gamma_{11}(JOBSAT_{i}) + \gamma_{12}(z_{i}) \\
 & \quad\quad\quad\ + \mu_{0i} \\
 &\quad \text{where } \mu_{0i} \sim N(0, \sigma_{\mu_0}^2) \\
 \\
