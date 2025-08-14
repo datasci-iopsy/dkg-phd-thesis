@@ -460,7 +460,7 @@ $$
 
 **Random Intercepts, Fixed Slopes (Full Research Model)**:
 
-The within-person predictors are person-mean centered and is indicated by "WP" in the notation (e.g., $X_{ti} - \overline X_{i}$). The between-person predictors are grand mean centered and is indicated by "BP" in the notation (e.g., $X_{i} - \overline X$). Inspiration drawn from [ChatGPT-5 review](https://www.perplexity.ai/search/attached-you-will-find-an-arti-WxzXWE_7Q7ifJf7F5TOhvA#0) of [*Du, C. et. al (2024)](https://doi.org/10.1186/s12877-024-05256-y).
+The within-person predictors are person-mean centered and is indicated by "WP" in the notation (e.g., $X_{ti} - \overline X_{i}$). The between-person predictors are grand mean centered and is indicated by "BP" in the notation (e.g., $X_{i} - \overline X$). Inspiration drawn from [ChatGPT-5 review](https://www.perplexity.ai/search/attached-you-will-find-an-arti-WxzXWE_7Q7ifJf7F5TOhvA#0) of [*Du, C. et. al (2024)](https://doi.org/10.1186/s12877-024-05256-y). *Note*: $z_{i}$ is a placeholder for covariates but are consolidated for LaTex rendering purposes.
 
 $$
 \begin{aligned}
