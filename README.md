@@ -475,7 +475,8 @@ $$
 & \quad\quad\quad\ + \gamma_{07}(MEET.COUNT.BP_{i}) + \gamma_{08}(MEET.TIME.BP_{i}) \\
 & \quad\quad\quad\ + \gamma_{09}(PSYK.BR_{i}) + \gamma_{10}(PSYK.VIO_{i}) + \gamma_{11}(JOBSAT_{i}) \\
 & \quad\quad\quad\ + \mu_{0i}, \mu_{0i} \sim N(0, \sigma_{\mu_{0}}^2) \\
-& \quad \beta_{1i} = \gamma_{10} + \gamma_{11}(PSYK.BR_{i}) + \gamma_{12}(PSYK.VIO_{i}) + \gamma_{13}(JOBSAT_{i})
+& \quad \beta_{1i} = \gamma_{10} + \gamma_{11}(PSYK.BR_{i}) + \gamma_{12}(PSYK.VIO_{i}) + \gamma_{13}(JOBSAT_{i}) \\
+& \quad \beta_{2i} = \gamma_{20} + \gamma_{21}(PSYK.BR_{i}) + \gamma_{22}(PSYK.VIO_{i}) + \gamma_{23}(JOBSAT_{i}) \\
 \end{aligned}
 $$
 
