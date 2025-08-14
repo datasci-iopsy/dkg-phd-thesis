@@ -467,8 +467,8 @@ $$
 \text{Level 1:}& \quad TI_{ti} = \beta_{0i} + \beta_{1i}(BURN.PHY.WP_{ti}) + \beta_{2i}(BURN.COG.WP_{ti}) + \beta_{3i}(BURN.EMO.WP_{ti}) \\
 & \quad\quad\quad\ + \beta_{4i}(NF.COMP.WP_{ti}) + \beta_{5i}(NF.AUTO.WP_{ti}) + \beta_{6i}(NF.RLTD.WP_{ti}) \\
 & \quad\quad\quad\ + \beta_{7i}(MEET.COUNT.WP_{ti}) + \beta_{8i}(MEET.TIME.WP_{ti}) \\
-& \quad\quad\quad\ + \beta_{9i}(MEET.COUNT.WP_{ti} * BURN.PHY.WP_{ti}) + \beta_{10i}(MEET.COUNT.WP_{ti} * BURN.COG.WP_{ti}) + \beta_{11i}(MEET.COUNT.WP_{ti} * BURN.EMO.WP_{ti}) \\
-& \quad\quad\quad\ + \beta_{12i}(MEET.COUNT.WP_{ti} * NF.COMP.WP_{ti}) + \beta_{13i}(MEET.COUNT.WP_{ti} * NF.AUTO.WP_{ti}) + \beta_{14i}(MEET.COUNT.WP_{ti} * NF.RLTD.WP_{ti}) \\
+& \quad\quad\quad\ + \beta_{9i}(MEET.COUNT.WP_{ti} \times BURN.PHY.WP_{ti}) + \beta_{10i}(MEET.COUNT.WP_{ti} \times BURN.COG.WP_{ti}) + \beta_{11i}(MEET.COUNT.WP_{ti} \times BURN.EMO.WP_{ti}) \\
+& \quad\quad\quad\ + \beta_{12i}(MEET.COUNT.WP_{ti} \times NF.COMP.WP_{ti}) + \beta_{13i}(MEET.COUNT.WP_{ti} \times NF.AUTO.WP_{ti}) + \beta_{14i}(MEET.COUNT.WP_{ti} \times NF.RLTD.WP_{ti}) \\
 & \quad\quad\quad\ + \epsilon_{ti}, \epsilon_{it} \sim N(0, \sigma^2) \\
 \text{Level 2:}& \quad \beta_{0i} = \gamma_{00} + \gamma_{01}(BURN.PHY.BP_{i}) + \gamma_{02}(BURN.COG.BP_{i}) + \gamma_{03}(BURN.EMO.BP_{i}) \\
 & \quad\quad\quad\ + \gamma_{04}(NF.COMP.BP_{i}) + \gamma_{05}(NF.AUTO.BP_{i}) + \gamma_{06}(NF.RLTD.BP_{i}) \\
@@ -495,10 +495,6 @@ $$
 Composite Notation:
 
 TO BE DETERMINED...
-
-$$
-\quad TI_{ti} = 
-$$
 
 ---
 
