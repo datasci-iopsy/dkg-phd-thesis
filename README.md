@@ -478,7 +478,6 @@ The within-person predictors are person-mean centered and is indicated by "WP" i
 & \quad \beta_{1i} = \gamma_{10} + \gamma_{11}(PSYK.BR_{i}) + \gamma_{12}(PSYK.VIO_{i}) + \gamma_{13}(JOBSAT_{i}) \\
 & \quad \beta_{2i} = \gamma_{20} + \gamma_{21}(PSYK.BR_{i}) + \gamma_{22}(PSYK.VIO_{i}) + \gamma_{23}(JOBSAT_{i}) \\
 & \quad \beta_{3i} = \gamma_{30} + \gamma_{31}(PSYK.BR_{i}) + \gamma_{32}(PSYK.VIO_{i}) + \gamma_{33}(JOBSAT_{i}) \\
-& \quad \beta_{4i} = \gamma_{40} + \gamma_{41}(PSYK.BR_{i}) + \gamma_{42}(PSYK.VIO_{i}) + \gamma_{43}(JOBSAT_{i})
 \end{aligned}
 ```
 
