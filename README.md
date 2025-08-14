@@ -439,7 +439,7 @@ By systematically varying key assumptions (ICC, effect sizes, random slope varia
 
 **Empty/Null/Unconditional Means, Random Intercept**:
 
-*Note*. Replace *TI* with all other Level 1 variables (i.e., BURN.PHY, NF.COMP, etc.) to get the respective ICCs.
+*Note*. Replace *TI* with all other Level 1 variables (i.e., SMBM, PNTS, ATCB, etc.) to get the respective ICCs.
 
 $$
 \begin{aligned}
@@ -460,7 +460,7 @@ $$
 
 **Random Intercepts, Fixed Slopes (Full Research Model)**:
 
-The within-person predictors are person-mean centered and is indicated by "WP" in the notation (e.g., $X_{ti} - \overline X_{i}$). The between-person predictors are grand mean centered and is indicated by "BP" in the notation (e.g., $X_{i} - \overline X$). Inspiration drawn from [ChatGPT-5 review](https://www.perplexity.ai/search/attached-you-will-find-an-arti-WxzXWE_7Q7ifJf7F5TOhvA#0) of [*Du, C. et. al (2024)](https://doi.org/10.1186/s12877-024-05256-y). The full model also includes covariates (control variables) determined by me to be relevant based on the literature and the research questions.
+The within-person predictors are person-mean centered and is indicated by "WP" in the notation (e.g., $X_{ti} - \overline X_{i}$). The between-person predictors are grand mean centered and is indicated by "BP" in the notation (e.g., $X_{i} - \overline X$). Inspiration drawn from [ChatGPT-5 review](https://www.perplexity.ai/search/attached-you-will-find-an-arti-WxzXWE_7Q7ifJf7F5TOhvA#0) of [*Du, C. et. al (2024)](https://doi.org/10.1186/s12877-024-05256-y).
 
 $$
 \begin{aligned}
@@ -479,7 +479,6 @@ $$
 \text{Level 2:}& \quad \beta_{0i} = \gamma_{00} + \gamma_{01}(BURN.PHY.BP_{i}) + \gamma_{02}(BURN.COG.BP_{i}) + \gamma_{03}(BURN.EMO.BP_{i}) + \gamma_{04}(NF.COMP.BP_{i}) + \gamma_{05}(NF.AUTO.BP_{i}) + \gamma_{06}(NF.RLTD.BP_{i}) \\
 & \quad\quad\quad\ + \gamma_{07}(MEET.COUNT.BP_{i}) + \gamma_{08}(MEET.TIME.BP_{i}) \\
 & \quad\quad\quad\ + \gamma_{09}(PSYK.BR_{i}) + \gamma_{10}(PSYK.VIO_{i}) + \gamma_{11}(JOBSAT_{i}) \\
-& \quad\quad\quad\ + \gamma_{12}(PA_{i}) + \gamma_{13}(NA_{i}) + \gamma_{14}(AGE_{i}) + \gamma_{15}(JOB.TENURE_{i}) + \gamma_{16}(REMOTE.FLAG_{i}) \\
 & \quad\quad\quad\ + \mu_{0i} \\
 &\quad \text{where } \mu_{0i} \sim N(0, \sigma_{\mu_0}^2) \\
 \\
