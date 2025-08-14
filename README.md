@@ -464,32 +464,17 @@ The within-person predictors are centered around the person mean (i.e., person-m
 
 $$
 \begin{aligned}
-
 \text{Level 1:}& \quad TI_{ti} = \beta_{0i} + \beta_{1i}(BURN.PHY.WP_{ti}) + \beta_{2i}(BURN.COG.WP_{ti}) + \beta_{3i}(BURN.EMO.WP_{ti}) \\
 & \quad\quad\quad\ + \beta_{4i}(NF.COMP.WP_{ti}) + \beta_{5i}(NF.AUTO.WP_{ti}) + \beta_{6i}(NF.RLTD.WP_{ti}) \\
 & \quad\quad\quad\ + \beta_{7i}(MEET.COUNT.WP_{ti}) + \beta_{8i}(MEET.TIME.WP_{ti}) \\
-
 & \quad\quad\quad\ + \beta_{9i}(MEET.COUNT.WP_{ti} * BURN.PHY.WP_{ti}) + \beta_{10i}(MEET.COUNT.WP_{ti} * BURN.COG.WP_{ti}) + \beta_{11i}(MEET.COUNT.WP_{ti} * BURN.EMO.WP_{ti}) \\
 & \quad\quad\quad\ + \beta_{12i}(MEET.COUNT.WP_{ti} * NF.COMP.WP_{ti}) + \beta_{13i}(MEET.COUNT.WP_{ti} * NF.AUTO.WP_{ti}) + \beta_{14i}(MEET.COUNT.WP_{ti} * NF.RLTD.WP_{ti}) \\
 & \quad\quad\quad\ + \epsilon_{ti}, \epsilon_{it} \sim N(0, \sigma^2) \\
-
 \text{Level 2:}& \quad \beta_{0i} = \gamma_{00} + \gamma_{01}(BURN.PHY.BP_{i}) + \gamma_{02}(BURN.COG.BP_{i}) + \gamma_{03}(BURN.EMO.BP_{i}) \\
 &\quad\quad\quad\ + \gamma_{04}(NF.COMP.BP_{i}) + \gamma_{05}(NF.AUTO.BP_{i}) + \gamma_{06}(NF.RLTD.BP_{i}) \\
 &\quad\quad\quad\ + \gamma_{07}(MEET.COUNT.BP_{i}) + \gamma_{08}(MEET.TIME.BP_{i}) \\
 &\quad\quad\quad\ + \gamma_{09}(PSYK.BR_{i}) + \gamma_{10}(PSYK.VIO_{i}) + \gamma_{11}(JOBSAT_{i}) \\
-
-% % These are between-level interaction terms
-% &\quad\quad\quad\ + \gamma_{12}(PSYK.BR_{i} * BURN.PHY.BP_{i}) + \gamma_{13}(PSYK.BR_{i} * BURN.COG.BP_{i}) + \gamma_{14}(PSYK.BR_{i} * BURN.EMO.BP_{i}) \\
-% &\quad\quad\quad\ + \gamma_{15}(PSYK.VIO_{i} * BURN.PHY.BP_{i}) + \gamma_{16}(PSYK.VIO_{i} * BURN.COG.BP_{i}) + \gamma_{17}(PSYK.VIO_{i} * BURN.EMO.BP_{i}) \\
-
-% &\quad\quad\quad\ + \gamma_{18}(PSYK.BR_{i} * NF.COMP.BP_{i}) + \gamma_{19}(PSYK.BR_{i} * NF.AUTO.BP_{i}) + \gamma_{20}(PSYK.BR_{i} * NF.RLTD.BP_{i}) \\
-% &\quad\quad\quad\ + \gamma_{21}(PSYK.VIO_{i} * BURN.PHY.BP_{i}) + \gamma_{22}(PSYK.VIO_{i} * BURN.COG.BP_{i}) + \gamma_{23}(PSYK.VIO_{i} * BURN.EMO.BP_{i}) \\
-
-% &\quad\quad\quad\ + \gamma_{24}(JOBSAT_{i} * BURN.PHY.BP_{i}) + \gamma_{25}(JOBSAT_{i} * BURN.COG.BP_{i}) + \gamma_{26}(JOBSAT_{i} * BURN.EMO.BP_{i}) \\
-% &\quad\quad\quad\ + \gamma_{27}(JOBSAT_{i} * NF.COMP.BP_{i}) + \gamma_{28}(JOBSAT_{i} * NF.AUTO.BP_{i}) + \gamma_{29}(JOBSAT_{i} * NF.RLTD.BP_{i}) \\
-
 &\quad\quad\quad\ + \mu_{0i}, \mu_{0i} \sim N(0, \sigma_{\mu_{0}}^2) \\
-
 & \quad \beta_{1i} = \gamma_{10} + \gamma_{11}(PSYK.BR_{i}) + \gamma_{12}(PSYK.VIO_{i}) + \gamma_{13}(JOBSAT_{i}) \\
 & \quad \beta_{2i} = \gamma_{20} + \gamma_{21}(PSYK.BR_{i}) + \gamma_{22}(PSYK.VIO_{i}) + \gamma_{23}(JOBSAT_{i}) \\
 & \quad \beta_{3i} = \gamma_{30} + \gamma_{31}(PSYK.BR_{i}) + \gamma_{32}(PSYK.VIO_{i}) + \gamma_{33}(JOBSAT_{i}) \\
