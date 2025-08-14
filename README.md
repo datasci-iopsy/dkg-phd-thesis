@@ -470,25 +470,6 @@ $$
 & \quad\quad\quad\ + \beta_{9i}(MEET.COUNT.WP_{ti} \times BURN.PHY.WP_{ti}) + \beta_{10i}(MEET.COUNT.WP_{ti} \times BURN.COG.WP_{ti}) + \beta_{11i}(MEET.COUNT.WP_{ti} \times BURN.EMO.WP_{ti}) \\
 & \quad\quad\quad\ + \beta_{12i}(MEET.COUNT.WP_{ti} \times NF.COMP.WP_{ti}) + \beta_{13i}(MEET.COUNT.WP_{ti} \times NF.AUTO.WP_{ti}) + \beta_{14i}(MEET.COUNT.WP_{ti} \times NF.RLTD.WP_{ti}) \\
 & \quad\quad\quad\ + \epsilon_{ti}, \epsilon_{it} \sim N(0, \sigma^2)
-% \text{Level 2:}& \quad \beta_{0i} = \gamma_{00} + \gamma_{01}(BURN.PHY.BP_{i}) + \gamma_{02}(BURN.COG.BP_{i}) + \gamma_{03}(BURN.EMO.BP_{i}) \\
-% & \quad\quad\quad\ + \gamma_{04}(NF.COMP.BP_{i}) + \gamma_{05}(NF.AUTO.BP_{i}) + \gamma_{06}(NF.RLTD.BP_{i}) \\
-% & \quad\quad\quad\ + \gamma_{07}(MEET.COUNT.BP_{i}) + \gamma_{08}(MEET.TIME.BP_{i}) \\
-% & \quad\quad\quad\ + \gamma_{09}(PSYK.BR_{i}) + \gamma_{10}(PSYK.VIO_{i}) + \gamma_{11}(JOBSAT_{i}) \\
-% & \quad\quad\quad\ + \mu_{0i}, \mu_{0i} \sim N(0, \sigma_{\mu_{0}}^2) \\
-% & \quad \beta_{1i} = \gamma_{10} + \gamma_{11}(PSYK.BR_{i}) + \gamma_{12}(PSYK.VIO_{i}) + \gamma_{13}(JOBSAT_{i}) \\
-% & \quad \beta_{2i} = \gamma_{20} + \gamma_{21}(PSYK.BR_{i}) + \gamma_{22}(PSYK.VIO_{i}) + \gamma_{23}(JOBSAT_{i}) \\
-% & \quad \beta_{3i} = \gamma_{30} + \gamma_{31}(PSYK.BR_{i}) + \gamma_{32}(PSYK.VIO_{i}) + \gamma_{33}(JOBSAT_{i}) \\
-% & \quad \beta_{4i} = \gamma_{40} + \gamma_{41}(PSYK.BR_{i}) + \gamma_{42}(PSYK.VIO_{i}) + \gamma_{43}(JOBSAT_{i}) \\
-% & \quad \beta_{5i} = \gamma_{50} + \gamma_{51}(PSYK.BR_{i}) + \gamma_{52}(PSYK.VIO_{i}) + \gamma_{53}(JOBSAT_{i}) \\
-% & \quad \beta_{6i} = \gamma_{60} + \gamma_{61}(PSYK.BR_{i}) + \gamma_{62}(PSYK.VIO_{i}) + \gamma_{63}(JOBSAT_{i}) \\
-% & \quad \beta_{7i} = \gamma_{70} \\
-% & \quad \beta_{8i} = \gamma_{80} \\
-% & \quad \beta_{9i} = \gamma_{90} \\
-% & \quad \beta_{10i} = \gamma_{100} \\
-% & \quad \beta_{11i} = \gamma_{110} \\
-% & \quad \beta_{12i} = \gamma_{120} \\
-% & \quad \beta_{13i} = \gamma_{130} \\
-% & \quad \beta_{14i} = \gamma_{140}
 \end{aligned}
 $$
 
