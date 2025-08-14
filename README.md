@@ -480,7 +480,7 @@ $$
 & \quad \beta_{3i} = \gamma_{30} + \gamma_{31}(PSYK.BR_{i}) + \gamma_{32}(PSYK.VIO_{i}) + \gamma_{33}(JOBSAT_{i}) \\
 & \quad \beta_{4i} = \gamma_{40} + \gamma_{41}(PSYK.BR_{i}) + \gamma_{42}(PSYK.VIO_{i}) + \gamma_{43}(JOBSAT_{i}) \\
 & \quad \beta_{5i} = \gamma_{50} + \gamma_{51}(PSYK.BR_{i}) + \gamma_{52}(PSYK.VIO_{i}) + \gamma_{53}(JOBSAT_{i}) \\
-& \quad \beta_{6i} = \gamma_{60} + \gamma_{61}(PSYK.BR_{i}) + \gamma_{62}(PSYK.VIO_{i}) + \gamma_{63}(JOBSAT_{i}) \\
+& \quad \beta_{6i} = \gamma_{60} + \gamma_{61}(PSYK.BR_{i}) + \gamma_{62}(PSYK.VIO_{i}) + \gamma_{63}(JOBSAT_{i})
 \end{aligned}
 $$
 
