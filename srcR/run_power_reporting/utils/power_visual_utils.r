@@ -38,11 +38,11 @@ power_results |>
     ) |>
     ggplot2::ggplot(aes(x = N_Level2, y = Power, color = Effect)) +
     geom_line(linewidth = 1) +
-    # geom_ribbon(
-    #     aes(ymin = Lower_CI, ymax = Upper_CI, fill = Effect),
-    #     alpha = 0.2,
-    #     color = NA
-    # ) +
+    geom_ribbon(
+        aes(ymin = Lower_CI, ymax = Upper_CI, fill = Effect),
+        alpha = 0.2,
+        color = NA
+    ) +
     geom_errorbar(aes(ymin = Lower_CI, ymax = Upper_CI),
         width = 20, alpha = 0.6
     ) +
