@@ -1,0 +1,104 @@
+[
+    {
+        "name": "SURVEY_ID",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "RESPONSE_ID",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "START_DATE",
+        "type": "DATETIME",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "END_DATE",
+        "type": "DATETIME",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "FINISHED",
+        "type": "BOOL",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "TOTAL_DURATION",
+        "type": "INT64",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "TIMEPOINT",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "PROLIFIC_PID_ENTRY",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "PROLIFIC_PID_EMBEDDED",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "INFORMED_CONSENT",
+        "type": "BOOL",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "FTE_FLAG",
+        "type": "BOOL",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "LOCATION_FLAG",
+        "type": "BOOL",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "AGE_FLAG",
+        "type": "BOOL",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "LANGUAGE_FLAG",
+        "type": "BOOL",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "PHONE",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "LOCAL_TZ",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": ""
+    },
+    {
+        "name": "DATE",
+        "type": "DATE",
+        "mode": "NULLABLE",
+        "description": ""
+    }
+]

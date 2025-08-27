@@ -1,0 +1,17 @@
+# * Power Analysis Configuration
+# * Version: Prod
+params:
+  max_cores: 16 # ! ADJUST AS NEEDED
+  n_lvl1: [3]
+  n_lvl2: [200, 400, 600, 800, 1000]
+  lvl1_effect_std: [0.10, 0.30, 0.50]
+  lvl2_effect_std: [0.10, 0.30, 0.50]
+  xlvl_effect_std: [0.10, 0.30, 0.50]
+  icc: [0.10, 0.30, 0.50]
+  rand_slope_std: [0.01, 0.09, 0.25]
+  alpha: [0.05]
+  use_REML: [TRUE]
+  n_sims: 1000 # ! ADJUST AS NEEDED; 1K IS RECOMMENDED
+  verbose: FALSE
+  return_df: TRUE
+  rand_seed: 8762
