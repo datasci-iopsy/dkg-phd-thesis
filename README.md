@@ -469,7 +469,7 @@ $$
 & \quad\quad\quad\ + \beta_{9i}(MEET.COUNT.WP_{ti} \times BURN.PHY.WP_{ti}) + \beta_{10i}(MEET.COUNT.WP_{ti} \times BURN.COG.WP_{ti}) + \beta_{11i}(MEET.COUNT.WP_{ti} \times BURN.EMO.WP_{ti}) \\
 & \quad\quad\quad\ + \beta_{12i}(MEET.COUNT.WP_{ti} \times NF.COMP.WP_{ti}) + \beta_{13i}(MEET.COUNT.WP_{ti} \times NF.AUTO.WP_{ti}) + \beta_{14i}(MEET.COUNT.WP_{ti} \times NF.RLTD.WP_{ti}) \\
 & \quad\quad\quad\ + \epsilon_{ti} \\
-&\quad \text{where } \epsilon_{ti} \sim N(0, \sigma^2) \\
+&\quad \text{where } \epsilon_{ti} \sim N(0, \sigma_{\epsilon}^2) \\
 \\
 \end{aligned}
 $$
@@ -480,7 +480,7 @@ $$
 & \quad\quad\quad\ + \gamma_{07}(MEET.COUNT.BP_{i}) + \gamma_{08}(MEET.TIME.BP_{i}) \\
 & \quad\quad\quad\ + \gamma_{09}(PSYK.BR_{i}) + \gamma_{10}(PSYK.VIO_{i}) + \gamma_{11}(JOBSAT_{i}) + \gamma_{12}(z_{i}) \\
 & \quad\quad\quad\ + \mu_{0i} \\
-&\quad \text{where } \mu_{0i} \sim N(0, \sigma_{\mu_0}^2) \\
+&\quad \text{where } \mu_{0i} \sim N(0, \sigma_{\mu_{0}}^2) \\
 \\
 & \quad \beta_{1i} = \gamma_{10} + \gamma_{11}(PSYK.BR_{i}) + \gamma_{12}(PSYK.VIO_{i}) + \gamma_{13}(JOBSAT_{i}) \\
 & \quad \beta_{2i} = \gamma_{20} + \gamma_{21}(PSYK.BR_{i}) + \gamma_{22}(PSYK.VIO_{i}) + \gamma_{23}(JOBSAT_{i}) \\
