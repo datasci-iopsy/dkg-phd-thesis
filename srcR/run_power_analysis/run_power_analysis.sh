@@ -27,8 +27,14 @@ echo -e "Source directory: ${src_dir}\n"
 proj_dir="${src_dir}/${proj_name}"
 echo -e "Project directory: ${proj_dir}\n"
 
+# # *** UPDATE BASED ON ENV RUN ***
+# version='prod'
+# echo -e "Version: ${version}\n"
+# # *******************************
+
 # *** UPDATE BASED ON ENV RUN ***
-version='prod'
+# Use command line argument if provided, otherwise default to 'prod'
+version=${1:-'dev'}
 echo -e "Version: ${version}\n"
 # *******************************
 

@@ -9,4 +9,5 @@ if (!require("renv", quietly = TRUE)) {
 library(renv)
 
 # Initialize renv
-renv::restore(project = "srcR", lockfile = "renv.lock")
+cat("\n🔄 Initiating renv restore...\n")
+renv::restore(project = "../", lockfile = "../renv.lock")
