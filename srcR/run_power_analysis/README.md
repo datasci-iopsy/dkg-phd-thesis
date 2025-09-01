@@ -63,32 +63,11 @@ The [run_power_analysis](/srcR/run_power_analysis/) program is designed to be ru
     ```
     - *Note. The user can also download the project as a zip file and extract it to their desired location, but cloning the repo is recommended for version control and collaboration purposes.*
 
-2. Navigate to the [srcR](/srcR/) directory and run the [run_renv_restore.r](../run_renv_restore.r) script to ensure that `renv` and other necessary R packages are installed.
+2. Run the command `make power_analysis` from the project root directory.
 
-    ```bash
-    Rscript run_renv_restore.r
-    ```
+3. The program's standard output (i.e., stdout) will be printed to a log file and saved in the program's log directory.
 
-    - *Note. The user also has the option to open the script and simply run it rather than sourcing it from the command line. This is particularly useful if the user is already working in RStudio or another IDE*.
-
-3. Navigate to the [run_power_analysis](./) directory (i.e., the same directory as this README.md file).
-
-:red_circle::red_circle::red_circle: **STOP: IMPORTANT** :red_circle::red_circle::red_circle:
-
-4. Next, review and adjust the configuration file to ensure that the parameters are set to the user's desired values.
-   - The config files are located in the [configs](./configs/) directory and include suffixes to differientiate versions. For example, the `.dev.yaml` suffix is used for development purposes and typically comprise fewer parameters and iterations, while the `.prod.yaml` suffix is used for production runs and should include a wider range of parameters and number of iterations.
-   - The current process requires the user to manually specify which version of the program to run (see line 31 in the [run_power_analysis.sh](./run_power_analysis.sh) script) which will instantiate the corresponding config file to use. *This is a temporary solution until the author implements a more robust solution (e.g., command line arguments, etc.).*
-
-:green_circle::green_circle::green_circle: **CONTINUE** :green_circle::green_circle::green_circle:
-
-5. Once the desired config file has been finalized, ensure the correct version is set in the bash script before entering the following in the command line: 
-   ```bash
-   nohup bash run_power_analysis.sh > logs/run_power_analysis_$(date +"%Y%m%d_%H%M%S").log 2>&1 &
-   ```
-   - This command will run the program in the background, even if the session closes, allowing the user to continue with other tasks.
-
-6. The program's standard output (i.e., stdout) will be printed to a log file and saved in the program's log directory.
-7. Once the program has completed, the user can check the log file for any potential errors and review the output (i.e., .csv/.rds) which is redirected to the data directory.
+4. Once the program has completed, the user can check the log file for any potential errors and review the output (i.e., .csv/.rds) which is redirected to the data directory.
    - *Note. The log and data directories are currently listed in the [.gitignore](../../.gitignore) file and thus are not tracked by version control; the program automatically creates the required directories not tracked by git. The log and data files will be named with a timestamp to ensure uniqueness and relatively easy identification of when the program was run.*
 
 # Troubleshooting
@@ -221,9 +200,13 @@ sudo apt-get check
 <details>
 
 <summary>Install or Update R in Linux</summary>
+
 1. `wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc`
+
 2. `sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"`
+
 3. `sudo apt update`
+
 4. `sudo apt install r-base`
 
 </details>
