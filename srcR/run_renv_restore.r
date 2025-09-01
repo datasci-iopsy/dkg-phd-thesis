@@ -11,3 +11,5 @@ library(renv)
 # Initialize renv
 cat("\n🔄 Initiating renv restore...\n")
 renv::restore(project = "../", lockfile = "../renv.lock")
+
+cat("\n✅ R environment restored using renv...\n")
