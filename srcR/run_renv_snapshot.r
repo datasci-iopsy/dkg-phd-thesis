@@ -9,4 +9,5 @@ if (!require("renv", quietly = TRUE)) {
 library(renv)
 
 # Initialize renv
-renv::snapshot(project = "./srcR", lockfile = "./renv.lock")
+cat("\n🔄 Initiating renv snapshot\n")
+renv::snapshot(project = "../", lockfile = "../renv.lock")
