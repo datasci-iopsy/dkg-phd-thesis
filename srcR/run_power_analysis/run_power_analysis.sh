@@ -28,14 +28,15 @@ proj_dir="${src_dir}/${proj_name}"
 echo -e "Project directory: ${proj_dir}\n"
 
 # # *** UPDATE BASED ON ENV RUN ***
-# version='prod'
-# echo -e "Version: ${version}\n"
-# # *******************************
+# NEW: Expects version to always be passed
+version=${1}
 
-# *** UPDATE BASED ON ENV RUN ***
-# Use command line argument if provided, otherwise default to 'prod'
-version=${1:-'dev'}
-echo -e "Version: ${version}\n"
+# Add validation to ensure version is provided
+if [ -z "$version" ]; then
+    echo "ERROR: Version argument is required" >&2
+    echo "Usage: $0 <version>" >&2
+    exit 1
+fi
 # *******************************
 
 shared_utils_dir="${src_dir}/shared/utils"

@@ -93,9 +93,8 @@ renv_restore:
 	@echo ""
 	@if [ -f "./srcR/run_renv_restore.r" ]; then \
 		chmod +x ./srcR/run_renv_restore.r; \
-		cd srcR && Rscript run_renv_restore.r; \
+		cd srcR && sudo Rscript run_renv_restore.r; \
 		echo ""; \
-		echo "✅ R environment restored using renv!"; \
 	else \
 		echo "❌ Error: run_renv_restore.r not found in srcR/"; \
 		exit 1; \
