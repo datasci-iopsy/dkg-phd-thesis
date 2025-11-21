@@ -1,7 +1,7 @@
 # * Power Analysis Configuration
 # * Version: Prod
 params:
-  max_cores: 16 # ! ADJUST AS NEEDED
+  max_cores: # ! ADJUST AS NEEDED: currently set up for GCP VM run
   n_lvl1: [3]
   n_lvl2: [200, 400, 600, 800, 1000]
   lvl1_effect_std: [0.10, 0.30, 0.50]

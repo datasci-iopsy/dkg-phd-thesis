@@ -11,7 +11,7 @@ params:
   rand_slope_std: [0.09]
   alpha: [0.05]
   use_REML: [TRUE]
-  n_sims: 1 # ! ADJUST AS NEEDED; LOWER FOR DEV PURPOSES; 1K IS RECOMMENDED
+  n_sims: 10 # ! ADJUST AS NEEDED; LOWER FOR DEV PURPOSES; 1K IS RECOMMENDED
   verbose: FALSE
   return_df: TRUE
   rand_seed: 1879

@@ -142,6 +142,7 @@ if [[ "$(pwd)" == ${src_dir} ]]; then
         exit 1
     }
     
+    # ----- IGNORE -----
     # # calculate R script elapsed time
     # r_end_time=$(date +%s)
     # r_elapsed=$(calculate_elapsed_time $r_start_time $r_end_time)
