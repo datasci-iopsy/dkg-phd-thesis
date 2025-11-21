@@ -5,6 +5,8 @@ library(dplyr) # masks stats::filter, lag; base::intersect, setdiff, setequal, u
 library(furrr) # loads required package: future
 library(here)
 library(parallel)
+library(parallelly)
+library(RhpcBLASctl)
 library(tibble)
 library(tictoc)
 library(tidyr)
@@ -46,15 +48,24 @@ dplyr::glimpse(config)
 # * run/source power analysis util script
 source(glue::glue("{utils_dir}/power_analysis_utils.r"))
 
+# * limit BLAS threads to 1 to avoid oversubscription in parallel processing
+# ensures each R worker uses only one core for BLAS, and your n_cores workers match the allocated vCPUs cleanly
+RhpcBLASctl::blas_set_num_threads(1)
+
 # set up parallel processing
 # use config value if available, otherwise default to conservative setting
 # todo: update the logic to account for overzealous max_cores in config...
 n_cores <- if (!is.null(config$params$max_cores)) {
-    min(config$params$max_cores, parallel::detectCores() - 2)
+    min(config$params$max_cores, parallelly::availableCores() - 2L)
 } else {
-    min(4, max(1, parallel::detectCores() - 4))
+    min(4L, max(1L, parallelly::availableCores() - 4L))
 }
-future::plan(multisession, workers = n_cores)
+
+if (.Platform$OS.type == "unix") {
+    plan::plan(multicore, workers = n_cores) # Linux / macOS / GCP VM
+} else {
+    plan::plan(multisession, workers = n_cores) # Windows / fallback
+}
 
 # create all parameter combinations using expand_grid
 param_grid <- tidyr::expand_grid(
@@ -141,7 +152,7 @@ run_parallel_power_analysis <- function(params_row) {
 power_results <- split(param_grid, param_grid$run_id) |>
     future_map_dfr(
         run_parallel_power_analysis,
-        .progress = TRUE,
+        .progress = TRUE, # * recommended to set to false when >8k parameter space
         .options = furrr_options(
             seed = TRUE,
             # globals = c("power_analysis_two_level", "tic", "toc")
@@ -149,7 +160,7 @@ power_results <- split(param_grid, param_grid$run_id) |>
     )
 
 # clean up parallel backend
-plan(sequential)
+future::plan(future::sequential)
 
 # check results
 successful_results <- power_results |> dplyr::filter(success == TRUE)
