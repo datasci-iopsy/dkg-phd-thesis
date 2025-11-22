@@ -1,16 +1,29 @@
 #!/usr/bin/env Rscript
 
-# * check to ensure renv install
-if (!require("renv", quietly = TRUE)) {
+# Set CRAN mirror for non-interactive sessions
+local({
+    r <- getOption("repos")
+    r["CRAN"] <- "https://cloud.r-project.org/"
+    options(repos = r)
+})
+
+# Activate renv - check multiple possible locations
+if (file.exists("renv/activate.R")) {
+    source("renv/activate.R")
+} else if (file.exists("../renv/activate.R")) {
+    source("../renv/activate.R")
+} else {
+    warning("renv/activate.R not found - renv may not be activated")
+}
+
+# Install renv if not available
+if (!requireNamespace("renv", quietly = TRUE)) {
     install.packages("renv")
 }
 
-# import packages
-library(renv)
+# Your actual script logic
+cat("renv Status:\n")
+print(renv::status())
 
-# Check status of renv
-cat("\n🔄 Initiating renv status...\n")
-renv::status(project = "../", lockfile = "../renv.lock", cache = TRUE)
-
-cat("\n🔄 Initiating renv diagnostics...\n")
-renv::diagnostics(project = "../")
+cat("\n\nCache Status:\n")
+renv::diagnostics()
