@@ -128,6 +128,14 @@ if [[ "$(pwd)" == ${src_dir} ]]; then
     
     # run R script with timestamped logging
     {
+        # Add this right before calling Rscript
+        if [ ! -f "../renv.lock" ]; then
+            echo "ERROR: renv.lock not found in parent directory" | log_with_timestamp
+            echo "Current directory: $(pwd)" | log_with_timestamp
+            echo "Looking for: $(pwd)/../renv.lock" | log_with_timestamp
+            exit 1
+        fi
+        echo "✅ renv.lock found at: $(pwd)/../renv.lock" | log_with_timestamp
         Rscript "${proj_dir}/scripts/${proj_name}.r" \
             ${src_dir} \
             ${proj_name} \

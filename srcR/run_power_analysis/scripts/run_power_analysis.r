@@ -1,5 +1,32 @@
 #!/usr/bin/env Rscript
 
+# todo: if possible, figure out how to place this is the shared/common_utils script to keep things modular
+# Set CRAN mirror for non-interactive sessions
+local({
+    r <- getOption("repos")
+    r["CRAN"] <- "https://cloud.r-project.org/"
+    options(repos = r)
+})
+
+# Install renv if not available (one-time setup)
+if (!requireNamespace("renv", quietly = TRUE)) {
+    install.packages("renv")
+}
+
+# Load renv project
+# Since bash script cd's to srcR/, we only need to go up one level
+project_root <- normalizePath("..")
+cat("Loading renv from project root:", project_root, "\n")
+renv::load(project_root)
+
+cat("✅ renv activated from:", project_root, "\n")
+cat("📚 Using library:", .libPaths()[1], "\n\n")
+
+# # todo: Verify packages are available
+# if (!"dplyr" %in% installed.packages()[, "Package"]) {
+#     stop("dplyr not found in renv library - run 'make renv_restore' first")
+# }
+
 # import packages
 library(dplyr) # masks stats::filter, lag; base::intersect, setdiff, setequal, union
 library(furrr) # loads required package: future
@@ -62,9 +89,9 @@ n_cores <- if (!is.null(config$params$max_cores)) {
 }
 
 if (.Platform$OS.type == "unix") {
-    plan::plan(multicore, workers = n_cores) # Linux / macOS / GCP VM
+    future::plan(multicore, workers = n_cores) # Linux / macOS / GCP VM
 } else {
-    plan::plan(multisession, workers = n_cores) # Windows / fallback
+    future::plan(multisession, workers = n_cores) # Windows / fallback
 }
 
 # create all parameter combinations using expand_grid

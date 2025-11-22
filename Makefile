@@ -106,9 +106,7 @@ renv_snapshot:
 	@echo ""
 	@if [ -f "./srcR/run_renv_snapshot.r" ]; then \
 		chmod +x ./srcR/run_renv_snapshot.r; \
-		Rscript ./srcR/run_renv_snapshot.r; \
-		echo ""; \
-		echo "✅ R environment snapshotted using renv!"; \
+		Rscript ./srcR/run_renv_snapshot.r && echo "✅ R environment snapshotted using renv."; \
 	else \
 		echo "❌ Error: run_renv_snapshot.r not found in srcR/"; \
 		exit 1; \
@@ -121,7 +119,7 @@ renv_repair:
 	@echo ""
 	@if [ -f "./srcR/run_renv_repair.r" ]; then \
 		chmod +x ./srcR/run_renv_repair.r; \
-		Rscript ./srcR/run_renv_repair.r && echo "✅ R environment repaired using renv!"; \
+		Rscript ./srcR/run_renv_repair.r && echo "✅ R environment repaired using renv."; \
 	else \
 		echo "❌ Error: run_renv_repair.r not found"; \
 		exit 1; \
@@ -130,33 +128,33 @@ renv_repair:
 # Check renv status
 .PHONY: renv_status
 renv_status:
-	@echo "📊 Checking renv status..."
+	@echo "👨🏾‍⚕️ Checking renv status..."
 	@echo ""
 	@if [ -f "./srcR/run_renv_status.r" ]; then \
 		chmod +x ./srcR/run_renv_status.r; \
-		Rscript ./srcR/run_renv_status.r; \
+		Rscript ./srcR/run_renv_status.r && echo "✅ R environment status reviewed."; \
 	else \
 		echo "❌ Error: run_renv_status.r not found"; \
 		exit 1; \
 	fi
 
-# # Power analysis pipeline
-# .PHONY: power_analysis
-# power_analysis:
-# 	@echo "🔬 Running Power Analysis Pipeline..."
-# 	@version=$${VERSION:-dev}; \
-# 	echo "Using version: $$version"; \
-# 	echo ""; \
-# 	if [ -f "./srcR/run_power_analysis/run_power_analysis.sh" ]; then \
-# 		chmod +x ./srcR/run_power_analysis/run_power_analysis.sh; \
-# 		cd srcR/run_power_analysis && \
-# 		nohup bash run_power_analysis.sh $$version > logs/run_power_analysis_$$(date +"%Y%m%d_%H%M%S").log 2>&1 & \
-# 		echo "Power analysis started in background with PID: $$!"; \
-# 		echo "Check logs in: srcR/run_power_analysis/logs/"; \
-# 	else \
-# 		echo "❌ Error: run_power_analysis.sh not found!"; \
-# 		exit 1; \
-# 	fi
+# Power analysis pipeline
+.PHONY: power_analysis
+power_analysis:
+	@echo "👨🏾‍💻 Running Power Analysis Pipeline..."
+	@version=$${VERSION:-dev}; \
+	echo "Using version: $$version"; \
+	echo ""; \
+	if [ -f "./srcR/run_power_analysis/run_power_analysis.sh" ]; then \
+		chmod +x ./srcR/run_power_analysis/run_power_analysis.sh; \
+		cd srcR/run_power_analysis && \
+		nohup bash run_power_analysis.sh $$version > logs/run_power_analysis_$$(date +"%Y%m%d_%H%M%S").log 2>&1 & \
+		echo "Power analysis started in background with PID: $$!"; \
+		echo "Check logs in: srcR/run_power_analysis/logs/"; \
+	else \
+		echo "❌ Error: run_power_analysis.sh not found!"; \
+		exit 1; \
+	fi
 
 # Clean - no name required
 .PHONY: clean
