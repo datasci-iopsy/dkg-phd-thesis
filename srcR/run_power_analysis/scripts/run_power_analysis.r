@@ -1,6 +1,5 @@
 #!/usr/bin/env Rscript
 
-# todo: if possible, figure out how to place this is the shared/common_utils script to keep things modular
 # Set CRAN mirror for non-interactive sessions
 local({
     r <- getOption("repos")
@@ -8,19 +7,56 @@ local({
     options(repos = r)
 })
 
-# Install renv if not available (one-time setup)
+# Install renv if not available - with user library fallback
 if (!requireNamespace("renv", quietly = TRUE)) {
-    install.packages("renv")
+    cat("renv not found - attempting to install...\n")
+    
+    # Try installing to user library first
+    user_lib <- Sys.getenv("R_LIBS_USER")
+    if (user_lib == "") {
+        user_lib <- file.path(Sys.getenv("HOME"), "R", R.version$platform, 
+                              paste(R.version$major, strsplit(R.version$minor, "\\.")[[1]][1], sep = "."))
+    }
+    
+    # Create user library if it doesn't exist
+    if (!dir.exists(user_lib)) {
+        dir.create(user_lib, recursive = TRUE)
+        cat("Created user library at:", user_lib, "\n")
+    }
+    
+    # Install to user library
+    install.packages("renv", lib = user_lib, repos = "https://cloud.r-project.org/")
+    
+    # Update library paths
+    .libPaths(c(user_lib, .libPaths()))
 }
 
-# Load renv project
-# Since bash script cd's to srcR/, we only need to go up one level
-project_root <- normalizePath("..")
-cat("Loading renv from project root:", project_root, "\n")
-renv::load(project_root)
+# Find project root by searching for renv.lock
+find_project_root <- function() {
+    current <- normalizePath(getwd())
+    
+    # Check up to 3 levels up for renv.lock
+    for (i in 0:3) {
+        test_path <- if (i == 0) current else normalizePath(file.path(current, paste(rep("..", i), collapse = "/")))
+        
+        if (file.exists(file.path(test_path, "renv.lock"))) {
+            return(test_path)
+        }
+    }
+    
+    stop("Could not find project root (no renv.lock found)")
+}
 
-cat("✅ renv activated from:", project_root, "\n")
+project_root <- find_project_root()
+cat("🔍 Found project root:", project_root, "\n")
+
+# Load renv from detected project root
+renv::load(project_root)
+cat("✅ renv activated successfully\n")
 cat("📚 Using library:", .libPaths()[1], "\n\n")
+
+# Rest of your script...
+
 
 # # todo: Verify packages are available
 # if (!"dplyr" %in% installed.packages()[, "Package"]) {

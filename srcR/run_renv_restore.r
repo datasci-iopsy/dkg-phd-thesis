@@ -24,6 +24,6 @@ if (!requireNamespace("renv", quietly = TRUE)) {
 # Initialize renv
 cat("\n🔄 Initiating renv restore...\n")
 # renv::restore(project = "../", lockfile = "../renv.lock")
-renv::restore(project = "../", prompt = FALSE)
+renv::restore(prompt = FALSE)
 
 cat("\n✅ R environment restored using renv...\n")
