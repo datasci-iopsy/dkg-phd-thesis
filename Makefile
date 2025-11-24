@@ -32,6 +32,9 @@ help:
 	@echo "  make power_analysis VERSION=prod"
 	@echo "  make renv_repair"
 	@echo ""
+	@echo "🔧 R Environment Management:"
+	@echo "  setup                      - Initial setup (run once on new machine)"
+	@echo "  renv_restore               - Restore R environment using renv"
 	@echo "📚 Project: $(PROJECT_NAME)"
 	@echo "👨‍🎓 Author: $(AUTHOR)"
 
@@ -84,6 +87,21 @@ status:
 	@echo "  Data files: $$(find . -name '*.csv' 2>/dev/null | wc -l) found"
 	@echo ""
 	@echo "📁 Directory structure verified ✅"
+
+# Initial setup for new environments
+.PHONY: setup
+setup:
+	@echo "🚀 Setting up R environment..."
+	@echo ""
+	@echo "Creating user R library directory..."
+	@mkdir -p ~/R/x86_64-pc-linux-gnu-library/4.5
+	@echo ""
+	@echo "Installing renv to user library..."
+	@Rscript -e "install.packages('renv', repos='https://cloud.r-project.org/', lib='~/R/x86_64-pc-linux-gnu-library/4.5')" && \
+		echo "✅ renv installed successfully" || \
+		echo "❌ Failed to install renv"
+	@echo ""
+	@echo "Run 'make renv_restore' to install project dependencies"
 
 # Basic renv restore
 .PHONY: renv_restore
