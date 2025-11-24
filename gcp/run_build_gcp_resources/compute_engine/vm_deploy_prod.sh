@@ -1,0 +1,23 @@
+gcloud compute instances create run-power-analysis-prod \
+    --project=dkg-phd-thesis \
+    --zone=us-central1-f \
+    --machine-type=c4-highcpu-192 \
+    --network-interface=network-tier=PREMIUM,nic-type=GVNIC,stack-type=IPV4_ONLY,subnet=default \
+    --maintenance-policy=MIGRATE \
+    --provisioning-model=STANDARD \
+    --service-account=312811716490-compute@developer.gserviceaccount.com \
+    --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/trace.append \
+    --create-disk=auto-delete=yes,boot=yes,device-name=run-power-analysis-prod,image=projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2510-questing-amd64-v20251113,mode=rw,provisioned-iops=3060,provisioned-throughput=155,size=10,type=hyperdisk-balanced \
+    --no-shielded-secure-boot --shielded-vtpm \
+    --shielded-integrity-monitoring \
+    --labels=goog-ec-src=vm_add-gcloud \
+    --reservation-affinity=any && gcloud compute resource-policies create snapshot-schedule default-schedule-1 \
+    --project=dkg-phd-thesis \
+    --region=us-central1 \
+    --max-retention-days=14 \
+    --on-source-disk-delete=keep-auto-snapshots \
+    --daily-schedule --start-time=08:00 && gcloud compute disks add-resource-policies run-power-analysis-prod \
+    --project=dkg-phd-thesis \
+    --zone=us-central1-f \
+    --resource-policies=projects/dkg-phd-thesis/regions/us-central1/resourcePolicies/default-schedule-1
+
