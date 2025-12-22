@@ -60,7 +60,7 @@ def fetch_single_response(
     This uses the GET /surveys/{surveyId}/responses/{responseId} endpoint
     which returns ONLY the specified response, not the full dataset.
 
-    API Reference: https://api.qualtrics.com/6b00592b9c013-get-survey-response
+    API Reference: https://api.qualtrics.com/1179a68b7183c-retrieve-a-survey-response
 
     Args:
         survey_id: Qualtrics survey identifier

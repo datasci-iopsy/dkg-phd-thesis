@@ -7,16 +7,15 @@ import functions_framework
 import logging
 from flask import Request, jsonify
 from pathlib import Path
-from typing import Dict, Any
 
 from utils import (
     common_utils,
     gcp_utils,
     qualtrics_utils,
-    twilio_utils,
+    # twilio_utils,
     validation_utils,
 )
-from models.participant import ParticipantData
+# from models.participant import ParticipantData
 
 # Configure logging
 logging.basicConfig(
@@ -96,20 +95,20 @@ def qualtrics_webhook_handler(request: Request):
             logger.error("Invalid participant data extracted")
             return jsonify({"error": "Invalid participant information"}), 400
 
-        # Step 6: Schedule three follow-up SMS messages via Twilio
-        scheduled_messages = twilio_utils.schedule_followup_surveys(
-            participant=participant, survey_id=webhook_data["survey_id"], config=config
-        )
+        # # Step 6: Schedule three follow-up SMS messages via Twilio
+        # scheduled_messages = twilio_utils.schedule_followup_surveys(
+        #     participant=participant, survey_id=webhook_data["survey_id"], config=config
+        # )
 
-        logger.info(f"Scheduled {len(scheduled_messages)} follow-up SMS")
+        # logger.info(f"Scheduled {len(scheduled_messages)} follow-up SMS")
 
-        # Step 7: Send immediate confirmation SMS
-        confirmation_sent = twilio_utils.send_confirmation_sms(
-            participant=participant, config=config
-        )
+        # # Step 7: Send immediate confirmation SMS
+        # confirmation_sent = twilio_utils.send_confirmation_sms(
+        #     participant=participant, config=config
+        # )
 
-        if not confirmation_sent:
-            logger.warning("Confirmation SMS failed but continuing")
+        # if not confirmation_sent:
+        #     logger.warning("Confirmation SMS failed but continuing")
 
         # Return success response
         return jsonify(
@@ -117,8 +116,8 @@ def qualtrics_webhook_handler(request: Request):
                 "status": "success",
                 "response_id": webhook_data["response_id"],
                 "participant_phone": participant.phone_masked,
-                "scheduled_sms_count": len(scheduled_messages),
-                "confirmation_sent": confirmation_sent,
+                # "scheduled_sms_count": len(scheduled_messages),
+                # "confirmation_sent": confirmation_sent,
             }
         ), 200
 

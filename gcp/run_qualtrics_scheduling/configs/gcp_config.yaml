@@ -1,7 +1,7 @@
 params:
   gcp:
-    project_id: "your-project-id"
-    location: "us-central1"
+    project_id: "dkg-phd-thesis"
+    location: "us-east4"
   
   bq:
     dataset_id: "dissertation_data"
