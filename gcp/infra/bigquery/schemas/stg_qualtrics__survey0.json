@@ -1,0 +1,38 @@
+[
+    {
+        "name": "ingestion_timestamp",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED",
+        "description": "When data was loaded into BigQuery"
+    },
+    {
+        "name": "response_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Qualtrics response ID"
+    },
+    {
+        "name": "values",
+        "type": "JSON",
+        "mode": "NULLABLE",
+        "description": "Complete values object from API"
+    },
+    {
+        "name": "labels",
+        "type": "JSON",
+        "mode": "NULLABLE",
+        "description": "Complete labels object from API"
+    },
+    {
+        "name": "displayed_fields",
+        "type": "STRING",
+        "mode": "REPEATED",
+        "description": "Array of displayed field names"
+    },
+    {
+        "name": "displayed_values",
+        "type": "JSON",
+        "mode": "NULLABLE",
+        "description": "Complete displayedValues object"
+    }
+]

@@ -1,6 +1,0 @@
-params:
-  qualtrics:
-    api_token: ${QUALTRICS_API_TOKEN}
-    data_center: "yourdatacenter"  # e.g., "ca1", "fra1", "sjc1"
-    webhook_secret: ${QUALTRICS_WEBHOOK_SECRET}
-    survey_base_url: "https://survey.qualtrics.com/jfe/form"

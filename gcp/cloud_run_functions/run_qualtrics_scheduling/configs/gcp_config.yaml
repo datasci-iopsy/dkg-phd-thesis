@@ -1,0 +1,11 @@
+params:
+  gcp:
+    project_id: "dkg-phd-thesis"
+    location: "us-east4"
+
+  secret_manager:
+    secret_id: "dkg-qualtrics-api-key"
+    version_id: latest
+
+  bq:
+    dataset_id: "qualtrics_db"
