@@ -1,206 +1,182 @@
-"""
-Data validation and extraction utilities.
+"""Web Service payload validation and participant extraction.
+
+Handles two distinct steps in the processing pipeline:
+
+1. extract_web_service_payload -- parses the raw Flask request into a
+   validated WebServicePayload from the Qualtrics Workflow Web Service
+   task.
+
+2. extract_participant_data -- pulls scheduling-relevant fields from
+   the validated payload and constructs a ParticipantData model with
+   full validation. Returns None if any required scheduling field
+   is missing (which happens when survey logic routes a participant
+   to the end early).
 """
 
-import hashlib
-import hmac
 import logging
-from datetime import date, datetime
-from typing import Any, Dict, Optional
+from datetime import date
 
 from flask import Request
-from models.participant import ParticipantData
+from models.participant import ParticipantData, normalize_phone_number
+from models.qualtrics import CONSENT_AGREE_VALUE, WebServicePayload
+from pydantic import ValidationError
 
 logger = logging.getLogger(__name__)
 
 
-# def verify_webhook_signature(request: Request, webhook_secret: str) -> bool:
-#     """
-#     Verifies HMAC-SHA256 signature from Qualtrics webhook.
+def extract_web_service_payload(request: Request) -> WebServicePayload | None:
+    """Parse and validate a Qualtrics Web Service task POST payload.
 
-#     Args:
-#         request: Flask request object containing webhook data
-#         webhook_secret: Shared secret configured in Qualtrics
-
-#     Returns:
-#         bool: True if signature is valid
-#     """
-#     if not webhook_secret:
-#         logger.warning("Webhook secret not configured, skipping verification")
-#         return True
-
-#     signature_header = request.headers.get("X-Qualtrics-Signature")
-#     if not signature_header:
-#         logger.error("Missing X-Qualtrics-Signature header")
-#         return False
-
-#     payload = request.get_data()
-#     expected_signature = hmac.new(
-#         webhook_secret.encode("utf-8"), payload, hashlib.sha256
-#     ).hexdigest()
-
-#     is_valid = hmac.compare_digest(signature_header, expected_signature)
-
-#     if is_valid:
-#         logger.info("Webhook signature verified successfully")
-#     else:
-#         logger.error("Webhook signature mismatch")
-
-#     return is_valid
-
-
-def extract_webhook_payload(request: Request) -> Optional[Dict[str, Any]]:
-    """
-    Extracts and validates webhook payload from Qualtrics.
-
-    Handles the POST payload sent by Qualtrics event subscriptions when
-    a survey response is completed.
+    The Web Service task sends the complete survey response as a
+    JSON body with semantic field names. Pydantic validates all
+    required fields and types.
 
     Args:
-        request: Flask request object
+        request: Flask request object from the incoming webhook.
 
     Returns:
-        dict: Validated webhook data with survey_id, response_id, and metadata
+        Validated WebServicePayload, or None if the payload is
+        missing, malformed, or fails validation.
     """
     try:
-        webhook_data = request.get_json(silent=True, force=True)
+        raw = request.get_json(silent=True, force=True)
 
-        if not webhook_data:
+        if not raw:
             logger.error("No JSON payload in request")
             return None
 
-        # Log for debugging
-        logger.info(f"Received webhook payload: {webhook_data}")
-
-        # Extract required fields (Qualtrics uses these exact field names)
-        response_id = webhook_data.get("ResponseID")
-        survey_id = webhook_data.get("SurveyID")
-        status = webhook_data.get("Status")
-        topic = webhook_data.get("Topic", "")
-
-        # Validate required fields
-        if not all([response_id, survey_id]):
-            logger.error(f"Missing required webhook fields: {webhook_data}")
+        try:
+            payload = WebServicePayload.model_validate(raw)
+        except ValidationError as e:
+            logger.error("Web service payload validation failed: %s", e)
             return None
 
-        # Validate this is a completion event
-        if "completedResponse" not in topic:
-            logger.warning(f"Ignoring non-completion event: {topic}")
-            return None
-
-        # Only process completed responses
-        if status and status.lower() != "complete":
-            logger.info(
-                f"Ignoring non-complete response: {response_id} (status: {status})"
-            )
-            return None
-
-        return {
-            "response_id": response_id,
-            "survey_id": survey_id,
-            "status": status,
-            "topic": topic,
-            "brand_id": webhook_data.get("BrandID"),
-            "completed_date": webhook_data.get("CompletedDate"),
-        }
+        logger.info(
+            "Received web service payload for response: %s",
+            payload.response_id,
+        )
+        return payload
 
     except Exception as e:
-        logger.error(f"Error extracting webhook payload: {str(e)}", exc_info=True)
+        logger.error(
+            "Error extracting web service payload: %s", e, exc_info=True
+        )
         return None
 
 
 def extract_participant_data(
-    response_data: Dict[str, Any], response_id: str
-) -> Optional[ParticipantData]:
-    """
-    Extracts participant PII and preferences from Qualtrics response.
+    payload: WebServicePayload,
+) -> ParticipantData | None:
+    """Extract and validate participant data from a Web Service payload.
 
-    IMPORTANT: Update the question IDs (QID1, QID2, etc.) to match
-    your actual Qualtrics survey structure.
+    Reads scheduling-relevant fields (Prolific PID, phone, date,
+    timezone, consent) directly from the payload's semantic fields,
+    normalizes them, and constructs a validated ParticipantData.
+
+    Returns None if any required scheduling field is missing
+    (None). This happens when Qualtrics survey logic routes a
+    participant to the end early due to failed screening or
+    attention checks.
 
     Args:
-        response_data: Complete response data from Qualtrics
-        response_id: Response identifier
+        payload: Validated WebServicePayload from the Qualtrics
+            Web Service task.
 
     Returns:
-        ParticipantData: Validated participant data or None
+        Validated ParticipantData, or None if extraction or
+        validation fails (consent not given, bad phone, etc.).
     """
     try:
-        values = response_data.get("values", {})
-
-        # Extract fields - REPLACE THESE QIDs WITH YOUR ACTUAL QUESTION IDs
-        raw_name = values.get("QID1_TEXT", "")
-        raw_email = values.get("QID2_TEXT", "")
-        raw_phone = values.get("QID3_TEXT", "")
-        raw_date = values.get("QID4_TEXT", "")  # ISO date string
-        consent_value = values.get("QID5", "")  # Checkbox: '1' = checked
-
-        # Validate consent
-        if consent_value != "1":
-            logger.error(f"Consent not given for response {response_id}")
+        # -- Check consent before doing any other work ---------------
+        if payload.consent != CONSENT_AGREE_VALUE:
+            logger.error(
+                "Consent not given for response %s (value: %s)",
+                payload.response_id,
+                payload.consent,
+            )
             return None
 
-        # Parse and format phone number
-        phone = format_phone_number(raw_phone)
+        # -- Guard against missing scheduling fields -----------------
+        # These are None when survey logic skips sections.
+        if not payload.phone:
+            logger.error(
+                "Missing phone for response %s",
+                payload.response_id,
+            )
+            return None
+
+        if not payload.selected_date:
+            logger.error(
+                "Missing selected_date for response %s",
+                payload.response_id,
+            )
+            return None
+
+        if not payload.timezone:
+            logger.error(
+                "Missing timezone for response %s",
+                payload.response_id,
+            )
+            return None
+
+        if not payload.prolific_pid:
+            logger.error(
+                "Missing prolific_pid for response %s",
+                payload.response_id,
+            )
+            return None
+
+        # -- Normalize phone -----------------------------------------
+        phone = normalize_phone_number(payload.phone)
         if not phone:
-            logger.error(f"Invalid phone number for response {response_id}")
+            logger.error(
+                "Could not normalize phone for response %s: '%s'",
+                payload.response_id,
+                payload.phone,
+            )
             return None
 
-        # Parse selected date
+        # -- Parse selected date (MM/DD/YYYY from Qualtrics) ---------
         try:
-            selected_date = datetime.fromisoformat(raw_date).date()
+            month, day, year = payload.selected_date.split("/")
+            selected_date = date(int(year), int(month), int(day))
         except (ValueError, AttributeError):
-            logger.error(f"Invalid date format: {raw_date}")
+            logger.error(
+                "Invalid date format for response %s: '%s'",
+                payload.response_id,
+                payload.selected_date,
+            )
             return None
 
-        # Create participant object
+        # -- Construct validated participant -------------------------
         participant = ParticipantData(
-            response_id=response_id,
-            name=raw_name.strip(),
-            email=raw_email.strip().lower(),
+            response_id=payload.response_id,
+            prolific_pid=payload.prolific_pid,
             phone=phone,
             selected_date=selected_date,
+            timezone=payload.timezone,
             consent_given=True,
         )
 
-        # Validate complete object
-        if not participant.is_valid():
-            logger.error(f"Participant validation failed for {response_id}")
-            return None
-
-        logger.info(f"Successfully extracted participant data for {response_id}")
+        logger.info(
+            "Extracted participant for response %s (phone: %s)",
+            payload.response_id,
+            participant.phone_masked,
+        )
         return participant
 
-    except Exception as e:
-        logger.error(f"Error extracting participant data: {str(e)}", exc_info=True)
+    except ValidationError as e:
+        logger.error(
+            "Participant validation failed for %s: %s",
+            payload.response_id,
+            e,
+        )
         return None
-
-
-def format_phone_number(raw_phone: str) -> Optional[str]:
-    """
-    Formats phone number to E.164 standard (+1234567890).
-
-    Args:
-        raw_phone: Raw phone number from survey
-
-    Returns:
-        str: E.164 formatted phone or None if invalid
-    """
-    try:
-        # Remove all non-digit characters
-        digits = "".join(filter(str.isdigit, raw_phone))
-
-        # Handle US numbers (can be extended for international)
-        if len(digits) == 10:
-            return f"+1{digits}"
-        elif len(digits) == 11 and digits[0] == "1":
-            return f"+{digits}"
-        elif raw_phone.startswith("+"):
-            return raw_phone
-        else:
-            logger.warning(f"Unrecognized phone format: {raw_phone}")
-            return None
-
     except Exception as e:
-        logger.error(f"Error formatting phone number: {str(e)}")
+        logger.error(
+            "Error extracting participant data for %s: %s",
+            payload.response_id,
+            e,
+            exc_info=True,
+        )
         return None
