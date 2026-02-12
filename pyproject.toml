@@ -1,0 +1,106 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[project]
+name = "dkg-phd-thesis"
+version = "1.0.0"
+requires-python = ">=3.12,<3.13"
+dynamic = ["dependencies"] # to satisfy poetry check
+description = ""
+authors = [{ name = "Demetrius K. Green, ABD", email = "<dkgreen@ncsu.edu>" }]
+maintainers = [
+    { name = "Demetrius K. Green, ABD", email = "<dkgreen@ncsu.edu>" },
+]
+readme = "README.md"
+
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.requires-plugins]
+poetry-plugin-sort = "^0.3.0"
+poetry-plugin-export = ">=1.8"
+
+[tool.poetry.dependencies]
+pydantic = "^2.12.5"
+pydantic-settings = "^2.12.0"
+python = ">=3.12,<3.13"
+PyYAML = "^6.0.3"
+requests = "^2.32.5"
+
+[tool.poetry.group.fn-qualtrics-scheduling]
+optional = true
+
+[tool.poetry.group.fn-qualtrics-scheduling.dependencies]
+# deps specific to the qualtrics scheduling function (beyond shared)
+cloudevents = "^1.12.0"
+Flask = "^3.1.2"
+functions-framework = "^3.10.0"
+google-auth = "^2.48.0"
+google-cloud-bigquery = "3.39.0"
+google-cloud-core = "^2.4.0"
+
+# todo: add future cloud function deps here
+# [tool.poetry.group.fn-future-function]
+# optional = true
+
+# [tool.poetry.group.fn-future-function.dependencies]
+# # When you add your second function, its unique deps go here
+# # e.g., some-special-lib = "^1.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^9.0.2"
+pytest-env = "^1.3.2"
+radian = "0.6.15"
+ruff = "0.15.0"
+shandy-sqlfmt = { extras = ["jinjafmt"], version = "^0.28.2" }
+# faker = "37.1.0"
+# isort = "5.13.2"
+# mypy = "1.11.0"
+# numpy = "2.2.5"
+# pandas = "2.2.3"
+# pylint = "3.3.2"
+# pytest-cov = "^7.0.0"
+# pytest-responses = "^0.5.1"
+
+# [tool.mypy]
+# check_untyped_defs = true
+# exclude = ["app/tests/"]
+
+[tool.ruff]
+line-length = 80
+
+[tool.sqlfmt]
+line_length = 120
+check = true
+
+[tool.pytest.ini_options]
+# pythonpath = ["."]
+# testpaths = ["app/tests"]
+# norecursedirs = ["__pycache__"]
+# addopts = "--verbose --showlocals --failed-first"
+# xfail_strict = true
+# filterwarnings = [
+#     "error",
+#     # This includes things like unclosed ssl.SSLSocket, and those are left open by
+#     # Requests Sessions, and it'd be a pain to manually close every connection for
+#     # every test. So just always log these, and we can address things like unclosed
+#     # file handles on a case-by-case basis.
+#     "always::ResourceWarning",
+
+#     # DBT apparently needs to upgrade its dependencies
+#     "ignore:datetime.datetime.utcnow:DeprecationWarning:dbt",
+#     "ignore:'parser.OptionParser':DeprecationWarning:dbt",
+#     "ignore:'parser.ParsingState':DeprecationWarning:dbt",
+
+#     # We expect a Gcloud Auth warning
+#     "ignore:Your application has authenticated using end user credentials from Google Cloud SDK without a quota project::",
+# ]
+env = ["GOOGLE_CLOUD_PROJECT=test-project"]
+
+# [tool.pylint.messages_control]
+# disable = [
+#     "missing-class-docstring",
+#     "missing-function-docstring",
+#     "missing-module-docstring",
+# ]

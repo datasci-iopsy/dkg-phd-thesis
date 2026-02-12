@@ -1,11 +1,26 @@
-params:
-  gcp:
-    project_id: "dkg-phd-thesis"
-    location: "us-east4"
+# ================================================================
+# GCP & BigQuery settings for the Qualtrics scheduling function
+# ================================================================
 
-  secret_manager:
-    secret_id: "dkg-qualtrics-api-key"
-    version_id: latest
+gcp:
+  project_id: "dkg-phd-thesis"
+  location: "US"        # Multi-region for BigQuery datasets
+  region: "us-east4"    # Specific region for Cloud Run functions
 
-  bq:
-    dataset_id: "qualtrics_db"
+secret_manager:
+  qualtrics_api_key: "dkg-qualtrics-api-key"
+  qualtrics_api_key_version_id: "latest"
+  qualtrics_webhook: "dkg-qualtrics-webhook-secret"
+  qualtrics_webhook_version_id: "latest"
+
+bq:
+  dataset_id: "qualtrics"
+  tables:
+    # -- Intake (survey 0): enrollment, demographics, screening ------
+    intake_raw: "intake_responses"
+    intake_clean: "intake_clean"
+    # -- Follow-ups (surveys 1-3): repeated measures -----------------
+    # All three timepoints share the same schema and append to a
+    # single table, differentiated by survey_id.
+    followup_raw: "followup_responses"
+    followup_clean: "followup_clean"

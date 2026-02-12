@@ -1,16 +1,30 @@
-# config
-.vscode
-*.html
-*.http
+# config files and directories
+.vscode/
+
+# environment files and directories
+.env
+.venv/
+.Renviron
+.keys/
 
 # python
 .python-version
 *.__init__.py
 *__pycache__/
-*.env
-*.venv
 *.egg-info
 *.ipynb*
+
+# misc
+*.http
+*.session.sql
+.DS_Store
+supplements/
+*.csv
+archive/
+_archive/
+data/
+logs/
+*tempCodeRunnerFile*
 
 # History files
 .Rhistory
@@ -51,9 +65,6 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 
-# R Environment Variables
-.Renviron
-
 # pkgdown site
 docs/
 
@@ -62,13 +73,3 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
-
-# misc
-.DS_Store
-supplements/
-**.csv
-archive/
-data/
-logs/
-*tempCodeRunnerFile*
-*.keys/

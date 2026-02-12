@@ -1,0 +1,35 @@
+# ================================================================
+# API Gateway -- Qualtrics Webhook Routing
+# ================================================================
+# Routes authenticated webhook POSTs from Qualtrics to Cloud Run,
+# handling IAM authentication transparently.
+#
+# Flow:
+#   Qualtrics POST (x-api-key header)
+#     -> API Gateway (validates API key)
+#       -> Cloud Run function (IAM JWT injected by gateway)
+#
+# Managed by manage_gateway.py. Run 'setup' to provision all
+# resources; 'test' to send the fixture payload through the
+# gateway end-to-end.
+# ================================================================
+
+gateway:
+  api_id: dkg-qualtrics-api
+  gateway_id: dkg-qualtrics-gateway
+  location: us-east4
+
+  # Service account the gateway uses to authenticate to Cloud Run.
+  # Created by 'manage_gateway.py setup' if it does not exist.
+  service_account_name: dkg-api-gateway
+  service_account_display_name: "DKG API Gateway Service Account"
+
+  # Display name for the GCP API key that Qualtrics sends in
+  # the x-api-key header. The key is restricted to only this
+  # gateway's managed service.
+  api_key_display_name: qualtrics-webhook-key
+
+# Which Cloud Run function (from functions.yaml) this gateway
+# routes to. manage_gateway.py resolves the service URL
+# automatically at setup time.
+target_function: run-qualtrics-scheduling
