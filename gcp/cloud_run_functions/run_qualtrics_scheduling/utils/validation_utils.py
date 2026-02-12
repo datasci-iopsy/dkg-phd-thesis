@@ -14,39 +14,39 @@ from models.participant import ParticipantData
 logger = logging.getLogger(__name__)
 
 
-def verify_webhook_signature(request: Request, webhook_secret: str) -> bool:
-    """
-    Verifies HMAC-SHA256 signature from Qualtrics webhook.
+# def verify_webhook_signature(request: Request, webhook_secret: str) -> bool:
+#     """
+#     Verifies HMAC-SHA256 signature from Qualtrics webhook.
 
-    Args:
-        request: Flask request object containing webhook data
-        webhook_secret: Shared secret configured in Qualtrics
+#     Args:
+#         request: Flask request object containing webhook data
+#         webhook_secret: Shared secret configured in Qualtrics
 
-    Returns:
-        bool: True if signature is valid
-    """
-    if not webhook_secret:
-        logger.warning("Webhook secret not configured, skipping verification")
-        return True
+#     Returns:
+#         bool: True if signature is valid
+#     """
+#     if not webhook_secret:
+#         logger.warning("Webhook secret not configured, skipping verification")
+#         return True
 
-    signature_header = request.headers.get("X-Qualtrics-Signature")
-    if not signature_header:
-        logger.error("Missing X-Qualtrics-Signature header")
-        return False
+#     signature_header = request.headers.get("X-Qualtrics-Signature")
+#     if not signature_header:
+#         logger.error("Missing X-Qualtrics-Signature header")
+#         return False
 
-    payload = request.get_data()
-    expected_signature = hmac.new(
-        webhook_secret.encode("utf-8"), payload, hashlib.sha256
-    ).hexdigest()
+#     payload = request.get_data()
+#     expected_signature = hmac.new(
+#         webhook_secret.encode("utf-8"), payload, hashlib.sha256
+#     ).hexdigest()
 
-    is_valid = hmac.compare_digest(signature_header, expected_signature)
+#     is_valid = hmac.compare_digest(signature_header, expected_signature)
 
-    if is_valid:
-        logger.info("Webhook signature verified successfully")
-    else:
-        logger.error("Webhook signature mismatch")
+#     if is_valid:
+#         logger.info("Webhook signature verified successfully")
+#     else:
+#         logger.error("Webhook signature mismatch")
 
-    return is_valid
+#     return is_valid
 
 
 def extract_webhook_payload(request: Request) -> Optional[Dict[str, Any]]:
