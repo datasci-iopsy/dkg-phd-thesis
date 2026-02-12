@@ -8,10 +8,30 @@ A dissertation **TO BE** submitted to the Graduate Faculty of North Carolina Sta
 
 Industrial-Organizational Psychology
 
-Raleigh, North Carolina (2025)
+Raleigh, North Carolina (2026)
+
+# Technical Setup
+
+This project is a combination of academic research, software engineering and data engineering, as well as data science and advanced statistical analysis. Rather than have the user meander the various aspects of the project piece by piece, I aimed to make many aspects as automatic as possible. Though one is bound to encounter something new when working with various paradigms. 
+
+TODO: I should get the `Makefile` handle these commands as much as possible!
+
+1. Use OS-specific package manager to download `pyenv`, and `direnv`
+   1. macOS: `homebrew`
+   2. Linux: `apt`, `Nix`, etc.
+2. Install and set up project virtual environment using `pyenv`
+3. Install `direnv` on your local machine (this will differ across OS)
+   1. The message `direnv: error {{ user_path }}.envrc is blocked. Run direnv allow to approve its content` is normal, so run the command.
+   2. Create `.envrc` file
+4. Install `poetry`
+   1. `pip install pipx`
+   2. `pipx install poetry=2.2.1`
+   3. Makes sense to run `pipx ensurepath` to automatically update `PATH` variable so `poetry` can be accessed globally.
+
 
 # Table of Contents
 - [“If You Only Knew the Power of the Dark Side”: Examining Within-Person Fluctuation in Psychological Need Frustration, Burnout, and Turnover Intentions Across a Workday.](#if-you-only-knew-the-power-of-the-dark-side-examining-within-person-fluctuation-in-psychological-need-frustration-burnout-and-turnover-intentions-across-a-workday)
+- [Technical Setup](#technical-setup)
 - [Table of Contents](#table-of-contents)
 - [Overview](#overview)
 - [Conceptual Framework](#conceptual-framework)

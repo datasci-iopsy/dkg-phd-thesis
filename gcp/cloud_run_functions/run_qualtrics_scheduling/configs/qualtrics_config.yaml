@@ -1,4 +1,7 @@
-params:
-  qualtrics:
-    webhook_secret: ${QUALTRICS_WEBHOOK_SECRET}
-    base_url: "https://yul1.qualtrics.com/API/v3"
+# ================================================================
+# Qualtrics API settings
+# ================================================================
+
+qualtrics:
+  base_url: "https://yul1.qualtrics.com/API/v3"
+  survey_base_url: "https://ncsu.qualtrics.com/jfe/form"   # <- was missing; update to your actual survey URL base

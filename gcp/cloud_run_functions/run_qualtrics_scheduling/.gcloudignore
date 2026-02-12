@@ -1,3 +1,2 @@
-*.env
-*.session.sql
-*__pycache__/
+.session.sql
+__pycache__/

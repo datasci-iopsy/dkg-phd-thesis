@@ -1,0 +1,33 @@
+# ================================================================
+# Cloud Run Functions — Deployment Configuration
+# ================================================================
+# Single source of truth for all function deploy settings.
+# Add new functions as entries under `functions:`.
+# ================================================================
+
+global:
+  project: dkg-phd-thesis
+  region: us-east4
+  runtime: python312
+  gen2: true
+
+functions:
+  run-qualtrics-scheduling:
+    source_dir: run_qualtrics_scheduling
+    poetry_group: fn-qualtrics-scheduling
+    entry_point: qualtrics_webhook_handler
+    trigger: http
+    allow_unauthenticated: true
+    secrets:
+      - QUALTRICS_API_KEY=dkg-qualtrics-api-key:latest
+      - QUALTRICS_WEBHOOK_SECRET=dkg-qualtrics-webhook-secret:latest
+
+  # ── Future functions ────────────────────────────────────
+  # run-twilio-handler:
+  #   source_dir: run_twilio_handler
+  #   poetry_group: fn-twilio-handler
+  #   entry_point: twilio_webhook_handler
+  #   trigger: http
+  #   allow_unauthenticated: false
+  #   secrets:
+  #     - TWILIO_AUTH_TOKEN=dkg-twilio-auth-token:latest
