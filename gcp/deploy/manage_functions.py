@@ -4,6 +4,12 @@ Reads function configuration from functions.yaml and handles
 local development, deployment, teardown, and inspection of
 Cloud Run functions.
 
+Each function can declare a dedicated service account with
+least-privilege IAM roles. During deploy, the service account
+is created (if it does not exist), granted the declared roles,
+and passed to gcloud via --service-account. During teardown,
+the service account is deleted along with the function.
+
 Usage:
     python manage_functions.py dev      <function-name>
     python manage_functions.py dev      <function-name> --port 9090
@@ -40,6 +46,12 @@ class GlobalConfig(BaseModel):
     gen2: bool = True
 
 
+class ServiceAccountConfig(BaseModel):
+    name: str
+    display_name: str = "Cloud Run Function Service Account"
+    roles: list[str] = Field(default_factory=list)
+
+
 class FunctionConfig(BaseModel):
     source_dir: str
     poetry_group: str
@@ -47,6 +59,7 @@ class FunctionConfig(BaseModel):
     trigger: str
     allow_unauthenticated: bool = False
     secrets: list[str] = Field(default_factory=list)
+    service_account: ServiceAccountConfig | None = None
 
 
 class DeployConfig(BaseModel):
@@ -76,6 +89,16 @@ def run_quiet(cmd: list[str]) -> subprocess.CompletedProcess[str]:
     return subprocess.run(cmd, capture_output=True, text=True, check=False)
 
 
+def resource_exists(cmd: list[str]) -> bool:
+    """Check whether a gcloud describe command succeeds."""
+    return run_quiet(cmd).returncode == 0
+
+
+def sa_email(sa_name: str, project: str) -> str:
+    """Build the full service account email from its short name."""
+    return f"{sa_name}@{project}.iam.gserviceaccount.com"
+
+
 def resolve_function(
     config: DeployConfig, name: str
 ) -> tuple[FunctionConfig, GlobalConfig, Path]:
@@ -99,6 +122,99 @@ def print_banner(action: str, name: str, g: GlobalConfig) -> None:
     print(f"|  Project:   {g.project:<38}|")
     print(f"|  Region:    {g.region:<38}|")
     print(f"+{'=' * 50}+")
+
+
+# -- Service account steps -----------------------------------------
+def create_service_account(
+    project: str, sa_config: ServiceAccountConfig
+) -> str:
+    """Create a service account if it does not exist.
+
+    Returns the full email address.
+    """
+    email = sa_email(sa_config.name, project)
+
+    if resource_exists(
+        [
+            "gcloud",
+            "iam",
+            "service-accounts",
+            "describe",
+            email,
+            f"--project={project}",
+        ]
+    ):
+        print(f"\n  Service account '{email}' already exists -- skipping.")
+        return email
+
+    run(
+        [
+            "gcloud",
+            "iam",
+            "service-accounts",
+            "create",
+            sa_config.name,
+            f"--display-name={sa_config.display_name}",
+            f"--project={project}",
+        ],
+        description=f"Creating service account: {sa_config.name}",
+    )
+    return email
+
+
+def grant_iam_roles(project: str, sa_email: str, roles: list[str]) -> None:
+    """Grant project-level IAM roles to the service account.
+
+    Each role is bound individually. Existing bindings are
+    idempotent -- gcloud does not duplicate them.
+    """
+    for role in roles:
+        run(
+            [
+                "gcloud",
+                "projects",
+                "add-iam-policy-binding",
+                project,
+                f"--member=serviceAccount:{sa_email}",
+                f"--role={role}",
+                "--condition=None",
+                "--quiet",
+            ],
+            description=f"Granting {role}",
+        )
+
+
+def delete_service_account(
+    project: str, sa_config: ServiceAccountConfig
+) -> None:
+    """Delete the function's service account if it exists."""
+    email = sa_email(sa_config.name, project)
+
+    if not resource_exists(
+        [
+            "gcloud",
+            "iam",
+            "service-accounts",
+            "describe",
+            email,
+            f"--project={project}",
+        ]
+    ):
+        print(f"\n  Service account '{email}' not found -- skipping.")
+        return
+
+    run(
+        [
+            "gcloud",
+            "iam",
+            "service-accounts",
+            "delete",
+            email,
+            f"--project={project}",
+            "--quiet",
+        ],
+        description=f"Deleting service account: {email}",
+    )
 
 
 # -- Deploy steps ---------------------------------------------------
@@ -139,8 +255,18 @@ def gcloud_deploy(
     fn: FunctionConfig,
     g: GlobalConfig,
     function_dir: Path,
+    run_as: str | None = None,
 ) -> None:
-    """Run gcloud functions deploy with the resolved configuration."""
+    """Run gcloud functions deploy with the resolved configuration.
+
+    Args:
+        name: Cloud Run function name.
+        fn: Function configuration from functions.yaml.
+        g: Global configuration from functions.yaml.
+        function_dir: Path to the function source directory.
+        run_as: Service account email the function runs as.
+            If None, GCP uses the default compute SA.
+    """
     cmd = [
         "gcloud",
         "functions",
@@ -159,6 +285,8 @@ def gcloud_deploy(
         cmd.append("--allow-unauthenticated")
     if fn.secrets:
         cmd.append(f"--set-secrets={','.join(fn.secrets)}")
+    if run_as:
+        cmd.append(f"--service-account={run_as}")
 
     run(cmd, description="Deploying to Cloud Run Functions")
 
@@ -173,15 +301,18 @@ def cleanup_local(function_dir: Path) -> None:
 
 
 # -- Teardown steps -------------------------------------------------
-def confirm_teardown(name: str, g: GlobalConfig) -> None:
+def confirm_teardown(name: str, g: GlobalConfig, fn: FunctionConfig) -> None:
     """Require explicit confirmation before destroying resources."""
-    print("\n This will permanently delete the following resources:")
+    print("\n  This will permanently delete the following resources:")
     print(f"    Function:          {name}")
     print(f"    Cloud Run service: {name} (managed by gen2)")
     print(
         f"    AR images:         {g.region}-docker.pkg.dev"
         f"/{g.project}/gcf-artifacts/{name}"
     )
+    if fn.service_account:
+        email = sa_email(fn.service_account.name, g.project)
+        print(f"    Service account:   {email}")
     print()
 
     response = input("  Type the function name to confirm: ")
@@ -324,6 +455,12 @@ def handle_dev(args: argparse.Namespace) -> None:
 
 
 def handle_deploy(args: argparse.Namespace) -> None:
+    """Build and deploy a function to Cloud Run.
+
+    If the function declares a service_account in functions.yaml,
+    the service account is created (idempotent), granted its
+    declared IAM roles, and passed to gcloud via --service-account.
+    """
     config = load_config()
     fn, g, function_dir = resolve_function(config, args.function_name)
 
@@ -336,30 +473,52 @@ def handle_deploy(args: argparse.Namespace) -> None:
 
     print_banner("Deploying", args.function_name, g)
 
+    # Provision service account before deploying
+    run_as = None
+    if fn.service_account:
+        run_as = create_service_account(g.project, fn.service_account)
+        if fn.service_account.roles:
+            grant_iam_roles(g.project, run_as, fn.service_account.roles)
+
     try:
         export_requirements(
             fn.poetry_group,
             function_dir / "requirements.txt",
         )
         copy_shared_utils(function_dir)
-        gcloud_deploy(args.function_name, fn, g, function_dir)
+        gcloud_deploy(args.function_name, fn, g, function_dir, run_as)
     finally:
         cleanup_local(function_dir)
 
-    print(f"\n  Deploy complete: {args.function_name}\n")
+    print(f"\n  Deploy complete: {args.function_name}")
+    if run_as:
+        print(f"  Running as:      {run_as}")
+    print()
 
 
 def handle_teardown(args: argparse.Namespace) -> None:
+    """Delete a function and clean up all its GCP resources.
+
+    Deletion order:
+        1. Cloud Run function
+        2. Artifact Registry images
+        3. Service account (if declared)
+        4. Local artifacts
+    """
     config = load_config()
     fn, g, function_dir = resolve_function(config, args.function_name)
 
     print_banner("Tearing down", args.function_name, g)
 
     if not args.force:
-        confirm_teardown(args.function_name, g)
+        confirm_teardown(args.function_name, g, fn)
 
     delete_function(args.function_name, g)
     cleanup_artifact_registry(args.function_name, g)
+
+    if fn.service_account:
+        delete_service_account(g.project, fn.service_account)
+
     cleanup_generated_requirements(function_dir)
     cleanup_local(function_dir)
 
@@ -375,6 +534,14 @@ def handle_list(args: argparse.Namespace) -> None:
         print(f"    entry_point:  {fn.entry_point}")
         print(f"    poetry_group: {fn.poetry_group}")
         print(f"    trigger:      {fn.trigger}")
+        if fn.service_account:
+            email = sa_email(fn.service_account.name, config.global_.project)
+            print(f"    runs_as:      {email}")
+            if fn.service_account.roles:
+                for role in fn.service_account.roles:
+                    print(f"      - {role}")
+        else:
+            print(f"    runs_as:      (default compute SA)")
         print()
 
 
