@@ -18,15 +18,15 @@ functions:
     entry_point: qualtrics_webhook_handler
     trigger: http
     allow_unauthenticated: false
-    secrets:
-      - QUALTRICS_API_KEY=dkg-qualtrics-api-key:latest
-      - QUALTRICS_WEBHOOK_SECRET=dkg-qualtrics-webhook-secret:latest
     service_account:
       name: dkg-fn-qualtrics
       display_name: "Cloud Run -- Qualtrics Scheduling Function"
       roles:
         - roles/bigquery.dataEditor
-        - roles/secretmanager.secretAccessor
+        # - roles/secretmanager.secretAccessor
+    # secrets:
+    #   - QUALTRICS_API_KEY=dkg-qualtrics-api-key:latest
+    #   - QUALTRICS_WEBHOOK_SECRET=dkg-qualtrics-webhook-secret:latest
 
   # -- Future functions ----------------------------------------------
   # run-twilio-handler:
