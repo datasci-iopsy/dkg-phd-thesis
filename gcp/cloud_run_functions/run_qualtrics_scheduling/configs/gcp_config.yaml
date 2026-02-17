@@ -7,12 +7,6 @@ gcp:
   location: "US"        # Multi-region for BigQuery datasets
   region: "us-east4"    # Specific region for Cloud Run functions
 
-secret_manager:
-  qualtrics_api_key: "dkg-qualtrics-api-key"
-  qualtrics_api_key_version_id: "latest"
-  qualtrics_webhook: "dkg-qualtrics-webhook-secret"
-  qualtrics_webhook_version_id: "latest"
-
 bq:
   dataset_id: "qualtrics"
   tables:
