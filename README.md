@@ -26,8 +26,11 @@ TODO: I should get the `Makefile` handle these commands as much as possible!
 4. Install `poetry`
    1. `pip install pipx`
    2. `pipx install poetry=2.2.1`
-   3. Makes sense to run `pipx ensurepath` to automatically update `PATH` variable so `poetry` can be accessed globally.
-
+   3. It makes sense to run the command `pipx ensurepath` to automatically update `PATH` variable so `poetry` can be accessed globally.
+5. Ensure that you have R downloaded (preferably version `4.5.2` or later).
+   1. When programming using an IDE (e.g., VS Code), you'll leverage the python package `radian` as the terminal output is much clearer and packed with color-coded messages.
+   2. Install the `renv` package if you have not already.
+      1. `renv::init()` to get things started.
 
 # Table of Contents
 - [“If You Only Knew the Power of the Dark Side”: Examining Within-Person Fluctuation in Psychological Need Frustration, Burnout, and Turnover Intentions Across a Workday.](#if-you-only-knew-the-power-of-the-dark-side-examining-within-person-fluctuation-in-psychological-need-frustration-burnout-and-turnover-intentions-across-a-workday)
