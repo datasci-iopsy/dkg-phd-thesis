@@ -105,11 +105,25 @@ class QualtricsConfig(BaseModel):
     )
 
 
+class PubSubConfig(BaseModel):
+    """Pub/Sub topic references for async message passing.
+
+    Used by functions that publish messages after processing.
+    Functions that only receive messages (via Eventarc push
+    subscriptions) do not need this config.
+    """
+
+    topic_id: str = Field(
+        ..., description="Pub/Sub topic ID (e.g., 'dkg-intake-processed')"
+    )
+
+
 class AppConfig(BaseModel):
     """Top-level application configuration.
 
     Composed from all YAML files in the function's configs/ directory.
-    Each field corresponds to a top-level YAML key.
+    Each field corresponds to a top-level YAML key. Optional fields
+    allow functions to include only the config sections they need.
 
     Usage after loading:
         config.gcp.project_id
@@ -117,10 +131,12 @@ class AppConfig(BaseModel):
         config.gcp.region           # "us-east4" (for Cloud Run)
         config.bq.dataset_id
         config.bq.tables.intake_raw
-        config.qualtrics.base_url
+        config.qualtrics.base_url   # only if qualtrics config present
+        config.pubsub.topic_id      # only if pubsub config present
     """
 
     gcp: GCPConfig
     secret_manager: SecretManagerConfig | None = None
     bq: BigQueryConfig
-    qualtrics: QualtricsConfig
+    qualtrics: QualtricsConfig | None = None
+    pubsub: PubSubConfig | None = None

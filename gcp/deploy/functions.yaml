@@ -23,10 +23,30 @@ functions:
       display_name: "Cloud Run -- Qualtrics Scheduling Function"
       roles:
         - roles/bigquery.dataEditor
+        - roles/bigquery.jobUser
+        - roles/pubsub.publisher
         # - roles/secretmanager.secretAccessor
     # secrets:
     #   - QUALTRICS_API_KEY=dkg-qualtrics-api-key:latest
     #   - QUALTRICS_WEBHOOK_SECRET=dkg-qualtrics-webhook-secret:latest
+
+  run-intake-confirmation:
+    source_dir: run_intake_confirmation
+    poetry_group: fn-intake-confirmation
+    entry_point: intake_confirmation_handler
+    trigger: topic
+    trigger_topic: dkg-intake-processed
+    allow_unauthenticated: false
+    secrets:
+      - TWILIO_CONFIG=dkg-twilio-config:latest
+    service_account:
+      name: dkg-fn-intake-confirm
+      display_name: "Cloud Run -- Intake Confirmation Function"
+      roles:
+        - roles/bigquery.dataEditor
+        - roles/bigquery.jobUser
+        - roles/run.invoker
+        - roles/secretmanager.secretAccessor
 
   # -- Future functions ----------------------------------------------
   # run-twilio-handler:

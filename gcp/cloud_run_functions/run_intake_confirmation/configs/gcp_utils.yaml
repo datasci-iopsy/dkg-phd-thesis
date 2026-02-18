@@ -1,5 +1,10 @@
 # ================================================================
-# GCP & BigQuery settings for the Qualtrics scheduling function
+# GCP & BigQuery settings for the intake confirmation function
+# ================================================================
+# Subset of the scheduling function's config. This function only
+# needs GCP project info and BigQuery table references for
+# updating _processed status. No Qualtrics or Pub/Sub config
+# needed -- messages arrive via Eventarc push subscription.
 # ================================================================
 
 gcp:
@@ -18,8 +23,3 @@ bq:
     # single table, differentiated by survey_id.
     followup_raw: "followup_responses"
     followup_clean: "followup_clean"
-
-pubsub:
-  # Topic for asynchronous processing after a successful BQ write.
-  # Must match the topic_id in deploy/pubsub.yaml.
-  topic_id: "dkg-intake-processed"
