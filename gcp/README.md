@@ -1,6 +1,20 @@
 # gcp/
 
-Survey response ETL pipeline that receives Qualtrics Web Service task payloads via a Cloud Run function, validates them with Pydantic, and writes them to BigQuery as explicit typed columns.
+Survey response ETL pipeline that receives Qualtrics Web Service task payloads through a GCP API Gateway, validates them with Pydantic in a Cloud Run function, and writes them to BigQuery as explicit typed columns.
+
+- [gcp/](#gcp)
+  - [Directory structure](#directory-structure)
+  - [How it works](#how-it-works)
+  - [CLI tools](#cli-tools)
+    - [manage\_functions.py: Cloud Run function lifecycle](#manage_functionspy-cloud-run-function-lifecycle)
+    - [manage\_gateway.py: API Gateway lifecycle](#manage_gatewaypy-api-gateway-lifecycle)
+    - [manage\_infra.py: BigQuery provisioning](#manage_infrapy-bigquery-provisioning)
+  - [Configuration](#configuration)
+  - [Updating the schema](#updating-the-schema)
+  - [Testing locally with cURL](#testing-locally-with-curl)
+  - [Running tests](#running-tests)
+  - [Dependencies](#dependencies)
+  - [Adding a new function](#adding-a-new-function)
 
 ## Directory structure
 
@@ -27,7 +41,9 @@ gcp/
       gcp_utils.py                # BigQuery insert operations
   deploy/
     functions.yaml                # Function deployment configuration
+    gateway.yaml                  # API Gateway routing configuration
     manage_functions.py           # Cloud Run function lifecycle CLI
+    manage_gateway.py             # API Gateway lifecycle CLI
     manage_infra.py               # BigQuery infrastructure provisioning CLI
   tests/
     fixtures/
@@ -38,19 +54,26 @@ gcp/
     test_config.py                # Config loading and validation tests
     test_models.py                # Payload, participant, and QID_MAP tests
     test_validation.py            # Flask request parsing and extraction tests
+  README.md
 ```
 
 ## How it works
 
-Qualtrics sends a completed survey response as a JSON POST via a Workflow Web Service task. The Cloud Run function (`main.py`) receives it, validates the payload against `WebServicePayload` (a Pydantic model with 34 typed fields), writes all fields as explicit BigQuery columns, then extracts and validates participant scheduling data.
+The pipeline processes completed survey responses in real time through four stages.
 
-The BigQuery schema is generated directly from the `WebServicePayload` model at import time (`bq_schemas.py`), so there is a single source of truth for field names and types. Two system columns (`created_at`, `processed`) are appended after the model-derived fields.
+A participant completes the intake survey in Qualtrics, which triggers a Workflow Web Service task. The task POSTs the full response as a JSON body with semantic field names (e.g., `"PA1": "Always"`, `"timezone": "US/Central"`) to the API Gateway endpoint. The university's GCP organization policy prohibits unauthenticated Cloud Run invocations, so the API Gateway sits in front of the function: it validates a static API key sent in an `x-api-key` header, then forwards the request to Cloud Run with a proper IAM JWT injected. See [`gateway.yaml`](deploy/gateway.yaml) for the routing configuration.
+
+The Cloud Run function ([`main.py`](cloud_run_functions/run_qualtrics_scheduling/main.py)) validates the incoming JSON against `WebServicePayload`, a Pydantic model with 34 typed fields: 2 required system identifiers (`response_id`, `survey_id`) and 32 optional fields covering consent, eligibility, scheduling, demographics, and 20 psychometric scale items. Fields are optional because Qualtrics survey logic may route participants to the end early if they fail screening.
+
+On successful validation, all fields are written as explicit BigQuery columns to the `intake_responses` table via the streaming API. The BigQuery schema is generated directly from the `WebServicePayload` model at import time ([`bq_schemas.py`](shared/utils/bq_schemas.py)), so there is a single source of truth for field names and types. Two system columns (`_created_at`, `_processed`) are appended after the model-derived fields.
+
+Finally, participant scheduling data (Prolific PID, phone, date, timezone, consent) is extracted and validated. Phone numbers are normalized to E.164 format. The function returns a JSON response with the response ID and a masked phone number on success (200), or a descriptive error on validation failure (400) or internal error (500).
 
 ## CLI tools
 
-Both scripts live in `gcp/deploy/` and are run from the project root.
+Three scripts live in `gcp/deploy/` and are run from the project root. All three use argparse, validate their configuration with Pydantic, and support `--help`.
 
-### manage_functions.py -- Cloud Run function lifecycle
+### manage_functions.py: Cloud Run function lifecycle
 
 ```bash
 # Local development (starts functions-framework on port 8080)
@@ -74,13 +97,40 @@ python gcp/deploy/manage_functions.py list
 
 The `dev` command copies `shared/` into the function directory, starts a local server, and cleans up on exit. It also prints any secrets the function expects so you can set them as environment variables (via `.envrc` / direnv).
 
-The `deploy` command exports a `requirements.txt` from Poetry (using the function's dependency group), copies `shared/`, deploys via `gcloud functions deploy`, and cleans up local artifacts.
+The `deploy` command exports a `requirements.txt` from Poetry (using the function's dependency group), copies `shared/`, deploys via `gcloud functions deploy`, and cleans up local artifacts. If the function declares a `service_account` in [`functions.yaml`](deploy/functions.yaml), deploy creates the service account (if it does not exist), grants the declared IAM roles, and passes it to gcloud via `--service-account`.
 
-The `teardown` command deletes the Cloud Run function, removes leftover Artifact Registry container images, and clears the generated `requirements.txt`.
+The `teardown` command deletes the Cloud Run function, removes leftover Artifact Registry container images, clears the generated `requirements.txt`, and deletes the function's dedicated service account.
 
-All function configuration lives in `gcp/deploy/functions.yaml`. To add a new function, add an entry under `functions:` with `source_dir`, `poetry_group`, `entry_point`, `trigger`, and optionally `secrets` and `allow_unauthenticated`.
+All function configuration lives in [`functions.yaml`](deploy/functions.yaml). Each entry defines `source_dir`, `poetry_group`, `entry_point`, `trigger`, `allow_unauthenticated`, and optionally `secrets` and `service_account` (with `name`, `display_name`, and `roles`).
 
-### manage_infra.py -- BigQuery provisioning
+### manage_gateway.py: API Gateway lifecycle
+
+```bash
+# Provision gateway, service account, and API key
+python gcp/deploy/manage_gateway.py setup
+
+# Show current state of all gateway resources
+python gcp/deploy/manage_gateway.py status
+
+# Send the test fixture payload through the live gateway
+python gcp/deploy/manage_gateway.py test
+
+# Tear down all gateway resources (interactive confirmation)
+python gcp/deploy/manage_gateway.py teardown
+
+# Tear down (skip confirmation)
+python gcp/deploy/manage_gateway.py teardown --force
+```
+
+The `setup` command enables required GCP APIs (`apigateway`, `servicemanagement`, `servicecontrol`, `apikeys`), creates a dedicated service account (`dkg-api-gateway`) with the Cloud Run Invoker role, resolves the target Cloud Run function URL from [`functions.yaml`](deploy/functions.yaml), generates an OpenAPI 2.0 spec, deploys the API config and gateway, and creates a GCP API key restricted to the gateway's managed service. The resulting gateway URL and API key are what you configure in the Qualtrics Workflow Web Service task.
+
+The `test` command sends the fixture payload ([`web_service_payload.json`](tests/fixtures/web_service_payload.json)) through the live gateway end-to-end, verifying the full chain from API key validation through Cloud Run invocation to BigQuery insert.
+
+The `teardown` command removes the gateway, API config, API resource, GCP API key, and the gateway service account.
+
+All gateway configuration lives in [`gateway.yaml`](deploy/gateway.yaml), which specifies the API ID, gateway ID, location, service account details, and which Cloud Run function to route to.
+
+### manage_infra.py: BigQuery provisioning
 
 ```bash
 # Check current state of dataset and tables
@@ -96,19 +146,33 @@ python gcp/deploy/manage_infra.py teardown
 python gcp/deploy/manage_infra.py teardown --force
 ```
 
-`manage_infra.py` reads dataset and table names from `gcp_config.yaml` (the same file the function uses at runtime), so there is no drift between what the script provisions and what the function writes to. Only tables with schemas registered in `TABLE_REGISTRY` (inside the script) are created by `setup`; unregistered tables appear in `status` as "no schema defined yet" and are skipped.
+`manage_infra.py` reads dataset and table names from [`gcp_config.yaml`](cloud_run_functions/run_qualtrics_scheduling/configs/gcp_config.yaml) (the same file the function uses at runtime), so there is no drift between what the script provisions and what the function writes to. Only tables with schemas registered in `TABLE_REGISTRY` (inside the script) are created by `setup`; unregistered tables appear in `status` as "no schema defined yet" and are skipped.
+
+The config defines four tables following a `<purpose>_<stage>` naming convention: `intake_raw` and `intake_clean` for the enrollment survey, `followup_raw` and `followup_clean` for the three repeated-measures surveys. Currently only `intake_raw` has a registered schema; the others are provisioned as their schemas are finalized.
+
+## Configuration
+
+All runtime configuration lives in YAML files under `cloud_run_functions/run_qualtrics_scheduling/configs/`. The config loader ([`config_loader.py`](shared/utils/config_loader.py)) merges all YAML files in the directory alphabetically and validates the result against the `AppConfig` Pydantic model ([`config_models.py`](shared/utils/config_models.py)). Missing or invalid fields produce clear validation errors at startup.
+
+**[`gcp_config.yaml`](cloud_run_functions/run_qualtrics_scheduling/configs/gcp_config.yaml)**: GCP project ID, compute region, BigQuery multi-region location, dataset name, and all four table names.
+
+**[`qualtrics_config.yaml`](cloud_run_functions/run_qualtrics_scheduling/configs/qualtrics_config.yaml)**: Qualtrics REST API base URL and survey URL base (used for constructing follow-up survey links).
+
+Secrets (`QUALTRICS_API_KEY`, `QUALTRICS_WEBHOOK_SECRET`) are currently commented out of the deployment configuration. The API Gateway handles inbound authentication, and the Web Service task sends complete payloads, eliminating the need for outbound Qualtrics API calls in the active pipeline. The `SecretManagerConfig` model and `qualtrics_utils.fetch_single_response()` function are retained for manual lookups if needed. To re-enable secrets, uncomment the `secrets` block in [`functions.yaml`](deploy/functions.yaml) and add the `secret_manager` key back to `gcp_config.yaml`.
+
+For local development, any needed environment variables can be set via `.envrc` / direnv or exported manually.
 
 ## Updating the schema
 
 When a survey question changes or a new field is added, four files need updating. The BigQuery schema regenerates automatically from the Pydantic model, so there is no separate schema definition to maintain.
 
-1. **`models/qualtrics.py`** -- Update `QID_MAP` if question IDs changed. Add, remove, or modify fields on `WebServicePayload`. Each field needs a type annotation and a `Field(...)` with a description.
+1. **[`models/qualtrics.py`](cloud_run_functions/run_qualtrics_scheduling/models/qualtrics.py)**: Update `QID_MAP` if question IDs changed. Add, remove, or modify fields on `WebServicePayload`. Each field needs a type annotation and a `Field(...)` with a description.
 
-2. **`gcp/deploy/manage_infra.py`** -- If adding an entirely new table, register it in `TABLE_REGISTRY` with its schema, partition field, cluster fields, and description. For changes to existing tables, the schema is picked up automatically from `bq_schemas.py`.
+2. **[`manage_infra.py`](deploy/manage_infra.py)**: If adding an entirely new table, register it in `TABLE_REGISTRY` with its schema, partition field, cluster fields, and description. For changes to existing tables, the schema is picked up automatically from [`bq_schemas.py`](shared/utils/bq_schemas.py).
 
-3. **`tests/fixtures/web_service_payload.json`** -- Update the fixture to match the new payload shape. Every field on `WebServicePayload` must be present with a valid value.
+3. **[`web_service_payload.json`](tests/fixtures/web_service_payload.json)**: Update the fixture to match the new payload shape. Every field on `WebServicePayload` must be present with a valid value.
 
-4. **`tests/test_models.py`** -- Update or add assertions for new/changed fields. If scale items changed, update the label sets in `test_positive_affect_labels`, `test_negative_affect_labels`, or `test_breach_violation_labels`.
+4. **[`test_models.py`](tests/test_models.py)**: Update or add assertions for new/changed fields. If scale items changed, update the label sets in `test_positive_affect_labels`, `test_negative_affect_labels`, or `test_breach_violation_labels`.
 
 After making changes, run the test suite to confirm everything is consistent:
 
@@ -139,7 +203,7 @@ curl -X POST http://localhost:8080 \
   -d @gcp/tests/fixtures/web_service_payload.json
 ```
 
-A successful response returns `{"status": "success", ...}` with a 200. Validation failures return a 400 with a descriptive error message.
+A successful response returns `{"status": "success", ...}` with a 200. Validation failures return a 400 with a descriptive error message. Note that local dev mode bypasses the API Gateway, so no API key is needed; the gateway authentication chain can be tested end-to-end with `manage_gateway.py test`.
 
 ## Running tests
 
@@ -164,26 +228,22 @@ poetry run pytest gcp/tests/test_config.py -v
 poetry run pytest gcp/tests/test_validation.py -v
 ```
 
-
-
 Tests mock BigQuery calls and use Flask test request contexts, so no GCP credentials or network access are needed.
-
-## Configuration
-
-All runtime configuration lives in YAML files under `cloud_run_functions/run_qualtrics_scheduling/configs/`. The config loader (`config_loader.py`) merges all YAML files in the directory and validates the result against the `AppConfig` Pydantic model. Missing or invalid fields produce clear validation errors at startup.
-
-**gcp_config.yaml** -- GCP project ID, BigQuery dataset/table names, Secret Manager references.
-
-**qualtrics_config.yaml** -- Qualtrics API base URL and survey URL base.
-
-Secrets (`QUALTRICS_API_KEY`, `QUALTRICS_WEBHOOK_SECRET`) are injected as environment variables by GCP Secret Manager at deploy time. For local development, set them via `.envrc` / direnv or export them manually.
 
 ## Dependencies
 
 Dependencies are managed by Poetry with dependency groups:
 
-- `main` -- Shared dependencies used by all functions (pydantic, PyYAML, requests).
-- `fn-qualtrics-scheduling` -- Dependencies specific to this function (Flask, functions-framework, google-cloud-bigquery).
-- `dev` -- Development tools (pytest, ruff).
+- `main`: Shared dependencies used by all functions (pydantic, PyYAML, requests).
+- `fn-qualtrics-scheduling`: Dependencies specific to this function (Flask, functions-framework, google-cloud-bigquery).
+- `dev`: Development tools (pytest, pytest-cov, ruff, radian).
 
-At deploy time, `manage_functions.py` exports `main` + the function's group into a `requirements.txt` that Cloud Run uses to build the container. New functions get their own Poetry group and an entry in `functions.yaml`.
+At deploy time, `manage_functions.py` exports `main` + the function's group into a `requirements.txt` that Cloud Run uses to build the container. New functions get their own Poetry group and an entry in [`functions.yaml`](deploy/functions.yaml).
+
+## Adding a new function
+
+1. Create a new directory under `cloud_run_functions/` with `main.py`, `configs/`, and any `models/` or `utils/` modules.
+2. Add a Poetry dependency group in `pyproject.toml` for the function's unique dependencies.
+3. Add an entry in [`functions.yaml`](deploy/functions.yaml) with `source_dir`, `poetry_group`, `entry_point`, `trigger`, and a `service_account` block with the roles the function needs.
+4. Add the function directory to `sys.path` in [`conftest.py`](tests/conftest.py) so test imports resolve.
+5. Write tests under `gcp/tests/`.
