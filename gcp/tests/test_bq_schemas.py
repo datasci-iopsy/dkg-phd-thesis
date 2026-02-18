@@ -268,7 +268,7 @@ class TestInsertRowMatchesSchema:
             fte_flag="Yes",
             location_flag="Yes",
             language_flag="Yes",
-            phone="9845557878",
+            phone="8777804236",
             timezone="US/Central",
             selected_date="12/26/2025",
             age=30,

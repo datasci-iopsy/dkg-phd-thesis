@@ -89,7 +89,7 @@ class ParticipantData(BaseModel):
         """Enforce E.164 phone format (+[country][number])."""
         if not re.match(r"^\+[1-9]\d{1,14}$", v):
             raise ValueError(
-                f"Phone must be E.164 format (e.g., +19845557878), got: {v}"
+                f"Phone must be E.164 format (e.g., +18777804236), got: {v}"
             )
         return v
 

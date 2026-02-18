@@ -49,7 +49,7 @@ class TestWebServicePayload:
     """Verify the Web Service task payload parses and validates."""
 
     def test_parses_fixture(self, web_service_payload):
-        assert web_service_payload.response_id == "R_1KNaaaXAMYpxtgW"
+        assert web_service_payload.response_id == "R_2LObbbYBNZqyuhX"
         assert web_service_payload.survey_id == "SV_86vMYNR8SdVDfEi"
 
     def test_consent_field(self, web_service_payload):
@@ -57,7 +57,7 @@ class TestWebServicePayload:
         assert web_service_payload.consent == "Yes"
 
     def test_scheduling_fields(self, web_service_payload):
-        assert web_service_payload.phone == "9845557878"
+        assert web_service_payload.phone == "8777804236"
         assert web_service_payload.timezone == "US/Central"
         assert web_service_payload.selected_date == "12/26/2025"
 
@@ -254,16 +254,16 @@ class TestNormalizePhone:
     """Verify phone normalization to E.164 format."""
 
     def test_ten_digit_us(self):
-        assert normalize_phone_number("9845557878") == "+19845557878"
+        assert normalize_phone_number("8777804236") == "+18777804236"
 
     def test_ten_digit_with_formatting(self):
-        assert normalize_phone_number("(984) 555-7878") == "+19845557878"
+        assert normalize_phone_number("(984) 555-7878") == "+18777804236"
 
     def test_eleven_digit_with_leading_one(self):
-        assert normalize_phone_number("19845557878") == "+19845557878"
+        assert normalize_phone_number("18777804236") == "+18777804236"
 
     def test_already_e164(self):
-        assert normalize_phone_number("+19845557878") == "+19845557878"
+        assert normalize_phone_number("+18777804236") == "+18777804236"
 
     def test_empty_returns_none(self):
         assert normalize_phone_number("") is None
@@ -285,7 +285,7 @@ class TestParticipantData:
         return {
             "response_id": "R_test123",
             "prolific_pid": "60a7c1b2e3f4a5b6c7d8e9f0",
-            "phone": "+19845557878",
+            "phone": "+18777804236",
             "selected_date": date(2025, 12, 26),
             "timezone": "US/Central",
             "consent_given": True,
@@ -294,7 +294,7 @@ class TestParticipantData:
     def test_valid_construction(self, valid_kwargs):
         p = ParticipantData(**valid_kwargs)
         assert p.prolific_pid == "60a7c1b2e3f4a5b6c7d8e9f0"
-        assert p.phone == "+19845557878"
+        assert p.phone == "+18777804236"
         assert p.consent_given is True
         assert isinstance(p.created_at, datetime)
 
@@ -317,7 +317,7 @@ class TestParticipantData:
             ParticipantData(**valid_kwargs)
 
     def test_rejects_bad_phone_format(self, valid_kwargs):
-        valid_kwargs["phone"] = "9845557878"
+        valid_kwargs["phone"] = "8777804236"
         with pytest.raises(Exception, match="E.164"):
             ParticipantData(**valid_kwargs)
 
@@ -360,9 +360,9 @@ class TestExtractionPipeline:
             consent_given=consent,
         )
 
-        assert participant.response_id == "R_1KNaaaXAMYpxtgW"
-        assert participant.prolific_pid == "postmanpostmanpostmanpos"
-        assert participant.phone == "+19845557878"
+        assert participant.response_id == "R_2LObbbYBNZqyuhX"
+        assert participant.prolific_pid == "dkgdkgdkgdkgdkgdkgdkgdkg"
+        assert participant.phone == "+18777804236"
         assert participant.selected_date == date(2025, 12, 26)
         assert participant.timezone == "US/Central"
         assert participant.consent_given is True
@@ -378,7 +378,7 @@ class TestExtractionPipeline:
             ParticipantData(
                 response_id=payload.response_id,
                 prolific_pid="test_pid",
-                phone="+19845557878",
+                phone="+18777804236",
                 selected_date=date(2025, 12, 26),
                 timezone="US/Central",
                 consent_given=consent,

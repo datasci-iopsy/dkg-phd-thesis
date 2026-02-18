@@ -8,7 +8,13 @@ Workflow:
     1. Parse and validate the incoming Web Service payload
     2. Write the survey response to BigQuery as explicit columns
     3. Extract and validate participant scheduling data
-    4. Return a success response
+    4. Publish participant data to Pub/Sub for async confirmation
+    5. Return a success response
+
+The Pub/Sub publish in step 4 is non-blocking for the webhook
+response. If publishing fails, the BQ write has already succeeded
+(data is preserved) and _processed remains FALSE, giving
+visibility into unconfirmed responses.
 """
 
 import logging
@@ -18,6 +24,10 @@ import functions_framework
 from flask import Request, jsonify
 from shared.utils.config_loader import load_config
 from shared.utils.gcp_utils import insert_survey_response
+from shared.utils.pubsub_utils import (
+    IntakeProcessedMessage,
+    publish_intake_processed,
+)
 from utils import validation_utils
 
 # -- Logging ---------------------------------------------------------
@@ -79,17 +89,38 @@ def qualtrics_webhook_handler(request: Request):
             logger.error("Invalid participant data for %s", payload.response_id)
             return jsonify({"error": "Invalid participant information"}), 400
 
-        # Step 4: Return success
+        # Step 4: Publish to Pub/Sub for async confirmation
+        message = IntakeProcessedMessage(
+            response_id=participant.response_id,
+            phone=participant.phone,
+            selected_date=participant.selected_date.isoformat(),
+            timezone=participant.timezone,
+        )
+
+        message_id = publish_intake_processed(message, config)
+
+        if not message_id:
+            # Log but do not fail the webhook -- BQ write succeeded
+            # and _processed=FALSE gives visibility into the gap.
+            logger.warning(
+                "Pub/Sub publish failed for %s -- BQ write succeeded, "
+                "_processed remains FALSE",
+                payload.response_id,
+            )
+
+        # Step 5: Return success
         logger.info(
-            "Successfully processed response %s (phone: %s)",
+            "Successfully processed response %s (phone: %s, published: %s)",
             payload.response_id,
             participant.phone_masked,
+            bool(message_id),
         )
         return jsonify(
             {
                 "status": "success",
                 "response_id": payload.response_id,
                 "participant_phone": participant.phone_masked,
+                "published": bool(message_id),
             }
         ), 200
 

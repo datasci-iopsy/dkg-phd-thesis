@@ -7,8 +7,8 @@ authentication.
 
 Flow:
     Qualtrics -> POST with x-api-key header
-      -> API Gateway validates key
-        -> Cloud Run function (JWT injected by gateway)
+    -> API Gateway validates key via Service Control
+    -> Cloud Run function (JWT injected by gateway)
 
 Resources created by 'setup':
     1. Service account (dkg-api-gateway) with Cloud Run Invoker
@@ -38,6 +38,7 @@ import yaml
 from pydantic import BaseModel, Field
 
 # -- Path resolution -----------------------------------------------
+
 DEPLOY_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = DEPLOY_DIR.parents[1]
 GATEWAY_CONFIG_PATH = DEPLOY_DIR / "gateway.yaml"
@@ -54,6 +55,8 @@ REQUIRED_APIS = [
 
 
 # -- Configuration models ------------------------------------------
+
+
 class GatewaySettings(BaseModel):
     api_id: str
     gateway_id: str
@@ -80,6 +83,8 @@ class FunctionsConfig(BaseModel):
 
 
 # -- Config loading ------------------------------------------------
+
+
 def load_gateway_config() -> GatewayConfig:
     """Parse and validate gateway.yaml."""
     raw = yaml.safe_load(GATEWAY_CONFIG_PATH.read_text())
@@ -92,7 +97,9 @@ def load_functions_config() -> FunctionsConfig:
     return FunctionsConfig.model_validate(raw)
 
 
-# -- Helpers (same patterns as manage_functions.py) ----------------
+# -- Helpers -------------------------------------------------------
+
+
 def run(cmd: list[str], *, description: str) -> None:
     """Execute a subprocess, exiting on failure."""
     print(f"\n=== {description} ===")
@@ -122,15 +129,17 @@ def run_json(cmd: list[str]) -> dict | list | None:
 def print_banner(action: str, gw: GatewaySettings, project: str) -> None:
     """Print a formatted operation banner."""
     print(f"\n+{'=' * 55}+")
-    print(f"|  {action:<53}|")
-    print(f"|  Project:   {project:<43}|")
-    print(f"|  Location:  {gw.location:<43}|")
-    print(f"|  API:       {gw.api_id:<43}|")
-    print(f"|  Gateway:   {gw.gateway_id:<43}|")
+    print(f"| {action:<53}|")
+    print(f"|  Project:   {project:<42}|")
+    print(f"|  Location:  {gw.location:<42}|")
+    print(f"|  API:       {gw.api_id:<42}|")
+    print(f"|  Gateway:   {gw.gateway_id:<42}|")
     print(f"+{'=' * 55}+")
 
 
 # -- Derived values ------------------------------------------------
+
+
 def sa_email(sa_name: str, project: str) -> str:
     """Build the full service account email from its short name."""
     return f"{sa_name}@{project}.iam.gserviceaccount.com"
@@ -143,13 +152,15 @@ def generate_config_id(api_id: str) -> str:
 
 
 # -- OpenAPI spec generation ---------------------------------------
+
+
 def generate_openapi_spec(backend_url: str) -> dict:
     """Build a Swagger 2.0 spec for the API Gateway.
 
     Defines a single POST / endpoint that:
-      - Requires an API key in the x-api-key header
-      - Forwards the full request body to Cloud Run
-      - Authenticates to Cloud Run via a gateway-signed JWT
+    - Requires an API key in the x-api-key header
+    - Forwards the full request body to Cloud Run
+    - Authenticates to Cloud Run via a gateway-signed JWT
 
     Args:
         backend_url: The Cloud Run service URL to route to.
@@ -206,6 +217,24 @@ def generate_openapi_spec(backend_url: str) -> dict:
 
 
 # -- Resource queries ----------------------------------------------
+
+
+def get_project_number(project: str) -> str | None:
+    """Get the numeric project number for a project ID."""
+    result = run_quiet(
+        [
+            "gcloud",
+            "projects",
+            "describe",
+            project,
+            "--format=value(projectNumber)",
+        ]
+    )
+    if result.returncode == 0 and result.stdout.strip():
+        return result.stdout.strip()
+    return None
+
+
 def get_cloud_run_url(
     project: str, region: str, function_name: str
 ) -> str | None:
@@ -284,7 +313,6 @@ def find_api_key_name(project: str, display_name: str) -> str | None:
     )
     if result.returncode != 0:
         return None
-
     try:
         keys = json.loads(result.stdout or "[]")
         for key in keys:
@@ -318,6 +346,8 @@ def resource_exists(cmd: list[str]) -> bool:
 
 
 # -- Setup steps ---------------------------------------------------
+
+
 def enable_apis(project: str) -> None:
     """Enable the GCP APIs required for API Gateway."""
     run(
@@ -332,6 +362,44 @@ def enable_apis(project: str) -> None:
     )
 
 
+def grant_service_agent_roles(project: str) -> None:
+    """Grant the API Gateway service agent the serviceController role.
+
+    The API Gateway service agent is a GCP-managed account distinct from the
+    user-created gateway service account. It calls the Service Control API to
+    validate API keys on every inbound request. Without this role the gateway
+    returns:
+        INTERNAL: Calling Google Service Control API failed with: 403
+        Permission 'servicemanagement.services.check' denied on service ...
+
+    The service agent is created automatically when apigateway.googleapis.com
+    is enabled, so this must run after enable_apis(). The binding is idempotent
+    -- gcloud will no-op if the role is already assigned.
+    """
+    project_number = get_project_number(project)
+    if not project_number:
+        print(
+            "\n  Warning: could not retrieve project number "
+            "-- skipping service agent grant."
+        )
+        return
+
+    service_agent = (
+        f"service-{project_number}@gcp-sa-apigateway.iam.gserviceaccount.com"
+    )
+    run(
+        [
+            "gcloud",
+            "projects",
+            "add-iam-policy-binding",
+            project,
+            f"--member=serviceAccount:{service_agent}",
+            "--role=roles/servicemanagement.serviceController",
+        ],
+        description="Granting serviceController to API Gateway service agent",
+    )
+
+
 def enable_managed_service(project: str, api_id: str) -> None:
     """Enable the gateway's managed service on the project.
 
@@ -340,6 +408,11 @@ def enable_managed_service(project: str, api_id: str) -> None:
     This service must be explicitly enabled for API key
     authentication to work. Without it, requests fail with
     PERMISSION_DENIED even with a valid API key.
+
+    IMPORTANT: Must be called AFTER create_api_config. The service
+    configuration is only registered with Service Management once an
+    api-configs create has been executed. Calling this before that step
+    results in SERVICE_CONFIG_NOT_FOUND_OR_PERMISSION_DENIED (error_code=220002).
     """
     managed = get_managed_service(project, api_id)
     if not managed:
@@ -348,7 +421,6 @@ def enable_managed_service(project: str, api_id: str) -> None:
             "-- skipping enablement."
         )
         return
-
     run(
         [
             "gcloud",
@@ -367,7 +439,6 @@ def create_service_account(project: str, name: str, display_name: str) -> str:
     Returns the full email address.
     """
     email = sa_email(name, project)
-
     if resource_exists(
         [
             "gcloud",
@@ -380,7 +451,6 @@ def create_service_account(project: str, name: str, display_name: str) -> str:
     ):
         print(f"\n  Service account '{email}' already exists -- skipping.")
         return email
-
     run(
         [
             "gcloud",
@@ -430,7 +500,6 @@ def create_api(project: str, api_id: str) -> None:
     ):
         print(f"\n  API '{api_id}' already exists -- skipping.")
         return
-
     run(
         [
             "gcloud",
@@ -466,7 +535,6 @@ def create_api_config(
         spec_path = f.name
 
     print(f"\n  OpenAPI spec written to: {spec_path}")
-
     run(
         [
             "gcloud",
@@ -528,7 +596,6 @@ def create_gateway(
             ),
         )
         return
-
     run(
         [
             "gcloud",
@@ -558,7 +625,6 @@ def create_api_key(
 
     Returns the key string, or None if creation/retrieval fails.
     """
-    # Check for existing key
     existing = find_api_key_name(project, display_name)
     if existing:
         print(f"\n  API key '{display_name}' already exists -- retrieving.")
@@ -578,7 +644,6 @@ def create_api_key(
             f"--project={project}",
         ]
     )
-
     if result.returncode != 0:
         print(f"\n  Warning: API key creation failed.")
         print(f"  Error: {result.stderr.strip()}")
@@ -589,7 +654,6 @@ def create_api_key(
 
     print(f"  -> API key created.")
 
-    # Retrieve the key string
     key_name = find_api_key_name(project, display_name)
     if key_name:
         return get_api_key_string(project, key_name)
@@ -600,32 +664,53 @@ def create_api_key(
 
 
 # -- Subcommand handlers -------------------------------------------
+
+
 def handle_setup(args: argparse.Namespace) -> None:
     """Provision the complete API Gateway stack.
 
-    Creates all five resources in dependency order:
-        1. Service account
-        2. API
-        3. API config (from generated OpenAPI spec)
-        4. Gateway
-        5. API key
+    Creates all resources in dependency order:
+        1.  Enable required GCP APIs
+        1b. Grant API Gateway service agent the serviceController role
+        2.  Create gateway service account
+        3.  Resolve Cloud Run backend URL
+        4.  Grant Cloud Run Invoker to gateway SA
+        5.  Create API resource
+        6.  Create API config (registers service config with Service Management)
+        7.  Enable managed service (must follow step 6)
+        8.  Create or update gateway instance
+        9.  Create API key
+        10. Print results
 
-    Idempotent -- safe to run again if a step fails partway
-    through. Existing resources are detected and skipped.
+    Idempotent -- safe to re-run after a failed step or a full teardown.
+    Existing resources are detected and skipped; IAM bindings are upserted.
+
+    Step ordering notes:
+    - Step 1b must follow step 1: the service agent only exists once
+      apigateway.googleapis.com is enabled.
+    - Step 7 must follow step 6: the managed service has no registered service
+      configuration until api-configs create runs. Enabling it before that
+      yields SERVICE_CONFIG_NOT_FOUND_OR_PERMISSION_DENIED (error_code=220002).
     """
     gw_config = load_gateway_config()
     fn_config = load_functions_config()
-
     gw = gw_config.gateway
     project = fn_config.global_.project
     region = fn_config.global_.region
 
     print_banner("Setting up API Gateway", gw, project)
 
-    # Step 1: Enable APIs
+    # Step 1: Enable required GCP APIs
     enable_apis(project)
 
-    # Step 2: Create service account
+    # Step 1b: Grant API Gateway service agent the serviceController role.
+    # Required so the gateway can call Service Control to validate API keys.
+    # The service agent (service-{NUMBER}@gcp-sa-apigateway.iam.gserviceaccount.com)
+    # is distinct from the user-managed gateway SA and is created automatically
+    # when apigateway.googleapis.com is enabled above.
+    grant_service_agent_roles(project)
+
+    # Step 2: Create gateway service account
     backend_sa = create_service_account(
         project,
         gw.service_account_name,
@@ -643,7 +728,7 @@ def handle_setup(args: argparse.Namespace) -> None:
         )
         print("  Deploy the function first:")
         print(
-            f"  python manage_functions.py deploy {gw_config.target_function}"
+            f"    python manage_functions.py deploy {gw_config.target_function}"
         )
         sys.exit(1)
     print(f"  -> {backend_url}")
@@ -651,21 +736,25 @@ def handle_setup(args: argparse.Namespace) -> None:
     # Step 4: Grant Cloud Run Invoker to gateway SA
     grant_run_invoker(project, region, gw_config.target_function, backend_sa)
 
-    # Step 5: Create API
+    # Step 5: Create API resource
     create_api(project, gw.api_id)
 
-    # Step 5b: Enable the managed service for API key auth
-    enable_managed_service(project, gw.api_id)
-
-    # Step 6: Generate OpenAPI spec and create API config
+    # Step 6: Generate OpenAPI spec and create API config.
+    # This registers the service configuration with Service Management.
+    # enable_managed_service (step 7) depends on this having run first.
     spec = generate_openapi_spec(backend_url)
     config_id = generate_config_id(gw.api_id)
     create_api_config(project, gw.api_id, config_id, spec, backend_sa)
 
-    # Step 7: Create or update gateway
+    # Step 7: Enable the managed service.
+    # Safe to call here -- the api-configs create above has pushed the
+    # service config to Service Management.
+    enable_managed_service(project, gw.api_id)
+
+    # Step 8: Create or update gateway instance
     create_gateway(project, gw.location, gw.gateway_id, gw.api_id, config_id)
 
-    # Step 8: Create API key restricted to gateway
+    # Step 9: Create API key restricted to gateway managed service
     api_key = None
     managed_service = get_managed_service(project, gw.api_id)
     if not managed_service:
@@ -676,20 +765,19 @@ def handle_setup(args: argparse.Namespace) -> None:
             project, gw.api_key_display_name, managed_service
         )
 
-    # Step 9: Print results
+    # Step 10: Print results
     gateway_url = get_gateway_url(project, gw.location, gw.gateway_id)
-
     print(f"\n+{'=' * 55}+")
-    print(f"|  {'Setup complete':<53}|")
+    print(f"| {'Setup complete':<53}|")
     print(f"+{'=' * 55}+")
-    print(f"\n  Gateway URL:  {gateway_url or '(pending...)'}")
+    print(f"\n  Gateway URL: {gateway_url or '(pending...)'}")
     if api_key:
-        print(f"  API key:      {api_key}")
+        print(f"  API key:     {api_key}")
     print()
     print("  Qualtrics Web Service task configuration:")
     print(f"    Method:  POST")
-    print(f"    URL:     {gateway_url or '<gateway URL>'}")
-    print(f"    Header:  x-api-key = {api_key or '<your API key>'}")
+    print(f"    URL:     {gateway_url or ''}")
+    print(f"    Header:  x-api-key = {api_key or ''}")
     print(f"    Header:  Content-Type = application/json")
     print(f"    Body:    JSON payload (see README)")
     print()
@@ -702,7 +790,6 @@ def handle_status(args: argparse.Namespace) -> None:
     """Show the current state of all gateway resources."""
     gw_config = load_gateway_config()
     fn_config = load_functions_config()
-
     gw = gw_config.gateway
     project = fn_config.global_.project
 
@@ -723,7 +810,7 @@ def handle_status(args: argparse.Namespace) -> None:
     if api_info:
         managed = api_info.get("managedService", "unknown")
         state = api_info.get("state", "unknown")
-        print(f"\n  API:             {gw.api_id} ({state})")
+        print(f"\n  API: {gw.api_id} ({state})")
         print(f"  Managed service: {managed}")
     else:
         print(f"\n  API '{gw.api_id}' not found.")
@@ -733,9 +820,9 @@ def handle_status(args: argparse.Namespace) -> None:
     # Gateway
     gateway_url = get_gateway_url(project, gw.location, gw.gateway_id)
     if gateway_url:
-        print(f"  Gateway URL:     {gateway_url}")
+        print(f"  Gateway URL: {gateway_url}")
     else:
-        print(f"  Gateway:         '{gw.gateway_id}' not found")
+        print(f"  Gateway: '{gw.gateway_id}' not found")
 
     # Service account
     email = sa_email(gw.service_account_name, project)
@@ -753,23 +840,55 @@ def handle_status(args: argparse.Namespace) -> None:
         f"  Service account: {email} ({'exists' if sa_exists else 'missing'})"
     )
 
+    # API Gateway service agent
+    project_number = get_project_number(project)
+    if project_number:
+        service_agent = f"service-{project_number}@gcp-sa-apigateway.iam.gserviceaccount.com"
+        bindings = run_json(
+            [
+                "gcloud",
+                "projects",
+                "get-iam-policy",
+                project,
+                "--format=json",
+            ]
+        )
+        has_controller = False
+        if bindings:
+            for binding in bindings.get("bindings", []):
+                if (
+                    binding.get("role")
+                    == "roles/servicemanagement.serviceController"
+                ):
+                    if f"serviceAccount:{service_agent}" in binding.get(
+                        "members", []
+                    ):
+                        has_controller = True
+                        break
+        status = (
+            "serviceController granted"
+            if has_controller
+            else "WARNING: serviceController missing"
+        )
+        print(f"  Service agent:   {service_agent} ({status})")
+
     # API key
     key_name = find_api_key_name(project, gw.api_key_display_name)
     if key_name:
         key_string = get_api_key_string(project, key_name)
         if key_string:
             masked = f"{key_string[:8]}...{key_string[-4:]}"
-            print(f"  API key:         {masked}")
+            print(f"  API key: {masked}")
         else:
-            print(f"  API key:         (exists, could not retrieve string)")
+            print(f"  API key: (exists, could not retrieve string)")
     else:
-        print(f"  API key:         not found")
+        print(f"  API key: not found")
 
     # Backend
     backend_url = get_cloud_run_url(
         project, fn_config.global_.region, gw_config.target_function
     )
-    print(f"  Backend:         {backend_url or 'not deployed'}")
+    print(f"  Backend: {backend_url or 'not deployed'}")
     print()
 
 
@@ -778,11 +897,11 @@ def handle_test(args: argparse.Namespace) -> None:
 
     Simulates exactly what Qualtrics will do: a POST with
     an x-api-key header, no bearer token, no IAM credentials.
+
     This is the closest thing to a 'dev' mode for the gateway.
     """
     gw_config = load_gateway_config()
     fn_config = load_functions_config()
-
     gw = gw_config.gateway
     project = fn_config.global_.project
 
@@ -810,9 +929,9 @@ def handle_test(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     masked_key = f"{api_key[:8]}...{api_key[-4:]}"
-    print(f"\n  Gateway:  {gateway_url}")
-    print(f"  Fixture:  {fixture.name}")
-    print(f"  API key:  {masked_key}")
+    print(f"\n  Gateway: {gateway_url}")
+    print(f"  Fixture: {fixture.name}")
+    print(f"  API key: {masked_key}")
     print(f"\n  Sending POST (no IAM token -- just the API key)...")
 
     # Send the request exactly as Qualtrics would
@@ -836,7 +955,6 @@ def handle_test(args: argparse.Namespace) -> None:
         text=True,
         check=False,
     )
-
     print(f"\n  Response:\n  {result.stdout}")
     if result.stderr:
         print(f"  {result.stderr}")
@@ -853,11 +971,14 @@ def handle_teardown(args: argparse.Namespace) -> None:
         4. API key
         5. Service account
 
+    The IAM binding for the GCP-managed service agent is intentionally
+    NOT removed -- it is project-level, harmless when the gateway is down,
+    and will be needed again on the next setup.
+
     The dataset and Cloud Run function are NOT touched.
     """
     gw_config = load_gateway_config()
     fn_config = load_functions_config()
-
     gw = gw_config.gateway
     project = fn_config.global_.project
 
@@ -870,7 +991,6 @@ def handle_teardown(args: argparse.Namespace) -> None:
         print(f"    API key:         {gw.api_key_display_name}")
         print(f"    Service account: {gw.service_account_name}")
         print()
-
         response = input("  Type 'yes' to confirm: ")
         if response.strip().lower() != "yes":
             print("\n  Teardown cancelled.\n")
@@ -918,8 +1038,7 @@ def handle_teardown(args: argparse.Namespace) -> None:
     )
     if configs:
         for cfg in configs:
-            # Resource name format:
-            #   projects/.../locations/global/apis/.../configs/CONFIG_ID
+            # Resource name: projects/.../locations/global/apis/.../configs/ID
             cfg_id = cfg["name"].split("/")[-1]
             run(
                 [
@@ -1012,6 +1131,8 @@ def handle_teardown(args: argparse.Namespace) -> None:
 
 
 # -- CLI definition ------------------------------------------------
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="manage_gateway",
@@ -1060,6 +1181,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 # -- Entrypoint ----------------------------------------------------
+
+
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()

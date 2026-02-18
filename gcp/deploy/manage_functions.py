@@ -57,6 +57,7 @@ class FunctionConfig(BaseModel):
     poetry_group: str
     entry_point: str
     trigger: str
+    trigger_topic: str | None = None
     allow_unauthenticated: bool = False
     secrets: list[str] = Field(default_factory=list)
     service_account: ServiceAccountConfig | None = None
@@ -277,8 +278,23 @@ def gcloud_deploy(
         f"--region={g.region}",
         f"--source={function_dir}",
         f"--entry-point={fn.entry_point}",
-        f"--trigger-{fn.trigger}",
     ]
+
+    # Trigger configuration: HTTP uses --trigger-http, Pub/Sub
+    # uses --trigger-topic=TOPIC_ID.
+    if fn.trigger == "http":
+        cmd.append("--trigger-http")
+    elif fn.trigger == "topic":
+        if not fn.trigger_topic:
+            print(
+                f"\n-> trigger_topic is required when trigger is 'topic'.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        cmd.append(f"--trigger-topic={fn.trigger_topic}")
+    else:
+        # Fallback for future trigger types
+        cmd.append(f"--trigger-{fn.trigger}")
     if g.gen2:
         cmd.append("--gen2")
     if fn.allow_unauthenticated:
@@ -534,6 +550,8 @@ def handle_list(args: argparse.Namespace) -> None:
         print(f"    entry_point:  {fn.entry_point}")
         print(f"    poetry_group: {fn.poetry_group}")
         print(f"    trigger:      {fn.trigger}")
+        if fn.trigger_topic:
+            print(f"    topic:        {fn.trigger_topic}")
         if fn.service_account:
             email = sa_email(fn.service_account.name, config.global_.project)
             print(f"    runs_as:      {email}")

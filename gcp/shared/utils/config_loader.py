@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 def _deep_merge(base: dict, override: dict) -> dict:
     """Recursively merge *override* into *base*, preferring override values.
 
-    Returns a new dict — neither input is mutated.
+    Returns a new dict â€” neither input is mutated.
     """
     merged = base.copy()
     for key, value in override.items():

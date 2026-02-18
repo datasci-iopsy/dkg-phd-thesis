@@ -1,0 +1,18 @@
+# ================================================================
+# Pub/Sub -- Intake Response Processing
+# ================================================================
+# Topic for asynchronous processing of completed intake surveys.
+# After writing a response to BigQuery, the qualtrics scheduling
+# function publishes a message to this topic. The intake
+# confirmation function subscribes via Eventarc (the subscription
+# is created automatically when the function is deployed with a
+# Pub/Sub trigger via manage_functions.py).
+#
+# Managed by manage_pubsub.py. Run 'setup' to create the topic;
+# 'teardown' to delete it.
+# ================================================================
+
+pubsub:
+  topic_id: dkg-intake-processed
+  # subscription_id: dkg-intake-processed-sub
+  # location: us-east4
