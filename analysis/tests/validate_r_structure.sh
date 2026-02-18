@@ -88,7 +88,7 @@ done
 runtime_dirs=(
     "analysis/run_power_analysis/data"
     "analysis/run_power_analysis/logs"
-    "analysis/run_power_analysis/figs"
+    # "analysis/run_power_analysis/figs"
 )
 
 for dir in "${runtime_dirs[@]}"; do

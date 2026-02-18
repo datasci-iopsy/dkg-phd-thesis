@@ -146,13 +146,25 @@ A successful response returns `{"status": "success", ...}` with a 200. Validatio
 ```bash
 # All tests
 poetry run pytest gcp/tests/ -v
+```
 
+```bash
+# All tests with coverage
+poetry run pytest gcp/tests/ -v \
+  --cov=gcp/cloud_run_functions/run_qualtrics_scheduling \
+  --cov=gcp/shared/utils \
+  --cov-report=term-missing
+```
+
+```bash
 # Individual test files
 poetry run pytest gcp/tests/test_models.py -v
 poetry run pytest gcp/tests/test_bq_schemas.py -v
 poetry run pytest gcp/tests/test_config.py -v
 poetry run pytest gcp/tests/test_validation.py -v
 ```
+
+
 
 Tests mock BigQuery calls and use Flask test request contexts, so no GCP credentials or network access are needed.
 

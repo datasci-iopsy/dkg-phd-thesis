@@ -5,6 +5,8 @@ Defines the validated schema for all YAML configuration files.
 Each model maps 1:1 to a top-level key in the merged config.
 """
 
+from __future__ import annotations
+
 from pydantic import BaseModel, Field
 
 
@@ -34,6 +36,12 @@ class SecretManagerConfig(BaseModel):
     These map logical names to their Secret Manager IDs.
     Actual secret values are injected as environment variables
     at deploy time via --set-secrets, not read from here.
+
+    Currently unused -- the API Gateway handles authentication
+    for inbound webhooks and the Web Service task sends complete
+    payloads, eliminating the need for Qualtrics API calls.
+    Retained so secrets can be re-added by including a
+    secret_manager block in the YAML config.
     """
 
     qualtrics_api_key: str = Field(
@@ -113,6 +121,6 @@ class AppConfig(BaseModel):
     """
 
     gcp: GCPConfig
-    secret_manager: SecretManagerConfig
+    secret_manager: SecretManagerConfig | None = None
     bq: BigQueryConfig
     qualtrics: QualtricsConfig

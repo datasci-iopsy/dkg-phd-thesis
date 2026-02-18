@@ -44,17 +44,14 @@ def test_config_dot_notation_access():
     assert isinstance(config.gcp.project_id, str)
     assert isinstance(config.gcp.location, str)
     assert isinstance(config.gcp.region, str)
-    assert isinstance(config.secret_manager.qualtrics_api_key, str)
     assert isinstance(config.bq.tables.intake_raw, str)
     assert isinstance(config.bq.tables.followup_raw, str)
 
 
-def test_config_secret_manager_defaults():
-    """Version IDs should default to 'latest'."""
+def test_secret_manager_is_optional():
+    """Config loads successfully without a secret_manager block."""
     config = load_config(CONFIGS_DIR)
-
-    assert config.secret_manager.qualtrics_api_key_version_id == "latest"
-    assert config.secret_manager.qualtrics_webhook_version_id == "latest"
+    assert config.secret_manager is None
 
 
 def test_missing_directory_raises():
@@ -73,13 +70,7 @@ def test_missing_required_field_raises(tmp_path):
     """Missing a required field should raise ValidationError."""
     incomplete = tmp_path / "partial.yaml"
     incomplete.write_text(
-        "gcp:\n"
-        "  project_id: test\n"
-        "  location: US\n"
-        "  region: us-east4\n"
-        "secret_manager:\n"
-        "  qualtrics_api_key: some-key\n"
-        "  qualtrics_webhook: some-secret\n"
+        "gcp:\n  project_id: test\n  location: US\n  region: us-east4\n"
     )
 
     with pytest.raises(Exception, match="bq"):
