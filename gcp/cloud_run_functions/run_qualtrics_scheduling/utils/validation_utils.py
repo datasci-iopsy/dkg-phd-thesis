@@ -136,10 +136,12 @@ def extract_participant_data(
             )
             return None
 
-        # -- Parse selected date (MM/DD/YYYY from Qualtrics) ---------
+        # -- Parse selected date (YYYY-MM-DD from Qualtrics) ---------
+        # date.fromisoformat() is stdlib, no dependencies, and natively
+        # handles YYYY-MM-DD. The previous split("/") logic handled
+        # MM/DD/YYYY -- updated to match the new Qualtrics date format.
         try:
-            month, day, year = payload.selected_date.split("/")
-            selected_date = date(int(year), int(month), int(day))
+            selected_date = date.fromisoformat(payload.selected_date)
         except (ValueError, AttributeError):
             logger.error(
                 "Invalid date format for response %s: '%s'",

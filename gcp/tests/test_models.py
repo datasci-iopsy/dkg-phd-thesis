@@ -59,7 +59,7 @@ class TestWebServicePayload:
     def test_scheduling_fields(self, web_service_payload):
         assert web_service_payload.phone == "8777804236"
         assert web_service_payload.timezone == "US/Central"
-        assert web_service_payload.selected_date == "12/26/2025"
+        assert web_service_payload.selected_date == "2026-02-24"
 
     def test_eligibility_flags(self, web_service_payload):
         assert web_service_payload.age_flag == ELIGIBILITY_YES_VALUE
@@ -348,8 +348,9 @@ class TestExtractionPipeline:
 
         consent = web_service_payload.consent == CONSENT_AGREE_VALUE
 
-        month, day, year = web_service_payload.selected_date.split("/")
-        selected_date = date(int(year), int(month), int(day))
+        # date.fromisoformat() replaces the MM/DD/YYYY split logic to match
+        # the new YYYY-MM-DD format coming from Qualtrics.
+        selected_date = date.fromisoformat(web_service_payload.selected_date)
 
         participant = ParticipantData(
             response_id=web_service_payload.response_id,
@@ -363,7 +364,9 @@ class TestExtractionPipeline:
         assert participant.response_id == "R_2LObbbYBNZqyuhX"
         assert participant.prolific_pid == "dkgdkgdkgdkgdkgdkgdkgdkg"
         assert participant.phone == "+18777804236"
-        assert participant.selected_date == date(2025, 12, 26)
+        assert participant.selected_date == date(
+            2026, 2, 24
+        )  # was date(2025, 12, 26)
         assert participant.timezone == "US/Central"
         assert participant.consent_given is True
 
