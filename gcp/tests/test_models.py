@@ -257,7 +257,7 @@ class TestNormalizePhone:
         assert normalize_phone_number("8777804236") == "+18777804236"
 
     def test_ten_digit_with_formatting(self):
-        assert normalize_phone_number("(984) 555-7878") == "+18777804236"
+        assert normalize_phone_number("(984) 555-7878") == "+19845557878"
 
     def test_eleven_digit_with_leading_one(self):
         assert normalize_phone_number("18777804236") == "+18777804236"
@@ -305,7 +305,7 @@ class TestParticipantData:
 
     def test_phone_masked(self, valid_kwargs):
         p = ParticipantData(**valid_kwargs)
-        assert p.phone_masked == "+1***7878"
+        assert p.phone_masked == "+1***4236"
 
     def test_followup_times(self, valid_kwargs):
         p = ParticipantData(**valid_kwargs)
