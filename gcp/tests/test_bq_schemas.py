@@ -20,7 +20,6 @@ Usage from project root:
 """
 
 import json
-from unittest.mock import MagicMock, patch
 
 import pytest
 from models.qualtrics import WebServicePayload
@@ -251,9 +250,15 @@ class TestSurveyResponsesSchema:
 
 
 # -- Schema-to-code consistency tests --------------------------------
+# -- Schema-to-code consistency tests --------------------------------
 class TestInsertRowMatchesSchema:
-    """Verify that gcp_utils.insert_survey_response writes exactly
-    the columns defined in the schema.
+    """Verify that gcp_utils._build_insert_row produces a row dict
+    that exactly matches the BigQuery schema defined in bq_schemas.py.
+
+    These tests call _build_insert_row() directly because it is a
+    pure function: no I/O, no BigQuery client, no mocking required.
+    The transport layer (Storage Write API) is an I/O concern and
+    belongs in integration tests, not unit tests.
     """
 
     @pytest.fixture
@@ -309,40 +314,12 @@ class TestInsertRowMatchesSchema:
             age_flag="No",
         )
 
-    @staticmethod
-    def _make_mock_config() -> MagicMock:
-        """Build a mock AppConfig with nested tables structure."""
-        mock_config = MagicMock()
-        mock_config.gcp.project_id = "test-project"
-        mock_config.bq.dataset_id = "test-dataset"
-        mock_config.bq.tables.intake_raw = "test-table"
-        return mock_config
-
-    @patch("shared.utils.gcp_utils.bigquery")
-    def test_insert_row_keys_match_schema(self, mock_bq_module, sample_payload):
+    def test_insert_row_keys_match_schema(self, sample_payload):
         """The keys in the insert row must exactly match the schema."""
-        mock_client = MagicMock()
-        mock_bq_module.Client.return_value = mock_client
-        mock_client.get_table.return_value = MagicMock()
-        mock_client.insert_rows_json.return_value = []
+        from shared.utils.gcp_utils import _build_insert_row
 
-        mock_config = self._make_mock_config()
-
-        from shared.utils.gcp_utils import insert_survey_response
-
-        result = insert_survey_response(
-            payload=sample_payload,
-            table_name=mock_config.bq.tables.intake_raw,
-            config=mock_config,
-        )
-
-        assert result is True
-
-        call_args = mock_client.insert_rows_json.call_args
-        rows = call_args[0][1]
-        assert len(rows) == 1
-
-        row_keys = set(rows[0].keys())
+        row = _build_insert_row(sample_payload)
+        row_keys = set(row.keys())
 
         assert row_keys == SURVEY_RESPONSES_COLUMNS, (
             f"Insert row keys do not match schema.\n"
@@ -352,84 +329,39 @@ class TestInsertRowMatchesSchema:
             f"{SURVEY_RESPONSES_COLUMNS - row_keys}"
         )
 
-    @patch("shared.utils.gcp_utils.bigquery")
-    def test_insert_row_keys_are_lowercase(
-        self, mock_bq_module, sample_payload
-    ):
+    def test_insert_row_keys_are_lowercase(self, sample_payload):
         """All keys in the insert row must be lowercase."""
-        mock_client = MagicMock()
-        mock_bq_module.Client.return_value = mock_client
-        mock_client.get_table.return_value = MagicMock()
-        mock_client.insert_rows_json.return_value = []
+        from shared.utils.gcp_utils import _build_insert_row
 
-        mock_config = self._make_mock_config()
-
-        from shared.utils.gcp_utils import insert_survey_response
-
-        insert_survey_response(
-            payload=sample_payload,
-            table_name=mock_config.bq.tables.intake_raw,
-            config=mock_config,
-        )
-
-        call_args = mock_client.insert_rows_json.call_args
-        row = call_args[0][1][0]
+        row = _build_insert_row(sample_payload)
 
         for key in row:
             assert key == key.lower(), f"Row key '{key}' is not lowercase"
 
-    @patch("shared.utils.gcp_utils.bigquery")
-    def test_insert_row_types_are_serializable(
-        self, mock_bq_module, sample_payload
-    ):
+    def test_insert_row_types_are_serializable(self, sample_payload):
         """All values in the insert row must be JSON-serializable."""
-        mock_client = MagicMock()
-        mock_bq_module.Client.return_value = mock_client
-        mock_client.get_table.return_value = MagicMock()
-        mock_client.insert_rows_json.return_value = []
+        import json
 
-        mock_config = self._make_mock_config()
+        from shared.utils.gcp_utils import _build_insert_row
 
-        from shared.utils.gcp_utils import insert_survey_response
-
-        insert_survey_response(
-            payload=sample_payload,
-            table_name=mock_config.bq.tables.intake_raw,
-            config=mock_config,
-        )
-
-        call_args = mock_client.insert_rows_json.call_args
-        row = call_args[0][1][0]
+        row = _build_insert_row(sample_payload)
 
         try:
             json.dumps(row)
         except TypeError as e:
             pytest.fail(f"Insert row contains non-serializable value: {e}")
 
-    @patch("shared.utils.gcp_utils.bigquery")
-    def test_partial_payload_insert_keys_match_schema(
-        self, mock_bq_module, partial_payload
-    ):
+    def test_partial_payload_insert_keys_match_schema(self, partial_payload):
         """Partial payloads (failed screening) must also match schema."""
-        mock_client = MagicMock()
-        mock_bq_module.Client.return_value = mock_client
-        mock_client.get_table.return_value = MagicMock()
-        mock_client.insert_rows_json.return_value = []
+        from shared.utils.gcp_utils import _build_insert_row
 
-        mock_config = self._make_mock_config()
-
-        from shared.utils.gcp_utils import insert_survey_response
-
-        result = insert_survey_response(
-            payload=partial_payload,
-            table_name=mock_config.bq.tables.intake_raw,
-            config=mock_config,
-        )
-
-        assert result is True
-
-        call_args = mock_client.insert_rows_json.call_args
-        row = call_args[0][1][0]
+        row = _build_insert_row(partial_payload)
         row_keys = set(row.keys())
 
-        assert row_keys == SURVEY_RESPONSES_COLUMNS
+        assert row_keys == SURVEY_RESPONSES_COLUMNS, (
+            f"Insert row keys do not match schema.\n"
+            f"  In row but not schema: "
+            f"{row_keys - SURVEY_RESPONSES_COLUMNS}\n"
+            f"  In schema but not row: "
+            f"{SURVEY_RESPONSES_COLUMNS - row_keys}"
+        )
