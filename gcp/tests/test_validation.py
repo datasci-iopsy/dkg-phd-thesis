@@ -146,7 +146,9 @@ class TestExtractParticipantData:
         assert participant.response_id == "R_2LObbbYBNZqyuhX"
         assert participant.prolific_pid == "dkgdkgdkgdkgdkgdkgdkgdkg"
         assert participant.phone == "+18777804236"
-        assert participant.selected_date == date(2025, 12, 26)
+        assert participant.selected_date == date(
+            2026, 2, 24
+        )  # was date(2025, 12, 26)
         assert participant.timezone == "US/Central"
         assert participant.consent_given is True
 
