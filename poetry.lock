@@ -2644,19 +2644,19 @@ files = [
 
 [[package]]
 name = "shandy-sqlfmt"
-version = "0.28.2"
+version = "0.29.0"
 description = "sqlfmt formats your dbt SQL files so you don't have to."
 optional = false
-python-versions = "<3.15,>=3.8"
+python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "shandy_sqlfmt-0.28.2-py3-none-any.whl", hash = "sha256:5c0bda7e66cf8782d960f22c97c22d98541d6e75febd6b21b94c10ca6eb2514f"},
-    {file = "shandy_sqlfmt-0.28.2.tar.gz", hash = "sha256:0a78a2eee23f8b84b19a2895ca4608237d6da19037ce71346417fe01e97bad8b"},
+    {file = "shandy_sqlfmt-0.29.0-py3-none-any.whl", hash = "sha256:8c02cd47eb08a14fca6d1963ae71b8c5fa1f80edafc451a46ca98707542ed031"},
+    {file = "shandy_sqlfmt-0.29.0.tar.gz", hash = "sha256:0aad53fa4e77926645dbd19c2e0b3b8ca650b29d0ea16f7e7a5d4c0e410c5560"},
 ]
 
 [package.dependencies]
 black = {version = ">=24", optional = true, markers = "extra == \"jinjafmt\""}
-click = ">=8.1,<8.2"
+click = ">=8.0,<9"
 jinja2 = ">=3.0,<4"
 platformdirs = ">=2.4,<5.0"
 tqdm = ">=4.67,<5"
@@ -3056,4 +3056,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.13"
-content-hash = "85178598492c25f439f48a1358df07f7fd946059cd9947cac0c478db45f81c00"
+content-hash = "f46aa36f219eb888581a992b1a161da25cce6fc0b50bb9b3f12cf4fa1a2675a5"
