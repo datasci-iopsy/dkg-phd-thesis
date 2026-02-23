@@ -31,3 +31,6 @@ logs/
 *.session.sql
 *.DS_Store
 *tempCodeRunnerFile*
+
+# exceptions
+!analysis/run_synthetic_data/data/claude-syn-data-raw-20260223.csv
