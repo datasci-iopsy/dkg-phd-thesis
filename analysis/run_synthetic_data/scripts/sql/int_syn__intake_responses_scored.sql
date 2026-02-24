@@ -1,3 +1,8 @@
+-- =============================================================================
+-- analytics/run_synthetic_data/scripts/sql/int_syn__intake_responses_scored.sql
+--
+-- Transforms and stores the raw intake survey responses.
+-- =============================================================================
 create temp function to_bool (val string) as (val = 'Yes')
 ;
 
@@ -25,7 +30,7 @@ create temp function likert_to_int (val string) as (
 )
 ;
 
-create or replace table `dkg-phd-thesis.qualtrics.syn_intake_responses_scored` as
+create or replace table `dkg-phd-thesis.qualtrics.int_syn__intake_responses_scored` as
 with
     transformed as (
         select
@@ -68,7 +73,7 @@ with
             likert_to_int (vio4) as vio4,
             likert_to_int (js1) as js1
         from
-            `dkg-phd-thesis.qualtrics.syn_intake_responses`
+            `dkg-phd-thesis.qualtrics.stg_syn__intake_responses`
     )
 select
     *,

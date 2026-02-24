@@ -37,13 +37,13 @@ Rscript "${script_dir}/scripts/run_power_analysis.r" --version "${version}" 2>&1
 exit_code=$?
 
 end_time=$(date +%s)
-elapsed=$(( end_time - start_time ))
+elapsed=$((end_time - start_time))
 printf "[$(date '+%Y-%m-%d %H:%M:%S')] Total wall-clock time: %02d:%02d:%02d\n" \
-    $((elapsed / 3600)) $(((elapsed % 3600) / 60)) $((elapsed % 60))
+	$((elapsed / 3600)) $(((elapsed % 3600) / 60)) $((elapsed % 60))
 
 if [ ${exit_code} -ne 0 ]; then
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: R script exited with code ${exit_code}"
-    exit ${exit_code}
+	echo "[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: R script exited with code ${exit_code}"
+	exit ${exit_code}
 fi
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Process complete. Log saved to: ${log_file}"

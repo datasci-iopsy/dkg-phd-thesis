@@ -33,4 +33,5 @@ logs/
 *tempCodeRunnerFile*
 
 # exceptions
-!analysis/run_synthetic_data/data/claude-syn-data-raw-20260223.csv
+!analysis/run_synthetic_data/data/claude-gen-syn-intake-responses-20260223.csv
+!analysis/run_synthetic_data/data/claude-gen-syn-followup-responses-20260223.csv
