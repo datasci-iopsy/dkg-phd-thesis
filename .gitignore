@@ -1,5 +1,6 @@
 # config files and directories
 .vscode/
+.claude/
 
 # environment files and directories
 .env
@@ -33,5 +34,5 @@ logs/
 *tempCodeRunnerFile*
 
 # exceptions
-!analysis/run_synthetic_data/data/claude-gen-syn-intake-responses-20260223.csv
-!analysis/run_synthetic_data/data/claude-gen-syn-followup-responses-20260223.csv
+!analysis/run_synthetic_data/data/import/*.csv
+!analysis/run_synthetic_data/data/export/*.csv
