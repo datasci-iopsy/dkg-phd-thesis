@@ -19,13 +19,13 @@ OUT_FILE="${EXPORT_DIR}/${TABLE}_${DATE_TAG}.csv"
 echo "Exporting ${TABLE} → ${OUT_FILE}"
 
 bq query \
-    --project_id=${PROJECT} \
-    --location=US \
-    --use_legacy_sql=false \
-    --format=csv \
-    --max_rows=10000 \
-    "SELECT * FROM \`${PROJECT}.${DATASET}.${TABLE}\` ORDER BY followup_date, prolific_pid, timepoint" \
-    > "${OUT_FILE}"
+	--project_id=${PROJECT} \
+	--location=US \
+	--use_legacy_sql=false \
+	--format=csv \
+	--max_rows=10000 \
+	"SELECT * FROM \`${PROJECT}.${DATASET}.${TABLE}\` ORDER BY followup_date, prolific_pid, timepoint" \
+	>"${OUT_FILE}"
 
 ROW_COUNT=$(tail -n +2 "${OUT_FILE}" | wc -l | tr -d ' ')
 echo "Done. ${ROW_COUNT} rows written to ${OUT_FILE}"

@@ -9,7 +9,7 @@ with
         select
             *
         from
-            `dkg-phd-thesis.qualtrics.int_syn__intake_responses_scored`
+            `dkg-phd-thesis.syn_qualtrics.int_intake_responses_scored`
         where
             has_consented = true
             and is_adult = true
@@ -21,7 +21,7 @@ with
         select
             *
         from
-            `dkg-phd-thesis.qualtrics.int_syn__followup_responses_scored`
+            `dkg-phd-thesis.syn_qualtrics.int_followup_responses_scored`
         where
             has_passed_attention_check = true
     ),
@@ -33,6 +33,7 @@ with
             i.has_prolific_pid,
             i.phone_number,
             f.survey_id as followup_survey_id,
+            f.duration,
             f.timepoint,
             -- l2: demographics & screening
             i.time_zone,
@@ -43,6 +44,60 @@ with
             i.job_tenure,
             i.edu_lvl,
             i.is_remote,
+            -- l1: affect items
+            i.pa1,
+            i.pa2,
+            i.pa3,
+            i.pa4,
+            i.pa5,
+            i.na1,
+            i.na2,
+            i.na3,
+            i.na4,
+            i.na5,
+            i.br1,
+            i.br2,
+            i.br3,
+            i.br4,
+            i.br5,
+            i.vio1,
+            i.vio2,
+            i.vio3,
+            i.vio4,
+            i.js1,
+            f.pf1,
+            f.pf2,
+            f.pf3,
+            f.pf4,
+            f.pf5,
+            f.pf6,
+            f.cw1,
+            f.cw2,
+            f.cw3,
+            f.cw4,
+            f.cw5,
+            f.ee1,
+            f.ee2,
+            f.ee3,
+            f.comp1,
+            f.comp2,
+            f.comp3,
+            f.comp4,
+            f.auto1,
+            f.auto2,
+            f.auto3,
+            f.auto4,
+            f.relt1,
+            f.relt2,
+            f.relt3,
+            f.relt4,
+            f.atcb2,
+            f.atcb5,
+            f.atcb6,
+            f.atcb7,
+            f.meetings_count,
+            f.meetings_mins,
+            f.turnover_intention,
             -- l2: affect (scored)
             i.pa_mean,
             i.na_mean,
@@ -61,9 +116,6 @@ with
             f.relt_mean,
             -- l1: marker variable (scored)
             f.atcb_mean,
-            -- l1: meetings
-            f.meetings_count,
-            f.meetings_mins,
             -- l1: criterion (scored)
             f.turnover_intention_mean,
         from
