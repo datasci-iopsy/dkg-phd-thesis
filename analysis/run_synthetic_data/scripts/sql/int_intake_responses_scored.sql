@@ -1,5 +1,5 @@
 -- =============================================================================
--- analytics/run_synthetic_data/scripts/sql/int_intake_responses_scored.sql
+-- analysis/run_synthetic_data/scripts/sql/int_intake_responses_scored.sql
 --
 -- Transforms and stores the raw intake survey responses.
 -- =============================================================================
