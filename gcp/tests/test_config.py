@@ -29,10 +29,10 @@ def test_load_config_returns_valid_appconfig():
     assert config.gcp.location == "US"
     assert config.gcp.region == "us-east4"
     assert config.bq.dataset_id == "qualtrics"
-    assert config.bq.tables.intake_raw == "intake_responses"
-    assert config.bq.tables.intake_clean == "intake_clean"
-    assert config.bq.tables.followup_raw == "followup_responses"
-    assert config.bq.tables.followup_clean == "followup_clean"
+    assert config.bq.tables.intake_raw == "stg_intake_responses"
+    assert config.bq.tables.intake_clean == "int_intake_responses_scored"
+    assert config.bq.tables.followup_raw == "stg_followup_responses"
+    assert config.bq.tables.followup_clean == "int_followup_responses_scored"
     assert "qualtrics.com/API/v3" in config.qualtrics.base_url
     assert config.qualtrics.survey_base_url.startswith("https://")
 

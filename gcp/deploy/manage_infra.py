@@ -54,7 +54,7 @@ if _fn_dir not in sys.path:
 
 from shared.utils.bq_schemas import (
     SURVEY_RESPONSES_CLUSTER_FIELDS,
-    SURVEY_RESPONSES_PARTITION_FIELD,
+    # SURVEY_RESPONSES_PARTITION_FIELD,
     SURVEY_RESPONSES_SCHEMA,
 )
 
@@ -68,7 +68,7 @@ from shared.utils.bq_schemas import (
 TABLE_REGISTRY: dict[str, dict] = {
     "intake_raw": {
         "schema": SURVEY_RESPONSES_SCHEMA,
-        "partition_field": SURVEY_RESPONSES_PARTITION_FIELD,
+        # "partition_field": SURVEY_RESPONSES_PARTITION_FIELD,
         "cluster_fields": SURVEY_RESPONSES_CLUSTER_FIELDS,
         "description": (
             "Raw intake survey responses (survey 0) from the "
