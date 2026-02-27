@@ -8,15 +8,15 @@
 set -euo pipefail
 
 PROJECT="dkg-phd-thesis"
-DATASET="qualtrics"
-TABLE="fct_syn_all_responses"
+DATASET="syn_qualtrics"
+TABLE="fct_panel_responses"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EXPORT_DIR="$(cd "${SCRIPT_DIR}/../data/export" && pwd)"
 DATE_TAG="$(date +%Y%m%d)"
-OUT_FILE="${EXPORT_DIR}/${TABLE}_${DATE_TAG}.csv"
+OUT_FILE="${EXPORT_DIR}/${DATASET}_${TABLE}_${DATE_TAG}.csv"
 
-echo "Exporting ${TABLE} → ${OUT_FILE}"
+echo "Exporting ${TABLE} -> ${OUT_FILE}"
 
 bq query \
 	--project_id=${PROJECT} \
@@ -24,7 +24,7 @@ bq query \
 	--use_legacy_sql=false \
 	--format=csv \
 	--max_rows=10000 \
-	"SELECT * FROM \`${PROJECT}.${DATASET}.${TABLE}\` ORDER BY followup_date, prolific_pid, timepoint" \
+	"SELECT * FROM \`${PROJECT}.${DATASET}.${TABLE}\` ORDER BY followup_date DESC, response_id, timepoint" \
 	>"${OUT_FILE}"
 
 ROW_COUNT=$(tail -n +2 "${OUT_FILE}" | wc -l | tr -d ' ')
