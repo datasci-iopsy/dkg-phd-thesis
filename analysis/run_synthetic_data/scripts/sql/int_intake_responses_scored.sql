@@ -1,5 +1,5 @@
 -- =============================================================================
--- analytics/run_synthetic_data/scripts/sql/int_syn__intake_responses_scored.sql
+-- analytics/run_synthetic_data/scripts/sql/int_intake_responses_scored.sql
 --
 -- Transforms and stores the raw intake survey responses.
 -- =============================================================================
@@ -30,12 +30,13 @@ create temp function likert_to_int (val string) as (
 )
 ;
 
-create or replace table `dkg-phd-thesis.qualtrics.int_syn__intake_responses_scored` as
+create or replace table `dkg-phd-thesis.syn_qualtrics.int_intake_responses_scored` as
 with
     transformed as (
         select
             response_id,
             survey_id,
+            duration,
             to_bool (consent) as has_consented,
             prolific_pid,
             prolific_pid is not null as has_prolific_pid,
@@ -73,7 +74,7 @@ with
             likert_to_int (vio4) as vio4,
             likert_to_int (js1) as js1
         from
-            `dkg-phd-thesis.qualtrics.stg_syn__intake_responses`
+            `dkg-phd-thesis.syn_qualtrics.stg_intake_responses`
     )
 select
     *,

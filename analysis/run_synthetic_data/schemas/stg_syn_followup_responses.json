@@ -12,6 +12,12 @@
         "type": "STRING"
     },
     {
+        "description": "Total survey completion time in seconds",
+        "mode": "NULLABLE",
+        "name": "duration",
+        "type": "INTEGER"
+    },
+    {
         "description": "Timepoint/wave identifier (e.g., '1, int64')",
         "mode": "NULLABLE",
         "name": "timepoint",

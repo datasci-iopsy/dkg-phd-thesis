@@ -1,5 +1,5 @@
 -- =============================================================================
--- analysis/run_synthetic_data/scripts/sql/int_syn__followup_responses_scored.sql
+-- analysis/run_synthetic_data/scripts/sql/int_followup_responses_scored.sql
 --
 -- Transforms and stores the raw follow-up survey responses.
 -- =============================================================================
@@ -14,12 +14,13 @@ create temp function likert_to_int (val string) as (
 )
 ;
 
-create or replace table `dkg-phd-thesis.qualtrics.int_syn__followup_responses_scored` as
+create or replace table `dkg-phd-thesis.syn_qualtrics.int_followup_responses_scored` as
 with
     transformed as (
         select
             response_id,
             survey_id,
+            duration,
             timepoint,
             prolific_pid,
             prolific_pid is not null as has_prolific_pid,
@@ -69,7 +70,7 @@ with
             least(cast(meetings_time as int64), 240) as meetings_mins, -- * capped at upper bound of 4 hr block
             likert_to_int (turnover_intention) as turnover_intention,
         from
-            `dkg-phd-thesis.qualtrics.stg_syn__followup_responses`
+            `dkg-phd-thesis.syn_qualtrics.stg_followup_responses`
     )
 select
     *,
