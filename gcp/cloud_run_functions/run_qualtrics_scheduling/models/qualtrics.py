@@ -146,6 +146,10 @@ class WebServicePayload(BaseModel):
     survey_id: str = Field(
         ..., description="Qualtrics survey identifier (e.g., SV_86vM...)"
     )
+    # -- Response metadata ----------------------------------------------
+    duration: int | None = Field(
+        default=None, description="Survey completion duration in seconds"
+    )
     # -- Consent & identification ------------------------------------
     consent: str | None = Field(
         default=None, description="Consent label; 'Yes' = agreed"
