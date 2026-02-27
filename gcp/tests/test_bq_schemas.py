@@ -27,7 +27,7 @@ from pydantic import BaseModel, Field
 from shared.utils.bq_schemas import (
     SURVEY_RESPONSES_CLUSTER_FIELDS,
     SURVEY_RESPONSES_COLUMNS,
-    SURVEY_RESPONSES_PARTITION_FIELD,
+    # SURVEY_RESPONSES_PARTITION_FIELD,
     SURVEY_RESPONSES_SCHEMA,
     SYSTEM_FIELDS,
     generate_schema,
