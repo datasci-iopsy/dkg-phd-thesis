@@ -253,11 +253,11 @@ code_files=(
 for f in "${code_files[@]}"; do
 	if [ -f "${f}" ]; then
 		# Check for common emoji/special unicode (multi-byte sequences)
-		if LC_ALL=C grep -Pn '[\x{1F300}-\x{1FFFF}]|[\x{2600}-\x{27BF}]|[\x{FE00}-\x{FE0F}]|[\x{E0100}-\x{E01EF}]' "${f}" 2>/dev/null; then
+		if perl -ne 'exit 0 if /[\x{1F300}-\x{1FFFF}]|[\x{2600}-\x{27BF}]|[\x{FE00}-\x{FE0F}]|[\x{E0100}-\x{E01EF}]/; END { exit 1 }' "${f}" 2>/dev/null; then
 			fail "Emoji/special characters found in: ${f} (see lines above)"
 		else
 			# Fallback: check for specific known emoji bytes
-			if grep -Pn '\xF0\x9F|\xe2\x9c\x85|\xf0\x9f\x94\x8d|\xf0\x9f\x93\x9a' "${f}" 2>/dev/null; then
+			if perl -ne 'exit 0 if /\xF0\x9F|\xe2\x9c\x85|\xF0\x9F\x94\x8D|\xF0\x9F\x93\x9A/; END { exit 1 }' "${f}" 2>/dev/null; then
 				fail "Emoji bytes detected in: ${f}"
 			else
 				pass "No emoji/special characters: ${f}"
