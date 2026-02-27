@@ -5,13 +5,13 @@ set -euo pipefail
 # Configuration
 # -------------------------------------------------------------------
 PROJECT="dkg-phd-thesis"
-DATASET="qualtrics"
-TABLE="stg_syn__followup_responses"
+DATASET="syn_qualtrics"
+TABLE="stg_followup_responses"
 # SOURCE_TABLE="${PROJECT}.${DATASET}.followup_responses"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SCHEMA_FILE="${SCRIPT_DIR}/../schemas/stg_syn__followup_responses.json"
-DATA_FILE="${SCRIPT_DIR}/../data/claude-gen-syn-followup-responses-20230223.csv"
+SCHEMA_FILE="${SCRIPT_DIR}/../schemas/stg_syn_followup_responses.json"
+DATA_FILE="${SCRIPT_DIR}/../data/import/claude_gen_syn_followup_responses_20260223.csv"
 
 # -------------------------------------------------------------------
 # 1. Create table (schema only, no data)

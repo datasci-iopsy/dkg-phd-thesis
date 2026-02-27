@@ -5,12 +5,32 @@ set -euo pipefail
 # Configuration
 # -------------------------------------------------------------------
 PROJECT="dkg-phd-thesis"
-DATASET="qualtrics"
-TABLE="stg_syn__intake_responses"
-SOURCE_TABLE="${PROJECT}.${DATASET}.intake_responses"
+DATASET="syn_qualtrics"
+TABLE="stg_intake_responses"
+SOURCE_DATASET="qualtrics"
+SOURCE_TABLE="${PROJECT}.${SOURCE_DATASET}.${TABLE}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DATA_FILE="${SCRIPT_DIR}/../data/claude-gen-syn-intake-responses-20260223.csv"
+DATA_FILE="${SCRIPT_DIR}/../data/import/claude_gen_syn_intake_responses_20260223.csv"
+
+# -------------------------------------------------------------------
+# 0. Create dataset if it does not exist
+# -------------------------------------------------------------------
+echo "Creating dataset ${PROJECT}.${DATASET} if it does not exist..."
+
+if ! bq show \
+	--dataset \
+	--project_id="${PROJECT}" \
+	"${PROJECT}:${DATASET}" >/dev/null 2>&1; then
+	bq mk \
+		--dataset \
+		--location="US" \
+		--project_id="${PROJECT}" \
+		"${PROJECT}:${DATASET}"
+	echo "Dataset ${DATASET} created."
+else
+	echo "Dataset ${DATASET} already exists -- skipping."
+fi
 
 # -------------------------------------------------------------------
 # 1. Create table (schema only, no data)
