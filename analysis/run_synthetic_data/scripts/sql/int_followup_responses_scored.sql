@@ -24,7 +24,7 @@ with
             timepoint,
             prolific_pid,
             prolific_pid is not null as has_prolific_pid,
-            cast(phone_number as int64) as phone_number,
+            safe_cast(phone_number as int64) as phone_number,
             likert_to_int (pf1) as pf1,
             likert_to_int (pf2) as pf2,
             likert_to_int (pf3) as pf3,
@@ -55,14 +55,19 @@ with
             likert_to_int (atcb5) as atcb5,
             likert_to_int (atcb6) as atcb6,
             likert_to_int (atcb7) as atcb7,
-            -- ! WARNING: UPDATE ATTENTION CHECK OPTIONS BASED ON OFFICIAL SURVEY VALUES
             case
-                when survey_id = "SV_5nV942MJGubDmqq"
-                and attention_check = "Once" -- ! UPDATE
-                or survey_id = "SV_eRKl4lgMZDAurT8"
-                and attention_check = "Once" -- ! UPDATE
-                or survey_id = "SV_6J3svun1r97AAHc"
-                and attention_check = "Once" then true -- ! UPDATE
+                when (
+                    survey_id = "SV_5nV942MJGubDmqq"
+                    and attention_check = "Once" -- ! UPDATE WITH OFFICIAL VALUES
+                )
+                or (
+                    survey_id = "SV_eRKl4lgMZDAurT8" -- ! UPDATE WITH OFFICIAL VALUES
+                    and attention_check = "Once"
+                )
+                or (
+                    survey_id = "SV_6J3svun1r97AAHc" -- ! UPDATE WITH OFFICIAL VALUES
+                    and attention_check = "Once"
+                ) then true
                 else false
             end as has_passed_attention_check,
             -- todo: determine validity of meeting cap at 8 (4-hour block/30-minute median meeting assumption)

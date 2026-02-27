@@ -3,7 +3,7 @@
 --
 -- Transforms, joins, and stores both intake and follow-up survey responses.
 -- =============================================================================
--- create or replace table `dkg-phd-thesis.qualtrics.fct_syn_all_responses` as
+create or replace table `dkg-phd-thesis.syn_qualtrics.fct_panel_responses` as
 with
     intake as (
         select

@@ -59,7 +59,7 @@ tbls$df_lvl_2_vars |>
     plot()
 
 tbls$df_lvl_1_vars |>
-    # dplyr::select(where(is.numeric)) |>
+    dplyr::select(-id) |>
     correlation::correlation(method = "pearson", redundant = FALSE) |>
     summary() |>
     plot()
