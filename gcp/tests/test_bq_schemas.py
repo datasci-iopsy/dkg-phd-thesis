@@ -236,16 +236,16 @@ class TestSurveyResponsesSchema:
             "survey_id",
         ]
 
-    def test_age_is_only_integer_column(self):
-        """Only the 'age' column should be INTEGER; rest are STRING
+    def test_integer_columns(self):
+        """Only 'age' and 'duration' should be INTEGER; rest are STRING
         (plus system TIMESTAMP and BOOLEAN).
         """
         field_map = {f.name: f for f in SURVEY_RESPONSES_SCHEMA}
-        integer_fields = [
+        integer_fields = sorted(
             name for name, f in field_map.items() if f.field_type == "INTEGER"
-        ]
-        assert integer_fields == ["age"], (
-            f"Expected only 'age' as INTEGER, got: {integer_fields}"
+        )
+        assert integer_fields == ["age", "duration"], (
+            f"Expected ['age', 'duration'] as INTEGER, got: {integer_fields}"
         )
 
 
@@ -267,6 +267,7 @@ class TestInsertRowMatchesSchema:
         return WebServicePayload(
             response_id="R_test123",
             survey_id="SV_test456",
+            duration=487,
             consent="Yes",
             prolific_pid="test_pid_abc",
             age_flag="Yes",
