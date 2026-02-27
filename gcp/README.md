@@ -75,7 +75,7 @@ A participant completes the intake survey in Qualtrics, which triggers a Workflo
 
 The scheduling function ([`run_qualtrics_scheduling/main.py`](cloud_run_functions/run_qualtrics_scheduling/main.py)) validates the incoming JSON against `WebServicePayload`, a Pydantic model with 34 typed fields: 2 required system identifiers (`response_id`, `survey_id`) and 32 optional fields covering consent, eligibility, scheduling, demographics, and 20 psychometric scale items. Fields are optional because Qualtrics survey logic may route participants to the end early if they fail screening.
 
-On successful validation, all fields are written as explicit BigQuery columns to the `intake_responses` table via the streaming API. The BigQuery schema is generated directly from the `WebServicePayload` model at import time ([`bq_schemas.py`](shared/utils/bq_schemas.py)), so there is a single source of truth for field names and types. Two system columns (`_created_at`, `_processed`) are appended after the model-derived fields.
+On successful validation, all fields are written as explicit BigQuery columns to the `stg_intake_responses` table via the streaming API. The BigQuery schema is generated directly from the `WebServicePayload` model at import time ([`bq_schemas.py`](shared/utils/bq_schemas.py)), so there is a single source of truth for field names and types. Two system columns (`_created_at`, `_processed`) are appended after the model-derived fields.
 
 Participant scheduling data (Prolific PID, phone, date, timezone, consent) is then extracted and validated. Phone numbers are normalized to E.164 format. On success, the function publishes an `IntakeProcessedMessage` to the `dkg-intake-processed` Pub/Sub topic containing only the fields needed for confirmation (response ID, phone, selected date, timezone). If the publish fails, the function still returns 200 to Qualtrics since the BigQuery write already succeeded and `_processed` remains `FALSE` for visibility.
 
@@ -261,7 +261,7 @@ When a survey question changes or a new field is added, four files need updating
 
 1. **[`models/qualtrics.py`](cloud_run_functions/run_qualtrics_scheduling/models/qualtrics.py)**: Update `QID_MAP` if question IDs changed. Add, remove, or modify fields on `WebServicePayload`. Each field needs a type annotation and a `Field(...)` with a description.
 
-2. **[`manage_infra.py`](deploy/manage_infra.py)**: If adding an entirely new table, register it in `TABLE_REGISTRY` with its schema, partition field, cluster fields, and description. For changes to existing tables, the schema is picked up automatically from [`bq_schemas.py`](shared/utils/bq_schemas.py).
+2. **[`manage_infra.py`](deploy/manage_infra.py)**: If adding an entirely new table, register it in `TABLE_REGISTRY` with its schema, partition field, cluster fields, and description. For changes to existing tables, the schema is picked up automatically from [`bq_schemas.py`](shared/utils/bq_schemas.py). *Note*: Partitioning small tables is generally not recommended. There are tests in place to check for it in case this project scales, but at the current time, clustering will suffice.
 
 3. **[`web_service_payload.json`](tests/fixtures/web_service_payload.json)**: Update the fixture to match the new payload shape. Every field on `WebServicePayload` must be present with a valid value.
 

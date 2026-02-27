@@ -149,7 +149,7 @@ SURVEY_RESPONSES_SCHEMA: list[SchemaField] = generate_schema(
 )
 
 # Partitioning and clustering configuration for survey_responses.
-SURVEY_RESPONSES_PARTITION_FIELD: str = "_created_at"
+# SURVEY_RESPONSES_PARTITION_FIELD: str = "_created_at"
 SURVEY_RESPONSES_CLUSTER_FIELDS: list[str] = ["survey_id"]
 
 # Column name set for consistency checking in tests.

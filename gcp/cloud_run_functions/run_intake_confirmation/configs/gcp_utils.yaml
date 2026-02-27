@@ -16,10 +16,10 @@ bq:
   dataset_id: "qualtrics"
   tables:
     # -- Intake (survey 0): enrollment, demographics, screening ------
-    intake_raw: "intake_responses"
-    intake_clean: "intake_clean"
+    intake_raw: "stg_intake_responses"
+    intake_clean: "int_intake_responses_scored"
     # -- Follow-ups (surveys 1-3): repeated measures -----------------
     # All three timepoints share the same schema and append to a
     # single table, differentiated by survey_id.
-    followup_raw: "followup_responses"
-    followup_clean: "followup_clean"
+    followup_raw: "stg_followup_responses"
+    followup_clean: "int_followup_responses_scored"
