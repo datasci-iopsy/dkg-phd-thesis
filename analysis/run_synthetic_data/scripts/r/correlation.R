@@ -15,94 +15,166 @@ options(tibble.width = Inf)
 here::here()
 
 # Load fact table exported from BigQuery via scripts/syn_export_for_r.sh
-df_raw <- readr::read_csv(
-    here::here("analysis", "run_synthetic_data", "data", "export", "fct_syn_all_responses_20260226.csv"),
-    show_col_types = FALSE
-)
+readr::read_csv(
+    here::here("analysis", "run_synthetic_data", "data", "export", "syn_qualtrics_fct_panel_responses_20260227.csv"),
+    show_col_types = TRUE
+) -> df_raw
+
+list() -> tbls
 
 # L2: one row per participant (time-invariant variables)
-df_lvl_2_vars <- df_raw |>
+df_raw |>
     dplyr::select(
-        id = response_id,
-        time_zone, age, ethnicity, gender, job_tenure, edu_lvl, is_remote,
-        pa_mean, na_mean, br_mean, vio_mean, js_mean
-    ) |>
-    dplyr::distinct(id, .keep_all = TRUE)
+        response_id,
+        age,
+        ethnicity,
+        gender,
+        job_tenure,
+        edu_lvl,
+        is_remote,
+        pa_mean,
+        na_mean,
+        br_mean,
+        vio_mean,
+        js_mean
+    ) -> tbls$lvl_2_vars
 
 # L1: all rows (time-varying variables)
 # Renamed to match the rmcorr_mat variables vector below
-df_lvl_1_vars <- df_raw |>
+df_raw |>
     dplyr::select(
-        id = response_id,
-        time = timepoint,
-        burn_pf_score = pf_mean,
-        burn_cw_score = cw_mean,
-        burn_ee_score = ee_mean,
-        nf_comp_score = comp_mean,
-        nf_auto_score = auto_mean,
-        nf_rel_score = relt_mean,
-        atcb_score = atcb_mean,
-        n_meetings = meetings_count,
-        min_meetings = meetings_mins,
-        turnover_int = turnover_intention_mean
-    )
+        response_id,
+        timepoint,
+        pf_mean,
+        cw_mean,
+        ee_mean,
+        comp_mean,
+        auto_mean,
+        relt_mean,
+        atcb_mean,
+        meetings_count,
+        meetings_mins,
+        turnover_intention_mean
+    ) -> tbls$lvl_1_vars
 
-tbls <- list(
-    df_lvl_2_vars = df_lvl_2_vars,
-    df_lvl_1_vars = df_lvl_1_vars
-)
-
-tbls$df_lvl_2_vars |>
+tbls$lvl_2_vars |>
     dplyr::select(where(is.numeric)) |> # only num type used
     correlation::correlation(method = "pearson", redundant = FALSE) |>
     summary() |>
     plot()
 
-tbls$df_lvl_1_vars |>
-    dplyr::select(-id) |>
+# non-multilevel correlation
+tbls$lvl_1_vars |>
+    dplyr::select(-response_id) |>
     correlation::correlation(method = "pearson", redundant = FALSE) |>
     summary() |>
     plot()
 
-tbls$df_lvl_2_vars |>
-    dplyr::inner_join(tbls$df_lvl_1_vars, by = "id") |>
-    dplyr::select(!tidyr::ends_with("mean") & where(is.numeric)) |>
-    dplyr::relocate(time, .before = 1) |>
-    cor() |>
-    corrplot::corrplot(type = "lower", addCoef.col = "black")
+# corrected multilevel correlation
+tbls$lvl_1_vars |>
+    correlation::correlation(
+        method = "pearson",
+        multilevel = TRUE,
+        redundant = FALSE
+    ) -> mlm_corr
 
-tbls$df_lvl_2_vars |>
-    dplyr::inner_join(tbls$df_lvl_1_vars, by = "id") |>
-    dplyr::select(!tidyr::ends_with("mean") & where(is.numeric)) |>
-    dplyr::relocate(time, .before = 1) |>
-    # modelsummary::datasummary_correlation()
-    correlation::correlation(method = "pearson", redundant = FALSE) |>
-    summary() |>
-    plot()
+# mlm_corr |>
+#     summary() |>
+#     plot()
 
 # ! repeated measures violate the independence assumption; try alt approach: Bakdash, J. Z., & Marusich, L. R. (2017)
 rmcorr::rmcorr_mat(
-    participant = id,
+    participant = response_id,
     variables = c(
-        "burn_pf_score",
-        "burn_cw_score",
-        "burn_ee_score",
-        "nf_comp_score",
-        "nf_auto_score",
-        "nf_rel_score",
-        "atcb_score",
-        "n_meetings",
-        "min_meetings",
-        "turnover_int"
+        "timepoint",
+        "pf_mean",
+        "cw_mean",
+        "ee_mean",
+        "comp_mean",
+        "auto_mean",
+        "relt_mean",
+        "atcb_mean",
+        "meetings_count",
+        "meetings_mins",
+        "turnover_intention_mean"
     ),
-    dataset = tbls$df_lvl_1_vars,
+    dataset = tbls$lvl_1_vars,
     CI.level = 0.95
-) -> rmc_mat
-rmc_mat
+) -> rmc_corr
+
+# rmc_mat$matrix |>
+#     corrplot::corrplot(
+#         method = "number",
+#         type = "lower",
+#         diag = FALSE
+#     )
+
+# figs_dir <- here::here("analysis", "run_synthetic_data", "figs")
+# dir.create(figs_dir, recursive = TRUE, showWarnings = FALSE)
+
+# jpeg(filename = file.path(figs_dir, "rmc_fig.jpeg"), width = 800, height = 800)
+# --- Compare mlm_corr (correlation::correlation, multilevel) vs rmc_corr (rmcorr::rmcorr_mat) ---
+#
+# mlm_corr is a long-format easycorrelation data frame; each row is one pair (r as numeric).
+# rmc_corr$matrix is already a square numeric matrix.
+# Reshape mlm_corr into a square matrix so corrplot can handle both uniformly.
+
+mlm_df <- as.data.frame(mlm_corr)[, c("Parameter1", "Parameter2", "r")]
+
+# Symmetrize: add transposed rows so pivot_wider fills both triangles
+mlm_sym <- dplyr::bind_rows(
+    mlm_df,
+    dplyr::rename(mlm_df, Parameter1 = Parameter2, Parameter2 = Parameter1)
+)
+mlm_wide <- tidyr::pivot_wider(mlm_sym, names_from = Parameter2, values_from = r)
+mlm_mat <- as.matrix(mlm_wide[, -1])
+rownames(mlm_mat) <- mlm_wide$Parameter1
+diag(mlm_mat) <- 1 # diagonal is always 1 by definition
+
+# Align variable ordering to rmc_corr$matrix (keep only shared variables)
+shared_vars <- intersect(colnames(rmc_corr$matrix), rownames(mlm_mat))
+mlm_mat <- mlm_mat[shared_vars, shared_vars]
+rmc_mat <- rmc_corr$matrix[shared_vars, shared_vars]
 
 figs_dir <- here::here("analysis", "run_synthetic_data", "figs")
 dir.create(figs_dir, recursive = TRUE, showWarnings = FALSE)
 
-jpeg(filename = file.path(figs_dir, "rmc_fig.jpeg"), width = 800, height = 800)
-rmc_fig <- corrplot::corrplot(rmc_mat$matrix, type = "lower", addCoef.col = "black")
+# --- Side-by-side comparison ---
+jpeg(filename = file.path(figs_dir, "corr_comparison.jpeg"), width = 1800, height = 900)
+par(mfrow = c(1, 2))
+corrplot::corrplot(
+    mlm_mat,
+    method = "color", type = "lower",
+    addCoef.col = "black", number.cex = 0.65,
+    title = "MLM correlation (correlation pkg, multilevel = TRUE)",
+    mar = c(0, 0, 2, 0)
+)
+corrplot::corrplot(
+    rmc_mat,
+    method = "color", type = "lower",
+    addCoef.col = "black", number.cex = 0.65,
+    title = "Repeated-measures correlation (rmcorr)",
+    mar = c(0, 0, 2, 0)
+)
+dev.off()
+
+# --- Individual figures ---
+jpeg(filename = file.path(figs_dir, "mlm_corr.jpeg"), width = 900, height = 900)
+corrplot::corrplot(
+    mlm_mat,
+    method = "color", type = "lower",
+    addCoef.col = "black", number.cex = 0.7,
+    title = "MLM correlation (correlation pkg, multilevel = TRUE)",
+    mar = c(0, 0, 2, 0)
+)
+dev.off()
+
+jpeg(filename = file.path(figs_dir, "rmc_corr.jpeg"), width = 900, height = 900)
+corrplot::corrplot(
+    rmc_mat,
+    method = "color", type = "lower",
+    addCoef.col = "black", number.cex = 0.7,
+    title = "Repeated-measures correlation (rmcorr)",
+    mar = c(0, 0, 2, 0)
+)
 dev.off()
