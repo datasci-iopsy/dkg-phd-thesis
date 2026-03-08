@@ -95,7 +95,7 @@ log_msg("=== [1] Loading data ===")
 df_raw <- readr::read_csv(
     here::here(
         "analysis", "run_synthetic_data", "data", "export",
-        "syn_qualtrics_fct_panel_responses_20260227.csv"
+        "syn_qualtrics_fct_panel_responses_20260308.csv"
     ),
     show_col_types = TRUE
 )
@@ -754,7 +754,8 @@ save_pdf(p_vardecomp, "eda_17_variance_decomposition.pdf")
 log_msg("  4.4 Spaghetti plots")
 
 set.seed(42)
-sampled_ids <- sample(unique(tbls$l1$response_id), 100)
+sampled_ids <- tbls$l1$response_id
+
 
 make_spaghetti <- function(data, var, title, sample_ids) {
     group_means <- data |>
@@ -1037,8 +1038,7 @@ log_msg("Saved: ", file.path(FIGS_DIR, "eda_25_l2_correlation_matrix.pdf"))
 # --- 6.2 Within-person (CWC) scatterplots -----------------------------------
 log_msg("  6.2 CWC scatterplots")
 
-key_predictors <- c("pf_mean", "cw_mean", "ee_mean",
-                     "comp_mean", "auto_mean", "relt_mean")
+key_predictors <- c("pf_mean", "cw_mean", "ee_mean", "comp_mean", "auto_mean", "relt_mean")
 cwc_preds <- paste0(key_predictors, "_cwc")
 cwc_dv <- "turnover_intention_mean_cwc"
 
@@ -1144,16 +1144,17 @@ naive_corr <- tbls$l1 |>
     dplyr::select(Parameter1, Parameter2, r_naive = r) |>
     dplyr::mutate(across(c(Parameter1, Parameter2), as.character))
 
-# Between-person (person means)
-person_means_all <- tbls$l1 |>
-    dplyr::group_by(response_id) |>
-    dplyr::summarise(
-        across(all_of(l1_scale_vars), \(x) mean(x, na.rm = TRUE)),
-        .groups = "drop"
-    )
-bp_corr <- person_means_all |>
-    dplyr::select(-response_id) |>
-    correlation::correlation(method = "pearson") |>
+# # Between-person (person means)
+# person_means_all <- tbls$l1 |>
+#     dplyr::group_by(response_id) |>
+#     dplyr::summarise(
+#         across(all_of(l1_scale_vars), \(x) mean(x, na.rm = TRUE)),
+#         .groups = "drop"
+#     )
+easystats_corr <- tbls$l1 |>
+    # dplyr::select(-response_id) |>
+    dplyr::select(-c(timepoint, duration)) |>
+    correlation::correlation(multilevel = TRUE) |>
     as.data.frame() |>
     dplyr::select(Parameter1, Parameter2, r_between = r) |>
     dplyr::mutate(across(c(Parameter1, Parameter2), as.character))
@@ -1175,7 +1176,7 @@ rmc_long <- as.data.frame(as.table(rmc_mat_full)) |>
 
 # Merge
 corr_compare <- naive_corr |>
-    dplyr::left_join(bp_corr, by = c("Parameter1", "Parameter2")) |>
+    dplyr::left_join(easystats_corr, by = c("Parameter1", "Parameter2")) |>
     dplyr::left_join(rmc_long, by = c("Parameter1", "Parameter2")) |>
     dplyr::mutate(across(starts_with("r_"), ~ round(., 3)))
 
@@ -1375,8 +1376,11 @@ p_influence <- tryCatch(
         ggplot(tibble::tibble(obs = seq_along(cooks_d), cooksd = cooks_d),
             aes(x = obs, y = cooksd)) +
             geom_point(alpha = 0.3) +
-            geom_hline(yintercept = 4 / nrow(tbls$l1),
-                       linetype = "dashed", color = "red") +
+            geom_hline(
+                yintercept = 4 / nrow(tbls$l1), 
+                linetype = "dashed", 
+                color = "red"
+                ) +
             labs(
                 title = "Cook's Distance (PF → TI)",
                 x = "Observation", y = "Cook's Distance"
@@ -1394,8 +1398,7 @@ log_msg("=== PHASE 8: Cross-Level Interaction Exploration ===")
 # --- 8.1 Slope-as-outcome visualization -------------------------------------
 log_msg("  8.1 Slope-as-outcome")
 
-l1_preds <- c("pf_mean", "cw_mean", "ee_mean",
-              "comp_mean", "auto_mean", "relt_mean")
+l1_preds <- c("pf_mean", "cw_mean", "ee_mean", "comp_mean", "auto_mean", "relt_mean")
 l2_mods <- c("br_mean", "vio_mean", "js_mean")
 
 # Compute person-level slopes
@@ -1412,8 +1415,7 @@ person_slopes <- tbls$l1 |>
     ) |>
     dplyr::left_join(tbls$l2, by = "response_id")
 
-slope_cols <- c("slope_pf", "slope_cw", "slope_ee",
-                "slope_comp", "slope_auto", "slope_relt")
+slope_cols <- c("slope_pf", "slope_cw", "slope_ee", "slope_comp", "slope_auto", "slope_relt")
 
 sao_plots <- list()
 for (mod in l2_mods) {
