@@ -796,7 +796,7 @@ spaghetti_plots <- purrr::map2(
 )
 p_spaghetti <- patchwork::wrap_plots(spaghetti_plots, ncol = 4) +
     patchwork::plot_annotation(
-        title = "Individual Trajectories (100 Random Participants) + Group Mean"
+        title = "Individual Trajectories (All Participants) + Group Mean"
     )
 save_pdf(p_spaghetti, "eda_18_spaghetti_plots.pdf", width = 16, height = 10)
 
