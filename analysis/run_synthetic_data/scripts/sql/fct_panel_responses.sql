@@ -17,13 +17,26 @@ with
             and is_domestic = true
             and is_english_proficient = true
     ),
-    followup as (
-        select
-            *
+    failed_attention as (
+        select distinct
+            response_id
         from
             `dkg-phd-thesis.syn_qualtrics.int_followup_responses_scored`
         where
-            has_passed_attention_check = true
+            has_passed_attention_check = false
+    ),
+    followup as (
+        select
+            f.*
+        from
+            `dkg-phd-thesis.syn_qualtrics.int_followup_responses_scored` as f
+        where
+            f.response_id not in (
+                select
+                    response_id
+                from
+                    failed_attention
+            )
     ),
     joined as (
         select
