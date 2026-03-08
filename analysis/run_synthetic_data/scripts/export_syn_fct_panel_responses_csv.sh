@@ -12,9 +12,17 @@ DATASET="syn_qualtrics"
 TABLE="fct_panel_responses"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SQL_FILE="${SCRIPT_DIR}/sql/fct_panel_responses.sql"
 EXPORT_DIR="$(cd "${SCRIPT_DIR}/../data/export" && pwd)"
 DATE_TAG="$(date +%Y%m%d)"
 OUT_FILE="${EXPORT_DIR}/${DATASET}_${TABLE}_${DATE_TAG}.csv"
+
+echo "Rebuilding ${TABLE} from ${SQL_FILE}"
+bq query \
+	--project_id=${PROJECT} \
+	--location=US \
+	--use_legacy_sql=false \
+	< "${SQL_FILE}"
 
 echo "Exporting ${TABLE} -> ${OUT_FILE}"
 
