@@ -45,6 +45,25 @@ functions:
       roles:
         - roles/bigquery.dataEditor
         - roles/bigquery.jobUser
+        - roles/pubsub.publisher
+        - roles/run.invoker
+        - roles/secretmanager.secretAccessor
+
+  run-followup-scheduling:
+    source_dir: run_followup_scheduling
+    poetry_group: fn-followup-scheduling
+    entry_point: followup_scheduling_handler
+    trigger: topic
+    trigger_topic: dkg-followup-scheduling
+    allow_unauthenticated: false
+    secrets:
+      - TWILIO_CONFIG=dkg-twilio-config:latest
+    service_account:
+      name: dkg-fn-followup-sched
+      display_name: "Cloud Run -- Follow-up Scheduling Function"
+      roles:
+        - roles/bigquery.dataEditor
+        - roles/bigquery.jobUser
         - roles/run.invoker
         - roles/secretmanager.secretAccessor
 

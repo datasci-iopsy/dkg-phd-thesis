@@ -22,10 +22,22 @@ _gcp_dir = str(_tests_dir.parent)
 if _gcp_dir not in sys.path:
     sys.path.insert(0, _gcp_dir)
 
-# Function directory -- mirrors what functions-framework does at runtime.
+# Function directories -- mirrors what functions-framework does at runtime.
 # Add additional function directories here as new functions are created.
-_fn_dir = str(
+_fn_qualtrics_dir = str(
     _tests_dir.parent / "cloud_run_functions" / "run_qualtrics_scheduling"
 )
-if _fn_dir not in sys.path:
-    sys.path.insert(0, _fn_dir)
+if _fn_qualtrics_dir not in sys.path:
+    sys.path.insert(0, _fn_qualtrics_dir)
+
+_fn_confirmation_dir = str(
+    _tests_dir.parent / "cloud_run_functions" / "run_intake_confirmation"
+)
+if _fn_confirmation_dir not in sys.path:
+    sys.path.insert(0, _fn_confirmation_dir)
+
+_fn_followup_dir = str(
+    _tests_dir.parent / "cloud_run_functions" / "run_followup_scheduling"
+)
+if _fn_followup_dir not in sys.path:
+    sys.path.insert(0, _fn_followup_dir)

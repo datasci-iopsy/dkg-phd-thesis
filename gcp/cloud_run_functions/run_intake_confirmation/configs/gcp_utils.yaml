@@ -1,10 +1,11 @@
 # ================================================================
 # GCP & BigQuery settings for the intake confirmation function
 # ================================================================
-# Subset of the scheduling function's config. This function only
-# needs GCP project info and BigQuery table references for
-# updating _processed status. No Qualtrics or Pub/Sub config
-# needed -- messages arrive via Eventarc push subscription.
+# Subset of the scheduling function's config. This function needs
+# GCP project info, BigQuery table references for updating
+# _processed status, and Pub/Sub config for publishing follow-up
+# scheduling messages. Messages arrive via Eventarc push
+# subscription; outbound publishing uses the followup topic.
 # ================================================================
 
 gcp:
@@ -23,3 +24,10 @@ bq:
     # single table, differentiated by survey_id.
     followup_raw: "stg_followup_responses"
     followup_clean: "int_followup_responses_scored"
+
+# -- Pub/Sub: follow-up scheduling topic -----------------------------
+# After successful confirmation, publish to this topic to trigger
+# the follow-up scheduling function (run-followup-scheduling).
+pubsub:
+  topic_id: "dkg-intake-processed"
+  followup_topic_id: "dkg-followup-scheduling"
