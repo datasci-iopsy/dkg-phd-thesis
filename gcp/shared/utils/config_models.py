@@ -78,6 +78,10 @@ class TablesConfig(BaseModel):
     followup_clean: str = Field(
         ..., description="Cleaned/processed follow-up data"
     )
+    scheduled_followups: str | None = Field(
+        default=None,
+        description="Follow-up SMS scheduling records (operational table)",
+    )
 
 
 class BigQueryConfig(BaseModel):
@@ -111,10 +115,52 @@ class PubSubConfig(BaseModel):
     Used by functions that publish messages after processing.
     Functions that only receive messages (via Eventarc push
     subscriptions) do not need this config.
+
+    topic_id: Used by run-qualtrics-scheduling to publish
+        intake-processed messages.
+    followup_topic_id: Used by run-intake-confirmation to
+        publish follow-up scheduling messages.
     """
 
     topic_id: str = Field(
         ..., description="Pub/Sub topic ID (e.g., 'dkg-intake-processed')"
+    )
+    followup_topic_id: str | None = Field(
+        default=None,
+        description="Pub/Sub topic ID for follow-up scheduling "
+        "(e.g., 'dkg-followup-scheduling')",
+    )
+
+
+class FollowupSurveysConfig(BaseModel):
+    """Qualtrics follow-up survey configuration.
+
+    Defines the three follow-up surveys (one per daily time slot)
+    and the SMS template used when scheduling messages via Twilio.
+
+    Each survey_id corresponds to a fixed time slot:
+        survey_ids[0] → 9:00 AM
+        survey_ids[1] → 1:00 PM
+        survey_ids[2] → 5:00 PM
+    """
+
+    survey_base_url: str = Field(
+        ..., description="Base URL for Qualtrics survey links"
+    )
+    survey_ids: list[str] = Field(
+        ...,
+        min_length=3,
+        max_length=3,
+        description="Three Qualtrics survey IDs, one per time slot",
+    )
+    sms_template: str = Field(
+        default=(
+            "Hello, this is Demetrius K. Green. It is time for your "
+            "{time} follow-up survey for the research study. Please "
+            "complete it within 1 hour for your response to be valid: "
+            "{url}"
+        ),
+        description="SMS body template with {time} and {url} placeholders",
     )
 
 
@@ -133,6 +179,7 @@ class AppConfig(BaseModel):
         config.bq.tables.intake_raw
         config.qualtrics.base_url   # only if qualtrics config present
         config.pubsub.topic_id      # only if pubsub config present
+        config.followup_surveys     # only if followup config present
     """
 
     gcp: GCPConfig
@@ -140,3 +187,4 @@ class AppConfig(BaseModel):
     bq: BigQueryConfig
     qualtrics: QualtricsConfig | None = None
     pubsub: PubSubConfig | None = None
+    followup_surveys: FollowupSurveysConfig | None = None

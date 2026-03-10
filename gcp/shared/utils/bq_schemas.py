@@ -156,3 +156,79 @@ SURVEY_RESPONSES_CLUSTER_FIELDS: list[str] = ["survey_id"]
 SURVEY_RESPONSES_COLUMNS: set[str] = {
     field.name for field in SURVEY_RESPONSES_SCHEMA
 }
+
+
+# -- Scheduled follow-ups schema ------------------------------------
+# Manually defined (not auto-generated) because this is an
+# operational table tracking Twilio scheduled messages, not a
+# survey payload. Three rows per participant (one per time slot).
+SCHEDULED_FOLLOWUPS_SCHEMA: list[SchemaField] = [
+    SchemaField(
+        "response_id",
+        "STRING",
+        mode="REQUIRED",
+        description="Qualtrics response ID (primary key)",
+    ),
+    SchemaField(
+        "prolific_pid",
+        "STRING",
+        mode="NULLABLE",
+        description="Prolific participant ID (nullable)",
+    ),
+    SchemaField(
+        "phone",
+        "STRING",
+        mode="REQUIRED",
+        description="E.164 formatted phone number",
+    ),
+    SchemaField(
+        "selected_date",
+        "STRING",
+        mode="REQUIRED",
+        description="Follow-up date (YYYY-MM-DD)",
+    ),
+    SchemaField(
+        "timezone",
+        "STRING",
+        mode="REQUIRED",
+        description="IANA timezone (e.g., US/Central)",
+    ),
+    SchemaField(
+        "survey_time",
+        "INTEGER",
+        mode="REQUIRED",
+        description="Time slot number (1=9AM, 2=1PM, 3=5PM)",
+    ),
+    SchemaField(
+        "twilio_message_sid",
+        "STRING",
+        mode="REQUIRED",
+        description="Twilio message SID for potential cancellation",
+    ),
+    SchemaField(
+        "send_at_utc",
+        "TIMESTAMP",
+        mode="REQUIRED",
+        description="Scheduled send time in UTC",
+    ),
+    SchemaField(
+        "survey_url",
+        "STRING",
+        mode="REQUIRED",
+        description="Full survey URL with query params",
+    ),
+    SchemaField(
+        "_scheduled",
+        "BOOLEAN",
+        mode="REQUIRED",
+        description="Whether scheduling completed successfully",
+    ),
+    SchemaField(
+        "_created_at",
+        "TIMESTAMP",
+        mode="REQUIRED",
+        description="UTC timestamp when this row was inserted",
+    ),
+]
+
+SCHEDULED_FOLLOWUPS_CLUSTER_FIELDS: list[str] = ["response_id"]
