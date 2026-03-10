@@ -53,6 +53,8 @@ if _fn_dir not in sys.path:
     sys.path.insert(0, _fn_dir)
 
 from shared.utils.bq_schemas import (
+    SCHEDULED_FOLLOWUPS_CLUSTER_FIELDS,
+    SCHEDULED_FOLLOWUPS_SCHEMA,
     SURVEY_RESPONSES_CLUSTER_FIELDS,
     # SURVEY_RESPONSES_PARTITION_FIELD,
     SURVEY_RESPONSES_SCHEMA,
@@ -74,6 +76,15 @@ TABLE_REGISTRY: dict[str, dict] = {
             "Raw intake survey responses (survey 0) from the "
             "Qualtrics Web Service task. Each row is one completed "
             "response with explicit typed columns."
+        ),
+    },
+    "scheduled_followups": {
+        "schema": SCHEDULED_FOLLOWUPS_SCHEMA,
+        "cluster_fields": SCHEDULED_FOLLOWUPS_CLUSTER_FIELDS,
+        "description": (
+            "Follow-up survey SMS scheduling records. Three rows "
+            "per participant (one per time slot) with Twilio message "
+            "SIDs for potential cancellation."
         ),
     },
     # -- Future tables -----------------------------------------------

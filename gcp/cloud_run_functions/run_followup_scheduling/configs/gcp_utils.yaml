@@ -1,0 +1,35 @@
+# ================================================================
+# GCP, BigQuery & follow-up survey settings for the scheduling
+# function (run-followup-scheduling)
+# ================================================================
+# Triggered by Pub/Sub messages from run-intake-confirmation.
+# Schedules three follow-up survey SMS messages via Twilio's
+# Message Scheduling API.
+# ================================================================
+
+gcp:
+  project_id: "dkg-phd-thesis"
+  location: "US"        # Multi-region for BigQuery datasets
+  region: "us-east4"    # Specific region for Cloud Run functions
+
+bq:
+  dataset_id: "qualtrics"
+  tables:
+    # -- Intake (survey 0): enrollment, demographics, screening ------
+    intake_raw: "stg_intake_responses"
+    intake_clean: "int_intake_responses_scored"
+    # -- Follow-ups (surveys 1-3): repeated measures -----------------
+    followup_raw: "stg_followup_responses"
+    followup_clean: "int_followup_responses_scored"
+    # -- Scheduling records ------------------------------------------
+    scheduled_followups: "scheduled_followups"
+
+# -- Follow-up surveys ------------------------------------------------
+# Three Qualtrics surveys, one per daily time slot.
+# The SMS template uses {time} and {url} placeholders.
+followup_surveys:
+  survey_base_url: "https://ncsu.qualtrics.com/jfe/form"
+  survey_ids:
+    - "SV_5nV942MJGubDmqq"   # 9:00 AM survey
+    - "SV_eRKl4lgMZDAurT8"   # 1:00 PM survey
+    - "SV_6J3svun1r97AAHc"   # 5:00 PM survey

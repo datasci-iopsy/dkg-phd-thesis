@@ -1,17 +1,16 @@
-"""Pub/Sub topic lifecycle manager for intake response processing.
+"""Pub/Sub topic lifecycle manager.
 
-Creates and manages the Pub/Sub topic that connects the qualtrics
-scheduling function (publisher) to the intake confirmation
-function (subscriber). The topic must exist before either
-function is deployed.
+Creates and manages Pub/Sub topics for inter-function
+communication. Topics must exist before their consuming
+functions are deployed.
 
-The subscription is NOT managed here. When the intake
-confirmation function is deployed with a Pub/Sub trigger via
-manage_functions.py, Eventarc automatically creates a push
-subscription to the Cloud Run function.
+Subscriptions are NOT managed here. When a consuming Cloud Run
+function is deployed with a Pub/Sub trigger via manage_functions.py,
+Eventarc automatically creates a push subscription.
 
-Resources created by 'setup':
-    1. Pub/Sub topic (dkg-intake-processed)
+Topics managed:
+    - dkg-intake-processed (qualtrics scheduling → confirmation)
+    - dkg-followup-scheduling (confirmation → follow-up scheduling)
 
 Usage:
     python manage_pubsub.py setup
@@ -42,7 +41,7 @@ REQUIRED_APIS = [
 
 # -- Configuration models ------------------------------------------
 class PubSubSettings(BaseModel):
-    topic_id: str
+    topics: list[str]
 
 
 class PubSubConfig(BaseModel):
@@ -105,12 +104,13 @@ def resource_exists(cmd: list[str]) -> bool:
     return run_quiet(cmd).returncode == 0
 
 
-def print_banner(action: str, topic_id: str, project: str) -> None:
+def print_banner(action: str, topics: list[str], project: str) -> None:
     """Print a formatted operation banner."""
     print(f"\n+{'=' * 55}+")
     print(f"|  {action:<53}|")
     print(f"|  Project:  {project:<44}|")
-    print(f"|  Topic:    {topic_id:<44}|")
+    for topic_id in topics:
+        print(f"|  Topic:    {topic_id:<44}|")
     print(f"+{'=' * 55}+")
 
 
@@ -169,21 +169,21 @@ def list_subscriptions(project: str, topic_id: str) -> list[dict] | None:
 
 # -- Subcommand handlers -------------------------------------------
 def handle_setup(args: argparse.Namespace) -> None:
-    """Provision the Pub/Sub topic.
+    """Provision all Pub/Sub topics.
 
-    Creates the topic used for intake response processing.
-    Idempotent -- safe to run again if it already exists.
+    Creates topics for inter-function communication.
+    Idempotent -- safe to run again if topics already exist.
 
-    The Eventarc subscription is created automatically when
-    the consuming function is deployed with a Pub/Sub trigger.
+    Eventarc subscriptions are created automatically when
+    consuming functions are deployed with Pub/Sub triggers.
     """
     ps_config = load_pubsub_config()
     fn_config = load_functions_config()
 
-    topic_id = ps_config.pubsub.topic_id
+    topics = ps_config.pubsub.topics
     project = fn_config.global_.project
 
-    print_banner("Setting up Pub/Sub", topic_id, project)
+    print_banner("Setting up Pub/Sub", topics, project)
 
     # Step 1: Enable APIs
     run(
@@ -197,101 +197,99 @@ def handle_setup(args: argparse.Namespace) -> None:
         description="Enabling required GCP APIs",
     )
 
-    # Step 2: Create topic
-    create_topic(project, topic_id)
+    # Step 2: Create topics
+    for topic_id in topics:
+        create_topic(project, topic_id)
 
     # Done
-    full_topic = f"projects/{project}/topics/{topic_id}"
     print(f"\n+{'=' * 55}+")
     print(f"|  {'Setup complete':<53}|")
     print(f"+{'=' * 55}+")
-    print(f"\n  Topic: {full_topic}")
+    for topic_id in topics:
+        full_topic = f"projects/{project}/topics/{topic_id}"
+        print(f"\n  Topic: {full_topic}")
     print()
     print("  Next steps:")
-    print("    1. Deploy the publishing function (run-qualtrics-scheduling)")
-    print("       with pubsub.publisher role on its service account.")
-    print("    2. Deploy the consuming function (run-intake-confirmation)")
-    print("       with a Pub/Sub trigger pointing to this topic.")
+    print("    1. Deploy publishing functions with pubsub.publisher role.")
+    print("    2. Deploy consuming functions with Pub/Sub triggers.")
     print()
 
 
 def handle_status(args: argparse.Namespace) -> None:
-    """Show the current state of the Pub/Sub topic."""
+    """Show the current state of all Pub/Sub topics."""
     ps_config = load_pubsub_config()
     fn_config = load_functions_config()
 
-    topic_id = ps_config.pubsub.topic_id
+    topics = ps_config.pubsub.topics
     project = fn_config.global_.project
 
-    print_banner("Pub/Sub status", topic_id, project)
+    print_banner("Pub/Sub status", topics, project)
 
-    # Topic
-    if not topic_exists(project, topic_id):
-        print(f"\n  Topic '{topic_id}' does not exist.")
-        print("  Run 'setup' to create it.\n")
-        return
+    for topic_id in topics:
+        if not topic_exists(project, topic_id):
+            print(f"\n  Topic '{topic_id}' does not exist.")
+            print("  Run 'setup' to create it.")
+            continue
 
-    full_topic = f"projects/{project}/topics/{topic_id}"
-    print(f"\n  Topic: {full_topic} (exists)")
+        full_topic = f"projects/{project}/topics/{topic_id}"
+        print(f"\n  Topic: {full_topic} (exists)")
 
-    # Subscriptions
-    subs = list_subscriptions(project, topic_id)
-    if subs:
-        print(f"  Subscriptions ({len(subs)}):")
-        for sub in subs:
-            # Subscription names can be full resource paths or
-            # simple strings depending on gcloud version.
-            if isinstance(sub, str):
-                sub_name = sub.split("/")[-1]
-                print(f"    - {sub_name}")
-            elif isinstance(sub, dict):
-                sub_name = sub.get("name", str(sub)).split("/")[-1]
-                push_config = sub.get("pushConfig", {})
-                endpoint = push_config.get("pushEndpoint", "")
-                detail = f" -> {endpoint}" if endpoint else ""
-                print(f"    - {sub_name}{detail}")
-    else:
-        print("  Subscriptions: none")
-        print(
-            "    (Eventarc creates one when the consuming function is deployed)"
-        )
+        # Subscriptions
+        subs = list_subscriptions(project, topic_id)
+        if subs:
+            print(f"  Subscriptions ({len(subs)}):")
+            for sub in subs:
+                if isinstance(sub, str):
+                    sub_name = sub.split("/")[-1]
+                    print(f"    - {sub_name}")
+                elif isinstance(sub, dict):
+                    sub_name = sub.get("name", str(sub)).split("/")[-1]
+                    push_config = sub.get("pushConfig", {})
+                    endpoint = push_config.get("pushEndpoint", "")
+                    detail = f" -> {endpoint}" if endpoint else ""
+                    print(f"    - {sub_name}{detail}")
+        else:
+            print("  Subscriptions: none")
+            print(
+                "    (Eventarc creates one when the consuming "
+                "function is deployed)"
+            )
 
     print()
 
 
 def handle_teardown(args: argparse.Namespace) -> None:
-    """Delete the Pub/Sub topic.
+    """Delete all Pub/Sub topics.
 
     Deleting a topic also removes all Eventarc-managed
-    subscriptions attached to it. The consuming Cloud Run
-    function is NOT deleted.
+    subscriptions attached to it. Consuming Cloud Run
+    functions are NOT deleted.
 
     Use --force to skip the confirmation prompt.
     """
     ps_config = load_pubsub_config()
     fn_config = load_functions_config()
 
-    topic_id = ps_config.pubsub.topic_id
+    topics = ps_config.pubsub.topics
     project = fn_config.global_.project
 
-    print_banner("Tearing down Pub/Sub", topic_id, project)
+    print_banner("Tearing down Pub/Sub", topics, project)
 
-    if not topic_exists(project, topic_id):
-        print(f"\n  Topic '{topic_id}' does not exist -- nothing to do.\n")
+    existing_topics = [t for t in topics if topic_exists(project, t)]
+
+    if not existing_topics:
+        print("\n  No topics found -- nothing to do.\n")
         return
 
     if not args.force:
-        # Show what will be affected
-        subs = list_subscriptions(project, topic_id)
-        sub_count = len(subs) if subs else 0
-
         print(f"\n  This will permanently delete:")
-        print(f"    Topic:         {topic_id}")
-        if sub_count > 0:
-            print(
-                f"    Subscriptions: {sub_count} "
-                f"(automatically removed with topic)"
+        for topic_id in existing_topics:
+            subs = list_subscriptions(project, topic_id)
+            sub_count = len(subs) if subs else 0
+            sub_detail = (
+                f" ({sub_count} subscription(s))" if sub_count > 0 else ""
             )
+            print(f"    - {topic_id}{sub_detail}")
         print()
 
         response = input("  Type 'yes' to confirm: ")
@@ -299,19 +297,19 @@ def handle_teardown(args: argparse.Namespace) -> None:
             print("\n  Teardown cancelled.\n")
             return
 
-    # Delete topic
-    run(
-        [
-            "gcloud",
-            "pubsub",
-            "topics",
-            "delete",
-            topic_id,
-            f"--project={project}",
-            "--quiet",
-        ],
-        description=f"Deleting topic: {topic_id}",
-    )
+    for topic_id in existing_topics:
+        run(
+            [
+                "gcloud",
+                "pubsub",
+                "topics",
+                "delete",
+                topic_id,
+                f"--project={project}",
+                "--quiet",
+            ],
+            description=f"Deleting topic: {topic_id}",
+        )
 
     print(f"\n  Teardown complete.\n")
 
@@ -320,9 +318,7 @@ def handle_teardown(args: argparse.Namespace) -> None:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="manage_pubsub",
-        description=(
-            "Pub/Sub topic lifecycle manager for intake response processing."
-        ),
+        description="Pub/Sub topic lifecycle manager.",
     )
     subparsers = parser.add_subparsers(
         dest="command",
@@ -332,21 +328,21 @@ def build_parser() -> argparse.ArgumentParser:
     # setup
     setup_parser = subparsers.add_parser(
         "setup",
-        help="Create the Pub/Sub topic.",
+        help="Create all Pub/Sub topics.",
     )
     setup_parser.set_defaults(handler=handle_setup)
 
     # status
     status_parser = subparsers.add_parser(
         "status",
-        help="Show current state of the topic and subscriptions.",
+        help="Show current state of topics and subscriptions.",
     )
     status_parser.set_defaults(handler=handle_status)
 
     # teardown
     teardown_parser = subparsers.add_parser(
         "teardown",
-        help="Delete the topic and any attached subscriptions.",
+        help="Delete all topics and their attached subscriptions.",
     )
     teardown_parser.add_argument(
         "--force",
