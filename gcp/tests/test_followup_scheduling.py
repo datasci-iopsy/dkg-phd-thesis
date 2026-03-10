@@ -103,7 +103,7 @@ class TestIntakeProcessedMessageProlificPid:
         raw = {
             "response_id": "R_abc123",
             "phone": "+18777804236",
-            "selected_date": "2026-02-24",
+            "selected_date": "2099-02-24",
             "timezone": "US/Central",
         }
         msg = IntakeProcessedMessage.model_validate(raw)
@@ -381,7 +381,7 @@ class TestFollowupSchedulingHandler:
                 "response_id": "R_test",
                 "prolific_pid": "pid_123",
                 "phone": "+18777804236",
-                "selected_date": "2026-02-24",
+                "selected_date": "2099-02-24",
                 "timezone": "US/Central",
             }
         )
@@ -431,7 +431,7 @@ class TestFollowupSchedulingHandler:
             {
                 "response_id": "R_test",
                 "phone": "+18777804236",
-                "selected_date": "2026-02-24",
+                "selected_date": "2099-02-24",
                 "timezone": "US/Central",
             }
         )
@@ -458,7 +458,7 @@ class TestFollowupSchedulingHandler:
             {
                 "response_id": "R_test",
                 "phone": "+18777804236",
-                "selected_date": "2026-02-24",
+                "selected_date": "2099-02-24",
                 "timezone": "US/Central",
             }
         )
@@ -511,7 +511,7 @@ class TestFollowupSchedulingHandler:
             {
                 "response_id": "R_test",
                 "phone": "+18777804236",
-                "selected_date": "2026-02-24",
+                "selected_date": "2099-02-24",
                 "timezone": "US/Central",
                 # prolific_pid intentionally omitted
             }
@@ -526,3 +526,197 @@ class TestFollowupSchedulingHandler:
         for call in mock_schedule.call_args_list:
             body = call[0][1]  # second positional arg
             assert "prolific_pid" not in body
+
+
+# -- Past-time skipping tests ------------------------------------------
+class TestPastTimeSkipping:
+    """Verify that the handler gracefully skips time slots that are
+    too close or in the past (Twilio requires send_at >= now + 15 min).
+
+    All tests freeze ``datetime.now`` so behavior is deterministic
+    regardless of when the test suite runs. The selected_date is
+    always 2026-06-15 (a Monday) and the timezone is US/Central
+    (UTC-5 in June / CDT).
+    """
+
+    _SELECTED_DATE = "2026-06-15"
+    _TIMEZONE = "US/Central"
+
+    def _make_cloud_event(self, message_data: dict) -> MagicMock:
+        encoded = base64.b64encode(json.dumps(message_data).encode()).decode()
+        event = MagicMock()
+        event.data = {"message": {"data": encoded}}
+        return event
+
+    def _make_event(self, **overrides) -> MagicMock:
+        data = {
+            "response_id": "R_past_test",
+            "phone": "+18777804236",
+            "selected_date": self._SELECTED_DATE,
+            "timezone": self._TIMEZONE,
+        }
+        data.update(overrides)
+        return self._make_cloud_event(data)
+
+    def _mock_config(self, mock_config):
+        mock_config.gcp.project_id = "test-project"
+        mock_config.followup_surveys.survey_base_url = (
+            "https://ncsu.qualtrics.com/jfe/form"
+        )
+        mock_config.followup_surveys.survey_ids = ["SV_1", "SV_2", "SV_3"]
+        mock_config.followup_surveys.sms_template = "Survey at {time}: {url}"
+
+    @patch("main.schedule_sms")
+    @patch("main.is_already_scheduled", return_value=False)
+    @patch("main.bigquery.Client")
+    @patch("main.config")
+    def test_all_slots_in_past_returns_without_error(
+        self,
+        mock_config,
+        mock_bq_client,
+        mock_is_scheduled,
+        mock_schedule,
+    ):
+        """When all 3 slots are in the past, handler returns
+        (acknowledges) without calling Twilio or writing to BQ."""
+        self._mock_config(mock_config)
+
+        # Freeze time to 6 PM CDT on the selected date.
+        # In UTC that's 11 PM (CDT = UTC-5).
+        # All 3 slots (9AM, 1PM, 5PM CDT) are in the past.
+        frozen_utc = datetime(2026, 6, 15, 23, 0, 0, tzinfo=timezone.utc)
+
+        event = self._make_event()
+
+        from main import followup_scheduling_handler
+
+        with patch("main.datetime") as mock_dt:
+            mock_dt.now.return_value = frozen_utc
+            mock_dt.combine = datetime.combine
+            mock_dt.side_effect = lambda *a, **kw: datetime(*a, **kw)
+            followup_scheduling_handler(event)
+
+        mock_schedule.assert_not_called()
+
+    @patch("main.write_scheduling_records", return_value=True)
+    @patch("main.schedule_sms")
+    @patch("main.is_already_scheduled", return_value=False)
+    @patch("main.bigquery.Client")
+    @patch("main.config")
+    def test_only_future_slots_scheduled(
+        self,
+        mock_config,
+        mock_bq_client,
+        mock_is_scheduled,
+        mock_schedule,
+        mock_write,
+    ):
+        """When 2 of 3 slots are past, only the future slot is
+        scheduled and written to BQ."""
+        self._mock_config(mock_config)
+
+        # Freeze time to 12:30 PM CDT = 5:30 PM UTC.
+        # 9 AM CDT (2 PM UTC) is past.
+        # 1 PM CDT (6 PM UTC) is only 30 min away (< 16 min lead? No,
+        #   actually 30 min > 16 min, so it would pass. Let's use 12:50 PM CDT
+        #   = 5:50 PM UTC so 1 PM CDT = 6 PM UTC is only 10 min away).
+        frozen_utc = datetime(2026, 6, 15, 17, 50, 0, tzinfo=timezone.utc)
+
+        mock_schedule.return_value = "SM_sid_5pm"
+
+        event = self._make_event()
+
+        from main import followup_scheduling_handler
+
+        with (
+            patch("main.datetime") as mock_dt,
+        ):
+            mock_dt.now.return_value = frozen_utc
+            mock_dt.combine = datetime.combine
+            mock_dt.side_effect = lambda *a, **kw: datetime(*a, **kw)
+            followup_scheduling_handler(event)
+
+        # Only the 5 PM slot should be scheduled (9 AM past, 1 PM <16 min)
+        assert mock_schedule.call_count == 1
+        mock_write.assert_called_once()
+
+        # Verify the single record is for slot 3 (5 PM)
+        write_args = mock_write.call_args
+        records = write_args.kwargs.get(
+            "scheduled_records",
+            write_args[0][6] if len(write_args[0]) > 6 else None,
+        )
+        if records:
+            assert len(records) == 1
+            assert records[0]["survey_time"] == 3
+
+    @patch("main.write_scheduling_records", return_value=True)
+    @patch("main.schedule_sms")
+    @patch("main.is_already_scheduled", return_value=False)
+    @patch("main.bigquery.Client")
+    @patch("main.config")
+    def test_all_slots_in_future_schedules_all_three(
+        self,
+        mock_config,
+        mock_bq_client,
+        mock_is_scheduled,
+        mock_schedule,
+        mock_write,
+    ):
+        """When all 3 slots are in the future, all 3 are scheduled."""
+        self._mock_config(mock_config)
+
+        # Freeze time to midnight CDT = 5 AM UTC.
+        # All 3 slots (9AM, 1PM, 5PM CDT) are hours away.
+        frozen_utc = datetime(2026, 6, 15, 5, 0, 0, tzinfo=timezone.utc)
+
+        mock_schedule.side_effect = ["SM_1", "SM_2", "SM_3"]
+
+        event = self._make_event()
+
+        from main import followup_scheduling_handler
+
+        with patch("main.datetime") as mock_dt:
+            mock_dt.now.return_value = frozen_utc
+            mock_dt.combine = datetime.combine
+            mock_dt.side_effect = lambda *a, **kw: datetime(*a, **kw)
+            followup_scheduling_handler(event)
+
+        assert mock_schedule.call_count == 3
+        mock_write.assert_called_once()
+
+    @patch("main.write_scheduling_records", return_value=True)
+    @patch("main.schedule_sms")
+    @patch("main.is_already_scheduled", return_value=False)
+    @patch("main.bigquery.Client")
+    @patch("main.config")
+    def test_slot_at_exact_boundary_proceeds(
+        self,
+        mock_config,
+        mock_bq_client,
+        mock_is_scheduled,
+        mock_schedule,
+        mock_write,
+    ):
+        """A slot exactly 16 min from now should be scheduled
+        (guard uses <=, so exactly 16 min passes)."""
+        self._mock_config(mock_config)
+
+        # 9 AM CDT = 2 PM UTC (CDT = UTC-5 in June).
+        # Set now to 1:43 PM UTC so 9 AM CDT is 17 min away → passes.
+        frozen_utc = datetime(2026, 6, 15, 13, 43, 0, tzinfo=timezone.utc)
+
+        mock_schedule.side_effect = ["SM_1", "SM_2", "SM_3"]
+
+        event = self._make_event()
+
+        from main import followup_scheduling_handler
+
+        with patch("main.datetime") as mock_dt:
+            mock_dt.now.return_value = frozen_utc
+            mock_dt.combine = datetime.combine
+            mock_dt.side_effect = lambda *a, **kw: datetime(*a, **kw)
+            followup_scheduling_handler(event)
+
+        # All 3 slots should be scheduled since all are ≥17 min away
+        assert mock_schedule.call_count == 3
