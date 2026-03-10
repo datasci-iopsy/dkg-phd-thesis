@@ -41,6 +41,38 @@ class IntakeProcessedMessage(BaseModel):
     response_id: str = Field(
         ..., description="Qualtrics response ID (idempotency key)"
     )
+    prolific_pid: str | None = Field(
+        default=None,
+        description="Prolific participant ID (nullable -- used for "
+        "paid participant tracking but not always populated)",
+    )
+    phone: str = Field(..., description="E.164 formatted phone number")
+    selected_date: str = Field(
+        ..., description="Participant's chosen date (ISO format, YYYY-MM-DD)"
+    )
+    timezone: str = Field(..., description="IANA timezone (e.g., US/Central)")
+
+
+class FollowupSchedulingMessage(BaseModel):
+    """Pub/Sub message payload for follow-up SMS scheduling.
+
+    Published by run-intake-confirmation after a successful
+    confirmation SMS and _processed=TRUE update. Consumed by
+    run-followup-scheduling to schedule three follow-up survey
+    SMS messages via Twilio's Message Scheduling API.
+
+    response_id is the primary identifier. prolific_pid is
+    nullable because not all participants are recruited via
+    Prolific.
+    """
+
+    response_id: str = Field(
+        ..., description="Qualtrics response ID (primary key)"
+    )
+    prolific_pid: str | None = Field(
+        default=None,
+        description="Prolific participant ID (nullable)",
+    )
     phone: str = Field(..., description="E.164 formatted phone number")
     selected_date: str = Field(
         ..., description="Participant's chosen date (ISO format, YYYY-MM-DD)"
@@ -111,6 +143,68 @@ def publish_intake_processed(
     except Exception as e:
         logger.error(
             "Failed to publish message for %s: %s",
+            message.response_id,
+            e,
+            exc_info=True,
+        )
+        return None
+
+
+def publish_followup_scheduling(
+    message: FollowupSchedulingMessage,
+    config: AppConfig,
+) -> str | None:
+    """Publish a followup-scheduling message to Pub/Sub.
+
+    Serializes the message as JSON and publishes it to the
+    topic configured in config.pubsub.followup_topic_id.
+    Returns the published message ID on success, or None
+    on failure.
+
+    Args:
+        message: Validated message payload with participant
+            scheduling data.
+        config: Application config with Pub/Sub topic reference.
+
+    Returns:
+        Pub/Sub message ID string, or None if publishing failed.
+    """
+    if not config.pubsub:
+        logger.error(
+            "Pub/Sub config not found -- cannot publish followup "
+            "message for response %s",
+            message.response_id,
+        )
+        return None
+
+    if not config.pubsub.followup_topic_id:
+        logger.error(
+            "Pub/Sub followup_topic_id not configured -- "
+            "cannot publish for response %s",
+            message.response_id,
+        )
+        return None
+
+    try:
+        client = get_publisher_client()
+        topic_path = client.topic_path(
+            config.gcp.project_id, config.pubsub.followup_topic_id
+        )
+        data = json.dumps(message.model_dump()).encode("utf-8")
+        future = client.publish(topic_path, data=data)
+        message_id = future.result()
+        logger.info(
+            "Published followup-scheduling message for %s "
+            "(message_id: %s, topic: %s)",
+            message.response_id,
+            message_id,
+            config.pubsub.followup_topic_id,
+        )
+        return message_id
+
+    except Exception as e:
+        logger.error(
+            "Failed to publish followup message for %s: %s",
             message.response_id,
             e,
             exc_info=True,

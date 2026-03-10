@@ -92,6 +92,7 @@ def qualtrics_webhook_handler(request: Request):
         # Step 4: Publish to Pub/Sub for async confirmation
         message = IntakeProcessedMessage(
             response_id=participant.response_id,
+            prolific_pid=participant.prolific_pid,
             phone=participant.phone,
             selected_date=participant.selected_date.isoformat(),
             timezone=participant.timezone,

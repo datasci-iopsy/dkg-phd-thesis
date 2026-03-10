@@ -9,7 +9,8 @@ Workflow:
     1. Decode and validate the Pub/Sub message
     2. Check idempotency (_processed status in BigQuery)
     3. Send confirmation SMS via Twilio
-    4. Update _processed = TRUE in BigQuery
+    4. Publish to follow-up scheduling topic (Pub/Sub)
+    5. Update _processed = TRUE in BigQuery
 
 Idempotency:
     If the message is retried (e.g., after a transient failure),
@@ -34,7 +35,11 @@ import functions_framework
 from cloudevents.http import CloudEvent
 from google.cloud import bigquery
 from shared.utils.config_loader import load_config
-from shared.utils.pubsub_utils import IntakeProcessedMessage
+from shared.utils.pubsub_utils import (
+    FollowupSchedulingMessage,
+    IntakeProcessedMessage,
+    publish_followup_scheduling,
+)
 
 # -- Logging ---------------------------------------------------------
 logging.basicConfig(
@@ -346,7 +351,28 @@ def intake_confirmation_handler(cloud_event: CloudEvent) -> None:
             f"-- will retry via Pub/Sub"
         )
 
-    # Step 4: Mark as processed in BigQuery
+    # Step 4: Publish to follow-up scheduling topic
+    # Placed BEFORE the _processed flag update so that on retry
+    # (if publish fails), the idempotency check still allows
+    # re-entry. If we published AFTER _processed=TRUE, a failed
+    # publish would never be retried because the handler would
+    # skip on the next attempt.
+    followup_message = FollowupSchedulingMessage(
+        response_id=message.response_id,
+        prolific_pid=message.prolific_pid,
+        phone=message.phone,
+        selected_date=message.selected_date,
+        timezone=message.timezone,
+    )
+
+    followup_msg_id = publish_followup_scheduling(followup_message, config)
+    if not followup_msg_id:
+        raise RuntimeError(
+            f"Follow-up scheduling publish failed for "
+            f"{message.response_id} -- will retry via Pub/Sub"
+        )
+
+    # Step 5: Mark as processed in BigQuery
     updated = update_processed_flag(bq_client, message.response_id)
     if not updated:
         # SMS was sent but flag update failed. Log the gap.
