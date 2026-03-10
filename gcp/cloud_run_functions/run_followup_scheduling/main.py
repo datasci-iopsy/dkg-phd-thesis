@@ -29,7 +29,7 @@ import json
 import logging
 import os
 import zoneinfo
-from datetime import UTC, date, datetime, time
+from datetime import UTC, date, datetime, time, timedelta
 from pathlib import Path
 from urllib.parse import urlencode
 
@@ -78,6 +78,10 @@ TWILIO_MESSAGING_SERVICE_SID: str = _twilio_config.get(
 # Fixed daily survey times matching ParticipantData.followup_times
 # in the scheduling function. Order must match config survey_ids.
 FOLLOWUP_TIMES: list[time] = [time(9, 0), time(13, 0), time(17, 0)]
+
+# Twilio requires send_at to be 15–35 days in the future.
+# Use 16 min as a buffer so we never hit the boundary.
+MIN_SCHEDULE_LEAD = timedelta(minutes=16)
 
 
 # -- Helpers ---------------------------------------------------------
@@ -438,6 +442,20 @@ def followup_scheduling_handler(cloud_event: CloudEvent) -> None:
 
         send_at = compute_send_at(selected_date, survey_time, message.timezone)
 
+        # Guard: skip slots that are too soon for Twilio scheduling
+        now_utc = datetime.now(zoneinfo.ZoneInfo("UTC"))
+        if send_at <= now_utc + MIN_SCHEDULE_LEAD:
+            logger.warning(
+                "Skipping slot %d for %s -- send_at %s is less than "
+                "%d min from now (%s)",
+                slot_number,
+                message.response_id,
+                send_at.isoformat(),
+                int(MIN_SCHEDULE_LEAD.total_seconds() / 60),
+                now_utc.isoformat(),
+            )
+            continue
+
         time_label = format_time_label(survey_time)
         body = sms_template.format(time=time_label, url=url)
 
@@ -457,6 +475,18 @@ def followup_scheduling_handler(cloud_event: CloudEvent) -> None:
                 "survey_url": url,
             }
         )
+
+    # Guard: if all slots were skipped (all in the past), acknowledge
+    # the message to prevent infinite Pub/Sub retry.
+    if not scheduled_records:
+        logger.error(
+            "All 3 time slots are in the past for %s (date: %s, tz: %s) "
+            "-- no SMS scheduled. Acknowledging to prevent infinite retry.",
+            message.response_id,
+            message.selected_date,
+            message.timezone,
+        )
+        return
 
     # Step 5: Write scheduling records to BigQuery
     write_success = write_scheduling_records(
