@@ -26,6 +26,7 @@ import json
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import yaml
@@ -131,20 +132,21 @@ def create_service_account(
 ) -> str:
     """Create a service account if it does not exist.
 
-    Returns the full email address.
+    After creation, waits for the account to become resolvable
+    via ``describe`` (GCP eventual consistency). Returns the full
+    email address.
     """
     email = sa_email(sa_config.name, project)
+    describe_cmd = [
+        "gcloud",
+        "iam",
+        "service-accounts",
+        "describe",
+        email,
+        f"--project={project}",
+    ]
 
-    if resource_exists(
-        [
-            "gcloud",
-            "iam",
-            "service-accounts",
-            "describe",
-            email,
-            f"--project={project}",
-        ]
-    ):
+    if resource_exists(describe_cmd):
         print(f"\n  Service account '{email}' already exists -- skipping.")
         return email
 
@@ -160,7 +162,29 @@ def create_service_account(
         ],
         description=f"Creating service account: {sa_config.name}",
     )
-    return email
+
+    # Wait for SA to become resolvable (GCP eventual consistency).
+    # Newly created service accounts are not immediately visible to
+    # the IAM policy API, so role bindings can fail if issued too
+    # quickly after creation.
+    max_attempts = 5
+    for attempt in range(max_attempts):
+        if resource_exists(describe_cmd):
+            print(f"  Service account '{email}' is now resolvable.")
+            return email
+        wait = 2**attempt  # 1, 2, 4, 8, 16 seconds
+        print(
+            f"  Waiting {wait}s for SA propagation "
+            f"(attempt {attempt + 1}/{max_attempts})..."
+        )
+        time.sleep(wait)
+
+    print(
+        f"\n-> Service account '{email}' created but not yet resolvable "
+        f"after {max_attempts} attempts. Try re-running deploy.",
+        file=sys.stderr,
+    )
+    sys.exit(1)
 
 
 def grant_iam_roles(project: str, sa_email: str, roles: list[str]) -> None:

@@ -29,17 +29,64 @@ DEPLOY_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = DEPLOY_DIR.parents[1]
 FUNCTIONS_BASE = PROJECT_ROOT / "gcp" / "cloud_run_functions"
 
-# Load GCP config from the qualtrics scheduling function's configs.
-# This is the same file the function reads at runtime.
-_gcp_config_path = (
-    FUNCTIONS_BASE / "run_qualtrics_scheduling" / "configs" / "gcp_config.yaml"
-)
-_gcp_config = yaml.safe_load(_gcp_config_path.read_text())
 
-PROJECT_ID: str = _gcp_config["gcp"]["project_id"]
-LOCATION: str = _gcp_config["gcp"]["location"]
-DATASET_ID: str = _gcp_config["bq"]["dataset_id"]
-TABLES: dict[str, str] = _gcp_config["bq"]["tables"]
+def _discover_tables() -> tuple[str, str, str, dict[str, str]]:
+    """Merge ``bq.tables`` from all function config files.
+
+    Scans every function directory under ``cloud_run_functions/`` for
+    YAML configs that define a ``bq.tables`` section. Tables from all
+    functions are merged into a single dict so that ``setup`` provisions
+    every table the pipeline needs -- not just those defined in one
+    function's config.
+
+    If two functions map the same config key to *different* BigQuery
+    table names the script exits with an error to prevent silent drift.
+
+    Returns:
+        (project_id, location, dataset_id, merged_tables)
+    """
+    project_id: str | None = None
+    location: str | None = None
+    dataset_id: str | None = None
+    merged: dict[str, str] = {}
+
+    for fn_dir in sorted(FUNCTIONS_BASE.iterdir()):
+        configs_dir = fn_dir / "configs"
+        if not configs_dir.is_dir():
+            continue
+        for cfg_file in sorted(configs_dir.glob("*.yaml")):
+            cfg = yaml.safe_load(cfg_file.read_text()) or {}
+
+            # Grab GCP/BQ top-level settings from first config that has them
+            if "gcp" in cfg and project_id is None:
+                project_id = cfg["gcp"]["project_id"]
+                location = cfg["gcp"].get("location", "US")
+
+            if "bq" in cfg:
+                if dataset_id is None:
+                    dataset_id = cfg["bq"]["dataset_id"]
+                for key, table_name in cfg["bq"].get("tables", {}).items():
+                    if key in merged and merged[key] != table_name:
+                        print(
+                            f"ERROR: Table key '{key}' maps to "
+                            f"'{merged[key]}' and '{table_name}' "
+                            f"in different configs.",
+                            file=sys.stderr,
+                        )
+                        sys.exit(1)
+                    merged[key] = table_name
+
+    if not project_id or not dataset_id:
+        print(
+            "ERROR: No function configs found with gcp/bq sections.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    return project_id, location or "US", dataset_id, merged
+
+
+PROJECT_ID, LOCATION, DATASET_ID, TABLES = _discover_tables()
 
 # Add gcp/ to path so 'shared.utils...' imports work.
 # Add the function directory so 'models...' imports resolve
