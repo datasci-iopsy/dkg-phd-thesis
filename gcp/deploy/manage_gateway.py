@@ -898,8 +898,16 @@ def handle_test(args: argparse.Namespace) -> None:
     Simulates exactly what Qualtrics will do: a POST with
     an x-api-key header, no bearer token, no IAM credentials.
 
+    The ``--selected-date`` flag overrides the ``selected_date``
+    field in the fixture payload. If omitted, defaults to
+    tomorrow (ensures all 3 follow-up time slots are far enough
+    in the future for Twilio's 15-minute scheduling minimum).
+
     This is the closest thing to a 'dev' mode for the gateway.
     """
+    from datetime import date as _date
+    from datetime import timedelta as _timedelta
+
     gw_config = load_gateway_config()
     fn_config = load_functions_config()
     gw = gw_config.gateway
@@ -922,16 +930,28 @@ def handle_test(args: argparse.Namespace) -> None:
         print("\n-> Could not retrieve API key string.", file=sys.stderr)
         sys.exit(1)
 
-    # Load fixture
+    # Load fixture and override selected_date
     fixture = FIXTURES_DIR / "web_service_payload.json"
     if not fixture.exists():
         print(f"\n-> Fixture not found: {fixture}", file=sys.stderr)
         sys.exit(1)
 
+    payload = json.loads(fixture.read_text())
+
+    if args.selected_date:
+        payload["selected_date"] = args.selected_date
+    else:
+        payload["selected_date"] = (
+            _date.today() + _timedelta(days=1)
+        ).isoformat()
+
+    payload_json = json.dumps(payload)
+
     masked_key = f"{api_key[:8]}...{api_key[-4:]}"
-    print(f"\n  Gateway: {gateway_url}")
-    print(f"  Fixture: {fixture.name}")
-    print(f"  API key: {masked_key}")
+    print(f"\n  Gateway:       {gateway_url}")
+    print(f"  Fixture:       {fixture.name}")
+    print(f"  selected_date: {payload['selected_date']}")
+    print(f"  API key:       {masked_key}")
     print(f"\n  Sending POST (no IAM token -- just the API key)...")
 
     # Send the request exactly as Qualtrics would
@@ -949,7 +969,7 @@ def handle_test(args: argparse.Namespace) -> None:
             "-H",
             f"x-api-key: {api_key}",
             "-d",
-            f"@{fixture}",
+            payload_json,
         ],
         capture_output=True,
         text=True,
@@ -1161,6 +1181,13 @@ def build_parser() -> argparse.ArgumentParser:
     test_parser = subparsers.add_parser(
         "test",
         help="Send the test fixture payload through the gateway.",
+    )
+    test_parser.add_argument(
+        "--selected-date",
+        help=(
+            "Override selected_date in the fixture (ISO format, "
+            "e.g., 2026-03-11). Defaults to tomorrow if not specified."
+        ),
     )
     test_parser.set_defaults(handler=handle_test)
 
