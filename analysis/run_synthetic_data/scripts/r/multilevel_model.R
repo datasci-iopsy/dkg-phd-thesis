@@ -2,19 +2,26 @@
 # =============================================================================
 # analysis/run_synthetic_data/scripts/r/multilevel_model.R
 #
-# Comprehensive Multilevel Model Building Sequence for Turnover Intentions
+# Seven-Phase Multilevel Model Building Sequence for Turnover Intentions
+# Following dissertation blueprint (Curran & Bauer 2011; Enders & Tofighi 2007)
 #
 # Design : ~800 participants (L2) x 3 within-day timepoints (L1)
 # DV     : turnover_intention_mean (1-5 ordinal, treated as continuous)
-# Method : Systematic model building following Hox et al. (2018) & Singer &
-#          Willett (2003). Models 0-6 are fit sequentially, each adding a
-#          layer of complexity justified by likelihood ratio tests.
 # Output : CSVs + PDFs -> analysis/run_synthetic_data/figs/mlm/
+#
+# Phase 1 (M0-M2) : Variance partitioning and time trends
+# Phase 2 (M3)    : Within-person main effects — L1 facets
+# Phase 3 (M4)    : Between-person main effects — within/between decomposition
+# Phase 4 (M5)    : L2 study variables (breach, violation, JS)
+# Phase 5 (M6)    : Demographic sensitivity analysis
+# Phase 6 (M7a-b) : L1 x L1 moderation — meetings x burnout/NF composites
+# Phase 7         : ICC-beta (rho_beta) slope heterogeneity analysis
 #
 # Centering: Enders & Tofighi (2007) / Curran & Bauer (2011) decomposition
 #   - L1 predictors: person-mean centered (within) + grand-mean centered
 #     person means (between) via datawizard::demean()
 #   - L2 predictors: grand-mean centered
+#   - Phase 6 composites: burnout_mean, nf_mean -> CWC decomposition
 #
 # Estimation:
 #   - ML  for likelihood ratio tests (LRTs comparing fixed effects)
@@ -42,6 +49,8 @@ library(stringr)
 library(forcats)
 library(here)
 library(glue)
+library(iccbeta)
+library(interactions)
 
 options(tibble.width = Inf)
 here::here()
@@ -181,6 +190,14 @@ df <- df |>
         job_tenure = factor(job_tenure),
         is_remote  = as.integer(is_remote)
     )
+
+# 2e. Phase 6 composites (burnout_mean, nf_mean) — used exclusively in M7a/M7b
+#     Create from raw facet scores, then CWC-decompose via datawizard::demean().
+log_msg("  Creating Phase 6 composites (burnout_mean, nf_mean)...")
+df$burnout_mean <- rowMeans(df[, c("pf_mean", "cw_mean", "ee_mean")], na.rm = TRUE)
+df$nf_mean <- rowMeans(df[, c("comp_mean", "auto_mean", "relt_mean")], na.rm = TRUE)
+df <- datawizard::demean(df, select = c("burnout_mean", "nf_mean"), by = "response_id")
+log_msg("  Composites created: burnout_mean_within/between, nf_mean_within/between")
 
 log_msg("  Centering complete. Total columns: ", ncol(df))
 
@@ -493,27 +510,27 @@ compute_level_specific_es <- function(fit, model_name) {
         dplyr::mutate(
             level = dplyr::case_when(
                 term == "(Intercept)" ~ "intercept",
-                term == "time_c"     ~ "time",
+                term == "time_c" ~ "time",
                 stringr::str_ends(term, "_within") ~ "L1 (within)",
                 stringr::str_ends(term, "_between") ~ "L2 (between)",
                 # L2 study/demo variables (centered with _c suffix or factor)
                 TRUE ~ "L2 (between)"
             ),
             sd_dv = dplyr::case_when(
-                level == "L1 (within)"  ~ sigma_val,
+                level == "L1 (within)" ~ sigma_val,
                 level == "L2 (between)" ~ tau_00_sd,
                 # intercept/time: use total SD for reference
                 TRUE ~ sqrt(sigma_val^2 + tau_00_sd^2)
             ),
-            pseudo_d      = estimate / sd_dv,
-            pseudo_d_lo   = conf.low / sd_dv,
-            pseudo_d_hi   = conf.high / sd_dv,
+            pseudo_d = estimate / sd_dv,
+            pseudo_d_lo = conf.low / sd_dv,
+            pseudo_d_hi = conf.high / sd_dv,
             magnitude = dplyr::case_when(
-                is.na(pseudo_d)      ~ NA_character_,
+                is.na(pseudo_d) ~ NA_character_,
                 abs(pseudo_d) < 0.20 ~ "negligible",
                 abs(pseudo_d) < 0.50 ~ "small",
                 abs(pseudo_d) < 0.80 ~ "medium",
-                TRUE                 ~ "large"
+                TRUE ~ "large"
             ),
             model = model_name
         ) |>
@@ -543,11 +560,11 @@ compute_delta_r2 <- function(comparison_tbl) {
                 dplyr::lag(R2_conditional, default = 0),
             f2 = delta_R2_marginal / denom,
             f2_magnitude = dplyr::case_when(
-                is.na(f2)   ~ NA_character_,
-                f2 < 0.02   ~ "negligible",
-                f2 < 0.15   ~ "small",
-                f2 < 0.35   ~ "medium",
-                TRUE         ~ "large"
+                is.na(f2) ~ NA_character_,
+                f2 < 0.02 ~ "negligible",
+                f2 < 0.15 ~ "small",
+                f2 < 0.35 ~ "medium",
+                TRUE ~ "large"
             )
         ) |>
         dplyr::select(
@@ -735,7 +752,7 @@ log_msg(
 # [7] MODEL 3: WITHIN-PERSON (L1) PREDICTORS
 # =============================================================================
 log_msg("=== [7] Model 3: Within-Person (L1) Predictors ===")
-log_msg("  Tests H3a-h: Burnout, NF, meetings -> TI (within-person)")
+log_msg("  Tests H3a-c (burnout WP), H4a-c (NF WP), H5a-b (meetings WP)")
 
 # Build formula dynamically based on random slope decision
 re_term <- if (use_random_slope) "(time_c | response_id)" else "(1 | response_id)"
@@ -770,7 +787,7 @@ h3_vars <- c(
     "comp_mean_within", "auto_mean_within", "relt_mean_within",
     "meetings_count_within", "meetings_mins_within"
 )
-h3_labels <- c("H3a", "H3b", "H3c", "H3d", "H3e", "H3f", "H3g", "H3h")
+h3_labels <- c("H3a", "H3b", "H3c", "H4a", "H4b", "H4c", "H5a", "H5b")
 for (i in seq_along(h3_vars)) {
     row <- fe3[fe3$term == h3_vars[i], ]
     if (nrow(row) > 0) {
@@ -847,7 +864,7 @@ m4_summary <- extract_model_summary(
 # [9] MODEL 5: ADD L2 STUDY VARIABLES
 # =============================================================================
 log_msg("=== [9] Model 5: L2 Between-Person Study Variables ===")
-log_msg("  Tests H4a-e: Affect, psych contract, job satisfaction -> TI")
+log_msg("  Tests H9a-c: breach/violation/JS -> TI; PA/NA entered as controls")
 
 m5_formula <- as.formula(paste(
     "turnover_intention_mean ~ time_c +",
@@ -873,11 +890,25 @@ log_msg(
     ", df = ", lrt_5v4$df, ", p = ", format.pval(lrt_5v4$p_value, digits = 4)
 )
 
-# Hypothesis tests for H4a-e
+# Hypothesis tests for H9a-c (breach, violation, JS) — PA/NA are controls
 fe5 <- broom.mixed::tidy(m5_reml, effects = "fixed", conf.int = TRUE)
-h4_vars <- c("pa_mean_c", "na_mean_c", "br_mean_c", "vio_mean_c", "js_mean_c")
-h4_labels <- c("H4a", "H4b", "H4c", "H4d", "H4e")
-h4_directions <- c("negative", "positive", "positive", "positive", "negative")
+
+# Controls: PA and NA (log direction, no hypothesis label)
+for (ctrl in c("pa_mean_c", "na_mean_c")) {
+    row <- fe5[fe5$term == ctrl, ]
+    if (nrow(row) > 0) {
+        dir <- if (ctrl == "pa_mean_c") "negative" else "positive"
+        log_msg(
+            "  Control (", ctrl, "): b = ", round(row$estimate, 4),
+            ", p = ", format.pval(row$p.value, digits = 4),
+            " (expected: ", dir, ")"
+        )
+    }
+}
+
+h4_vars <- c("br_mean_c", "vio_mean_c", "js_mean_c")
+h4_labels <- c("H9a", "H9b", "H9c")
+h4_directions <- c("positive", "positive", "negative")
 for (i in seq_along(h4_vars)) {
     row <- fe5[fe5$term == h4_vars[i], ]
     if (nrow(row) > 0) {
@@ -1072,6 +1103,51 @@ readr::write_csv(
 )
 log_msg("  Saved model comparison CSV")
 
+# Phase 6 supplemental table (composite predictor structure; not nested in M0-M6)
+phase6_names <- c(
+    "Model 7a: Count x Composites",
+    "Model 7b: Minutes x Composites"
+)
+# phase6_fits_reml <- list(m7a_reml, m7b_reml)
+# phase6_fits_ml   <- list(m7a_ml,   m7b_ml)
+
+# phase6_tbl <- purrr::map2_dfr(
+#     phase6_fits_reml, phase6_names,
+#     function(fit, name) {
+#         if (is.null(fit)) return(tibble::tibble(Model = name))
+#         gl <- broom.mixed::glance(fit)
+#         r2 <- tryCatch(performance::r2_nakagawa(fit),
+#             error = function(e) list(R2_marginal = NA, R2_conditional = NA))
+#         vc <- as.data.frame(VarCorr(fit))
+#         tau_00_val <- vc$vcov[vc$grp == "response_id" &
+#             vc$var1 == "(Intercept)" & is.na(vc$var2)]
+#         if (length(tau_00_val) == 0) tau_00_val <- NA
+#         sigma2_val <- vc$vcov[vc$grp == "Residual"]
+#         if (length(sigma2_val) == 0) sigma2_val <- NA
+#         tibble::tibble(
+#             Model = name, AIC = gl$AIC, BIC = gl$BIC,
+#             logLik = gl$logLik, deviance = gl$deviance,
+#             n_fixed = length(fixef(fit)),
+#             R2_marginal = r2$R2_marginal, R2_conditional = r2$R2_conditional,
+#             tau_00 = tau_00_val, sigma2 = sigma2_val
+#         )
+#     }
+# )
+
+# phase6_lrt <- dplyr::bind_rows(
+#     lrt_7av_base |> dplyr::transmute(
+#         Model = phase6_names[1],
+#         LRT_chi2 = chi_sq, LRT_df = df, LRT_p = p_value
+#     ),
+#     lrt_7bv_base |> dplyr::transmute(
+#         Model = phase6_names[2],
+#         LRT_chi2 = chi_sq, LRT_df = df, LRT_p = p_value
+#     )
+# )
+# phase6_tbl <- dplyr::left_join(phase6_tbl, phase6_lrt, by = "Model")
+# readr::write_csv(phase6_tbl, file.path(FIGS_DIR, "mlm_01b_phase6_comparison.csv"))
+# log_msg("  Saved Phase 6 model comparison CSV (M7a, M7b vs composite base)")
+
 # PDF table
 comparison_display <- comparison_tbl |>
     dplyr::mutate(across(where(is.numeric), ~ round(., 3)))
@@ -1175,16 +1251,18 @@ hyp_tbl <- tibble::tribble(
     "H3a", "Physical fatigue -> TI (+, WP)", "pf_mean_within > 0", "Model 3",
     "H3b", "Cognitive weariness -> TI (+, WP)", "cw_mean_within > 0", "Model 3",
     "H3c", "Emotional exhaustion -> TI (+, WP)", "ee_mean_within > 0", "Model 3",
-    "H3d", "Competence thwarting -> TI (+, WP)", "comp_mean_within > 0", "Model 3",
-    "H3e", "Autonomy thwarting -> TI (+, WP)", "auto_mean_within > 0", "Model 3",
-    "H3f", "Relatedness thwarting -> TI (+, WP)", "relt_mean_within > 0", "Model 3",
-    "H3g", "Meeting count -> TI (+, WP)", "meetings_count_within > 0", "Model 3",
-    "H3h", "Meeting time -> TI (+, WP)", "meetings_mins_within > 0", "Model 3",
-    "H4a", "Positive affect -> TI (-, BP)", "pa_mean_c < 0", "Model 5",
-    "H4b", "Negative affect -> TI (+, BP)", "na_mean_c > 0", "Model 5",
-    "H4c", "PC breach -> TI (+, BP)", "br_mean_c > 0", "Model 5",
-    "H4d", "PC violation -> TI (+, BP)", "vio_mean_c > 0", "Model 5",
-    "H4e", "Job satisfaction -> TI (-, BP)", "js_mean_c < 0", "Model 5"
+    "H4a", "Competence thwarting -> TI (+, WP)", "comp_mean_within > 0", "Model 3",
+    "H4b", "Autonomy thwarting -> TI (+, WP)", "auto_mean_within > 0", "Model 3",
+    "H4c", "Relatedness thwarting -> TI (+, WP)", "relt_mean_within > 0", "Model 3",
+    "H5a", "Meeting count -> TI (+, WP)", "meetings_count_within > 0", "Model 3",
+    "H5b", "Meeting time -> TI (+, WP)", "meetings_mins_within > 0", "Model 3",
+    "H9a", "PC breach -> TI (+, BP)", "br_mean_c > 0", "Model 5",
+    "H9b", "PC violation -> TI (+, BP)", "vio_mean_c > 0", "Model 5",
+    "H9c", "Job satisfaction -> TI (-, BP)", "js_mean_c < 0", "Model 5",
+    "H10a", "Meeting count amplifies burnout -> TI (WP)", "burnout:mtgcount interaction p < .05", "Model 7a",
+    "H10b", "Meeting count amplifies NF -> TI (WP)", "nf:mtgcount interaction p < .05", "Model 7a",
+    "H10c", "Meeting minutes amplifies burnout -> TI (WP)", "burnout:mtgmins interaction p < .05", "Model 7b",
+    "H10d", "Meeting minutes amplifies NF -> TI (WP)", "nf:mtgmins interaction p < .05", "Model 7b"
 )
 
 # Pull test results
@@ -1233,7 +1311,7 @@ hyp_results$Supported[4] <- ifelse(
     !is.na(lrt_2v1$p_value) && lrt_2v1$p_value < 0.05, "Yes", "No"
 )
 
-# H3a-h
+# H3a-c, H4a-c, H5a-b (rows 5-12 in hyp_tbl)
 h3_terms <- c(
     "pf_mean_within", "cw_mean_within", "ee_mean_within",
     "comp_mean_within", "auto_mean_within", "relt_mean_within",
@@ -1249,21 +1327,45 @@ for (i in seq_along(h3_terms)) {
     hyp_results$Supported[4 + i] <- ifelse(isTRUE(r$supported), "Yes", "No")
 }
 
-# H4a-e
-h4_terms_full <- c(
-    "pa_mean_c", "na_mean_c", "br_mean_c",
-    "vio_mean_c", "js_mean_c"
-)
-h4_dirs <- c("-", "+", "+", "+", "-")
-for (i in seq_along(h4_terms_full)) {
+# H9a-c (rows 13-15: breach, violation, JS)
+h9_terms <- c("br_mean_c", "vio_mean_c", "js_mean_c")
+h9_dirs <- c("+", "+", "-")
+for (i in seq_along(h9_terms)) {
     r <- get_coef_result(
         fe_all, "Model 5: L1 + L2 Study Variables",
-        h4_terms_full[i], h4_dirs[i]
+        h9_terms[i], h9_dirs[i]
     )
     hyp_results$Estimate[12 + i] <- r$est
     hyp_results$p_value[12 + i] <- r$p
     hyp_results$Supported[12 + i] <- ifelse(isTRUE(r$supported), "Yes", "No")
 }
+
+# # H10a-d (rows 16-19: interaction terms from M7a, M7b)
+# fe7a_tbl <- broom.mixed::tidy(m7a_reml, effects = "fixed", conf.int = TRUE) |>
+#     dplyr::mutate(model = "Model 7a: Count x Composites")
+# fe7b_tbl <- broom.mixed::tidy(m7b_reml, effects = "fixed", conf.int = TRUE) |>
+#     dplyr::mutate(model = "Model 7b: Minutes x Composites")
+# fe_phase6 <- dplyr::bind_rows(fe7a_tbl, fe7b_tbl)
+
+# h10_terms  <- c(
+#     "burnout_mean_within:meetings_count_within",
+#     "nf_mean_within:meetings_count_within",
+#     "burnout_mean_within:meetings_mins_within",
+#     "nf_mean_within:meetings_mins_within"
+# )
+# h10_models <- c(
+#     "Model 7a: Count x Composites", "Model 7a: Count x Composites",
+#     "Model 7b: Minutes x Composites", "Model 7b: Minutes x Composites"
+# )
+# for (i in seq_along(h10_terms)) {
+#     r_row <- fe_phase6 |>
+#         dplyr::filter(model == h10_models[i], term == h10_terms[i])
+#     if (nrow(r_row) > 0) {
+#         hyp_results$Estimate[15 + i] <- round(r_row$estimate[1], 4)
+#         hyp_results$p_value[15 + i]  <- r_row$p.value[1]
+#         hyp_results$Supported[15 + i] <- ifelse(r_row$p.value[1] < 0.05, "Yes", "No")
+#     }
+# }
 
 hyp_results <- hyp_results |>
     dplyr::mutate(p_value = round(p_value, 4))
@@ -1279,7 +1381,7 @@ p_hyp <- gridExtra::tableGrob(hyp_results,
     rows = NULL,
     theme = gridExtra::ttheme_minimal(base_size = 9)
 )
-pdf(file.path(FIGS_DIR, "mlm_04_hypothesis_tests.pdf"), width = 16, height = 8)
+pdf(file.path(FIGS_DIR, "mlm_04_hypothesis_tests.pdf"), width = 18, height = 10)
 grid::grid.draw(p_hyp)
 dev.off()
 log_msg("  Saved hypothesis tests PDF")
@@ -1292,10 +1394,14 @@ log_msg("=== [15] Assumption diagnostics ===")
 
 check_assumptions(m5_reml, "Model 5")
 check_assumptions(m6_reml, "Model 6")
+# check_assumptions(m7a_reml, "Model 7a")
+# check_assumptions(m7b_reml, "Model 7b")
 
 # VIF plots for key models
 save_vif_plot(vif_m5, "Model 5")
 save_vif_plot(vif_m6, "Model 6")
+# save_vif_plot(check_vif(m7a_reml, "Model 7a"), "Model 7a")
+# save_vif_plot(check_vif(m7b_reml, "Model 7b"), "Model 7b")
 
 
 # =============================================================================
@@ -1384,6 +1490,13 @@ plot_data <- pseudo_d_all |>
         term_label = forcats::fct_reorder(term_label, pseudo_d)
     )
 
+
+# ! Warning message:
+# ! `geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+# ! ℹ Please use the `orientation` argument of `geom_errorbar()` instead.
+# ! This warning is displayed once per session.
+# ! Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.
+# TODO: Claude should update to mitigate the warning
 if (nrow(plot_data) > 0) {
     p_forest <- ggplot(plot_data, aes(
         x = pseudo_d, y = term_label,
@@ -1466,46 +1579,405 @@ save_pdf(p_r2, "mlm_es_r2_decomposition.pdf", width = 10, height = 6)
 
 
 # =============================================================================
-# [17] FUTURE INTERACTION MODELS (TEMPLATES ONLY)
+# [17] PHASE 6: L1 x L1 MODERATION (M7a AND M7b)
 # =============================================================================
-log_msg("=== [17] Interaction model templates (not executed) ===")
+log_msg("=== [17] Phase 6: L1 x L1 Moderation ===")
+log_msg("  H10a-b: Meeting count moderates burnout/NF -> TI (WP)")
+log_msg("  H10c-d: Meeting minutes moderates burnout/NF -> TI (WP)")
+log_msg("  Composites replace facets; within/between decomp retained")
 
-# --- H5a-b: L1 x L1 Interactions (Meetings x Burnout/NF) ---
-# These test whether meeting characteristics amplify the burnout->TI and NF->TI
-# relationships at the within-person level.
-#
-# Example formulas (to be fit in a separate phase):
-#
-# m7a_formula <- turnover_intention_mean ~ time_c +
-#     pf_mean_within + cw_mean_within + ee_mean_within +
-#     comp_mean_within + auto_mean_within + relt_mean_within +
-#     meetings_count_within + meetings_mins_within +
-#     atcb_mean_within +
-#     meetings_count_within:pf_mean_within +
-#     meetings_count_within:cw_mean_within +
-#     meetings_count_within:ee_mean_within +
-#     meetings_count_within:comp_mean_within +
-#     meetings_count_within:auto_mean_within +
-#     meetings_count_within:relt_mean_within +
-#     [BP terms] + [L2 terms] +
-#     (1 | response_id)
-#
-# --- H5c-f: Cross-Level Interactions (L2 moderating L1 slopes) ---
-# These require random slopes for the L1 predictor being moderated.
-#
-# Example (H5c: breach moderates burnout->TI):
-# m7c_formula <- turnover_intention_mean ~ time_c +
-#     pf_mean_within * br_mean_c +
-#     cw_mean_within * br_mean_c +
-#     ee_mean_within * br_mean_c +
-#     [other terms] +
-#     (pf_mean_within + cw_mean_within + ee_mean_within | response_id)
-#
-# NOTE: Cross-level interactions require random slopes for the moderated
-# L1 predictor. With only 3 timepoints, this is computationally difficult.
-# Consider testing one interaction at a time in separate models.
+# Product terms (both components already CWC from variable prep)
+df$burnout_x_mtgcount <- df$burnout_mean_within * df$meetings_count_within
+df$nf_x_mtgcount <- df$nf_mean_within * df$meetings_count_within
+df$burnout_x_mtgmins <- df$burnout_mean_within * df$meetings_mins_within
+df$nf_x_mtgmins <- df$nf_mean_within * df$meetings_mins_within
 
-log_msg("  Interaction templates documented; not fitted in this run.")
+
+# --- [17a] M7a: Meeting Count x Burnout/NF Composites -----------------------
+log_msg("=== [17a] Model 7a: Meeting Count x Burnout/NF ===")
+
+m7a_formula <- as.formula(paste(
+    "turnover_intention_mean ~ time_c +",
+    "burnout_mean_within + nf_mean_within +",
+    "meetings_count_within + meetings_mins_within + atcb_mean_within +",
+    "burnout_mean_between + nf_mean_between +",
+    "meetings_count_between + meetings_mins_between + atcb_mean_between +",
+    "pa_mean_c + na_mean_c + br_mean_c + vio_mean_c + js_mean_c +",
+    "burnout_mean_within:meetings_count_within +",
+    "nf_mean_within:meetings_count_within +",
+    re_term
+))
+log_msg("  Formula: ", deparse(m7a_formula, width.cutoff = 200))
+
+m7a_reml <- safe_lmer(m7a_formula, data = df, REML = TRUE)
+m7a_ml <- safe_lmer(m7a_formula, data = df, REML = FALSE)
+
+# Compare M7a against composite-only baseline (M5 re-parameterized)
+m7a_base_formula <- as.formula(paste(
+    "turnover_intention_mean ~ time_c +",
+    "burnout_mean_within + nf_mean_within +",
+    "meetings_count_within + meetings_mins_within + atcb_mean_within +",
+    "burnout_mean_between + nf_mean_between +",
+    "meetings_count_between + meetings_mins_between + atcb_mean_between +",
+    "pa_mean_c + na_mean_c + br_mean_c + vio_mean_c + js_mean_c +",
+    re_term
+))
+m7a_base_ml <- safe_lmer(m7a_base_formula, data = df, REML = FALSE)
+
+lrt_7av_base <- compare_models(m7a_base_ml, m7a_ml, "M7a base", "Model 7a")
+log_msg(
+    "  LRT M7a vs composite base: chi2 = ", round(lrt_7av_base$chi_sq, 3),
+    ", df = ", lrt_7av_base$df,
+    ", p = ", format.pval(lrt_7av_base$p_value, digits = 4)
+)
+
+fe7a <- broom.mixed::tidy(m7a_reml, effects = "fixed", conf.int = TRUE)
+
+# H10a: burnout x meeting count
+row_burn_cnt <- fe7a[fe7a$term == "burnout_mean_within:meetings_count_within", ]
+if (nrow(row_burn_cnt) > 0) {
+    log_msg(
+        "  H10a burnout x mtgcount: b = ", round(row_burn_cnt$estimate, 4),
+        ", p = ", format.pval(row_burn_cnt$p.value, digits = 4),
+        " -> ", ifelse(row_burn_cnt$p.value < 0.05, "SIGNIFICANT", "ns")
+    )
+}
+
+# H10b: nf x meeting count
+row_nf_cnt <- fe7a[fe7a$term == "nf_mean_within:meetings_count_within", ]
+if (nrow(row_nf_cnt) > 0) {
+    log_msg(
+        "  H10b NF x mtgcount: b = ", round(row_nf_cnt$estimate, 4),
+        ", p = ", format.pval(row_nf_cnt$p.value, digits = 4),
+        " -> ", ifelse(row_nf_cnt$p.value < 0.05, "SIGNIFICANT", "ns")
+    )
+}
+
+# Simple slopes if significant (burnout x count)
+m7a_plots <- list()
+if (!is.null(m7a_reml) &&
+    nrow(row_burn_cnt) > 0 && row_burn_cnt$p.value < 0.05) {
+    log_msg("  Probing H10a interaction (burnout x meeting count)...")
+    ss_burn_cnt <- tryCatch(
+        interactions::sim_slopes(m7a_reml,
+            pred = burnout_mean_within,
+            modx = meetings_count_within,
+            jnplot = FALSE
+        ),
+        error = function(e) {
+            log_msg("  [WARN] sim_slopes failed: ", conditionMessage(e))
+            NULL
+        }
+    )
+    if (!is.null(ss_burn_cnt)) {
+        p_int <- interactions::interact_plot(m7a_reml,
+            pred = burnout_mean_within,
+            modx = meetings_count_within,
+            interval = TRUE
+        ) +
+            labs(
+                title = "H10a: Meeting Count x Within-Person Burnout",
+                subtitle = "Simple slopes at ±1 SD of meeting count",
+                x = "Within-Person Burnout (CWC)", y = "Turnover Intention"
+            )
+        m7a_plots[["burnout_count"]] <- p_int
+    }
+}
+
+# Simple slopes if significant (NF x count)
+if (!is.null(m7a_reml) &&
+    nrow(row_nf_cnt) > 0 && row_nf_cnt$p.value < 0.05) {
+    log_msg("  Probing H10b interaction (NF x meeting count)...")
+    p_int_nf <- tryCatch(
+        interactions::interact_plot(m7a_reml,
+            pred = nf_mean_within,
+            modx = meetings_count_within,
+            interval = TRUE
+        ) +
+            labs(
+                title = "H10b: Meeting Count x Within-Person NF",
+                subtitle = "Simple slopes at ±1 SD of meeting count",
+                x = "Within-Person NF (CWC)", y = "Turnover Intention"
+            ),
+        error = function(e) NULL
+    )
+    if (!is.null(p_int_nf)) m7a_plots[["nf_count"]] <- p_int_nf
+}
+
+if (length(m7a_plots) > 0) {
+    p_m7a_combined <- patchwork::wrap_plots(m7a_plots, ncol = 1)
+    save_pdf(p_m7a_combined, "mlm_m7a_interaction.pdf",
+        width = 10, height = 5 * length(m7a_plots)
+    )
+}
+
+m7a_summary <- extract_model_summary(m7a_reml, "Model 7a: Count x Composites")
+
+
+# --- [17b] M7b: Meeting Minutes x Burnout/NF Composites ---------------------
+log_msg("=== [17b] Model 7b: Meeting Minutes x Burnout/NF ===")
+
+m7b_formula <- as.formula(paste(
+    "turnover_intention_mean ~ time_c +",
+    "burnout_mean_within + nf_mean_within +",
+    "meetings_count_within + meetings_mins_within + atcb_mean_within +",
+    "burnout_mean_between + nf_mean_between +",
+    "meetings_count_between + meetings_mins_between + atcb_mean_between +",
+    "pa_mean_c + na_mean_c + br_mean_c + vio_mean_c + js_mean_c +",
+    "burnout_mean_within:meetings_mins_within +",
+    "nf_mean_within:meetings_mins_within +",
+    re_term
+))
+log_msg("  Formula: ", deparse(m7b_formula, width.cutoff = 200))
+
+m7b_reml <- safe_lmer(m7b_formula, data = df, REML = TRUE)
+m7b_ml <- safe_lmer(m7b_formula, data = df, REML = FALSE)
+
+lrt_7bv_base <- compare_models(m7a_base_ml, m7b_ml, "M7b base", "Model 7b")
+log_msg(
+    "  LRT M7b vs composite base: chi2 = ", round(lrt_7bv_base$chi_sq, 3),
+    ", df = ", lrt_7bv_base$df,
+    ", p = ", format.pval(lrt_7bv_base$p_value, digits = 4)
+)
+
+fe7b <- broom.mixed::tidy(m7b_reml, effects = "fixed", conf.int = TRUE)
+
+row_burn_min <- fe7b[fe7b$term == "burnout_mean_within:meetings_mins_within", ]
+if (nrow(row_burn_min) > 0) {
+    log_msg(
+        "  H10c burnout x mtgmins: b = ", round(row_burn_min$estimate, 4),
+        ", p = ", format.pval(row_burn_min$p.value, digits = 4),
+        " -> ", ifelse(row_burn_min$p.value < 0.05, "SIGNIFICANT", "ns")
+    )
+}
+
+row_nf_min <- fe7b[fe7b$term == "nf_mean_within:meetings_mins_within", ]
+if (nrow(row_nf_min) > 0) {
+    log_msg(
+        "  H10d NF x mtgmins: b = ", round(row_nf_min$estimate, 4),
+        ", p = ", format.pval(row_nf_min$p.value, digits = 4),
+        " -> ", ifelse(row_nf_min$p.value < 0.05, "SIGNIFICANT", "ns")
+    )
+}
+
+m7b_plots <- list()
+if (!is.null(m7b_reml) &&
+    nrow(row_burn_min) > 0 && row_burn_min$p.value < 0.05) {
+    log_msg("  Probing H10c interaction (burnout x meeting minutes)...")
+    p_int_bm <- tryCatch(
+        interactions::interact_plot(m7b_reml,
+            pred = burnout_mean_within,
+            modx = meetings_mins_within,
+            interval = TRUE
+        ) +
+            labs(
+                title = "H10c: Meeting Minutes x Within-Person Burnout",
+                subtitle = "Simple slopes at ±1 SD of meeting minutes",
+                x = "Within-Person Burnout (CWC)", y = "Turnover Intention"
+            ),
+        error = function(e) NULL
+    )
+    if (!is.null(p_int_bm)) m7b_plots[["burnout_mins"]] <- p_int_bm
+}
+
+if (!is.null(m7b_reml) &&
+    nrow(row_nf_min) > 0 && row_nf_min$p.value < 0.05) {
+    log_msg("  Probing H10d interaction (NF x meeting minutes)...")
+    p_int_nm <- tryCatch(
+        interactions::interact_plot(m7b_reml,
+            pred = nf_mean_within,
+            modx = meetings_mins_within,
+            interval = TRUE
+        ) +
+            labs(
+                title = "H10d: Meeting Minutes x Within-Person NF",
+                subtitle = "Simple slopes at ±1 SD of meeting minutes",
+                x = "Within-Person NF (CWC)", y = "Turnover Intention"
+            ),
+        error = function(e) NULL
+    )
+    if (!is.null(p_int_nm)) m7b_plots[["nf_mins"]] <- p_int_nm
+}
+
+if (length(m7b_plots) > 0) {
+    p_m7b_combined <- patchwork::wrap_plots(m7b_plots, ncol = 1)
+    save_pdf(p_m7b_combined, "mlm_m7b_interaction.pdf",
+        width = 10, height = 5 * length(m7b_plots)
+    )
+}
+
+m7b_summary <- extract_model_summary(m7b_reml, "Model 7b: Minutes x Composites")
+
+# =============================================================================
+# [17c] PHASE 7: ICC-BETA (rho_beta) — SLOPE HETEROGENEITY
+# =============================================================================
+log_msg("=== [17c] Phase 7: ICC-beta (rho_beta) slope heterogeneity ===")
+log_msg("  Aguinis & Culpepper (2015): proportion of WP variance from slope diffs")
+log_msg("  8 predictors: 6 facet-level (CWC) + 2 composite-level (CWC)")
+
+vy <- var(df$turnover_intention_mean, na.rm = TRUE)
+
+rho_beta_predictors <- c(
+    "pf_mean_within", "cw_mean_within", "ee_mean_within",
+    "comp_mean_within", "auto_mean_within", "relt_mean_within",
+    "burnout_mean_within", "nf_mean_within"
+)
+
+iccb_results <- purrr::map_dfr(rho_beta_predictors, function(pred) {
+    log_msg("  Computing rho_beta for: ", pred)
+
+    # Try correlated random effects first
+    f1 <- as.formula(paste(
+        "turnover_intention_mean ~", pred, "+ (", pred, "| response_id)"
+    ))
+    fit <- tryCatch(
+        safe_lmer(f1, data = df, REML = FALSE),
+        error = function(e) NULL
+    )
+    status <- "correlated"
+
+    # Fallback: uncorrelated
+    if (is.null(fit) || isSingular(fit)) {
+        f2 <- as.formula(paste(
+            "turnover_intention_mean ~", pred, "+ (", pred, "|| response_id)"
+        ))
+        fit <- tryCatch(
+            safe_lmer(f2, data = df, REML = FALSE),
+            error = function(e) NULL
+        )
+        status <- "uncorrelated"
+    }
+
+    # Singular / failed — record zero
+    if (is.null(fit) || isSingular(fit)) {
+        log_msg("  [WARN] Model singular for: ", pred, " -> rho_beta = 0")
+        return(data.frame(
+            predictor = pred,
+            rho_beta = 0,
+            tau11 = 0,
+            model_status = "singular",
+            stringsAsFactors = FALSE
+        ))
+    }
+
+    # Compute rho_beta
+    rb <- tryCatch(
+        {
+            X <- model.matrix(fit)
+            p <- ncol(X)
+            T1 <- as.matrix(VarCorr(fit)$response_id)[1:p, 1:p, drop = FALSE]
+            iccbeta::icc_beta(X, df[["response_id"]], T1, vy)$rho_beta
+        },
+        error = function(e) {
+            log_msg("  [WARN] icc_beta failed for ", pred, ": ", conditionMessage(e))
+            NA_real_
+        }
+    )
+
+    # Extract tau11 (random slope variance)
+    vc <- as.data.frame(VarCorr(fit))
+    tau11_val <- vc$vcov[vc$grp == "response_id" &
+        vc$var1 == pred & is.na(vc$var2)]
+    if (length(tau11_val) == 0) tau11_val <- 0
+
+    log_msg("  rho_beta = ", round(rb, 4), " | tau11 = ", round(tau11_val, 4))
+
+    data.frame(
+        predictor = pred,
+        rho_beta = rb,
+        tau11 = tau11_val,
+        model_status = status,
+        stringsAsFactors = FALSE
+    )
+})
+
+# Magnitude benchmark (LeBreton & Senter, 2008 as cited in Aguinis & Culpepper)
+iccb_results <- iccb_results |>
+    dplyr::mutate(
+        magnitude = dplyr::case_when(
+            is.na(rho_beta) ~ NA_character_,
+            rho_beta < 0.01 ~ "negligible (<.01)",
+            rho_beta < 0.05 ~ "small-medium (.01-.05)",
+            rho_beta < 0.10 ~ "medium (.05-.10)",
+            TRUE ~ "large (>.10)"
+        )
+    )
+
+readr::write_csv(iccb_results, file.path(FIGS_DIR, "mlm_08_iccbeta.csv"))
+log_msg("  Saved rho_beta CSV")
+
+# Print summary
+log_msg("  rho_beta results:")
+for (i in seq_len(nrow(iccb_results))) {
+    log_msg(
+        "    ", iccb_results$predictor[i],
+        " | rho_beta = ", round(iccb_results$rho_beta[i], 4),
+        " (", iccb_results$magnitude[i], ")",
+        " | status: ", iccb_results$model_status[i]
+    )
+}
+
+# ICC-alpha for reference
+icc_alpha <- performance::icc(m0_reml)$ICC_adjusted
+log_msg(
+    "  rho_alpha (ICC from M0) = ", round(icc_alpha, 4),
+    " | Orthogonal to rho_beta"
+)
+
+# Visualization: horizontal bar chart with magnitude bands
+p_iccbeta <- iccb_results |>
+    dplyr::filter(!is.na(rho_beta)) |>
+    dplyr::mutate(
+        predictor = dplyr::recode(predictor,
+            pf_mean_within      = "PF (within)",
+            cw_mean_within      = "CW (within)",
+            ee_mean_within      = "EE (within)",
+            comp_mean_within    = "Comp (within)",
+            auto_mean_within    = "Auto (within)",
+            relt_mean_within    = "Relt (within)",
+            burnout_mean_within = "Burnout composite (within)",
+            nf_mean_within      = "NF composite (within)"
+        ),
+        predictor = forcats::fct_reorder(predictor, rho_beta),
+        magnitude = factor(magnitude, levels = c(
+            "negligible (<.01)", "small-medium (.01-.05)",
+            "medium (.05-.10)", "large (>.10)"
+        ))
+    ) |>
+    ggplot2::ggplot(ggplot2::aes(x = rho_beta, y = predictor, fill = magnitude)) +
+    ggplot2::geom_col() +
+    ggplot2::geom_vline(
+        xintercept = c(0.01, 0.05, 0.10),
+        linetype = "dashed", color = "grey40", linewidth = 0.4
+    ) +
+    ggplot2::annotate("text",
+        x = c(0.01, 0.05, 0.10), y = 0.5,
+        label = c(".01", ".05", ".10"),
+        size = 3, color = "grey40", vjust = -0.3
+    ) +
+    ggplot2::scale_fill_manual(
+        values = c(
+            "negligible (<.01)" = "#E0E0E0",
+            "small-medium (.01-.05)" = "#56B4E9",
+            "medium (.05-.10)" = "#0072B2",
+            "large (>.10)" = "#D55E00"
+        ),
+        drop = FALSE
+    ) +
+    ggplot2::labs(
+        title = expression(rho[beta] ~ "Slope Heterogeneity by L1 Predictor"),
+        subtitle = paste0(
+            "Aguinis & Culpepper (2015) | rho_alpha = ",
+            round(icc_alpha, 3),
+            " | Reference lines: .01 / .05 / .10"
+        ),
+        x = expression(rho[beta]),
+        y = NULL,
+        fill = "Magnitude"
+    )
+
+save_pdf(p_iccbeta, "mlm_08_iccbeta.pdf", width = 10, height = 6)
+log_msg("  Saved rho_beta bar chart PDF")
 
 
 # =============================================================================
@@ -1520,7 +1992,9 @@ log_msg("CSV files generated: ", length(csv_files))
 log_msg("PDF files generated: ", length(pdf_files))
 log_msg("")
 log_msg("Random effects decision: ", re_note)
-log_msg("Models fitted: 0 (null) through 6 (full with covariates)")
+log_msg("Phases 1-5 models: M0 (null) through M6 (full with demographics)")
+log_msg("Phase 6 models: M7a (meeting count x composites), M7b (meeting mins x composites)")
+log_msg("Phase 7: rho_beta computed for 8 predictors (6 facets + 2 composites)")
 log_msg("")
 log_msg("=== MULTILEVEL MODEL BUILDING COMPLETE ===")
 
