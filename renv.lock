@@ -2448,6 +2448,43 @@
       "Maintainer": "Kirill Müller <kirill@cynkra.com>",
       "Repository": "CRAN"
     },
+    "iccbeta": {
+      "Package": "iccbeta",
+      "Version": "1.2.1",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Multilevel Model Intraclass Correlation for Slope Heterogeneity",
+      "Authors@R": "c(person(\"Steven Andrew\", \"Culpepper\",  email = \"sculpepp@illinois.edu\", role = c(\"aut\", \"cph\", \"cre\"), comment = c(ORCID = \"0000-0003-4226-6176\") ), person(\"Herman\", \"Aguinis\", email = \"haguinis@gwu.edu\", role = c(\"aut\", \"cph\"), comment = c(ORCID = \"0000-0002-3485-9484\")) )",
+      "Description": "A function and vignettes for computing an intraclass correlation described in Aguinis & Culpepper (2015) <doi:10.1177/1094428114563618>. This package quantifies the share of variance in a dependent variable that is attributed to group heterogeneity in slopes.",
+      "URL": "https://tmsalab.github.io/iccbeta/, https://github.com/tmsalab/iccbeta",
+      "BugReports": "https://github.com/tmsalab/iccbeta/issues",
+      "License": "GPL (>= 2)",
+      "Depends": [
+        "R (>= 4.3.0)"
+      ],
+      "Imports": [
+        "Rcpp",
+        "lme4",
+        "stats",
+        "methods"
+      ],
+      "LinkingTo": [
+        "Rcpp (>= 1.1.0)",
+        "RcppArmadillo (>= 15.0.2-2)"
+      ],
+      "Suggests": [
+        "RLRsim",
+        "testthat",
+        "covr"
+      ],
+      "RoxygenNote": "7.3.3",
+      "Encoding": "UTF-8",
+      "LazyData": "true",
+      "NeedsCompilation": "yes",
+      "Author": "Steven Andrew Culpepper [aut, cph, cre] (ORCID: <https://orcid.org/0000-0003-4226-6176>), Herman Aguinis [aut, cph] (ORCID: <https://orcid.org/0000-0002-3485-9484>)",
+      "Maintainer": "Steven Andrew Culpepper <sculpepp@illinois.edu>",
+      "Repository": "CRAN"
+    },
     "insight": {
       "Package": "insight",
       "Version": "1.4.6",
@@ -2616,6 +2653,52 @@
       "Author": "Daniel Lüdecke [aut, cre] (ORCID: <https://orcid.org/0000-0002-8895-3206>), Dominique Makowski [aut, ctb] (ORCID: <https://orcid.org/0000-0001-5375-9967>), Indrajeet Patil [aut, ctb] (ORCID: <https://orcid.org/0000-0003-1995-6531>), Philip Waggoner [aut, ctb] (ORCID: <https://orcid.org/0000-0002-7825-7573>), Mattan S. Ben-Shachar [aut, ctb] (ORCID: <https://orcid.org/0000-0002-4287-4801>), Brenton M. Wiernik [aut, ctb] (ORCID: <https://orcid.org/0000-0001-9560-6336>), Vincent Arel-Bundock [aut, ctb] (ORCID: <https://orcid.org/0000-0003-2042-7063>), Etienne Bacher [aut, ctb] (ORCID: <https://orcid.org/0000-0002-9271-5075>), Alex Hayes [rev] (ORCID: <https://orcid.org/0000-0002-4985-5160>), Grant McDermott [ctb] (ORCID: <https://orcid.org/0000-0001-7883-8573>), Rémi Thériault [ctb] (ORCID: <https://orcid.org/0000-0003-4315-6788>), Alex Reinhart [ctb] (ORCID: <https://orcid.org/0000-0002-6658-514X>)",
       "Repository": "CRAN"
     },
+    "interactions": {
+      "Package": "interactions",
+      "Version": "1.2.0",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Comprehensive, User-Friendly Toolkit for Probing Interactions",
+      "Authors@R": "person(c(\"Jacob\",\"A.\"), \"Long\", email = \"jacob.long@sc.edu\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-1582-6214\"))",
+      "Description": "A suite of functions for conducting and interpreting analysis  of statistical interaction in regression models that was formerly part of the  'jtools' package. Functionality includes visualization of two- and three-way interactions among continuous and/or categorical variables as well as  calculation of \"simple slopes\" and Johnson-Neyman intervals (see e.g.,  Bauer & Curran, 2005 <doi:10.1207/s15327906mbr4003_5>). These capabilities are implemented for generalized linear models in addition to the  standard linear regression context.",
+      "URL": "https://interactions.jacob-long.com",
+      "BugReports": "https://github.com/jacob-long/interactions/issues",
+      "License": "MIT + file LICENSE",
+      "Encoding": "UTF-8",
+      "Imports": [
+        "ggplot2 (>= 3.4.0)",
+        "cli",
+        "generics",
+        "broom",
+        "jtools (>= 2.0.3)",
+        "rlang (>= 0.3.0)",
+        "tibble"
+      ],
+      "Suggests": [
+        "cowplot",
+        "broom.mixed",
+        "glue",
+        "huxtable (>= 3.0.0)",
+        "lme4",
+        "margins",
+        "sandwich",
+        "survey",
+        "knitr",
+        "rmarkdown",
+        "testthat",
+        "vdiffr"
+      ],
+      "Enhances": [
+        "brms",
+        "rstanarm"
+      ],
+      "VignetteBuilder": "knitr",
+      "RoxygenNote": "7.3.2.9000",
+      "NeedsCompilation": "no",
+      "Author": "Jacob A. Long [aut, cre] (<https://orcid.org/0000-0002-1582-6214>)",
+      "Maintainer": "Jacob A. Long <jacob.long@sc.edu>",
+      "Repository": "CRAN"
+    },
     "isoband": {
       "Package": "isoband",
       "Version": "0.3.0",
@@ -2710,6 +2793,65 @@
       "Encoding": "UTF-8",
       "NeedsCompilation": "yes",
       "Author": "Jeroen Ooms [aut, cre] (<https://orcid.org/0000-0002-4035-0289>), Duncan Temple Lang [ctb], Lloyd Hilaiel [cph] (author of bundled libyajl)",
+      "Repository": "CRAN"
+    },
+    "jtools": {
+      "Package": "jtools",
+      "Version": "2.3.1",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Analysis and Presentation of Social Scientific Data",
+      "Authors@R": "person(c(\"Jacob\",\"A.\"), \"Long\", email = \"jacob.long@sc.edu\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-1582-6214\"))",
+      "Description": "This is a collection of tools for more efficiently understanding  and sharing the results of (primarily) regression analyses. There are also a number of miscellaneous functions for statistical and programming purposes.  Support for models produced by the survey and lme4 packages are points of  emphasis.",
+      "URL": "https://jtools.jacob-long.com",
+      "BugReports": "https://github.com/jacob-long/jtools/issues",
+      "License": "GPL (>= 3)",
+      "Encoding": "UTF-8",
+      "LazyData": "true",
+      "Imports": [
+        "cli",
+        "generics",
+        "broom",
+        "broom.mixed",
+        "ggplot2 (>= 3.4.0)",
+        "magrittr",
+        "pander",
+        "pkgconfig",
+        "rlang",
+        "sandwich",
+        "tibble"
+      ],
+      "Suggests": [
+        "boot",
+        "huxtable",
+        "kableExtra",
+        "lme4",
+        "lmerTest",
+        "MASS",
+        "methods",
+        "pbkrtest",
+        "RColorBrewer",
+        "scales",
+        "survey",
+        "weights",
+        "knitr",
+        "rmarkdown",
+        "testthat",
+        "vdiffr"
+      ],
+      "Enhances": [
+        "brms",
+        "quantreg",
+        "rstanarm"
+      ],
+      "RoxygenNote": "7.3.2",
+      "VignetteBuilder": "knitr",
+      "Depends": [
+        "R (>= 3.6.0)"
+      ],
+      "NeedsCompilation": "no",
+      "Author": "Jacob A. Long [aut, cre] (ORCID: <https://orcid.org/0000-0002-1582-6214>)",
+      "Maintainer": "Jacob A. Long <jacob.long@sc.edu>",
       "Repository": "CRAN"
     },
     "labeling": {
@@ -3391,6 +3533,69 @@
       "NeedsCompilation": "no",
       "Repository": "CRAN",
       "Encoding": "UTF-8"
+    },
+    "pander": {
+      "Package": "pander",
+      "Version": "0.6.6",
+      "Source": "Repository",
+      "Authors@R": "c( person(\"Gergely\", \"Daróczi\", , \"daroczig@rapporter.net\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0003-3149-8537\")), person(\"Roman\", \"Tsegelskyi\", , \"roman.tsegelskyi@gmail.com\", role = c(\"aut\")))",
+      "Title": "An R 'Pandoc' Writer",
+      "Type": "Package",
+      "Encoding": "UTF-8",
+      "Description": "Contains some functions catching all messages, 'stdout' and other useful information while evaluating R code and other helpers to return user specified text elements (like: header, paragraph, table, image, lists etc.) in 'pandoc' markdown or several type of R objects similarly automatically transformed to markdown format. Also capable of exporting/converting (the resulting) complex 'pandoc' documents to e.g. HTML, 'PDF', 'docx' or 'odt'. This latter reporting feature is supported in brew syntax or with a custom reference class with a smarty caching 'backend'.",
+      "Date": "2025-03-01",
+      "URL": "https://rapporter.github.io/pander/",
+      "BugReports": "https://github.com/rapporter/pander/issues",
+      "License": "AGPL-3 | file LICENSE",
+      "Depends": [
+        "R (>= 2.15.0)"
+      ],
+      "Imports": [
+        "grDevices",
+        "graphics",
+        "methods",
+        "utils",
+        "stats",
+        "digest",
+        "tools",
+        "Rcpp"
+      ],
+      "Suggests": [
+        "grid",
+        "lattice",
+        "ggplot2 (>= 0.9.2)",
+        "sylly",
+        "sylly.en",
+        "logger",
+        "survival",
+        "microbenchmark",
+        "zoo",
+        "nlme",
+        "descr",
+        "MASS",
+        "knitr",
+        "rmarkdown",
+        "tables",
+        "reshape",
+        "memisc",
+        "Epi",
+        "randomForest",
+        "tseries",
+        "gtable",
+        "rms",
+        "forecast",
+        "data.table"
+      ],
+      "SystemRequirements": "pandoc (https://johnmacfarlane.net/pandoc) for exporting markdown files to other formats.",
+      "LinkingTo": [
+        "Rcpp"
+      ],
+      "VignetteBuilder": "knitr",
+      "RoxygenNote": "7.3.2",
+      "NeedsCompilation": "yes",
+      "Author": "Gergely Daróczi [aut, cre] (<https://orcid.org/0000-0003-3149-8537>), Roman Tsegelskyi [aut]",
+      "Maintainer": "Gergely Daróczi <daroczig@rapporter.net>",
+      "Repository": "CRAN"
     },
     "parallelly": {
       "Package": "parallelly",
@@ -4457,6 +4662,49 @@
       "Author": "Kirill Müller [aut, cre] (ORCID: <https://orcid.org/0000-0002-1416-3412>)",
       "Maintainer": "Kirill Müller <kirill@cynkra.com>",
       "Repository": "CRAN"
+    },
+    "sandwich": {
+      "Package": "sandwich",
+      "Version": "3.1-1",
+      "Source": "Repository",
+      "Date": "2024-09-16",
+      "Title": "Robust Covariance Matrix Estimators",
+      "Authors@R": "c(person(given = \"Achim\", family = \"Zeileis\", role = c(\"aut\", \"cre\"), email = \"Achim.Zeileis@R-project.org\", comment = c(ORCID = \"0000-0003-0918-3766\")), person(given = \"Thomas\", family = \"Lumley\", role = \"aut\", email = \"t.lumley@auckland.ac.nz\", comment = c(ORCID = \"0000-0003-4255-5437\")), person(given = \"Nathaniel\", family = \"Graham\", role = \"ctb\", email = \"npgraham1@gmail.com\", comment = c(ORCID = \"0009-0002-1215-5256\")), person(given = \"Susanne\", family = \"Koell\", role = \"ctb\"))",
+      "Description": "Object-oriented software for model-robust covariance matrix estimators. Starting out from the basic  robust Eicker-Huber-White sandwich covariance methods include: heteroscedasticity-consistent (HC) covariances for cross-section data; heteroscedasticity- and autocorrelation-consistent (HAC) covariances for time series data (such as Andrews' kernel HAC, Newey-West, and WEAVE estimators); clustered covariances (one-way and multi-way); panel and panel-corrected covariances; outer-product-of-gradients covariances; and (clustered) bootstrap covariances. All methods are applicable to (generalized) linear model objects fitted by lm() and glm() but can also be adapted to other classes through S3 methods. Details can be found in Zeileis et al. (2020) <doi:10.18637/jss.v095.i01>, Zeileis (2004) <doi:10.18637/jss.v011.i10> and Zeileis (2006) <doi:10.18637/jss.v016.i09>.",
+      "Depends": [
+        "R (>= 3.0.0)"
+      ],
+      "Imports": [
+        "stats",
+        "utils",
+        "zoo"
+      ],
+      "Suggests": [
+        "AER",
+        "car",
+        "geepack",
+        "lattice",
+        "lme4",
+        "lmtest",
+        "MASS",
+        "multiwayvcov",
+        "parallel",
+        "pcse",
+        "plm",
+        "pscl",
+        "scatterplot3d",
+        "stats4",
+        "strucchange",
+        "survival"
+      ],
+      "License": "GPL-2 | GPL-3",
+      "URL": "https://sandwich.R-Forge.R-project.org/",
+      "BugReports": "https://sandwich.R-Forge.R-project.org/contact.html",
+      "NeedsCompilation": "no",
+      "Author": "Achim Zeileis [aut, cre] (<https://orcid.org/0000-0003-0918-3766>), Thomas Lumley [aut] (<https://orcid.org/0000-0003-4255-5437>), Nathaniel Graham [ctb] (<https://orcid.org/0009-0002-1215-5256>), Susanne Koell [ctb]",
+      "Maintainer": "Achim Zeileis <Achim.Zeileis@R-project.org>",
+      "Repository": "CRAN",
+      "Encoding": "UTF-8"
     },
     "scales": {
       "Package": "scales",
