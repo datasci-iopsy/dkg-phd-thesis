@@ -12,7 +12,7 @@ Shared utilities in `analysis/shared/utils/common_utils.r`.
 Rscript -e "renv::restore()"                               # restore packages from renv.lock
 bash run_power_analysis/main.sh dev                        # dev grid (seconds)
 bash run_power_analysis/main.sh prod                       # full grid (hours)
-cd analysis/tests && bash validate_r_structure.sh          # pre-flight; cd required (script uses cd ../../)
+bash analysis/tests/validate_r_structure.sh                # pre-flight; run from project root
 ```
 
 ## Structure
