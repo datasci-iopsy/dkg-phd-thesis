@@ -440,21 +440,36 @@ def followup_scheduling_handler(cloud_event: CloudEvent) -> None:
             selected_date=message.selected_date,
         )
 
-        send_at = compute_send_at(selected_date, survey_time, message.timezone)
-
-        # Guard: skip slots that are too soon for Twilio scheduling
-        now_utc = datetime.now(zoneinfo.ZoneInfo("UTC"))
-        if send_at <= now_utc + MIN_SCHEDULE_LEAD:
-            logger.warning(
-                "Skipping slot %d for %s -- send_at %s is less than "
-                "%d min from now (%s)",
+        if message.send_immediately:
+            # Test mode: schedule at now + (slot * MIN_SCHEDULE_LEAD)
+            # so all 3 arrive within ~48 min instead of waiting for
+            # fixed study times (9/13/17 h) on a future date.
+            now_utc = datetime.now(zoneinfo.ZoneInfo("UTC"))
+            send_at = now_utc + MIN_SCHEDULE_LEAD * slot_number
+            logger.info(
+                "send_immediately=True: slot %d for %s scheduled at %s",
                 slot_number,
                 message.response_id,
                 send_at.isoformat(),
-                int(MIN_SCHEDULE_LEAD.total_seconds() / 60),
-                now_utc.isoformat(),
             )
-            continue
+        else:
+            send_at = compute_send_at(
+                selected_date, survey_time, message.timezone
+            )
+
+            # Guard: skip slots that are too soon for Twilio scheduling
+            now_utc = datetime.now(zoneinfo.ZoneInfo("UTC"))
+            if send_at <= now_utc + MIN_SCHEDULE_LEAD:
+                logger.warning(
+                    "Skipping slot %d for %s -- send_at %s is less than "
+                    "%d min from now (%s)",
+                    slot_number,
+                    message.response_id,
+                    send_at.isoformat(),
+                    int(MIN_SCHEDULE_LEAD.total_seconds() / 60),
+                    now_utc.isoformat(),
+                )
+                continue
 
         time_label = format_time_label(survey_time)
         body = sms_template.format(time=time_label, url=url)

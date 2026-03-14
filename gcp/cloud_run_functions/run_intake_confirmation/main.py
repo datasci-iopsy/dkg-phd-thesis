@@ -363,6 +363,7 @@ def intake_confirmation_handler(cloud_event: CloudEvent) -> None:
         phone=message.phone,
         selected_date=message.selected_date,
         timezone=message.timezone,
+        send_immediately=message.send_immediately,
     )
 
     followup_msg_id = publish_followup_scheduling(followup_message, config)
