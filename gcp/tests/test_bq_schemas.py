@@ -341,7 +341,6 @@ class TestInsertRowMatchesSchema:
 
     def test_insert_row_types_are_serializable(self, sample_payload):
         """All values in the insert row must be JSON-serializable."""
-        import json
 
         from shared.utils.gcp_utils import _build_insert_row
 

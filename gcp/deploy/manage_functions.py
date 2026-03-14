@@ -268,7 +268,7 @@ def copy_shared_utils(function_dir: Path) -> None:
     """Copy shared utilities into the function directory."""
     src = PROJECT_ROOT / "gcp" / "shared"
     dest = function_dir / "shared"
-    print(f"\n=== Copying shared utilities ===")
+    print("\n=== Copying shared utilities ===")
     print(f"  -> {src} -> {dest}\n")
     if dest.exists():
         shutil.rmtree(dest)
@@ -311,7 +311,7 @@ def gcloud_deploy(
     elif fn.trigger == "topic":
         if not fn.trigger_topic:
             print(
-                f"\n-> trigger_topic is required when trigger is 'topic'.",
+                "\n-> trigger_topic is required when trigger is 'topic'.",
                 file=sys.stderr,
             )
             sys.exit(1)
@@ -334,7 +334,7 @@ def gcloud_deploy(
 def cleanup_local(function_dir: Path) -> None:
     """Remove copied shared utilities from the function directory."""
     shared = function_dir / "shared"
-    print(f"\n=== Cleaning up local artifacts ===")
+    print("\n=== Cleaning up local artifacts ===")
     if shared.exists():
         shutil.rmtree(shared)
         print(f"  -> Removed {shared}")
@@ -389,7 +389,7 @@ def cleanup_artifact_registry(name: str, g: GlobalConfig) -> None:
     ar_path = f"{g.region}-docker.pkg.dev/{g.project}/gcf-artifacts/{name}"
 
     # Check if images exist before attempting deletion
-    print(f"\n=== Checking Artifact Registry ===")
+    print("\n=== Checking Artifact Registry ===")
     print(f"  -> {ar_path}\n")
 
     result = run_quiet(
@@ -429,7 +429,7 @@ def cleanup_artifact_registry(name: str, g: GlobalConfig) -> None:
 def cleanup_generated_requirements(function_dir: Path) -> None:
     """Clear the Poetry-generated requirements.txt contents."""
     reqs = function_dir / "requirements.txt"
-    print(f"\n=== Cleaning up generated requirements ===")
+    print("\n=== Cleaning up generated requirements ===")
     if reqs.exists():
         reqs.write_text("")
         print(f"  -> Cleared {reqs}")
@@ -583,7 +583,7 @@ def handle_list(args: argparse.Namespace) -> None:
                 for role in fn.service_account.roles:
                     print(f"      - {role}")
         else:
-            print(f"    runs_as:      (default compute SA)")
+            print("    runs_as:      (default compute SA)")
         print()
 
 
