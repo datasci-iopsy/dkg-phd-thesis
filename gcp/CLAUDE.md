@@ -16,6 +16,7 @@ python gcp/deploy/manage_functions.py dev <fn>      # local dev on :8080
 python gcp/deploy/manage_functions.py deploy <fn>   # deploy to GCP
 python gcp/deploy/manage_infra.py setup|teardown    # BQ tables
 python gcp/deploy/manage_gateway.py setup|teardown  # API Gateway
+python gcp/deploy/manage_gateway.py test [--now]    # end-to-end test; --now schedules SMS at now+16/32/48 min
 python gcp/deploy/manage_pubsub.py setup|teardown   # Pub/Sub topics
 ```
 
@@ -42,6 +43,7 @@ python gcp/deploy/manage_pubsub.py setup|teardown   # Pub/Sub topics
 - **Idempotency**: fn2 checks `_processed` flag in BQ; fn3 checks `scheduled_followups` table before writing
 - **Dependency groups**: deploy exports `main` + function-specific group to `requirements.txt`
 - **`functions.yaml`**: single source of truth for all functions, SAs, IAM roles, secrets, triggers
+- **`send_immediately` test flag**: `IntakeProcessedMessage` / `FollowupSchedulingMessage` carry `send_immediately: bool = False`; when `True`, fn3 schedules at now+16/32/48 min instead of fixed study times. Read from raw POST body by fn1 (not stored in BQ). Set via `manage_gateway.py test --now`.
 
 ## Schema change workflow
 
