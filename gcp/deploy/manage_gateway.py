@@ -903,10 +903,24 @@ def handle_test(args: argparse.Namespace) -> None:
     tomorrow (ensures all 3 follow-up time slots are far enough
     in the future for Twilio's 15-minute scheduling minimum).
 
+    The ``--now`` flag sets ``send_immediately=True`` in the
+    payload and uses today as ``selected_date``. This causes
+    run-followup-scheduling to schedule all 3 SMS at
+    now+16 / now+32 / now+48 min instead of fixed study times,
+    so the full pipeline can be verified within ~48 minutes.
+    ``--now`` and ``--selected-date`` are mutually exclusive.
+
     This is the closest thing to a 'dev' mode for the gateway.
     """
     from datetime import date as _date
     from datetime import timedelta as _timedelta
+
+    if getattr(args, "now", False) and args.selected_date:
+        print(
+            "\n-> --now and --selected-date are mutually exclusive.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     gw_config = load_gateway_config()
     fn_config = load_functions_config()
@@ -938,7 +952,10 @@ def handle_test(args: argparse.Namespace) -> None:
 
     payload = json.loads(fixture.read_text())
 
-    if args.selected_date:
+    if getattr(args, "now", False):
+        payload["selected_date"] = _date.today().isoformat()
+        payload["send_immediately"] = True
+    elif args.selected_date:
         payload["selected_date"] = args.selected_date
     else:
         payload["selected_date"] = (
@@ -951,6 +968,10 @@ def handle_test(args: argparse.Namespace) -> None:
     print(f"\n  Gateway:       {gateway_url}")
     print(f"  Fixture:       {fixture.name}")
     print(f"  selected_date: {payload['selected_date']}")
+    if payload.get("send_immediately"):
+        print(
+            "  Mode:          --now (SMS scheduled at now+16/32/48 min)"
+        )
     print(f"  API key:       {masked_key}")
     print("\n  Sending POST (no IAM token -- just the API key)...")
 
@@ -1186,7 +1207,17 @@ def build_parser() -> argparse.ArgumentParser:
         "--selected-date",
         help=(
             "Override selected_date in the fixture (ISO format, "
-            "e.g., 2026-03-11). Defaults to tomorrow if not specified."
+            "e.g., 2026-03-11). Defaults to tomorrow if not specified. "
+            "Mutually exclusive with --now."
+        ),
+    )
+    test_parser.add_argument(
+        "--now",
+        action="store_true",
+        help=(
+            "Schedule follow-up SMS at now+16/32/48 min instead of "
+            "fixed study times. Uses today as selected_date. "
+            "Mutually exclusive with --selected-date."
         ),
     )
     test_parser.set_defaults(handler=handle_test)
