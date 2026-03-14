@@ -34,7 +34,15 @@ Three Cloud Run functions in an async chain via Pub/Sub:
 2. **`run_intake_confirmation`** (Pub/Sub) — idempotency check → Twilio SMS → sets `_processed=TRUE` → publishes `FollowupSchedulingMessage`
 3. **`run_followup_scheduling`** (Pub/Sub) — idempotency check → builds 3 survey URLs → schedules 3 SMS via Twilio Message Scheduling API → writes SIDs to BigQuery
 
-API Gateway fronts function 1 (university org policy); validates `x-api-key`, injects IAM JWT.
+API Gateway fronts function 1 (university org policy requires auth); validates `x-api-key`, injects IAM JWT.
+
+**Key patterns:**
+- **Schema source of truth**: `WebServicePayload` in `models/qualtrics.py` → BQ schema auto-generated via `gcp/shared/utils/bq_schemas.py`. Change models first; schema follows. Then update `web_service_payload.json` fixture and `test_models.py`.
+- **Config loading**: each function's `configs/` dir has YAMLs merged alphabetically by `config_loader.py`, validated against Pydantic `AppConfig`. Optional sections (`qualtrics`, `pubsub`, `followup_surveys`) omitted by functions that don't use them.
+- **Dependency groups**: `main` (shared), `fn-qualtrics-scheduling`, `fn-intake-confirmation`, `fn-followup-scheduling`, `dev`. Deploy exports `main` + function group to `requirements.txt`.
+- **Idempotency**: function 2 checks `_processed` flag; function 3 checks `scheduled_followups` table.
+- **Lazy imports**: Twilio and google-cloud-pubsub only loaded in publishing/sending functions.
+- **Followup timezone handling**: participant local time → UTC via `zoneinfo.ZoneInfo`; 16-min lead-time guard; past slots skipped. `send_immediately=True` (via `manage_gateway.py test --now`) bypasses fixed times and schedules at now+16/32/48 min for rapid end-to-end testing.
 
 ## Power analysis
 
