@@ -720,3 +720,119 @@ class TestPastTimeSkipping:
 
         # All 3 slots should be scheduled since all are ≥17 min away
         assert mock_schedule.call_count == 3
+
+
+# -- send_immediately tests -------------------------------------------
+class TestSendImmediately:
+    """Verify that send_immediately=True schedules all 3 SMS at
+    now+16, now+32, now+48 min regardless of FOLLOWUP_TIMES or
+    selected_date, and skips the too-soon guard entirely.
+    """
+
+    _SELECTED_DATE = "2026-06-15"
+    _TIMEZONE = "US/Central"
+
+    def _make_cloud_event(self, message_data: dict) -> MagicMock:
+        encoded = base64.b64encode(json.dumps(message_data).encode()).decode()
+        event = MagicMock()
+        event.data = {"message": {"data": encoded}}
+        return event
+
+    def _make_event(self, **overrides) -> MagicMock:
+        data = {
+            "response_id": "R_now_test",
+            "phone": "+18777804236",
+            "selected_date": self._SELECTED_DATE,
+            "timezone": self._TIMEZONE,
+            "send_immediately": True,
+        }
+        data.update(overrides)
+        return self._make_cloud_event(data)
+
+    def _mock_config(self, mock_config):
+        mock_config.gcp.project_id = "test-project"
+        mock_config.followup_surveys.survey_base_url = (
+            "https://ncsu.qualtrics.com/jfe/form"
+        )
+        mock_config.followup_surveys.survey_ids = ["SV_1", "SV_2", "SV_3"]
+        mock_config.followup_surveys.sms_template = "Survey at {time}: {url}"
+
+    @patch("main.write_scheduling_records", return_value=True)
+    @patch("main.schedule_sms")
+    @patch("main.is_already_scheduled", return_value=False)
+    @patch("main.bigquery.Client")
+    @patch("main.config")
+    def test_schedules_all_three_at_now_offsets(
+        self,
+        mock_config,
+        mock_bq_client,
+        mock_is_scheduled,
+        mock_schedule,
+        mock_write,
+    ):
+        """All 3 slots are scheduled at now+16/32/48 min when
+        send_immediately=True, even if selected_date is today."""
+        self._mock_config(mock_config)
+
+        # Freeze time to 6 PM UTC -- all fixed study times (9/13/17 h)
+        # on the same day would be in the past, but send_immediately
+        # bypasses those and schedules at now+offset.
+        frozen_utc = datetime(2026, 6, 15, 18, 0, 0, tzinfo=timezone.utc)
+
+        mock_schedule.side_effect = ["SM_now_1", "SM_now_2", "SM_now_3"]
+
+        event = self._make_event()
+
+        from main import MIN_SCHEDULE_LEAD, followup_scheduling_handler
+
+        with patch("main.datetime") as mock_dt:
+            mock_dt.now.return_value = frozen_utc
+            mock_dt.combine = datetime.combine
+            mock_dt.side_effect = lambda *a, **kw: datetime(*a, **kw)
+            followup_scheduling_handler(event)
+
+        assert mock_schedule.call_count == 3
+        mock_write.assert_called_once()
+
+        # Verify send_at times are now+16, now+32, now+48 min
+        expected_times = [
+            frozen_utc + MIN_SCHEDULE_LEAD * slot for slot in (1, 2, 3)
+        ]
+        actual_times = [
+            call.args[2] for call in mock_schedule.call_args_list
+        ]
+        assert actual_times == expected_times
+
+    @patch("main.write_scheduling_records", return_value=True)
+    @patch("main.schedule_sms")
+    @patch("main.is_already_scheduled", return_value=False)
+    @patch("main.bigquery.Client")
+    @patch("main.config")
+    def test_does_not_skip_any_slot(
+        self,
+        mock_config,
+        mock_bq_client,
+        mock_is_scheduled,
+        mock_schedule,
+        mock_write,
+    ):
+        """send_immediately=True never skips slots -- even when the
+        fixed study times would all be in the past."""
+        self._mock_config(mock_config)
+
+        # Midnight UTC -- all fixed times would be in the past for today
+        frozen_utc = datetime(2026, 6, 15, 23, 59, 0, tzinfo=timezone.utc)
+        mock_schedule.side_effect = ["SM_1", "SM_2", "SM_3"]
+
+        event = self._make_event()
+
+        from main import followup_scheduling_handler
+
+        with patch("main.datetime") as mock_dt:
+            mock_dt.now.return_value = frozen_utc
+            mock_dt.combine = datetime.combine
+            mock_dt.side_effect = lambda *a, **kw: datetime(*a, **kw)
+            followup_scheduling_handler(event)
+
+        # All 3 must be scheduled regardless of the time of day
+        assert mock_schedule.call_count == 3
