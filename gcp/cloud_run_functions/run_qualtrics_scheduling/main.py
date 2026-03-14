@@ -59,16 +59,22 @@ def qualtrics_webhook_handler(request: Request):
         Tuple of (JSON response, HTTP status code).
     """
     try:
-        # Step 1: Parse and validate the web service payload
+        # Step 1: Parse and validate the web service payload.
+        # Also read send_immediately from the raw body -- it is not
+        # part of WebServicePayload / BQ schema (test-only flag).
+        raw_body = request.get_json(silent=True) or {}
+        send_immediately = bool(raw_body.get("send_immediately", False))
+
         payload = validation_utils.extract_web_service_payload(request)
         if not payload:
             logger.error("Invalid or missing web service payload")
             return jsonify({"error": "Invalid payload"}), 400
 
         logger.info(
-            "Processing response: %s (survey: %s)",
+            "Processing response: %s (survey: %s, send_immediately: %s)",
             payload.response_id,
             payload.survey_id,
+            send_immediately,
         )
 
         # Step 2: Write survey response to BigQuery
@@ -96,6 +102,7 @@ def qualtrics_webhook_handler(request: Request):
             phone=participant.phone,
             selected_date=participant.selected_date.isoformat(),
             timezone=participant.timezone,
+            send_immediately=send_immediately,
         )
 
         message_id = publish_intake_processed(message, config)
