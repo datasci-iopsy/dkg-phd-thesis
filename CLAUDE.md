@@ -4,6 +4,11 @@ PhD dissertation: within-person fluctuation in burnout, need frustration, and tu
 Three pillars: `gcp/` (Python GCP pipeline), `analysis/run_power_analysis/` (R simulations), `analysis/run_synthetic_data/` (test data).
 Python >=3.12,<3.13 (Poetry) and R 4.4 (renv) managed separately. See `gcp/CLAUDE.md` and `analysis/CLAUDE.md` for domain specifics.
 
+## Makefile
+
+`make help` — primary user-facing interface for all commands (analysis, Python dev, GCP).
+`make help_gcp` — GCP deployment detail. Raw commands below are still authoritative for Claude.
+
 ## Commands
 
 ```bash
@@ -16,7 +21,7 @@ poetry run pytest gcp/tests/ -v
 # R
 Rscript -e "renv::restore()"
 bash analysis/run_power_analysis/main.sh dev   # seconds; use 'prod' for full grid (hours)
-bash analysis/tests/validate_r_structure.sh    # pre-flight check, no R packages needed
+cd analysis/tests && bash validate_r_structure.sh  # pre-flight; cd required (script uses cd ../../)
 
 # Deploy (from project root, never from a worktree)
 python gcp/deploy/manage_functions.py dev <function-name>      # local dev server on :8080
