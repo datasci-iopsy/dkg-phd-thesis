@@ -51,6 +51,14 @@ class IntakeProcessedMessage(BaseModel):
         ..., description="Participant's chosen date (ISO format, YYYY-MM-DD)"
     )
     timezone: str = Field(..., description="IANA timezone (e.g., US/Central)")
+    send_immediately: bool = Field(
+        default=False,
+        description=(
+            "When True, run-followup-scheduling schedules messages at "
+            "now+16/32/48 min instead of fixed study times (9/13/17 h). "
+            "Set by manage_gateway.py test --now for rapid end-to-end testing."
+        ),
+    )
 
 
 class FollowupSchedulingMessage(BaseModel):
@@ -78,6 +86,14 @@ class FollowupSchedulingMessage(BaseModel):
         ..., description="Participant's chosen date (ISO format, YYYY-MM-DD)"
     )
     timezone: str = Field(..., description="IANA timezone (e.g., US/Central)")
+    send_immediately: bool = Field(
+        default=False,
+        description=(
+            "When True, run-followup-scheduling schedules messages at "
+            "now+16/32/48 min instead of fixed study times. Forwarded "
+            "from IntakeProcessedMessage."
+        ),
+    )
 
 
 # -- Publishing ----------------------------------------------------
