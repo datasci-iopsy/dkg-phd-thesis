@@ -2,7 +2,7 @@
 
 PhD dissertation: within-person fluctuation in burnout, need frustration, and turnover intentions.
 Three pillars: `gcp/` (Python GCP pipeline), `analysis/run_power_analysis/` (R simulations), `analysis/run_synthetic_data/` (test data).
-Python >=3.12,<3.13 (Poetry) and R 4.4 (renv) managed separately.
+Python >=3.12,<3.13 (Poetry) and R 4.4 (renv) managed separately. See `gcp/CLAUDE.md` and `analysis/CLAUDE.md` for domain specifics.
 
 ## Commands
 
@@ -16,9 +16,9 @@ poetry run pytest gcp/tests/ -v
 # R
 Rscript -e "renv::restore()"
 bash analysis/run_power_analysis/main.sh dev   # seconds; use 'prod' for full grid (hours)
-bash analysis/tests/validate_r_structure.sh     # pre-flight check, no R packages needed
+bash analysis/tests/validate_r_structure.sh    # pre-flight check, no R packages needed
 
-# Deploy (from project root)
+# Deploy (from project root, never from a worktree)
 python gcp/deploy/manage_functions.py dev <function-name>      # local dev server on :8080
 python gcp/deploy/manage_functions.py deploy <function-name>   # deploy to GCP
 python gcp/deploy/manage_infra.py setup|teardown               # BigQuery tables
@@ -31,53 +31,26 @@ python gcp/deploy/manage_pubsub.py setup|teardown              # Pub/Sub topics
 Three Cloud Run functions in an async chain via Pub/Sub:
 
 1. **`run_qualtrics_scheduling`** (HTTP) — Qualtrics webhook POST → Pydantic validation (`WebServicePayload`) → BigQuery `intake_raw` → publishes `IntakeProcessedMessage`
-2. **`run_intake_confirmation`** (Pub/Sub) — idempotency check → Twilio SMS confirmation via `from_number` → sets `_processed=TRUE` → publishes `FollowupSchedulingMessage`
-3. **`run_followup_scheduling`** (Pub/Sub) — idempotency check on `scheduled_followups` table → builds 3 survey URLs (9 AM, 1 PM, 5 PM slots) → schedules 3 SMS via Twilio Message Scheduling API (`messaging_service_sid`, `send_at` in UTC) → writes SIDs to BigQuery
+2. **`run_intake_confirmation`** (Pub/Sub) — idempotency check → Twilio SMS → sets `_processed=TRUE` → publishes `FollowupSchedulingMessage`
+3. **`run_followup_scheduling`** (Pub/Sub) — idempotency check → builds 3 survey URLs → schedules 3 SMS via Twilio Message Scheduling API → writes SIDs to BigQuery
 
-API Gateway fronts function 1 (university org policy requires auth); validates `x-api-key`, injects IAM JWT.
-
-**Key patterns:**
-- **Schema source of truth**: `WebServicePayload` in `models/qualtrics.py` → BQ schema auto-generated via `gcp/shared/utils/bq_schemas.py`. Change models first; schema follows. Then update `web_service_payload.json` fixture and `test_models.py`.
-- **Config loading**: each function's `configs/` dir has YAMLs merged alphabetically by `config_loader.py`, validated against Pydantic `AppConfig`. Optional sections (`qualtrics`, `pubsub`, `followup_surveys`) omitted by functions that don't use them.
-- **Dependency groups**: `main` (shared), `fn-qualtrics-scheduling`, `fn-intake-confirmation`, `fn-followup-scheduling`, `dev`. Deploy exports `main` + function group to `requirements.txt`.
-- **Idempotency**: function 2 checks `_processed` flag; function 3 checks `scheduled_followups` table.
-- **Lazy imports**: Twilio and google-cloud-pubsub only loaded in publishing/sending functions.
-- **Followup timezone handling**: participant local time → UTC via `zoneinfo.ZoneInfo`; 16-min lead-time guard for Twilio scheduling API; past slots are skipped.
+API Gateway fronts function 1 (university org policy); validates `x-api-key`, injects IAM JWT.
 
 ## Power analysis
 
 `main.sh` → `scripts/run_power_analysis.r` → parallel via `furrr::future_map_dfr()`.
 Implements Arend & Schafer (2019): variance components → unstandardized effects → `simr::makeLmer()` → `simr::powerSim()` with Kenward-Roger tests.
-Dev config: 9 combos x 10 sims. Prod config: 1,215 combos x 1,000 sims.
-Output: timestamped `.rds` + `.csv` in `data/`. Shared R utils in `analysis/shared/utils/common_utils.r`.
-
-## Conventions
-
-- **Table naming**: `<purpose>_<stage>` — `intake_raw`, `intake_clean`, `scheduled_followups`
-- **Variable naming**: L1 time-varying (`BURN.PHY.WP`), L2 time-invariant (`PSYK.BR`); WP = within-person, BP = grand-mean centered
-- **Secrets**: `dkg-twilio-config` JSON blob in Secret Manager → `TWILIO_CONFIG` env var
-- **Local dev**: env vars via `.envrc` / direnv; `dev` command prints required secrets
-- **Schema changes require BQ table teardown/recreate** (streaming API limitation)
-- **All tests mock GCP/Twilio** — no credentials or network needed
-- **Deploy config**: `gcp/deploy/functions.yaml` is single source of truth for all functions, SAs, IAM roles, secrets, triggers
+Dev: 9 combos × 10 sims. Prod: 1,215 combos × 1,000 sims. Output: timestamped `.rds` + `.csv` in `data/`.
 
 ## Verification
 
-After Python changes:
-- `poetry run pytest gcp/tests/ -v`
-- `poetry run ruff check . && poetry run ruff format --check .`
-- `poetry run sqlfmt --check .`
-
+After Python changes: `poetry run pytest gcp/tests/ -v` → `ruff check . && ruff format --check .` → `sqlfmt --check .`
 After R changes: `bash analysis/tests/validate_r_structure.sh`
-
-For schema changes: update model → regenerate fixture → run tests → teardown/recreate BQ table
+Schema changes: `models/qualtrics.py` → `bq_schemas.py` → `web_service_payload.json` → `test_models.py` → `manage_infra.py teardown/setup`
 
 ## Workflow
 
-- Use Plan mode for complex or multi-file tasks; iterate on plan before implementing
+- Use Plan mode for complex or multi-file tasks; iterate before implementing
 - Break large changes into reviewable chunks
-- For schema changes follow the chain: `models/qualtrics.py` → `bq_schemas.py` → `web_service_payload.json` → `test_models.py` → `manage_infra.py teardown/setup`
-
-## Learnings
-
-<!-- Add patterns discovered during development and PR reviews -->
+- **Worktrees**: safe for all code edits, tests, and R simulations — never run deploy commands from a worktree
+- When working across a worktree + main session simultaneously, coordinate schema changes through main only
