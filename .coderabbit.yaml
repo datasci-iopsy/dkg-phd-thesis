@@ -1,0 +1,102 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+language: "en-US"
+tone_instructions: "Be direct and specific. Flag concrete violations over style opinions."
+early_access: false
+
+reviews:
+  profile: "assertive" # use "chill" if too noisy for R files; path_instructions enforce the specific R conventions
+  request_changes_workflow: false   # suggest but don't block merges
+  high_level_summary: true
+  high_level_summary_instructions: "Summarize what changed and flag any schema, deploy, or worktree safety issues."
+  collapse_walkthrough: true
+  sequence_diagrams: false          # not useful for this project type
+
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    auto_pause_after_reviewed_commits: 3
+    drafts: false
+    ignore_title_keywords:
+      - "WIP"
+      - "wip"
+      - "fixup!"
+      - "squash!"
+      - "amend"
+
+  path_filters:
+    - "!renv/**"
+    - "!.venv/**"
+    - "!.poetry/**"
+    - "!analysis/**/data/**"
+    - "!analysis/**/logs/**"
+
+  path_instructions:
+    - path: "gcp/**/*.py"
+      instructions: |
+        Apply gcp/CLAUDE.md conventions strictly:
+        - All function signatures must have type hints
+        - Config must be loaded at module level (cold-start), not inside handlers
+        - Twilio and google-cloud-pubsub must use lazy imports (inside functions only)
+        - Use logger.info("msg %s", var) style — not f-strings in logger calls
+        - Ruff line-length is 80 chars (pyproject.toml)
+        - Never hardcode secrets, project IDs, or topic names
+        - Pydantic models for all payload and config validation — no manual dict parsing
+        - Try-except only at handler boundary; let Pydantic raise internally
+
+    - path: "gcp/deploy/**"
+      instructions: |
+        Flag any logic that could trigger a deploy from a non-main context.
+        Verify manage_functions.py, manage_infra.py, manage_gateway.py, manage_pubsub.py
+        do not have side effects on import.
+        Schema changes must follow the full chain:
+        models/qualtrics.py → bq_schemas.py → web_service_payload.json → test_models.py → teardown/setup
+
+    - path: "gcp/tests/**"
+      instructions: |
+        All GCP and Twilio calls must be mocked — no real credentials or network access.
+        Flag any test that could make an outbound call or require env credentials to pass.
+
+    - path: "analysis/**/*.r"
+      instructions: |
+        Apply analysis/CLAUDE.md R conventions:
+        - Use native pipe |> only — flag any use of %>%
+        - Functions should be snake_case with roxygen-style #' @param / #' @return docs
+        - Path resolution must be relative to script location, not working directory
+        - Use log_msg() from common_utils.r — never bare print() or cat() in scripts
+        - Parallel execution via furrr::future_map_dfr() should include tryCatch() wrappers
+        - Output files must be timestamped; write .rds + .csv pairs
+
+    - path: "analysis/**/*.sql"
+      instructions: |
+        sqlfmt line-length is 120 chars (pyproject.toml).
+        Variable naming: L1 time-varying use VAR.WP suffix, L2 time-invariant use VAR.BP suffix.
+        Never mix centering levels in a single model term.
+
+  tools:
+    ruff:
+      enabled: true
+    shellcheck:
+      enabled: true
+    markdownlint:
+      enabled: false
+    github-checks:
+      enabled: true
+      timeout_ms: 90000
+
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "CLAUDE.md"
+      - "gcp/CLAUDE.md"
+      - "analysis/CLAUDE.md"
+
+  learnings:
+    scope: "local"
+
+  linear:
+    usage: "auto"
+
+  web_search:
+    enabled: true
