@@ -9,10 +9,10 @@ Shared utilities in `analysis/shared/utils/common_utils.r`.
 ## Commands
 
 ```bash
-Rscript -e "renv::restore()"                       # restore packages from renv.lock
-bash run_power_analysis/main.sh dev                # dev grid (seconds)
-bash run_power_analysis/main.sh prod               # full grid (hours)
-bash tests/validate_r_structure.sh                 # pre-flight structural check (no packages needed)
+Rscript -e "renv::restore()"                               # restore packages from renv.lock
+bash run_power_analysis/main.sh dev                        # dev grid (seconds)
+bash run_power_analysis/main.sh prod                       # full grid (hours)
+cd analysis/tests && bash validate_r_structure.sh          # pre-flight; cd required (script uses cd ../../)
 ```
 
 ## Structure
@@ -26,7 +26,15 @@ run_power_analysis/
   figs/           # output figures
 run_synthetic_data/
   schemas/        # table schema definitions
-  scripts/        # data generation scripts
+  data/import/    # input CSVs (required before running any analysis)
+  data/export/    # generated synthetic panel data
+  figs/eda/       # EDA output figures
+  figs/mlm/       # MLM output figures
+  scripts/r/      # analysis scripts — run in this order:
+    eda.R               # 1. exploratory data analysis
+    correlation.R       # 2. bivariate correlations
+    measurement_model.R # 3. CFA / measurement model
+    multilevel_model.R  # 4. main MLM analysis (71 KB)
 shared/utils/
   common_utils.r  # log_msg(), load_config(), ensure_dir(), get_system_info()
 ```
