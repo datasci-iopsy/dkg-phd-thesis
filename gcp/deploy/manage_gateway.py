@@ -645,21 +645,21 @@ def create_api_key(
         ]
     )
     if result.returncode != 0:
-        print(f"\n  Warning: API key creation failed.")
+        print("\n  Warning: API key creation failed.")
         print(f"  Error: {result.stderr.strip()}")
-        print(f"  Create it manually in the GCP Console under")
-        print(f"  APIs & Services -> Credentials -> Create API Key,")
+        print("  Create it manually in the GCP Console under")
+        print("  APIs & Services -> Credentials -> Create API Key,")
         print(f"  then restrict it to: {managed_service}")
         return None
 
-    print(f"  -> API key created.")
+    print("  -> API key created.")
 
     key_name = find_api_key_name(project, display_name)
     if key_name:
         return get_api_key_string(project, key_name)
 
-    print(f"\n  Warning: key created but could not retrieve key string.")
-    print(f"  Run 'manage_gateway.py status' to retrieve it later.")
+    print("\n  Warning: key created but could not retrieve key string.")
+    print("  Run 'manage_gateway.py status' to retrieve it later.")
     return None
 
 
@@ -718,7 +718,7 @@ def handle_setup(args: argparse.Namespace) -> None:
     )
 
     # Step 3: Resolve Cloud Run backend URL
-    print(f"\n=== Resolving Cloud Run URL ===")
+    print("\n=== Resolving Cloud Run URL ===")
     backend_url = get_cloud_run_url(project, region, gw_config.target_function)
     if not backend_url:
         print(
@@ -775,14 +775,14 @@ def handle_setup(args: argparse.Namespace) -> None:
         print(f"  API key:     {api_key}")
     print()
     print("  Qualtrics Web Service task configuration:")
-    print(f"    Method:  POST")
+    print("    Method:  POST")
     print(f"    URL:     {gateway_url or ''}")
     print(f"    Header:  x-api-key = {api_key or ''}")
-    print(f"    Header:  Content-Type = application/json")
-    print(f"    Body:    JSON payload (see README)")
+    print("    Header:  Content-Type = application/json")
+    print("    Body:    JSON payload (see README)")
     print()
     print("  Test with:")
-    print(f"    python manage_gateway.py test")
+    print("    python manage_gateway.py test")
     print()
 
 
@@ -880,9 +880,9 @@ def handle_status(args: argparse.Namespace) -> None:
             masked = f"{key_string[:8]}...{key_string[-4:]}"
             print(f"  API key: {masked}")
         else:
-            print(f"  API key: (exists, could not retrieve string)")
+            print("  API key: (exists, could not retrieve string)")
     else:
-        print(f"  API key: not found")
+        print("  API key: not found")
 
     # Backend
     backend_url = get_cloud_run_url(
@@ -952,7 +952,7 @@ def handle_test(args: argparse.Namespace) -> None:
     print(f"  Fixture:       {fixture.name}")
     print(f"  selected_date: {payload['selected_date']}")
     print(f"  API key:       {masked_key}")
-    print(f"\n  Sending POST (no IAM token -- just the API key)...")
+    print("\n  Sending POST (no IAM token -- just the API key)...")
 
     # Send the request exactly as Qualtrics would
     result = subprocess.run(
@@ -1147,7 +1147,7 @@ def handle_teardown(args: argparse.Namespace) -> None:
     else:
         print(f"\n  Service account '{email}' not found -- skipping.")
 
-    print(f"\n  Teardown complete.\n")
+    print("\n  Teardown complete.\n")
 
 
 # -- CLI definition ------------------------------------------------

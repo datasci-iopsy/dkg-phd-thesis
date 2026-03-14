@@ -304,10 +304,10 @@ def handle_setup(args: argparse.Namespace) -> None:
     print_banner("Provisioning infrastructure")
     client = get_client()
 
-    print(f"\n  --- Dataset ---")
+    print("\n  --- Dataset ---")
     create_dataset(client)
 
-    print(f"\n  --- Tables ---")
+    print("\n  --- Tables ---")
     for config_key, bq_table_name in TABLES.items():
         if config_key not in TABLE_REGISTRY:
             print(
@@ -326,7 +326,7 @@ def handle_setup(args: argparse.Namespace) -> None:
             description=registry.get("description", ""),
         )
 
-    print(f"\n  Setup complete.\n")
+    print("\n  Setup complete.\n")
 
 
 def handle_teardown(args: argparse.Namespace) -> None:

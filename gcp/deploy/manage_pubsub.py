@@ -282,7 +282,7 @@ def handle_teardown(args: argparse.Namespace) -> None:
         return
 
     if not args.force:
-        print(f"\n  This will permanently delete:")
+        print("\n  This will permanently delete:")
         for topic_id in existing_topics:
             subs = list_subscriptions(project, topic_id)
             sub_count = len(subs) if subs else 0
@@ -311,7 +311,7 @@ def handle_teardown(args: argparse.Namespace) -> None:
             description=f"Deleting topic: {topic_id}",
         )
 
-    print(f"\n  Teardown complete.\n")
+    print("\n  Teardown complete.\n")
 
 
 # -- CLI definition ------------------------------------------------
