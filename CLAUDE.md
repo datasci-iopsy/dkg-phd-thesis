@@ -42,7 +42,7 @@ API Gateway fronts function 1 (university org policy requires auth); validates `
 - **Dependency groups**: `main` (shared), `fn-qualtrics-scheduling`, `fn-intake-confirmation`, `fn-followup-scheduling`, `dev`. Deploy exports `main` + function group to `requirements.txt`.
 - **Idempotency**: function 2 checks `_processed` flag; function 3 checks `scheduled_followups` table.
 - **Lazy imports**: Twilio and google-cloud-pubsub only loaded in publishing/sending functions.
-- **Followup timezone handling**: participant local time → UTC via `zoneinfo.ZoneInfo`; 16-min lead-time guard for Twilio scheduling API; past slots are skipped.
+- **Followup timezone handling**: participant local time → UTC via `zoneinfo.ZoneInfo`; 16-min lead-time guard; past slots skipped. `send_immediately=True` (via `manage_gateway.py test --now`) bypasses fixed times and schedules at now+16/32/48 min for rapid end-to-end testing.
 
 ## Power analysis
 
