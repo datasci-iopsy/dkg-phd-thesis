@@ -11,7 +11,8 @@
 
 set -euo pipefail
 
-cd ../../ # Ensure we're at the project root for consistent path checks
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${SCRIPT_DIR}/../.." # Ensure we're at the project root for consistent path checks
 
 pass_count=0
 fail_count=0

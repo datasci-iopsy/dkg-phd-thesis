@@ -21,7 +21,7 @@ poetry run pytest gcp/tests/ -v
 # R
 Rscript -e "renv::restore()"
 bash analysis/run_power_analysis/main.sh dev   # seconds; use 'prod' for full grid (hours)
-cd analysis/tests && bash validate_r_structure.sh  # pre-flight; cd required (script uses cd ../../)
+bash analysis/tests/validate_r_structure.sh  # pre-flight; run from project root
 
 # Deploy (from project root, never from a worktree)
 python gcp/deploy/manage_functions.py dev <function-name>      # local dev server on :8080
