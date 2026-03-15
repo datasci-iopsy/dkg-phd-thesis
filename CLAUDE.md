@@ -2,7 +2,7 @@
 
 PhD dissertation: within-person fluctuation in burnout, need frustration, and turnover intentions.
 Three pillars: `gcp/` (Python GCP pipeline), `analysis/run_power_analysis/` (R simulations), `analysis/run_synthetic_data/` (test data).
-Python >=3.12,<3.13 (Poetry) and R 4.4 (renv) managed separately. See `gcp/CLAUDE.md` and `analysis/CLAUDE.md` for domain specifics.
+Python >=3.12,<3.13 (Poetry) and R >= 4.4 (renv) managed separately. See `gcp/CLAUDE.md` and `analysis/CLAUDE.md` for domain specifics.
 
 ## Makefile
 
@@ -20,8 +20,14 @@ poetry run pytest gcp/tests/ -v
 
 # R
 Rscript -e "renv::restore()"
-bash analysis/run_power_analysis/main.sh dev   # seconds; use 'prod' for full grid (hours)
-bash analysis/tests/validate_r_structure.sh  # pre-flight; run from project root
+bash analysis/run_power_analysis/main.sh dev          # seconds
+bash analysis/run_power_analysis/main.sh prod          # prod set 2 — n_lvl2: 200,400,600,800,1000
+bash analysis/run_power_analysis/main.sh prod_set1     # prod set 1 — n_lvl2: 100,300,500,700,900
+# run prod + prod_set1 simultaneously (tmux split) for the full 2,430-cell grid (~5-6h on 16 cores)
+bash analysis/tests/validate_r_structure.sh            # pre-flight; run from project root
+
+# Linux VM setup (Ubuntu; run once on a fresh clone)
+bash setup_remote.sh   # installs R >= 4.4 via CRAN PPA + system libs + renv::restore()
 
 # Deploy (from project root, never from a worktree)
 python gcp/deploy/manage_functions.py dev <function-name>      # local dev server on :8080
@@ -53,7 +59,8 @@ API Gateway fronts function 1 (university org policy requires auth); validates `
 
 `main.sh` → `scripts/run_power_analysis.r` → parallel via `furrr::future_map_dfr()`.
 Implements Arend & Schafer (2019): variance components → unstandardized effects → `simr::makeLmer()` → `simr::powerSim()` with Kenward-Roger tests.
-Dev: 9 combos × 10 sims. Prod: 1,215 combos × 1,000 sims. Output: timestamped `.rds` + `.csv` in `data/`.
+Dev: 9 combos × 10 sims. Full prod: 2,430 cells × 1,000 sims split across `prod` (set 2) + `prod_set1` (set 1) run concurrently. Output: timestamped `.rds` + `.csv` in `data/`; combine with `dplyr::bind_rows()`.
+Linux VM: `bash setup_remote.sh` from project root bootstraps R and all packages.
 
 ## Verification
 

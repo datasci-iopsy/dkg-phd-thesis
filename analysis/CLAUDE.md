@@ -1,6 +1,6 @@
 # analysis/CLAUDE.md
 
-R (4.4, renv) analysis pipeline. Two active pillars:
+R (>= 4.4, renv) analysis pipeline. Two active pillars:
 - `run_power_analysis/` — multilevel power simulations (Arend & Schafer 2019)
 - `run_synthetic_data/` — test/synthetic ESM data generation
 
@@ -11,7 +11,9 @@ Shared utilities in `analysis/shared/utils/common_utils.r`.
 ```bash
 Rscript -e "renv::restore()"                               # restore packages from renv.lock
 bash run_power_analysis/main.sh dev                        # dev grid (seconds)
-bash run_power_analysis/main.sh prod                       # full grid (hours)
+bash run_power_analysis/main.sh prod                       # prod set 2: n_lvl2 200,400,600,800,1000
+bash run_power_analysis/main.sh prod_set1                  # prod set 1: n_lvl2 100,300,500,700,900
+# run prod + prod_set1 simultaneously for the full 2,430-cell grid (see Linux VM section below)
 bash analysis/tests/validate_r_structure.sh                # pre-flight; run from project root
 ```
 
@@ -61,8 +63,14 @@ shared/utils/
 - L2 time-invariant (grand-mean centered): `VAR.BP` — e.g. `PSYK.BR`
 - Never mix centering levels in a single model term
 
+## Linux VM (Ubuntu)
+
+`bash setup_remote.sh` from project root: adds CRAN PPA, installs R >= 4.4 + system build libs, runs `renv::restore()`. See `setup_remote.sh` for `/boot` space pre-conditions.
+Production split-run: open two tmux panes (`tmux new-session -s power`, then `Ctrl+b %`), run `make power_analysis_prod_set1` in one and `make power_analysis_prod` in the other. Both background via nohup; monitor with `tail -f run_power_analysis/logs/*.log`. Combine outputs: `dplyr::bind_rows(readRDS("set1.rds"), readRDS("set2.rds"))`.
+
 ## Worktree notes
 
 - `renv.lock` is shared — run `renv::restore()` once per worktree checkout, not repeatedly
 - Simulation output (`data/`) is gitignored; each worktree produces independent output
-- Never run `main.sh prod` from a worktree without confirming the output path won't collide with main
+- Never run `main.sh prod` or `main.sh prod_set1` from a worktree — output paths collide with main
+- Running `prod` + `prod_set1` simultaneously from the same non-worktree clone is safe; both write independent timestamped files

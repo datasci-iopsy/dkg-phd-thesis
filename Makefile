@@ -274,6 +274,7 @@ power_analysis_dev: _check_r_env validate
 	@echo "✅ Power analysis (dev) complete."
 
 power_analysis_prod: _check_r_env validate
+	@mkdir -p "$(ROOT)/analysis/run_power_analysis/logs"
 	@echo "👨🏾‍💻 Starting power analysis (full grid, set 2) in background..."
 	@echo ""
 	@echo "⚠️  This takes hours. Do NOT run from a worktree — output paths may collide."
@@ -284,6 +285,7 @@ power_analysis_prod: _check_r_env validate
 	echo "   Monitor: tail -f analysis/run_power_analysis/logs/*.log"
 
 power_analysis_prod_set1: _check_r_env validate
+	@mkdir -p "$(ROOT)/analysis/run_power_analysis/logs"
 	@echo "👨🏾‍💻 Starting power analysis (full grid, set 1) in background..."
 	@echo ""
 	@echo "⚠️  This takes hours. Do NOT run from a worktree — output paths may collide."
