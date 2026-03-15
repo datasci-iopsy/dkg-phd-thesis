@@ -1,0 +1,19 @@
+# * Power Analysis Configuration
+# * Version: Prod VM 4 of 5 (n_lvl2 = 400, 600, 1400 — sum 2,400; 729 cells)
+# * All 5 VM configs are compute-balanced: each set sums to 2,400 across n_lvl2 values.
+# * Run one config per VM. Combine all 5 outputs: dplyr::bind_rows(readRDS(...))
+params:
+  max_cores: 14 # ! ADJUST AS NEEDED: 14 for 16-core university VM; 8 for local M1 Max
+  n_lvl1: [3]
+  n_lvl2: [400, 600, 1400]
+  lvl1_effect_std: [0.10, 0.30, 0.50]
+  lvl2_effect_std: [0.10, 0.30, 0.50]
+  xlvl_effect_std: [0.10, 0.30, 0.50]
+  icc: [0.10, 0.30, 0.50]
+  rand_slope_std: [0.01, 0.09, 0.25]
+  alpha: [0.05]
+  use_REML: [TRUE]
+  n_sims: 1000 # ! ADJUST AS NEEDED; 1K IS RECOMMENDED
+  verbose: FALSE
+  return_df: TRUE
+  rand_seed: 8762

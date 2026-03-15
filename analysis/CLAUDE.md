@@ -11,9 +11,9 @@ Shared utilities in `analysis/shared/utils/common_utils.r`.
 ```bash
 Rscript -e "renv::restore()"                               # restore packages from renv.lock
 bash run_power_analysis/main.sh dev                        # dev grid (seconds)
-bash run_power_analysis/main.sh prod                       # prod set 2: n_lvl2 200,400,600,800,1000
-bash run_power_analysis/main.sh prod_set1                  # prod set 1: n_lvl2 100,300,500,700,900
-# run prod + prod_set1 simultaneously for the full 2,430-cell grid (see Linux VM section below)
+bash run_power_analysis/main.sh benchmark                  # timing probe before full prod run
+bash run_power_analysis/main.sh prod_vm1                   # VM 1: n_lvl2=[100,800,1500]
+# prod_vm2–prod_vm5: one per VM for the full 3,645-cell grid (see Linux VM section below)
 bash analysis/tests/validate_r_structure.sh                # pre-flight; run from project root
 ```
 
@@ -65,12 +65,28 @@ shared/utils/
 
 ## Linux VM (Ubuntu)
 
-`bash setup_remote.sh` from project root: adds CRAN PPA, installs R >= 4.4 + system build libs, runs `renv::restore()`. See `setup_remote.sh` for `/boot` space pre-conditions.
-Production split-run: open two tmux panes (`tmux new-session -s power`, then `Ctrl+b %`), run `make power_analysis_prod_set1` in one and `make power_analysis_prod` in the other. Both background via nohup; monitor with `tail -f run_power_analysis/logs/*.log`. Combine outputs: `dplyr::bind_rows(readRDS("set1.rds"), readRDS("set2.rds"))`.
+Per-VM bootstrap (idempotent — safe to re-run):
+```bash
+bash clean_linux_distro.sh   # fix /boot space + dpkg state (run first on every university VM)
+bash setup_remote.sh         # install R >= 4.4 + renv::restore()
+```
+
+5-VM production workflow (one reservation per VM, one config per VM):
+```bash
+make power_analysis_benchmark          # VM 1 only — timing probe, foreground (~5–20 min)
+# review wall-clock time; if per_vm_hours > 6, split to 10 VMs instead
+make power_analysis_prod_vm1           # VM 1: n_lvl2=[100,800,1500]
+make power_analysis_prod_vm2           # VM 2: n_lvl2=[200,900,1300]
+make power_analysis_prod_vm3           # VM 3: n_lvl2=[300,1000,1100]
+make power_analysis_prod_vm4           # VM 4: n_lvl2=[400,600,1400]
+make power_analysis_prod_vm5           # VM 5: n_lvl2=[500,700,1200]
+```
+Monitor: `tail -f run_power_analysis/logs/*.log`. Combine outputs:
+`dplyr::bind_rows(readRDS("vm1.rds"), ..., readRDS("vm5.rds"))` → 3,645 rows total.
 
 ## Worktree notes
 
 - `renv.lock` is shared — run `renv::restore()` once per worktree checkout, not repeatedly
 - Simulation output (`data/`) is gitignored; each worktree produces independent output
-- Never run `main.sh prod` or `main.sh prod_set1` from a worktree — output paths collide with main
-- Running `prod` + `prod_set1` simultaneously from the same non-worktree clone is safe; both write independent timestamped files
+- Never run prod_vm configs from a worktree — output paths collide with main
+- Each university VM reservation is independent; one config per VM is safe

@@ -1,6 +1,7 @@
 # * Power Analysis Configuration
-# * Version: Prod set 1 of 2 (n_lvl2 = 100, 300, 500, 700, 900)
-# * Pair with prod for the full 2,430-cell grid (10 n_lvl2 values)
+# * Version: Prod (legacy 2-set split, set 1 of 2: n_lvl2 = 100, 300, 500, 700, 900)
+# * Superseded by prod_vm1–prod_vm5 for the full 3,645-cell grid (15 n_lvl2 values, 100–1500)
+# * Retained for compatibility. Pair with prod for the 10-value 2,430-cell grid.
 params:
   max_cores: 14 # ! ADJUST AS NEEDED: 14 for 16-core university VM; 8 for local M1 Max; leave blank for default min(4, availableCores()-4)
   n_lvl1: [3]

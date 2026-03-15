@@ -37,8 +37,15 @@ The architecture follows a thin-wrapper pattern: [`main.sh`](main.sh) handles pr
 analysis/
   run_power_analysis/
     configs/
-      run_power_analysis.dev.yaml     # Small grid, low sim count for testing
-      run_power_analysis.prod.yaml    # Full factorial grid for dissertation
+      run_power_analysis.dev.yaml         # Small grid, low sim count for testing
+      run_power_analysis.benchmark.yaml   # Timing probe: 3 n_lvl2 × 50 sims
+      run_power_analysis.prod_vm1.yaml    # VM 1 of 5: n_lvl2=[100,800,1500]
+      run_power_analysis.prod_vm2.yaml    # VM 2 of 5: n_lvl2=[200,900,1300]
+      run_power_analysis.prod_vm3.yaml    # VM 3 of 5: n_lvl2=[300,1000,1100]
+      run_power_analysis.prod_vm4.yaml    # VM 4 of 5: n_lvl2=[400,600,1400]
+      run_power_analysis.prod_vm5.yaml    # VM 5 of 5: n_lvl2=[500,700,1200]
+      run_power_analysis.prod.yaml        # Legacy set 2 of 2 (superseded by prod_vm configs)
+      run_power_analysis.prod_set1.yaml   # Legacy set 1 of 2 (superseded by prod_vm configs)
     data/                             # Output .rds/.csv (gitignored, created at runtime)
     figs/                             # Figures (gitignored, created at runtime)
     logs/                             # Timestamped log files (gitignored, created at runtime)
@@ -115,7 +122,9 @@ The program uses YAML configuration files in [`configs/`](configs/) to define th
 
 **[`run_power_analysis.dev.yaml`](configs/run_power_analysis.dev.yaml)**: A minimal grid for development and testing. Uses a small number of Level 2 sample sizes, single values for all effect sizes, and a low simulation count (10). Runs in seconds.
 
-**[`run_power_analysis.prod.yaml`](configs/run_power_analysis.prod.yaml)**: The full factorial grid used for the dissertation. Crosses 5 Level 2 sample sizes (200-1000) with 3 values each for Level 1 effect size, Level 2 effect size, cross-level effect size, ICC, and random slope variance, yielding 1,215 parameter combinations at 1,000 simulations each.
+**[`run_power_analysis.benchmark.yaml`](configs/run_power_analysis.benchmark.yaml)**: Timing probe using 3 n_lvl2 values ([200, 800, 1500]) × 50 simulations. Run on one VM before committing all 5 reservations. See "Long-running processes" for the scale formula.
+
+**`run_power_analysis.prod_vm{1–5}.yaml`**: The full factorial grid split across 5 VMs. Each config covers 3 n_lvl2 values balanced by compute intensity (each set sums to 2,400), yielding 729 parameter combinations × 1,000 simulations per VM. Together the 5 VMs cover n_lvl2 = 100–1500 in steps of 100 (3,645 total combinations × 3 effects = 10,935 rows).
 
 | Parameter         | Description                                            |
 | ----------------- | ------------------------------------------------------ |
@@ -148,11 +157,12 @@ All commands are run from the project root directory.
 # Development run (small grid, fast: seconds)
 bash analysis/run_power_analysis/main.sh dev
 
-# Production run (full grid: hours)
-bash analysis/run_power_analysis/main.sh prod
+# Benchmark — timing probe before committing all 5 VMs (5–20 min)
+bash analysis/run_power_analysis/main.sh benchmark
 
-# Background a long-running production run
-nohup bash analysis/run_power_analysis/main.sh prod &
+# Production run (one config per VM — background via nohup)
+nohup bash analysis/run_power_analysis/main.sh prod_vm1 > logs/vm1.log 2>&1 &
+# repeat for prod_vm2 through prod_vm5 on separate VMs
 ```
 
 ### What happens at runtime
@@ -215,15 +225,49 @@ The script reports PASS/FAIL/WARN for each check and exits with a non-zero code 
 <details>
 <summary>Long-running processes</summary>
 
-The production configuration produces a 1,215-cell parameter matrix. With 1,000 simulations per cell, total runtime depends heavily on available cores.
+The full production grid covers n_lvl2 = 100–1500 (15 values) × 243 other parameter combinations = **3,645 cells × 1,000 simulations each**. This is split across 5 VMs with 729 cells per VM.
 
-Reference benchmarks:
+**Reference benchmarks** (1,215 cells; old 10-value split):
 
-| System             | Cores Used | Wall-Clock Time |
-| ------------------ | ---------- | --------------- |
-| MacBook Pro M1 Max | 6 of 10    | ~18.5 hours     |
+| System                    | Cores Used | Cells | Wall-Clock Time |
+| ------------------------- | ---------- | ----- | --------------- |
+| MacBook Pro M1 Max        | 6 of 10    | 1,215 | ~18.5 hours     |
+| University VM (16 cores)  | 14 of 16   | 729   | TBD (benchmark first) |
 
-Runtime scales roughly inversely with core count. A compute-optimized cloud VM (e.g., GCP `c2d-highcpu-56` with 56 vCPUs) could reduce this to 2-5 hours. Set `max_cores` in the prod config to match the VM's vCPU count minus 2.
+**Before committing all 5 VMs**, run the benchmark on one machine:
+
+```bash
+make power_analysis_benchmark   # 3 n_lvl2 × 50 sims; runs ~5–20 min
+```
+
+Scale formula (from benchmark wall-clock minutes to per-VM estimate):
+```
+total_grid_hours = (benchmark_wall_min / 60) × (1000/50) × (15/3) / 14_workers
+per_vm_hours     = total_grid_hours / 5
+```
+If `per_vm_hours > 6`, split to 10 VMs (2 n_lvl2 values each) rather than 5.
+
+**5-VM strategy** (one reservation per VM, one config per VM):
+- VM 1: `prod_vm1` — n_lvl2=[100, 800, 1500]
+- VM 2: `prod_vm2` — n_lvl2=[200, 900, 1300]
+- VM 3: `prod_vm3` — n_lvl2=[300, 1000, 1100]
+- VM 4: `prod_vm4` — n_lvl2=[400, 600, 1400]
+- VM 5: `prod_vm5` — n_lvl2=[500, 700, 1200]
+
+Each set sums to 2,400 (compute-balanced). All values are disjoint — no n_lvl2 appears in more than one VM config.
+
+**Combine results** after all 5 VMs complete:
+```r
+library(dplyr)
+results <- bind_rows(
+    readRDS("vm1_results.rds"),
+    readRDS("vm2_results.rds"),
+    readRDS("vm3_results.rds"),
+    readRDS("vm4_results.rds"),
+    readRDS("vm5_results.rds")
+)
+# Should have 3,645 combinations × 3 effects = 10,935 rows
+```
 
 The program logs system info at startup so you can verify core allocation.
 </details>
@@ -295,24 +339,22 @@ Note: `r-base-dev` and the system libraries are required to compile R packages f
 <details>
 <summary>Linux kernel disk space issues</summary>
 
-If `/boot` is full (common on long-lived Ubuntu VMs), old kernel images may need cleanup:
+A full `/boot` partition is common on university VMs and prevents `apt` from running. The automated fix is:
 
 ```bash
-# Check which kernel is running (do NOT remove this one)
-uname -r
-
-# List installed kernel images
-dpkg --list | grep linux-image
-
-# Remove packages with "rc" status (removed but config files remain)
-sudo apt purge $(dpkg -l | awk '/^rc/ {print $2}')
-
-# Clean up remaining dependencies
-sudo apt autoremove --purge
-
-# Verify boot space
-df -h /boot
+bash clean_linux_distro.sh   # idempotent; exits immediately if VM is already clean
 ```
+
+This script:
+1. Checks `/boot` usage — exits 0 immediately if below 75% full and dpkg is clean
+2. Manually deletes kernel files for non-running kernels and all `initrd.img-*` files
+3. Runs `dpkg --configure -a` to regenerate the initrd with the newly freed space
+4. Runs `apt autoremove --purge && apt clean && apt update`
+5. Reports final disk health
+
+**Why manual deletion instead of apt**: `apt` itself writes to `/boot` during kernel management. If `/boot` is full, `apt` fails before doing anything useful — so manual `rm` is the only way to bootstrap out of a full `/boot`.
+
+Always run `clean_linux_distro.sh` before `setup_remote.sh` on any university VM.
 </details>
 
 ## Contributing
