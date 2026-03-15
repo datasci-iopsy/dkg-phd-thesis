@@ -20,7 +20,7 @@ FN ?= run_qualtrics_scheduling
         setup setup_r setup_python \
         validate \
         renv_restore renv_status renv_repair renv_snapshot \
-        power_analysis_dev power_analysis_prod \
+        power_analysis_dev power_analysis_prod power_analysis_prod_set1 \
         synthetic_analysis synthetic_eda synthetic_measurement \
         synthetic_mlm synthetic_correlation \
         py_install py_lint py_format py_sqlfmt py_test \
@@ -87,8 +87,10 @@ help:
 	@echo "   make renv_snapshot      Update renv.lock from current environment"
 	@echo ""
 	@echo "📊 POWER ANALYSIS  (Arend & Schafer 2019)"
-	@echo "   make power_analysis_dev    Dev grid, foreground (~seconds)"
-	@echo "   make power_analysis_prod   Full grid, background via nohup (~hours)"
+	@echo "   make power_analysis_dev         Dev grid, foreground (~seconds)"
+	@echo "   make power_analysis_prod        Set 2 of 2, background via nohup (~hours)"
+	@echo "   make power_analysis_prod_set1   Set 1 of 2, background via nohup (~hours)"
+	@echo "   Run both prod targets simultaneously for the full 2,430-cell grid"
 	@echo ""
 	@echo "🔬 SYNTHETIC DATA ANALYSIS"
 	@echo "   make synthetic_analysis    Run all four scripts in sequence"
@@ -271,13 +273,23 @@ power_analysis_dev: _check_r_env validate
 	@echo "✅ Power analysis (dev) complete."
 
 power_analysis_prod: _check_r_env validate
-	@echo "👨🏾‍💻 Starting power analysis (full grid) in background..."
+	@echo "👨🏾‍💻 Starting power analysis (full grid, set 2) in background..."
 	@echo ""
 	@echo "⚠️  This takes hours. Do NOT run from a worktree — output paths may collide."
 	@echo ""
 	@nohup bash "$(ROOT)/analysis/run_power_analysis/main.sh" prod \
 		> "$(ROOT)/analysis/run_power_analysis/logs/prod_$$(date +%Y%m%d_%H%M%S).log" 2>&1 & \
-	echo "🚀 Power analysis started with PID: $$!"; \
+	echo "🚀 Power analysis (set 2) started with PID: $$!"; \
+	echo "   Monitor: tail -f analysis/run_power_analysis/logs/*.log"
+
+power_analysis_prod_set1: _check_r_env validate
+	@echo "👨🏾‍💻 Starting power analysis (full grid, set 1) in background..."
+	@echo ""
+	@echo "⚠️  This takes hours. Do NOT run from a worktree — output paths may collide."
+	@echo ""
+	@nohup bash "$(ROOT)/analysis/run_power_analysis/main.sh" prod_set1 \
+		> "$(ROOT)/analysis/run_power_analysis/logs/prod_set1_$$(date +%Y%m%d_%H%M%S).log" 2>&1 & \
+	echo "🚀 Power analysis (set 1) started with PID: $$!"; \
 	echo "   Monitor: tail -f analysis/run_power_analysis/logs/*.log"
 
 # ---------------------------------------------------------------------------
