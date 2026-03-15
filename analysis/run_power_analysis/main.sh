@@ -8,11 +8,12 @@
 # Usage:
 #   bash main.sh <version>
 #   nohup bash main.sh dev 2>&1 &
+#   nohup bash main.sh prod_set1 > logs/set1.log 2>&1 &   # run alongside prod for full 2,430-cell grid
 # ---------------------------------------------------------------------------
 
 set -euo pipefail
 
-version="${1:?ERROR: version argument required (dev or prod)}"
+version="${1:?ERROR: version argument required (dev, prod, or prod_set1)}"
 
 # resolve this script's directory regardless of where invoked from
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
