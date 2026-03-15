@@ -21,6 +21,9 @@ FN ?= run_qualtrics_scheduling
         validate \
         renv_restore renv_status renv_repair renv_snapshot \
         power_analysis_dev power_analysis_prod power_analysis_prod_set1 \
+        power_analysis_benchmark \
+        power_analysis_prod_vm1 power_analysis_prod_vm2 power_analysis_prod_vm3 \
+        power_analysis_prod_vm4 power_analysis_prod_vm5 \
         synthetic_analysis synthetic_eda synthetic_measurement \
         synthetic_mlm synthetic_correlation \
         py_install py_lint py_format py_sqlfmt py_test \
@@ -87,11 +90,16 @@ help:
 	@echo "   make renv_repair        Fix broken cache/symlinks, then restore"
 	@echo "   make renv_snapshot      Update renv.lock from current environment"
 	@echo ""
-	@echo "📊 POWER ANALYSIS  (Arend & Schafer 2019)"
+	@echo "📊 POWER ANALYSIS  (Arend & Schafer 2019 — n_lvl2: 100–1500, 3,645 cells)"
 	@echo "   make power_analysis_dev         Dev grid, foreground (~seconds)"
-	@echo "   make power_analysis_prod        Set 2 of 2, background via nohup (~hours)"
-	@echo "   make power_analysis_prod_set1   Set 1 of 2, background via nohup (~hours)"
-	@echo "   Run both prod targets simultaneously for the full 2,430-cell grid"
+	@echo "   make power_analysis_benchmark   Timing probe (3 n_lvl2 × 50 sims), foreground"
+	@echo "   make power_analysis_prod_vm1    VM 1 of 5: n_lvl2=[100,800,1500], background"
+	@echo "   make power_analysis_prod_vm2    VM 2 of 5: n_lvl2=[200,900,1300], background"
+	@echo "   make power_analysis_prod_vm3    VM 3 of 5: n_lvl2=[300,1000,1100], background"
+	@echo "   make power_analysis_prod_vm4    VM 4 of 5: n_lvl2=[400,600,1400], background"
+	@echo "   make power_analysis_prod_vm5    VM 5 of 5: n_lvl2=[500,700,1200], background"
+	@echo "   Run benchmark first, then one prod_vm target per VM (see analysis/CLAUDE.md)"
+	@echo "   Legacy: power_analysis_prod / power_analysis_prod_set1 (10-value 2,430-cell grid)"
 	@echo ""
 	@echo "🔬 SYNTHETIC DATA ANALYSIS"
 	@echo "   make synthetic_analysis    Run all four scripts in sequence"
@@ -293,6 +301,62 @@ power_analysis_prod_set1: _check_r_env validate
 	@nohup bash "$(ROOT)/analysis/run_power_analysis/main.sh" prod_set1 \
 		> "$(ROOT)/analysis/run_power_analysis/logs/prod_set1_$$(date +%Y%m%d_%H%M%S).log" 2>&1 & \
 	echo "🚀 Power analysis (set 1) started with PID: $$!"; \
+	echo "   Monitor: tail -f analysis/run_power_analysis/logs/*.log"
+
+power_analysis_benchmark: _check_r_env validate
+	@echo "⏱️  Running power analysis benchmark (timing probe) — foreground..."
+	@echo ""
+	@bash "$(ROOT)/analysis/run_power_analysis/main.sh" benchmark || { \
+		echo ""; \
+		echo "❌ Benchmark failed. Check logs in analysis/run_power_analysis/logs/"; \
+		exit 1; \
+	}
+	@echo ""
+	@echo "✅ Benchmark complete. Review wall-clock time above to estimate full-run duration."
+
+power_analysis_prod_vm1: _check_r_env validate
+	@mkdir -p "$(ROOT)/analysis/run_power_analysis/logs"
+	@echo "👨🏾‍💻 Starting power analysis (prod VM 1: n_lvl2=[100,800,1500]) in background..."
+	@echo ""
+	@nohup bash "$(ROOT)/analysis/run_power_analysis/main.sh" prod_vm1 \
+		> "$(ROOT)/analysis/run_power_analysis/logs/prod_vm1_$$(date +%Y%m%d_%H%M%S).log" 2>&1 & \
+	echo "🚀 Power analysis (vm1) started with PID: $$!"; \
+	echo "   Monitor: tail -f analysis/run_power_analysis/logs/*.log"
+
+power_analysis_prod_vm2: _check_r_env validate
+	@mkdir -p "$(ROOT)/analysis/run_power_analysis/logs"
+	@echo "👨🏾‍💻 Starting power analysis (prod VM 2: n_lvl2=[200,900,1300]) in background..."
+	@echo ""
+	@nohup bash "$(ROOT)/analysis/run_power_analysis/main.sh" prod_vm2 \
+		> "$(ROOT)/analysis/run_power_analysis/logs/prod_vm2_$$(date +%Y%m%d_%H%M%S).log" 2>&1 & \
+	echo "🚀 Power analysis (vm2) started with PID: $$!"; \
+	echo "   Monitor: tail -f analysis/run_power_analysis/logs/*.log"
+
+power_analysis_prod_vm3: _check_r_env validate
+	@mkdir -p "$(ROOT)/analysis/run_power_analysis/logs"
+	@echo "👨🏾‍💻 Starting power analysis (prod VM 3: n_lvl2=[300,1000,1100]) in background..."
+	@echo ""
+	@nohup bash "$(ROOT)/analysis/run_power_analysis/main.sh" prod_vm3 \
+		> "$(ROOT)/analysis/run_power_analysis/logs/prod_vm3_$$(date +%Y%m%d_%H%M%S).log" 2>&1 & \
+	echo "🚀 Power analysis (vm3) started with PID: $$!"; \
+	echo "   Monitor: tail -f analysis/run_power_analysis/logs/*.log"
+
+power_analysis_prod_vm4: _check_r_env validate
+	@mkdir -p "$(ROOT)/analysis/run_power_analysis/logs"
+	@echo "👨🏾‍💻 Starting power analysis (prod VM 4: n_lvl2=[400,600,1400]) in background..."
+	@echo ""
+	@nohup bash "$(ROOT)/analysis/run_power_analysis/main.sh" prod_vm4 \
+		> "$(ROOT)/analysis/run_power_analysis/logs/prod_vm4_$$(date +%Y%m%d_%H%M%S).log" 2>&1 & \
+	echo "🚀 Power analysis (vm4) started with PID: $$!"; \
+	echo "   Monitor: tail -f analysis/run_power_analysis/logs/*.log"
+
+power_analysis_prod_vm5: _check_r_env validate
+	@mkdir -p "$(ROOT)/analysis/run_power_analysis/logs"
+	@echo "👨🏾‍💻 Starting power analysis (prod VM 5: n_lvl2=[500,700,1200]) in background..."
+	@echo ""
+	@nohup bash "$(ROOT)/analysis/run_power_analysis/main.sh" prod_vm5 \
+		> "$(ROOT)/analysis/run_power_analysis/logs/prod_vm5_$$(date +%Y%m%d_%H%M%S).log" 2>&1 & \
+	echo "🚀 Power analysis (vm5) started with PID: $$!"; \
 	echo "   Monitor: tail -f analysis/run_power_analysis/logs/*.log"
 
 # ---------------------------------------------------------------------------

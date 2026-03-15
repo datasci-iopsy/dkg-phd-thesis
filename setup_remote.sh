@@ -34,6 +34,18 @@ if [[ ! -f "$(dirname "$0")/Makefile" ]]; then
     exit 1
 fi
 
+# ---------------------------------------------------------------------------
+# Guard: dpkg must be in a clean state before apt operations
+# ---------------------------------------------------------------------------
+
+DPKG_PENDING=$(dpkg --audit 2>/dev/null | wc -l | tr -d ' ')
+if [[ "${DPKG_PENDING}" -gt 0 ]]; then
+    echo "❌ dpkg has ${DPKG_PENDING} unconfigured package(s). Run clean_linux_distro.sh first:"
+    echo "   bash clean_linux_distro.sh"
+    echo "   bash setup_remote.sh"
+    exit 1
+fi
+
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting remote VM setup..."
 echo ""
 

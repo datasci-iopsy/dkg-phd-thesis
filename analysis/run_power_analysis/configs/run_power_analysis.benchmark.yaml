@@ -1,0 +1,22 @@
+# * Power Analysis Configuration
+# * Version: Benchmark (3 n_lvl2 values × 50 sims — timing probe before full prod run)
+# * Run on one VM first; use wall-clock time to estimate full-grid duration per VM.
+# * Scale formula:
+# *   total_grid_hours = (benchmark_wall_min / 60) × (1000/50) × (15/3) / 14_workers
+# *   per_vm_hours     = total_grid_hours / 5
+# * If per_vm_hours > 6, consider splitting to 10 VMs (2 n_lvl2 values each).
+params:
+  max_cores: 14 # ! ADJUST AS NEEDED: 14 for 16-core university VM; 8 for local M1 Max
+  n_lvl1: [3]
+  n_lvl2: [200, 800, 1500]
+  lvl1_effect_std: [0.10, 0.30, 0.50]
+  lvl2_effect_std: [0.10, 0.30, 0.50]
+  xlvl_effect_std: [0.10, 0.30, 0.50]
+  icc: [0.10, 0.30, 0.50]
+  rand_slope_std: [0.01, 0.09, 0.25]
+  alpha: [0.05]
+  use_REML: [TRUE]
+  n_sims: 50
+  verbose: FALSE
+  return_df: TRUE
+  rand_seed: 8762

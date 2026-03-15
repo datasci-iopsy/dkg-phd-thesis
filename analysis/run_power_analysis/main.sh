@@ -8,12 +8,12 @@
 # Usage:
 #   bash main.sh <version>
 #   nohup bash main.sh dev 2>&1 &
-#   nohup bash main.sh prod_set1 > logs/set1.log 2>&1 &   # run alongside prod for full 2,430-cell grid
+#   nohup bash main.sh prod_vm1 > logs/vm1.log 2>&1 &   # one VM config per machine
 # ---------------------------------------------------------------------------
 
 set -euo pipefail
 
-version="${1:?ERROR: version argument required (dev, prod, or prod_set1)}"
+version="${1:?ERROR: version argument required (dev, prod, prod_set1, benchmark, or prod_vm1–prod_vm5)}"
 
 # resolve this script's directory regardless of where invoked from
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
