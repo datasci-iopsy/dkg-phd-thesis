@@ -31,7 +31,7 @@ BOOT_USAGE=$(df /boot --output=pcent 2>/dev/null | tail -1 | tr -d ' %' || echo 
 DPKG_PENDING=$(dpkg --audit 2>/dev/null | wc -l | tr -d ' ')
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Disk health check:"
-df -h / /boot /var /tmp 2>/dev/null | awk 'NR==1 || $6=="/" || $6=="/boot" || $6=="/var" || $6=="/tmp'
+df -h / /boot 2>/dev/null
 
 if [[ "${BOOT_USAGE}" -lt 75 ]] && [[ "${DPKG_PENDING}" -eq 0 ]]; then
     echo ""
@@ -106,7 +106,7 @@ sudo apt-get update -qq
 
 echo ""
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Final disk health:"
-df -h / /boot /var /tmp 2>/dev/null | awk 'NR==1 || $6=="/" || $6=="/boot" || $6=="/var" || $6=="/tmp'
+df -h / /boot 2>/dev/null
 
 ROOT_AVAIL_KB=$(df / --output=avail 2>/dev/null | tail -1 | tr -d ' ')
 if [[ "${ROOT_AVAIL_KB}" -lt 3145728 ]]; then
