@@ -251,16 +251,45 @@ If `renv` itself is not installed, R will attempt to bootstrap it from the `renv
 <details>
 <summary>Install or update R on Linux (Ubuntu)</summary>
 
+**Pre-condition**: if `/boot` is full, clear old kernel images first (see "Linux kernel disk space issues" below). A full `/boot` causes `apt` to fail mid-install.
+
+The easiest path is to run `setup_remote.sh` from the project root, which handles all of the steps below automatically:
+
 ```bash
+bash setup_remote.sh
+```
+
+Or manually, step by step:
+
+```bash
+# 1. Prerequisites for adding the CRAN PPA
+sudo apt-get install -y software-properties-common dirmngr wget
+
+# 2. CRAN signing key
 wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
     | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
 
+# 3. CRAN R 4.x PPA (provides latest R 4.x, currently 4.4.x; upgrades any existing R)
 sudo add-apt-repository \
     "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
 
-sudo apt update
-sudo apt install r-base
+sudo apt-get update
+
+# 4. R 4.4 + system build dependencies (required to compile R packages from source)
+sudo apt-get install -y \
+    r-base r-base-dev build-essential \
+    libgfortran5 \
+    liblapack-dev libopenblas-dev \
+    libcurl4-openssl-dev libssl-dev libxml2-dev
+
+# 5. Verify
+Rscript --version   # should show 4.4.x
+
+# 6. Restore R packages
+make setup_r
 ```
+
+Note: `r-base-dev` and the system libraries are required to compile R packages from source (lme4, MASS, Matrix, etc. all have compiled code). Omitting them causes renv::restore() to fail.
 </details>
 
 <details>

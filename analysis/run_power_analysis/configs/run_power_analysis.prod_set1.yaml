@@ -1,10 +1,10 @@
 # * Power Analysis Configuration
-# * Version: Prod (set 2 of 2: n_lvl2 = 200, 400, 600, 800, 1000)
-# * Pair with prod_set1 for the full 2,430-cell grid (10 n_lvl2 values)
+# * Version: Prod set 1 of 2 (n_lvl2 = 100, 300, 500, 700, 900)
+# * Pair with prod for the full 2,430-cell grid (10 n_lvl2 values)
 params:
   max_cores: 14 # ! ADJUST AS NEEDED: 14 for 16-core university VM; 8 for local M1 Max; leave blank for default min(4, availableCores()-4)
   n_lvl1: [3]
-  n_lvl2: [200, 400, 600, 800, 1000]
+  n_lvl2: [100, 300, 500, 700, 900]
   lvl1_effect_std: [0.10, 0.30, 0.50]
   lvl2_effect_std: [0.10, 0.30, 0.50]
   xlvl_effect_std: [0.10, 0.30, 0.50]
