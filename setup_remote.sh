@@ -86,19 +86,21 @@ sudo apt-get install -y --no-install-recommends \
     libxml2-dev
 
 # ---------------------------------------------------------------------------
-# Step 5: Verify R version is 4.4.x
+# Step 5: Verify R version is >= 4.4
 # ---------------------------------------------------------------------------
 
 echo ""
 r_ver=$(Rscript --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Installed R version: ${r_ver}"
 
-r_major_minor=$(echo "${r_ver}" | grep -oE '^[0-9]+\.[0-9]+')
-if [[ "${r_major_minor}" != "4.4" ]]; then
+r_major=$(echo "${r_ver}" | cut -d. -f1)
+r_minor=$(echo "${r_ver}" | cut -d. -f2)
+if [[ "${r_major}" -lt 4 ]] || { [[ "${r_major}" -eq 4 ]] && [[ "${r_minor}" -lt 4 ]]; }; then
     echo ""
-    echo "❌ Expected R 4.4.x but got ${r_ver}."
-    echo "   The CRAN PPA may not have refreshed, or the system R is shadowing the new install."
-    echo "   Try: sudo apt-get install --only-upgrade r-base r-base-dev"
+    echo "❌ R >= 4.4 required but got ${r_ver}."
+    echo "   The CRAN PPA upgrade may not have taken effect."
+    echo "   Try: sudo apt-get install --only-upgrade r-base r-base-core r-base-dev"
+    echo "   Or use rig to install a specific version: https://github.com/r-lib/rig"
     exit 1
 fi
 

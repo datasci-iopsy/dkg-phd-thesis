@@ -41,10 +41,11 @@ _check_r_env:
 	}
 	@r_ver=$$(Rscript --version 2>&1 | grep -oE '[0-9]+\.[0-9]+' | head -1); \
 	echo "ℹ️  R version: $$r_ver"; \
-	case "$$r_ver" in \
-		4.4*) ;; \
-		*) echo "⚠️  Expected R 4.4; got $$r_ver — proceed with caution." ;; \
-	esac
+	r_major=$$(echo "$$r_ver" | cut -d. -f1); \
+	r_minor=$$(echo "$$r_ver" | cut -d. -f2); \
+	if [ "$$r_major" -lt 4 ] || { [ "$$r_major" -eq 4 ] && [ "$$r_minor" -lt 4 ]; }; then \
+		echo "⚠️  R >= 4.4 required; got $$r_ver — proceed with caution."; \
+	fi
 	@[ -f "$(ROOT)/renv.lock" ] || { \
 		echo "❌ renv.lock not found. Are you running from the project root?"; \
 		echo "   Expected: $(ROOT)/renv.lock"; \
