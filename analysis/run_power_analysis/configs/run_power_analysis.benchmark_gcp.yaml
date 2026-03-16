@@ -1,0 +1,19 @@
+# * Power Analysis Configuration
+# * Version: Benchmark GCP (calibrate per-core GCP speed vs university VM)
+# * Uses 14 workers intentionally — matches university benchmark for direct comparison
+# * Calibration: speedup = 61.2 / gcp_wall_min; prod_hours = 1426 / (174 × speedup)
+params:
+  max_cores: 14 # intentionally matches university worker count for speed comparison
+  n_lvl1: [3]
+  n_lvl2: [200, 800, 1500]
+  lvl1_effect_std: [0.10, 0.30, 0.50]
+  lvl2_effect_std: [0.10, 0.30, 0.50]
+  xlvl_effect_std: [0.10, 0.30, 0.50]
+  icc: [0.10, 0.30, 0.50]
+  rand_slope_std: [0.01, 0.09, 0.25]
+  alpha: [0.05]
+  use_REML: [TRUE]
+  n_sims: 50
+  verbose: FALSE
+  return_df: TRUE
+  rand_seed: 8762
