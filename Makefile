@@ -22,6 +22,7 @@ FN ?= run_qualtrics_scheduling
         renv_restore renv_status renv_repair renv_snapshot \
         power_analysis_dev power_analysis_prod \
         power_analysis_gcp_benchmark power_analysis_gcp_prod \
+        power_visual \
         synthetic_analysis synthetic_eda synthetic_measurement \
         synthetic_mlm synthetic_correlation \
         py_install py_lint py_format py_sqlfmt py_test \
@@ -95,6 +96,7 @@ help:
 	@echo "   make power_analysis_prod         Full local grid, background (~hours)"
 	@echo "   make power_analysis_gcp_benchmark GCP timing probe (14 workers)"
 	@echo "   make power_analysis_gcp_prod     GCP full grid (174 workers)"
+	@echo "   make power_visual                Power curve figures (after any run)"
 	@echo ""
 	@echo "🔬 SYNTHETIC DATA ANALYSIS"
 	@echo "   make synthetic_analysis    Run all four scripts in sequence"
@@ -314,6 +316,14 @@ power_analysis_gcp_prod: _check_r_env validate
 		> "$(ROOT)/analysis/run_power_analysis/logs/prod_gcp_$$(date +%Y%m%d_%H%M%S).log" 2>&1 & \
 	echo "🚀 GCP power analysis started with PID: $$!"; \
 	echo "   Monitor: tail -f analysis/run_power_analysis/logs/*.log"
+
+power_visual: _check_r_env
+	@echo "📊 Generating power analysis visualizations..."
+	@Rscript "$(ROOT)/analysis/run_power_analysis/scripts/visualize_power_analysis.R" || { \
+		echo "❌ visualize_power_analysis.R failed"; \
+		exit 1; \
+	}
+	@echo "✅ Visualizations complete. Figures → analysis/run_power_analysis/figs/"
 
 # ---------------------------------------------------------------------------
 # Synthetic Data Analysis
