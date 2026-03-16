@@ -6,7 +6,6 @@ Simulation-based sensitivity analysis for two-level (multilevel) models, followi
 
 - [run\_power\_analysis](#run_power_analysis)
   - [Overview](#overview)
-  - [Directory structure](#directory-structure)
   - [How it works](#how-it-works)
   - [Requirements](#requirements)
     - [OS compatibility](#os-compatibility)
@@ -31,33 +30,7 @@ The program builds a full factorial grid from configuration parameters, distribu
 
 The architecture follows a thin-wrapper pattern: [`main.sh`](main.sh) handles process lifecycle (log file creation, wall-clock timing), while [`run_power_analysis.r`](scripts/run_power_analysis.r) owns all application logic (path resolution, configuration, renv activation, parallel execution, and output).
 
-## Directory structure
-
-```
-analysis/
-  run_power_analysis/
-    configs/
-      run_power_analysis.dev.yaml             # Small grid, low sim count for testing
-      run_power_analysis.prod.yaml            # Full factorial grid for dissertation
-      run_power_analysis.benchmark_gcp.yaml   # GCP timing probe (14 workers, 50 sims)
-      run_power_analysis.prod_gcp.yaml        # GCP full grid (174 workers, 3,645 cells)
-    data/                             # Output .rds/.csv (gitignored, created at runtime)
-    figs/                             # Figures (gitignored, created at runtime)
-    logs/                             # Timestamped log files (gitignored, created at runtime)
-    scripts/
-      run_power_analysis.r            # Main orchestration script
-    utils/
-      power_analysis_utils.r          # Simulation engine (Arend & Schafer)
-    main.sh                           # Thin bash wrapper
-    README.md                         # This file
-  shared/
-    utils/
-      common_utils.r                  # Shared utilities (logging, config, etc.)
-  tests/
-    validate_r_structure.sh           # Static pre-flight validation
-```
-
-The `data/`, `logs/`, and `figs/` directories are created automatically at runtime and should be listed in `.gitignore`.
+Key entry points: [`main.sh`](main.sh) (bash wrapper) and [`scripts/run_power_analysis.r`](scripts/run_power_analysis.r) (orchestrator). The simulation engine lives in [`utils/power_analysis_utils.r`](utils/power_analysis_utils.r). Runtime directories (`data/`, `logs/`, `figs/`) are created automatically and gitignored.
 
 ## How it works
 
@@ -86,7 +59,7 @@ The simulation engine ([`power_analysis_utils.r`](utils/power_analysis_utils.r))
 ### System requirements
 
 - `bash` (any modern version; developed on 5.x)
-- `R >= 4.2.0`
+- `R >= 4.4.0`
 - `Python` (required by the `argparse` R package via `findpython`)
 
 ### R packages
@@ -113,15 +86,15 @@ Key R packages (installed automatically via `renv`):
 
 ## Configuration
 
-The program uses YAML configuration files in [`configs/`](configs/) to define the parameter space. Two configurations are provided:
+The program uses YAML configuration files in [`configs/`](configs/) to define the parameter space. Four configurations are provided:
 
-**[`run_power_analysis.dev.yaml`](configs/run_power_analysis.dev.yaml)**: A minimal grid for development and testing. Uses a small number of Level 2 sample sizes, single values for all effect sizes, and a low simulation count (10). Runs in seconds.
+**[`run_power_analysis.dev.yaml`](configs/run_power_analysis.dev.yaml)**: A minimal grid for development and testing. 3 Level 2 sample sizes with single values for all effect sizes, yielding **3 combinations at 10 simulations each**. Runs in seconds.
 
-**[`run_power_analysis.prod.yaml`](configs/run_power_analysis.prod.yaml)**: The full factorial grid used for the dissertation. Crosses 5 Level 2 sample sizes (200-1000) with 3 values each for Level 1 effect size, Level 2 effect size, cross-level effect size, ICC, and random slope variance, yielding 1,215 parameter combinations at 1,000 simulations each.
+**[`run_power_analysis.prod.yaml`](configs/run_power_analysis.prod.yaml)**: The full factorial grid used for the dissertation. Crosses 5 Level 2 sample sizes (200-1000) with 3 values each for Level 1 effect size, Level 2 effect size, cross-level effect size, ICC, and random slope variance, yielding **1,215 combinations at 1,000 simulations each**.
 
-**[`run_power_analysis.benchmark_gcp.yaml`](configs/run_power_analysis.benchmark_gcp.yaml)**: A timing probe for GCP VMs. Uses 14 workers (matching local benchmarks for comparison), 3 Level 2 sizes, and 50 simulations. Run this first on a new VM to calibrate expected runtime.
+**[`run_power_analysis.benchmark_gcp.yaml`](configs/run_power_analysis.benchmark_gcp.yaml)**: A timing probe for GCP VMs. Uses the full effect-size grid with 3 Level 2 sizes, yielding **729 combinations at 50 simulations each**. Uses 14 workers (matching local benchmarks for direct speed comparison). Run this first on a new VM to calibrate expected runtime.
 
-**[`run_power_analysis.prod_gcp.yaml`](configs/run_power_analysis.prod_gcp.yaml)**: The expanded GCP grid. Crosses 15 Level 2 sample sizes (100-1500 by 100) with the same effect-size grid as prod, yielding 3,645 parameter combinations at 1,000 simulations each. Configured for 174 workers on a `c3-highcpu-176` instance.
+**[`run_power_analysis.prod_gcp.yaml`](configs/run_power_analysis.prod_gcp.yaml)**: The expanded GCP grid. Crosses 15 Level 2 sample sizes (100-1500 by 100) with the same effect-size grid as prod, yielding **3,645 combinations at 1,000 simulations each**. Configured for 174 workers on a `c3-highcpu-176` instance.
 
 | Parameter         | Description                                            |
 | ----------------- | ------------------------------------------------------ |
@@ -210,6 +183,8 @@ The results data frame contains one row per effect per parameter combination (e.
 
 Power > 0.80 is conventionally interpreted as adequate statistical power.
 
+**Figures** (`figs/`): Power curve visualizations can be generated from the results data using the visualization script. Figures are saved to `figs/` and are gitignored.
+
 ## Static validation
 
 A pre-flight validation script checks directory structure, file presence, path resolution logic, configuration parsing, and R syntax without requiring any R packages to be installed. Run it from the `analysis/tests/` directory:
@@ -225,16 +200,16 @@ The script reports PASS/FAIL/WARN for each check and exits with a non-zero code 
 <details>
 <summary>Long-running processes</summary>
 
-The production configuration produces a 1,215-cell parameter matrix. With 1,000 simulations per cell, total runtime depends heavily on available cores.
+Total runtime depends heavily on available cores and grid size.
 
 Reference benchmarks:
 
-| System             | Cores Used | Wall-Clock Time |
-| ------------------ | ---------- | --------------- |
-| MacBook Pro M1 Max | 6 of 10    | ~18.5 hours     |
-| GCP `c3-highcpu-176` | 174 of 176 | ~3-5 hours (est.) |
+| Config    | System                   | Grid     | Cores Used | Wall-Clock Time |
+| --------- | ------------------------ | -------- | ---------- | --------------- |
+| `prod`    | MacBook Pro M1 Max       | 1,215    | 6 of 10    | ~18.5 hours     |
+| `prod_gcp`| GCP `c3-highcpu-176`     | 3,645    | 174 of 176 | ~7 hours 10 min |
 
-Runtime scales roughly inversely with core count. Use `benchmark_gcp` to calibrate: `speedup = 61.2 / gcp_wall_min`; then `prod_hours = 1426 / (174 x speedup)`. Set `max_cores` in the config to the VM's vCPU count minus 2.
+Runtime scales roughly inversely with core count. Use `benchmark_gcp` to calibrate on a new VM: `speedup = 61.2 / gcp_wall_min`; then `prod_hours = grid_cells / (workers x speedup)`. Set `max_cores` in the config to the VM's vCPU count minus 2.
 
 The program logs system info at startup so you can verify core allocation.
 </details>
@@ -295,6 +270,18 @@ sudo apt autoremove --purge
 # Verify boot space
 df -h /boot
 ```
+</details>
+
+<details>
+<summary>University HPC / shared server limitations</summary>
+
+This analysis was originally developed to run on university HPC infrastructure. In practice, several issues made this impractical:
+
+- **R version pinning**: University-managed R installations were often below 4.4, and users lacked permissions to install or upgrade system-wide R. Building R from source required compiler toolchains that were also restricted.
+- **Library compilation failures**: Packages like `lme4`, `RhpcBLASctl`, and `simr` depend on system libraries (`liblapack`, `libopenblas`, `libcurl`) that were missing or outdated. Without `sudo` access, installing these dependencies required coordination with IT.
+- **Job scheduler constraints**: HPC batch schedulers (e.g., SLURM) added overhead for iterating on configuration. Interactive sessions had time limits that made long-running `prod` grids unreliable.
+
+These issues led to the GCP Compute Engine approach: a fresh Ubuntu VM with full root access, where R and all dependencies can be installed cleanly via [`gcp/deploy/setup_gcp_vm.sh`](../../gcp/deploy/setup_gcp_vm.sh). The `benchmark_gcp` and `prod_gcp` configurations were designed specifically for this workflow.
 </details>
 
 <details>
