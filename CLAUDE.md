@@ -75,3 +75,31 @@ Schema changes: `models/qualtrics.py` → `bq_schemas.py` → `web_service_paylo
 - Break large changes into reviewable chunks
 - **Worktrees**: safe for all code edits, tests, and R simulations — never run deploy commands from a worktree
 - When working across a worktree + main session simultaneously, coordinate schema changes through main only
+
+## CodeRabbit review triage
+
+When a prompt contains `coderabbit-instructions` in its source path, treat it as a CodeRabbit review to triage. The review profile is "assertive" — expect a mix of genuine issues and nitpicks.
+
+**For each finding, assign a severity (1–5):**
+
+| Severity | Meaning | Action |
+|----------|---------|--------|
+| 1 | Style nitpick, personal preference | Acknowledge, no change needed |
+| 2 | Minor convention gap (e.g., missing docstring on a helper) | Note for future, skip unless trivial to fix |
+| 3 | Valid suggestion that improves clarity or consistency | Fix if low-effort, otherwise flag for user |
+| 4 | Real issue — logic bug, missing validation, security gap, convention violation with consequences | **Fix and explain** |
+| 5 | Critical — data loss risk, security vulnerability, broken pipeline, deploy safety | **Fix immediately, explain impact** |
+
+**Process:**
+1. List each finding with its assigned severity and a one-line rationale
+2. For severity 4+: propose a concrete fix (diff or description)
+3. For severity 1–2: acknowledge briefly, do not make changes unless the user asks
+4. Group findings by file when there are multiple
+5. End with a summary: total findings, count by severity, files touched by fixes
+
+**Calibration guidance** (assertive profile generates these frequently — do not over-react):
+- "Add type hint" on an internal helper → severity 2 (convention, not a bug)
+- "Use `log_msg()` instead of `cat()`" → severity 3 (matches analysis/CLAUDE.md convention)
+- "Missing `tryCatch()` in parallel worker" → severity 4 (silent failures in production)
+- "Hardcoded secret / project ID" → severity 5 (security)
+- "Consider renaming variable" → severity 1 (subjective preference)
