@@ -12,6 +12,8 @@ Shared utilities in `analysis/shared/utils/common_utils.r`.
 Rscript -e "renv::restore()"                               # restore packages from renv.lock
 bash run_power_analysis/main.sh dev                        # dev grid (seconds)
 bash run_power_analysis/main.sh prod                       # full grid (hours)
+bash run_power_analysis/main.sh benchmark_gcp              # GCP timing probe
+bash run_power_analysis/main.sh prod_gcp                   # GCP full grid (3,645 cells)
 bash analysis/tests/validate_r_structure.sh                # pre-flight; run from project root
 ```
 
@@ -19,7 +21,7 @@ bash analysis/tests/validate_r_structure.sh                # pre-flight; run fro
 
 ```
 run_power_analysis/
-  configs/        # dev.yaml / prod.yaml — sim parameters
+  configs/        # dev.yaml / prod.yaml / *_gcp.yaml — sim parameters
   scripts/        # run_power_analysis.r (orchestrator)
   utils/          # power_analysis_utils.r (simulation engine)
   data/           # timestamped .rds + .csv outputs (gitignored)
@@ -61,8 +63,17 @@ shared/utils/
 - L2 time-invariant (grand-mean centered): `VAR.BP` — e.g. `PSYK.BR`
 - Never mix centering levels in a single model term
 
+## GCP VM workflow
+
+For large grids, provision a GCP Compute Engine VM via `manage_compute.py`:
+1. `python gcp/deploy/manage_compute.py setup` — creates VM, runs `setup_gcp_vm.sh`
+2. SSH in, run `make power_analysis_gcp_prod` (or `benchmark_gcp` first to calibrate)
+3. `python gcp/deploy/manage_compute.py scp` — download results
+4. `python gcp/deploy/manage_compute.py teardown` — delete VM
+
+Machine type and zone are configured in `gcp/deploy/compute.yaml`.
+
 ## Worktree notes
 
 - `renv.lock` is shared — run `renv::restore()` once per worktree checkout, not repeatedly
 - Simulation output (`data/`) is gitignored; each worktree produces independent output
-- Never run `main.sh prod` from a worktree without confirming the output path won't collide with main

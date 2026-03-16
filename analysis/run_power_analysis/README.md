@@ -37,8 +37,10 @@ The architecture follows a thin-wrapper pattern: [`main.sh`](main.sh) handles pr
 analysis/
   run_power_analysis/
     configs/
-      run_power_analysis.dev.yaml     # Small grid, low sim count for testing
-      run_power_analysis.prod.yaml    # Full factorial grid for dissertation
+      run_power_analysis.dev.yaml             # Small grid, low sim count for testing
+      run_power_analysis.prod.yaml            # Full factorial grid for dissertation
+      run_power_analysis.benchmark_gcp.yaml   # GCP timing probe (14 workers, 50 sims)
+      run_power_analysis.prod_gcp.yaml        # GCP full grid (174 workers, 3,645 cells)
     data/                             # Output .rds/.csv (gitignored, created at runtime)
     figs/                             # Figures (gitignored, created at runtime)
     logs/                             # Timestamped log files (gitignored, created at runtime)
@@ -117,6 +119,10 @@ The program uses YAML configuration files in [`configs/`](configs/) to define th
 
 **[`run_power_analysis.prod.yaml`](configs/run_power_analysis.prod.yaml)**: The full factorial grid used for the dissertation. Crosses 5 Level 2 sample sizes (200-1000) with 3 values each for Level 1 effect size, Level 2 effect size, cross-level effect size, ICC, and random slope variance, yielding 1,215 parameter combinations at 1,000 simulations each.
 
+**[`run_power_analysis.benchmark_gcp.yaml`](configs/run_power_analysis.benchmark_gcp.yaml)**: A timing probe for GCP VMs. Uses 14 workers (matching local benchmarks for comparison), 3 Level 2 sizes, and 50 simulations. Run this first on a new VM to calibrate expected runtime.
+
+**[`run_power_analysis.prod_gcp.yaml`](configs/run_power_analysis.prod_gcp.yaml)**: The expanded GCP grid. Crosses 15 Level 2 sample sizes (100-1500 by 100) with the same effect-size grid as prod, yielding 3,645 parameter combinations at 1,000 simulations each. Configured for 174 workers on a `c3-highcpu-176` instance.
+
 | Parameter         | Description                                            |
 | ----------------- | ------------------------------------------------------ |
 | `max_cores`       | Max parallel workers (NULL = conservative default)     |
@@ -153,6 +159,10 @@ bash analysis/run_power_analysis/main.sh prod
 
 # Background a long-running production run
 nohup bash analysis/run_power_analysis/main.sh prod &
+
+# GCP VM: benchmark first, then full grid
+bash analysis/run_power_analysis/main.sh benchmark_gcp
+nohup bash analysis/run_power_analysis/main.sh prod_gcp &
 ```
 
 ### What happens at runtime
@@ -222,8 +232,9 @@ Reference benchmarks:
 | System             | Cores Used | Wall-Clock Time |
 | ------------------ | ---------- | --------------- |
 | MacBook Pro M1 Max | 6 of 10    | ~18.5 hours     |
+| GCP `c3-highcpu-176` | 174 of 176 | ~3-5 hours (est.) |
 
-Runtime scales roughly inversely with core count. A compute-optimized cloud VM (e.g., GCP `c2d-highcpu-56` with 56 vCPUs) could reduce this to 2-5 hours. Set `max_cores` in the prod config to match the VM's vCPU count minus 2.
+Runtime scales roughly inversely with core count. Use `benchmark_gcp` to calibrate: `speedup = 61.2 / gcp_wall_min`; then `prod_hours = 1426 / (174 x speedup)`. Set `max_cores` in the config to the VM's vCPU count minus 2.
 
 The program logs system info at startup so you can verify core allocation.
 </details>
@@ -284,6 +295,33 @@ sudo apt autoremove --purge
 # Verify boot space
 df -h /boot
 ```
+</details>
+
+<details>
+<summary>GCP VM setup and usage</summary>
+
+The `manage_compute.py` script automates VM lifecycle. Typical workflow:
+
+```bash
+# 1. Create VM and bootstrap R environment
+python gcp/deploy/manage_compute.py setup
+
+# 2. SSH into the VM
+python gcp/deploy/manage_compute.py ssh
+
+# 3. On the VM: run benchmark first, then prod
+cd dkg-phd-thesis
+make power_analysis_gcp_benchmark    # timing probe (~minutes)
+nohup make power_analysis_gcp_prod & # full grid in background
+
+# 4. When done, download results
+python gcp/deploy/manage_compute.py scp
+
+# 5. Delete the VM to stop billing
+python gcp/deploy/manage_compute.py teardown
+```
+
+Machine type, zone, and disk size are configured in `gcp/deploy/compute.yaml`. The `c3-highcpu-176` instance provides 176 vCPUs (174 workers after reserving 2 for OS overhead). If capacity is unavailable in one zone, edit `compute.yaml` to try another from the `available_zones` list.
 </details>
 
 ## Contributing
