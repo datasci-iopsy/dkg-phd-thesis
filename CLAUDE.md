@@ -42,7 +42,7 @@ python gcp/deploy/manage_compute.py setup|status|ssh|scp|teardown  # Compute Eng
 
 Three Cloud Run functions chained via Pub/Sub: `run_qualtrics_scheduling` (HTTP) → `run_intake_confirmation` (Pub/Sub) → `run_followup_scheduling` (Pub/Sub). API Gateway fronts function 1 with `x-api-key` validation and IAM JWT injection.
 
-Power analysis: `main.sh` → `run_power_analysis.r` → parallel `simr` simulations (Arend & Schafer 2019). Dev: 9 combos × 10 sims. Prod: 3,645 cells × 1,000 sims on GCP `c3-highcpu-176`.
+Power analysis: `main.sh` → `run_power_analysis.r` → parallel `simr` simulations (Arend & Schafer 2019). Dev: 3 combos × 10 sims. Prod: 3,645 cells × 1,000 sims on GCP `c3-highcpu-176`.
 
 ## Verification
 
