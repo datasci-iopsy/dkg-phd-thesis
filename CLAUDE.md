@@ -27,7 +27,7 @@ bash analysis/run_power_analysis/main.sh prod_gcp       # GCP full grid (3,645 c
 bash analysis/tests/validate_r_structure.sh             # pre-flight; run from project root
 
 # GCP VM bootstrap (run once on a fresh VM after manage_compute.py setup)
-bash setup_gcp_vm.sh
+bash gcp/deploy/setup_gcp_vm.sh
 
 # Deploy (from project root, never from a worktree)
 python gcp/deploy/manage_functions.py dev <function-name>      # local dev server on :8080

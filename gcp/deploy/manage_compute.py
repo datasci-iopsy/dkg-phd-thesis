@@ -2,7 +2,7 @@
 
 Provisions a single high-CPU VM for running R power analysis
 simulations. The VM runs Ubuntu 22.04 LTS and is bootstrapped
-with setup_gcp_vm.sh (R + renv).
+with gcp/deploy/setup_gcp_vm.sh (R + renv).
 
 No service account or GCP API credentials needed -- the VM
 only runs R, no GCP SDK calls.
@@ -341,7 +341,10 @@ def handle_scp(args: argparse.Namespace) -> None:
 
     local_dest = PROJECT_ROOT / "analysis" / "run_power_analysis" / "data"
     local_dest.mkdir(parents=True, exist_ok=True)
-    remote_src = f"{vm.vm_name}:~/{vm.remote_results_dir}/"
+    # scp --recurse copies the directory INTO the target, so point at the
+    # parent so remote ``data/`` lands as ``local .../data/`` (not ``.../data/data/``).
+    local_parent = local_dest.parent
+    remote_src = f"{vm.vm_name}:~/{vm.remote_results_dir}"
 
     print("\n  Pulling results from VM...")
     print(f"  Remote: ~/{vm.remote_results_dir}/")
@@ -354,7 +357,7 @@ def handle_scp(args: argparse.Namespace) -> None:
             "scp",
             "--recurse",
             remote_src,
-            str(local_dest),
+            str(local_parent),
             f"--project={project}",
             f"--zone={vm.zone}",
         ],
