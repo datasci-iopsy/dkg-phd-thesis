@@ -42,7 +42,7 @@ bash analysis/tests/validate_r_structure.sh                # pre-flight; run fro
 ## GCP VM workflow
 
 For large grids, provision a GCP Compute Engine VM via `manage_compute.py`:
-1. `python gcp/deploy/manage_compute.py setup` — creates VM, runs `setup_gcp_vm.sh`
+1. `python gcp/deploy/manage_compute.py setup` — creates VM + `gcp/deploy/setup_gcp_vm.sh`
 2. SSH in, run `make power_analysis_gcp_prod` (or `benchmark_gcp` first to calibrate)
 3. `python gcp/deploy/manage_compute.py scp` — download results
 4. `python gcp/deploy/manage_compute.py teardown` — delete VM

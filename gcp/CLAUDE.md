@@ -20,7 +20,7 @@ python gcp/deploy/manage_gateway.py test [--now]    # end-to-end test; --now sch
 python gcp/deploy/manage_pubsub.py setup|teardown   # Pub/Sub topics
 
 # Compute Engine VM (power analysis)
-python gcp/deploy/manage_compute.py setup            # create VM + run setup_gcp_vm.sh
+python gcp/deploy/manage_compute.py setup            # create VM (then run setup_gcp_vm.sh)
 python gcp/deploy/manage_compute.py status           # show VM state + external IP
 python gcp/deploy/manage_compute.py ssh              # SSH into VM
 python gcp/deploy/manage_compute.py scp              # download results from VM

@@ -5,7 +5,7 @@
 # Installs R >= 4.4 via CRAN PPA, system libraries for compiling R packages,
 # and delegates to `make setup_r` for renv::restore().
 #
-# Usage: bash setup_gcp_vm.sh   (from the project root)
+# Usage: bash gcp/deploy/setup_gcp_vm.sh   (from the project root)
 # ---------------------------------------------------------------------------
 
 set -euo pipefail
@@ -22,7 +22,7 @@ fi
 # Project root guard: Makefile must be present
 if [ ! -f "Makefile" ]; then
     echo "ERROR: Makefile not found. Run this script from the project root."
-    echo "  cd /path/to/dkg-phd-thesis && bash setup_gcp_vm.sh"
+    echo "  cd /path/to/dkg-phd-thesis && bash gcp/deploy/setup_gcp_vm.sh"
     exit 1
 fi
 
