@@ -7,12 +7,16 @@
 #
 # Usage:
 #   bash main.sh <version>
-#   nohup bash main.sh dev 2>&1 &
+#   bash main.sh dev                          # local dev (seconds)
+#   bash main.sh prod                         # full grid (hours)
+#   bash main.sh benchmark_gcp                # GCP timing probe
+#   bash main.sh prod_gcp                     # GCP full grid
+#   nohup bash main.sh prod_gcp 2>&1 &       # background on GCP VM
 # ---------------------------------------------------------------------------
 
 set -euo pipefail
 
-version="${1:?ERROR: version argument required (dev or prod)}"
+version="${1:?ERROR: version argument required (dev, prod, benchmark_gcp, or prod_gcp)}"
 
 # resolve this script's directory regardless of where invoked from
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

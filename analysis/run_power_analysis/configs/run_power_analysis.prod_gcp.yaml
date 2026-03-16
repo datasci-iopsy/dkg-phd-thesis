@@ -1,0 +1,18 @@
+# * Power Analysis Configuration
+# * Version: Prod GCP (single large VM — full 3,645-cell grid)
+# * Recommended instance: c3-highcpu-176 (174 workers = 176 vCPUs - 2)
+params:
+  max_cores: 174 # c3-highcpu-176; set to your instance's vCPUs - 2
+  n_lvl1: [3]
+  n_lvl2: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500]
+  lvl1_effect_std: [0.10, 0.30, 0.50]
+  lvl2_effect_std: [0.10, 0.30, 0.50]
+  xlvl_effect_std: [0.10, 0.30, 0.50]
+  icc: [0.10, 0.30, 0.50]
+  rand_slope_std: [0.01, 0.09, 0.25]
+  alpha: [0.05]
+  use_REML: [TRUE]
+  n_sims: 1000
+  verbose: FALSE
+  return_df: TRUE
+  rand_seed: 8762

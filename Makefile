@@ -21,6 +21,7 @@ FN ?= run_qualtrics_scheduling
         validate \
         renv_restore renv_status renv_repair renv_snapshot \
         power_analysis_dev power_analysis_prod \
+        power_analysis_gcp_benchmark power_analysis_gcp_prod \
         synthetic_analysis synthetic_eda synthetic_measurement \
         synthetic_mlm synthetic_correlation \
         py_install py_lint py_format py_sqlfmt py_test \
@@ -28,6 +29,8 @@ FN ?= run_qualtrics_scheduling
         gcp_infra_up gcp_infra_down \
         gcp_gateway_up gcp_gateway_test gcp_gateway_down \
         gcp_pubsub_up gcp_pubsub_down \
+        gcp_compute_up gcp_compute_status gcp_compute_ssh \
+        gcp_compute_scp gcp_compute_down \
         _check_r_env _check_synthetic_inputs
 
 # ---------------------------------------------------------------------------
@@ -41,10 +44,11 @@ _check_r_env:
 	}
 	@r_ver=$$(Rscript --version 2>&1 | grep -oE '[0-9]+\.[0-9]+' | head -1); \
 	echo "ℹ️  R version: $$r_ver"; \
-	case "$$r_ver" in \
-		4.4*) ;; \
-		*) echo "⚠️  Expected R 4.4; got $$r_ver — proceed with caution." ;; \
-	esac
+	r_major=$$(echo "$$r_ver" | cut -d. -f1); \
+	r_minor=$$(echo "$$r_ver" | cut -d. -f2); \
+	if [ "$$r_major" -lt 4 ] || { [ "$$r_major" -eq 4 ] && [ "$$r_minor" -lt 4 ]; }; then \
+		echo "⚠️  Expected R >= 4.4; got $$r_ver — proceed with caution."; \
+	fi
 	@[ -f "$(ROOT)/renv.lock" ] || { \
 		echo "❌ renv.lock not found. Are you running from the project root?"; \
 		echo "   Expected: $(ROOT)/renv.lock"; \
@@ -87,8 +91,10 @@ help:
 	@echo "   make renv_snapshot      Update renv.lock from current environment"
 	@echo ""
 	@echo "📊 POWER ANALYSIS  (Arend & Schafer 2019)"
-	@echo "   make power_analysis_dev    Dev grid, foreground (~seconds)"
-	@echo "   make power_analysis_prod   Full grid, background via nohup (~hours)"
+	@echo "   make power_analysis_dev          Dev grid, foreground (~seconds)"
+	@echo "   make power_analysis_prod         Full local grid, background (~hours)"
+	@echo "   make power_analysis_gcp_benchmark GCP timing probe (14 workers)"
+	@echo "   make power_analysis_gcp_prod     GCP full grid (174 workers)"
 	@echo ""
 	@echo "🔬 SYNTHETIC DATA ANALYSIS"
 	@echo "   make synthetic_analysis    Run all four scripts in sequence"
@@ -105,6 +111,13 @@ help:
 	@echo ""
 	@echo "☁️  GCP  (deploy from main branch only)"
 	@echo "   make help_gcp           Full GCP deployment reference"
+	@echo ""
+	@echo "🖥️  GCP COMPUTE VM"
+	@echo "   make gcp_compute_up     Create power-analysis VM"
+	@echo "   make gcp_compute_status Show VM state + external IP"
+	@echo "   make gcp_compute_ssh    SSH into VM"
+	@echo "   make gcp_compute_scp    Download results from VM"
+	@echo "   make gcp_compute_down   Delete VM"
 	@echo ""
 	@echo "🔍 UTILITIES"
 	@echo "   make status             File counts, git branch, lock file status"
@@ -275,9 +288,31 @@ power_analysis_prod: _check_r_env validate
 	@echo ""
 	@echo "⚠️  This takes hours. Do NOT run from a worktree — output paths may collide."
 	@echo ""
+	@mkdir -p "$(ROOT)/analysis/run_power_analysis/logs"
 	@nohup bash "$(ROOT)/analysis/run_power_analysis/main.sh" prod \
 		> "$(ROOT)/analysis/run_power_analysis/logs/prod_$$(date +%Y%m%d_%H%M%S).log" 2>&1 & \
 	echo "🚀 Power analysis started with PID: $$!"; \
+	echo "   Monitor: tail -f analysis/run_power_analysis/logs/*.log"
+
+power_analysis_gcp_benchmark: _check_r_env validate
+	@echo "👨🏾‍💻 Running GCP benchmark (timing probe)..."
+	@echo ""
+	@bash "$(ROOT)/analysis/run_power_analysis/main.sh" benchmark_gcp || { \
+		echo ""; \
+		echo "❌ GCP benchmark failed. Check logs in:"; \
+		echo "   analysis/run_power_analysis/logs/"; \
+		exit 1; \
+	}
+	@echo ""
+	@echo "✅ GCP benchmark complete."
+
+power_analysis_gcp_prod: _check_r_env validate
+	@echo "👨🏾‍💻 Starting GCP power analysis (full grid) in background..."
+	@echo ""
+	@mkdir -p "$(ROOT)/analysis/run_power_analysis/logs"
+	@nohup bash "$(ROOT)/analysis/run_power_analysis/main.sh" prod_gcp \
+		> "$(ROOT)/analysis/run_power_analysis/logs/prod_gcp_$$(date +%Y%m%d_%H%M%S).log" 2>&1 & \
+	echo "🚀 GCP power analysis started with PID: $$!"; \
 	echo "   Monitor: tail -f analysis/run_power_analysis/logs/*.log"
 
 # ---------------------------------------------------------------------------
@@ -401,6 +436,26 @@ gcp_pubsub_up:
 gcp_pubsub_down:
 	@echo "🗑️  Tearing down Pub/Sub topics..."
 	@cd "$(ROOT)" && python gcp/deploy/manage_pubsub.py teardown
+
+gcp_compute_up:
+	@echo "🖥️  Creating power-analysis VM..."
+	@cd "$(ROOT)" && python gcp/deploy/manage_compute.py setup
+
+gcp_compute_status:
+	@echo "🖥️  Checking VM status..."
+	@cd "$(ROOT)" && python gcp/deploy/manage_compute.py status
+
+gcp_compute_ssh:
+	@echo "🖥️  SSH into power-analysis VM..."
+	@cd "$(ROOT)" && python gcp/deploy/manage_compute.py ssh
+
+gcp_compute_scp:
+	@echo "📥 Downloading results from VM..."
+	@cd "$(ROOT)" && python gcp/deploy/manage_compute.py scp
+
+gcp_compute_down:
+	@echo "🗑️  Deleting power-analysis VM..."
+	@cd "$(ROOT)" && python gcp/deploy/manage_compute.py teardown
 
 # ---------------------------------------------------------------------------
 # Utilities

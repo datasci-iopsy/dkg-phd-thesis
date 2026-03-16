@@ -2,7 +2,7 @@
 
 PhD dissertation: within-person fluctuation in burnout, need frustration, and turnover intentions.
 Three pillars: `gcp/` (Python GCP pipeline), `analysis/run_power_analysis/` (R simulations), `analysis/run_synthetic_data/` (test data).
-Python >=3.12,<3.13 (Poetry) and R 4.4 (renv) managed separately. See `gcp/CLAUDE.md` and `analysis/CLAUDE.md` for domain specifics.
+Python >=3.12,<3.13 (Poetry) and R >= 4.4 (renv) managed separately. See `gcp/CLAUDE.md` and `analysis/CLAUDE.md` for domain specifics.
 
 ## Makefile
 
@@ -20,8 +20,14 @@ poetry run pytest gcp/tests/ -v
 
 # R
 Rscript -e "renv::restore()"
-bash analysis/run_power_analysis/main.sh dev   # seconds; use 'prod' for full grid (hours)
-bash analysis/tests/validate_r_structure.sh  # pre-flight; run from project root
+bash analysis/run_power_analysis/main.sh dev            # seconds
+bash analysis/run_power_analysis/main.sh prod           # full local grid (hours)
+bash analysis/run_power_analysis/main.sh benchmark_gcp  # GCP timing probe
+bash analysis/run_power_analysis/main.sh prod_gcp       # GCP full grid (3,645 cells)
+bash analysis/tests/validate_r_structure.sh             # pre-flight; run from project root
+
+# GCP VM bootstrap (run once on a fresh VM after manage_compute.py setup)
+bash setup_gcp_vm.sh
 
 # Deploy (from project root, never from a worktree)
 python gcp/deploy/manage_functions.py dev <function-name>      # local dev server on :8080
@@ -29,6 +35,7 @@ python gcp/deploy/manage_functions.py deploy <function-name>   # deploy to GCP
 python gcp/deploy/manage_infra.py setup|teardown               # BigQuery tables
 python gcp/deploy/manage_gateway.py setup|test|teardown        # API Gateway
 python gcp/deploy/manage_pubsub.py setup|teardown              # Pub/Sub topics
+python gcp/deploy/manage_compute.py setup|status|ssh|scp|teardown  # Compute Engine VM
 ```
 
 ## GCP pipeline
@@ -53,7 +60,8 @@ API Gateway fronts function 1 (university org policy requires auth); validates `
 
 `main.sh` → `scripts/run_power_analysis.r` → parallel via `furrr::future_map_dfr()`.
 Implements Arend & Schafer (2019): variance components → unstandardized effects → `simr::makeLmer()` → `simr::powerSim()` with Kenward-Roger tests.
-Dev: 9 combos × 10 sims. Prod: 1,215 combos × 1,000 sims. Output: timestamped `.rds` + `.csv` in `data/`.
+Dev: 9 combos x 10 sims. Prod (local): 1,215 combos x 1,000 sims. GCP prod: 3,645 cells x 1,000 sims on a `c3-highcpu-176` (174 workers). Output: timestamped `.rds` + `.csv` in `data/`.
+GCP VM lifecycle: `manage_compute.py setup` → SSH + run → `scp` results → `teardown`.
 
 ## Verification
 
