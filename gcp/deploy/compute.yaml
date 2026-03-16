@@ -1,0 +1,35 @@
+# ================================================================
+# Compute Engine -- Power Analysis VM
+# ================================================================
+# Single VM for running R power analysis simulations.
+# No service account or GCP API access needed -- just R.
+#
+# Managed by manage_compute.py. Run 'setup' to create the VM;
+# 'teardown' to delete it and stop billing.
+# ================================================================
+
+compute:
+  vm_name: power-analysis-vm
+  machine_type: c3-highcpu-176
+  zone: us-central1-b
+  boot_disk_size_gb: 50
+  image_family: ubuntu-2204-lts
+  image_project: ubuntu-os-cloud
+
+  # setup_script is relative to PROJECT_ROOT (run inside the VM after clone)
+  setup_script: setup_gcp_vm.sh
+
+  # Results directory on the VM (for scp pull)
+  remote_results_dir: dkg-phd-thesis/analysis/run_power_analysis/data
+
+  # Zones where c3-highcpu-176 is available (for validation)
+  available_zones:
+    - us-central1-b
+    - us-central1-c
+    - us-central1-f
+    - europe-west1-b
+    - europe-west1-c
+    - europe-west1-d
+    - asia-east1-a
+    - asia-east1-b
+    - us-east1-b
