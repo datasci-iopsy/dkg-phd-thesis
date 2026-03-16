@@ -38,30 +38,11 @@ python gcp/deploy/manage_pubsub.py setup|teardown              # Pub/Sub topics
 python gcp/deploy/manage_compute.py setup|status|ssh|scp|teardown  # Compute Engine VM
 ```
 
-## GCP pipeline
+## Architecture overview
 
-Three Cloud Run functions in an async chain via Pub/Sub:
+Three Cloud Run functions chained via Pub/Sub: `run_qualtrics_scheduling` (HTTP) → `run_intake_confirmation` (Pub/Sub) → `run_followup_scheduling` (Pub/Sub). API Gateway fronts function 1 with `x-api-key` validation and IAM JWT injection.
 
-1. **`run_qualtrics_scheduling`** (HTTP) — Qualtrics webhook POST → Pydantic validation (`WebServicePayload`) → BigQuery `intake_raw` → publishes `IntakeProcessedMessage`
-2. **`run_intake_confirmation`** (Pub/Sub) — idempotency check → Twilio SMS → sets `_processed=TRUE` → publishes `FollowupSchedulingMessage`
-3. **`run_followup_scheduling`** (Pub/Sub) — idempotency check → builds 3 survey URLs → schedules 3 SMS via Twilio Message Scheduling API → writes SIDs to BigQuery
-
-API Gateway fronts function 1 (university org policy requires auth); validates `x-api-key`, injects IAM JWT.
-
-**Key patterns:**
-- **Schema source of truth**: `WebServicePayload` in `models/qualtrics.py` → BQ schema auto-generated via `gcp/shared/utils/bq_schemas.py`. Change models first; schema follows. Then update `web_service_payload.json` fixture and `test_models.py`.
-- **Config loading**: each function's `configs/` dir has YAMLs merged alphabetically by `config_loader.py`, validated against Pydantic `AppConfig`. Optional sections (`qualtrics`, `pubsub`, `followup_surveys`) omitted by functions that don't use them.
-- **Dependency groups**: `main` (shared), `fn-qualtrics-scheduling`, `fn-intake-confirmation`, `fn-followup-scheduling`, `dev`. Deploy exports `main` + function group to `requirements.txt`.
-- **Idempotency**: function 2 checks `_processed` flag; function 3 checks `scheduled_followups` table.
-- **Lazy imports**: Twilio and google-cloud-pubsub only loaded in publishing/sending functions.
-- **Followup timezone handling**: participant local time → UTC via `zoneinfo.ZoneInfo`; 16-min lead-time guard; past slots skipped. `send_immediately=True` (via `manage_gateway.py test --now`) bypasses fixed times and schedules at now+16/32/48 min for rapid end-to-end testing.
-
-## Power analysis
-
-`main.sh` → `scripts/run_power_analysis.r` → parallel via `furrr::future_map_dfr()`.
-Implements Arend & Schafer (2019): variance components → unstandardized effects → `simr::makeLmer()` → `simr::powerSim()` with Kenward-Roger tests.
-Dev: 9 combos x 10 sims. Prod (local): 1,215 combos x 1,000 sims. GCP prod: 3,645 cells x 1,000 sims on a `c3-highcpu-176` (174 workers). Output: timestamped `.rds` + `.csv` in `data/`.
-GCP VM lifecycle: `manage_compute.py setup` → SSH + run → `scp` results → `teardown`.
+Power analysis: `main.sh` → `run_power_analysis.r` → parallel `simr` simulations (Arend & Schafer 2019). Dev: 9 combos × 10 sims. Prod: 3,645 cells × 1,000 sims on GCP `c3-highcpu-176`.
 
 ## Verification
 
@@ -87,19 +68,19 @@ When a prompt contains `coderabbit-instructions` in its source path, treat it as
 | 1 | Style nitpick, personal preference | Acknowledge, no change needed |
 | 2 | Minor convention gap (e.g., missing docstring on a helper) | Note for future, skip unless trivial to fix |
 | 3 | Valid suggestion that improves clarity or consistency | Fix if low-effort, otherwise flag for user |
-| 4 | Real issue — logic bug, missing validation, security gap, convention violation with consequences | **Fix and explain** |
-| 5 | Critical — data loss risk, security vulnerability, broken pipeline, deploy safety | **Fix immediately, explain impact** |
+| 4 | Real issue — logic bug, missing validation, security gap | **Fix and explain** |
+| 5 | Critical — data loss, security vulnerability, broken pipeline | **Fix immediately, explain impact** |
 
 **Process:**
-1. List each finding with its assigned severity and a one-line rationale
-2. For severity 4+: propose a concrete fix (diff or description)
-3. For severity 1–2: acknowledge briefly, do not make changes unless the user asks
-4. Group findings by file when there are multiple
-5. End with a summary: total findings, count by severity, files touched by fixes
+1. List each finding with severity and a one-line rationale
+2. Severity 4+: propose a concrete fix (diff or description)
+3. Severity 1–2: acknowledge briefly, no changes unless user asks
+4. Group findings by file when multiple
+5. End with summary: total findings, count by severity, files touched
 
-**Calibration guidance** (assertive profile generates these frequently — do not over-react):
-- "Add type hint" on an internal helper → severity 2 (convention, not a bug)
-- "Use `log_msg()` instead of `cat()`" → severity 3 (matches analysis/CLAUDE.md convention)
-- "Missing `tryCatch()` in parallel worker" → severity 4 (silent failures in production)
-- "Hardcoded secret / project ID" → severity 5 (security)
-- "Consider renaming variable" → severity 1 (subjective preference)
+**Calibration** (assertive profile generates these frequently — do not over-react):
+- "Add type hint" on internal helper → 2 (convention, not a bug)
+- "Use `log_msg()` not `cat()`" → 3 (matches analysis/CLAUDE.md convention)
+- "Missing `tryCatch()` in parallel worker" → 4 (silent failures in production)
+- "Hardcoded secret / project ID" → 5 (security)
+- "Consider renaming variable" → 1 (subjective preference)

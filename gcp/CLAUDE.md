@@ -50,7 +50,7 @@ python gcp/deploy/manage_compute.py teardown         # delete VM (warns if resul
 - **Idempotency**: fn2 checks `_processed` flag in BQ; fn3 checks `scheduled_followups` table before writing
 - **Dependency groups**: deploy exports `main` + function-specific group to `requirements.txt`
 - **`functions.yaml`**: single source of truth for all functions, SAs, IAM roles, secrets, triggers
-- **`send_immediately` test flag**: `IntakeProcessedMessage` / `FollowupSchedulingMessage` carry `send_immediately: bool = False`; when `True`, fn3 schedules at now+16/32/48 min instead of fixed study times. Read from raw POST body by fn1 (not stored in BQ). Set via `manage_gateway.py test --now`.
+- **`send_immediately` test flag**: carried on `IntakeProcessedMessage` / `FollowupSchedulingMessage` (`bool = False`). When `True`, fn3 schedules at now+16/32/48 min instead of fixed study times. Set via `manage_gateway.py test --now`; read from POST body by fn1 (not stored in BQ).
 
 ## Schema change workflow
 

@@ -17,30 +17,6 @@ bash run_power_analysis/main.sh prod_gcp                   # GCP full grid (3,64
 bash analysis/tests/validate_r_structure.sh                # pre-flight; run from project root
 ```
 
-## Structure
-
-```
-run_power_analysis/
-  configs/        # dev.yaml / prod.yaml / *_gcp.yaml — sim parameters
-  scripts/        # run_power_analysis.r (orchestrator)
-  utils/          # power_analysis_utils.r (simulation engine)
-  data/           # timestamped .rds + .csv outputs (gitignored)
-  figs/           # output figures
-run_synthetic_data/
-  schemas/        # table schema definitions
-  data/import/    # input CSVs (required before running any analysis)
-  data/export/    # generated synthetic panel data
-  figs/eda/       # EDA output figures
-  figs/mlm/       # MLM output figures
-  scripts/r/      # analysis scripts — run in this order:
-    eda.R               # 1. exploratory data analysis
-    correlation.R       # 2. bivariate correlations
-    measurement_model.R # 3. CFA / measurement model
-    multilevel_model.R  # 4. main MLM analysis (71 KB)
-shared/utils/
-  common_utils.r  # log_msg(), load_config(), ensure_dir(), get_system_info()
-```
-
 ## R conventions
 
 - **Pipe**: native `|>` only — never `%>%`
