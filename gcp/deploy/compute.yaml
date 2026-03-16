@@ -17,7 +17,7 @@ compute:
   image_project: ubuntu-os-cloud
 
   # setup_script is relative to PROJECT_ROOT (run inside the VM after clone)
-  setup_script: setup_gcp_vm.sh
+  setup_script: gcp/deploy/setup_gcp_vm.sh
 
   # Results directory on the VM (for scp pull)
   remote_results_dir: dkg-phd-thesis/analysis/run_power_analysis/data
