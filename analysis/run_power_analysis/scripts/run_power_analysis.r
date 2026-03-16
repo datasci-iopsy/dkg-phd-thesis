@@ -6,7 +6,7 @@
 # Builds a full factorial parameter grid from config, distributes across
 # parallel workers via furrr, and saves timestamped results.
 #
-# Usage: Rscript run_power_analysis.r --version <dev|prod>
+# Usage: Rscript run_power_analysis.r --version <dev|prod|benchmark_gcp|prod_gcp>
 #        (Normally invoked by main.sh, not called directly)
 # ---------------------------------------------------------------------------
 
@@ -24,8 +24,8 @@ parser$add_argument(
     "--version",
     type = "character",
     required = TRUE,
-    choices = c("dev", "prod"),
-    help = "Configuration version to use (dev or prod)"
+    choices = c("dev", "prod", "benchmark_gcp", "prod_gcp"),
+    help = "Configuration version to use"
 )
 args <- parser$parse_args()
 version <- args$version
