@@ -27,6 +27,7 @@ bash analysis/tests/validate_r_structure.sh                # pre-flight; run fro
 - **Logging**: use `log_msg()` — never bare `print()` or `cat()` in scripts
 - **Parallel**: `furrr::future_map_dfr()` with `tryCatch()` wrappers in the mapping function
 - **Output**: always timestamp filenames; write `.rds` + `.csv` pairs
+  - **Visuals**: always use SVG as the output for visuals never PDFs unless explicitly directed
 
 ## SQL (sqlfmt)
 
