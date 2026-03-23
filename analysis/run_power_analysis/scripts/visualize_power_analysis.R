@@ -54,14 +54,14 @@ theme_power <- theme_bw(base_size = 12, base_family = "serif") +
 theme_set(theme_power)
 
 # Color palettes — hand-picked for max distinction
-pal_3 <- c("#E41A1C", "#377EB8", "#4DAF4A")   # red, blue, green (Brewer Set1)
+pal_3 <- c("#E41A1C", "#377EB8", "#4DAF4A") # red, blue, green (Brewer Set1)
 pal_3_dark <- c("#1B9E77", "#D95F02", "#7570B3") # teal, orange, purple (Brewer Dark2)
 
-# PDF save helper
-save_pdf <- function(plot, filename, width = 10, height = 7) {
+# SVG save helper
+save_svg <- function(plot, filename, width = 10, height = 7) {
     filepath <- file.path(FIGS_DIR, filename)
-    ggsave(filepath,
-        plot = plot, device = "pdf",
+    ggplot2::ggsave(filepath,
+        plot = plot, device = "svg",
         width = width, height = height, dpi = 300
     )
     log_msg("Saved: ", filepath)
@@ -181,7 +181,10 @@ results <- results |>
     )
 
 # Guard: flag any Effect values not handled by case_when above
-na_effects <- results |> filter(is.na(Own_Effect_Std)) |> pull(Effect) |> unique()
+na_effects <- results |>
+    filter(is.na(Own_Effect_Std)) |>
+    pull(Effect) |>
+    unique()
 if (length(na_effects) > 0) {
     warning(
         "Own_Effect_Std is NA for unrecognized Effect values: ",
@@ -192,15 +195,24 @@ if (length(na_effects) > 0) {
 
 # Dynamic palette sizing
 n_effect_sizes <- length(unique(na.omit(results$Own_Effect_Label)))
-n_rs_levels    <- length(unique(results$RS_Label))
+n_rs_levels <- length(unique(results$RS_Label))
 n_effect_types <- length(unique(na.omit(results$Effect_Label)))
 
-pal_effect_size <- if (n_effect_sizes <= 3) pal_3 else
+pal_effect_size <- if (n_effect_sizes <= 3) {
+    pal_3
+} else {
     colorRampPalette(pal_3)(n_effect_sizes)
-pal_rand_slope <- if (n_rs_levels <= 3) pal_3_dark else
+}
+pal_rand_slope <- if (n_rs_levels <= 3) {
+    pal_3_dark
+} else {
     colorRampPalette(pal_3_dark)(n_rs_levels)
-pal_effect_type <- if (n_effect_types <= 3) pal_3 else
+}
+pal_effect_type <- if (n_effect_types <= 3) {
+    pal_3
+} else {
     colorRampPalette(pal_3)(n_effect_types)
+}
 
 log_msg(
     "Palette sizes — effect_size: ", n_effect_sizes,
@@ -269,7 +281,7 @@ fig1 <- ggplot(
         fill = "Standardized Effect"
     )
 
-save_pdf(fig1, "01_power_curves_by_effect_size.pdf", width = 12, height = 10)
+save_svg(fig1, "01_power_curves_by_effect_size.svg", width = 12, height = 10)
 
 
 # --- [4] Figure 2: Random slope sensitivity ---------------------------------
@@ -318,7 +330,7 @@ fig2 <- ggplot(
         fill = "Random Slope SD"
     )
 
-save_pdf(fig2, "02_power_curves_by_random_slope.pdf", width = 12, height = 10)
+save_svg(fig2, "02_power_curves_by_random_slope.svg", width = 12, height = 10)
 
 
 # --- [5] Figure 3: Minimum N heatmap ----------------------------------------
@@ -380,7 +392,7 @@ fig3 <- ggplot(
         axis.ticks = element_blank()
     )
 
-save_pdf(fig3, "03_minimum_n_heatmap.pdf", width = 12, height = 5)
+save_svg(fig3, "03_minimum_n_heatmap.svg", width = 12, height = 5)
 
 
 # --- [6] Figure 4: Cross-level interaction full sensitivity ------------------
@@ -440,7 +452,7 @@ fig4 <- ggplot(
         fill = "Interaction Effect"
     )
 
-save_pdf(fig4, "04_cross_level_full_sensitivity.pdf", width = 12, height = 10)
+save_svg(fig4, "04_cross_level_full_sensitivity.svg", width = 12, height = 10)
 
 
 # --- [7] Figure 5: Power plateau at medium parameters -----------------------
@@ -513,7 +525,7 @@ fig5 <- fig5 +
         fill = "Effect Type"
     )
 
-save_pdf(fig5, "05_power_plateau_medium_params.pdf", width = 10, height = 6)
+save_svg(fig5, "05_power_plateau_medium_params.svg", width = 10, height = 6)
 
 
 # --- [8] Figure 6: Unfaceted power curves (all effects) --------------------
@@ -581,7 +593,7 @@ fig6 <- ggplot(
         fill = "Effect Type"
     )
 
-save_pdf(fig6, "06_power_curves_unfaceted.pdf", width = 10, height = 6)
+save_svg(fig6, "06_power_curves_unfaceted.svg", width = 10, height = 6)
 
 
 # --- [9] Figure 7: Uniform effect size × ICC (faceted) ----------------------
@@ -644,7 +656,7 @@ fig7 <- ggplot(
         fill = "Effect Type"
     )
 
-save_pdf(fig7, "07_power_curves_by_icc_and_effect.pdf", width = 14, height = 10)
+save_svg(fig7, "07_power_curves_by_icc_and_effect.svg", width = 14, height = 10)
 
 
 # --- [10] Figure 8: Own effect size × ICC (faceted) -------------------------
@@ -708,7 +720,7 @@ fig8 <- ggplot(
         fill = "Effect Type"
     )
 
-save_pdf(fig8, "08_power_curves_by_icc_own_effect.pdf", width = 14, height = 10)
+save_svg(fig8, "08_power_curves_by_icc_own_effect.svg", width = 14, height = 10)
 
 
 # --- [11] Summary log -------------------------------------------------------
@@ -733,7 +745,7 @@ log_msg(
 )
 print(summary_tbl, n = Inf)
 
-n_figs <- length(list.files(FIGS_DIR, pattern = "\\.pdf$"))
+n_figs <- length(list.files(FIGS_DIR, pattern = "\\.svg$"))
 log_msg("Total PDF figures saved: ", n_figs)
 log_msg("Output directory: ", FIGS_DIR)
 log_msg("Visualization complete.")
