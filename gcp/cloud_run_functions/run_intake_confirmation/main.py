@@ -58,7 +58,14 @@ logger.info("Loaded config sections: %s", list(config.model_fields.keys()))
 # as TWILIO_CONFIG at deploy time. Parsed once at cold start.
 #
 # Expected JSON format:
-#   {"account_sid": "AC...", "auth_token": "...", "from_number": "+1..."}
+#   {
+#       "account_sid": "AC...",
+#       "auth_token": "...",
+#       "from_number": "+1...",
+#       "messaging_service_sid": "MG..."
+#   }
+# This function reads messaging_service_sid (required for sending
+# to real phone numbers via a registered campaign).
 _twilio_raw = os.environ.get("TWILIO_CONFIG", "{}")
 try:
     _twilio_config = json.loads(_twilio_raw)
@@ -68,7 +75,9 @@ except json.JSONDecodeError:
 
 TWILIO_ACCOUNT_SID: str = _twilio_config.get("account_sid", "")
 TWILIO_AUTH_TOKEN: str = _twilio_config.get("auth_token", "")
-TWILIO_FROM_NUMBER: str = _twilio_config.get("from_number", "")
+TWILIO_MESSAGING_SERVICE_SID: str = _twilio_config.get(
+    "messaging_service_sid", ""
+)
 
 # -- Follow-up schedule constants ------------------------------------
 # Fixed daily survey times matching ParticipantData.followup_times
@@ -244,6 +253,8 @@ def format_sms_body(selected_date: date, timezone: str) -> str:
 def send_sms(phone: str, body: str) -> bool:
     """Send an SMS message via Twilio.
 
+    Uses messaging_service_sid (required for registered campaigns
+    and real phone numbers) instead of a bare from_number.
     Imports the Twilio client lazily to keep cold start fast
     when credentials are missing (e.g., local testing without
     Twilio configured).
@@ -255,11 +266,13 @@ def send_sms(phone: str, body: str) -> bool:
     Returns:
         True if the message was accepted by Twilio, False otherwise.
     """
-    if not all([TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER]):
+    if not all(
+        [TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_MESSAGING_SERVICE_SID]
+    ):
         logger.error(
             "Twilio credentials not configured -- check "
-            "TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and "
-            "TWILIO_FROM_NUMBER environment variables"
+            "TWILIO_CONFIG (needs account_sid, auth_token, "
+            "messaging_service_sid)"
         )
         return False
 
@@ -268,9 +281,9 @@ def send_sms(phone: str, body: str) -> bool:
 
         client = TwilioClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
         message = client.messages.create(
-            body=body,
-            from_=TWILIO_FROM_NUMBER,
+            messaging_service_sid=TWILIO_MESSAGING_SERVICE_SID,
             to=phone,
+            body=body,
         )
 
         logger.info(

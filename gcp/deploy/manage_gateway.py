@@ -28,6 +28,7 @@ Usage:
 
 import argparse
 import json
+import secrets
 import subprocess
 import sys
 import tempfile
@@ -908,16 +909,32 @@ def handle_test(args: argparse.Namespace) -> None:
     run-followup-scheduling to schedule all 3 SMS at
     now+16 / now+32 / now+48 min instead of fixed study times,
     so the full pipeline can be verified within ~48 minutes.
-    ``--now`` and ``--selected-date`` are mutually exclusive.
+
+    The ``--now-with-me PHONE`` flag behaves like ``--now`` but
+    replaces the fixture's virtual phone number with PHONE and
+    uses a distinct response_id / prolific_pid so the BQ
+    idempotency guard does not block it after a ``--now`` run.
+    Pass PHONE as 10 digits, 11 digits, or E.164 (+1XXXXXXXXXX).
+
+    ``--now``, ``--now-with-me``, and ``--selected-date`` are
+    mutually exclusive.
 
     This is the closest thing to a 'dev' mode for the gateway.
     """
     from datetime import date as _date
     from datetime import timedelta as _timedelta
 
-    if getattr(args, "now", False) and args.selected_date:
+    flags_set = sum(
+        [
+            bool(getattr(args, "now", False)),
+            bool(args.selected_date),
+            bool(args.now_with_me),
+        ]
+    )
+    if flags_set > 1:
         print(
-            "\n-> --now and --selected-date are mutually exclusive.",
+            "\n-> --now, --now-with-me, and --selected-date "
+            "are mutually exclusive.",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -955,6 +972,20 @@ def handle_test(args: argparse.Namespace) -> None:
     if getattr(args, "now", False):
         payload["selected_date"] = _date.today().isoformat()
         payload["send_immediately"] = True
+    elif args.now_with_me:
+        # Strip leading + so the raw-digit format matches what
+        # Qualtrics submits; fn1's normalize_phone_number() converts
+        # 10- or 11-digit strings to E.164 before sending.
+        payload["selected_date"] = _date.today().isoformat()
+        payload["send_immediately"] = True
+        payload["phone"] = args.now_with_me.lstrip("+")
+        # Generate a unique response_id per invocation so the fn2/fn3
+        # idempotency guards don't block repeated runs with any phone
+        # number. Format: R_TEST_{last4digits}_{6-char hex}.
+        _last4 = payload["phone"][-4:]
+        _suffix = secrets.token_hex(3)
+        payload["response_id"] = f"R_TEST_{_last4}_{_suffix}"
+        payload["prolific_pid"] = f"test_{_last4}_{_suffix}"
     elif args.selected_date:
         payload["selected_date"] = args.selected_date
     else:
@@ -968,10 +999,15 @@ def handle_test(args: argparse.Namespace) -> None:
     print(f"\n  Gateway:       {gateway_url}")
     print(f"  Fixture:       {fixture.name}")
     print(f"  selected_date: {payload['selected_date']}")
-    if payload.get("send_immediately"):
+    if args.now_with_me:
+        masked_phone = payload["phone"][:3] + "***" + payload["phone"][-4:]
         print(
-            "  Mode:          --now (SMS scheduled at now+16/32/48 min)"
+            f"  Mode:          --now-with-me "
+            f"(real phone {masked_phone}, SMS at now+16/32/48 min)"
         )
+        print(f"  response_id:   {payload['response_id']}")
+    elif payload.get("send_immediately"):
+        print("  Mode:          --now (SMS scheduled at now+16/32/48 min)")
     print(f"  API key:       {masked_key}")
     print("\n  Sending POST (no IAM token -- just the API key)...")
 
@@ -1217,7 +1253,19 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Schedule follow-up SMS at now+16/32/48 min instead of "
             "fixed study times. Uses today as selected_date. "
-            "Mutually exclusive with --selected-date."
+            "Mutually exclusive with --selected-date and --now-with-me."
+        ),
+    )
+    test_parser.add_argument(
+        "--now-with-me",
+        metavar="PHONE",
+        help=(
+            "Like --now, but sends to PHONE instead of the fixture's "
+            "virtual number. Accepts 10 digits, 11 digits, or E.164 "
+            "(e.g. +15551234567). Uses a distinct response_id and "
+            "prolific_pid to avoid BQ idempotency collision with "
+            "--now runs. Mutually exclusive with --now and "
+            "--selected-date."
         ),
     )
     test_parser.set_defaults(handler=handle_test)
