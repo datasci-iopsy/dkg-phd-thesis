@@ -41,9 +41,9 @@ class IntakeProcessedMessage(BaseModel):
     response_id: str = Field(
         ..., description="Qualtrics response ID (idempotency key)"
     )
-    prolific_pid: str | None = Field(
+    connect_id: str | None = Field(
         default=None,
-        description="Prolific participant ID (nullable -- used for "
+        description="Connect participant ID (nullable -- used for "
         "paid participant tracking but not always populated)",
     )
     phone: str = Field(..., description="E.164 formatted phone number")
@@ -69,17 +69,17 @@ class FollowupSchedulingMessage(BaseModel):
     run-followup-scheduling to schedule three follow-up survey
     SMS messages via Twilio's Message Scheduling API.
 
-    response_id is the primary identifier. prolific_pid is
+    response_id is the primary identifier. connect_id is
     nullable because not all participants are recruited via
-    Prolific.
+    Connect.
     """
 
     response_id: str = Field(
         ..., description="Qualtrics response ID (primary key)"
     )
-    prolific_pid: str | None = Field(
+    connect_id: str | None = Field(
         default=None,
-        description="Prolific participant ID (nullable)",
+        description="Connect participant ID (nullable)",
     )
     phone: str = Field(..., description="E.164 formatted phone number")
     selected_date: str = Field(

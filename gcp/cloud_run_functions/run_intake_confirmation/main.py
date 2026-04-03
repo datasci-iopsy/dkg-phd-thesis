@@ -372,7 +372,7 @@ def intake_confirmation_handler(cloud_event: CloudEvent) -> None:
     # skip on the next attempt.
     followup_message = FollowupSchedulingMessage(
         response_id=message.response_id,
-        prolific_pid=message.prolific_pid,
+        connect_id=message.connect_id,
         phone=message.phone,
         selected_date=message.selected_date,
         timezone=message.timezone,

@@ -24,13 +24,13 @@
         "type": "INTEGER"
     },
     {
-        "description": "CloudConnect participant identifier; join key to survey_0.prolific_pid",
+        "description": "CloudConnect participant identifier; join key to survey_0.connect_id",
         "mode": "NULLABLE",
-        "name": "prolific_pid",
+        "name": "connect_id",
         "type": "STRING"
     },
     {
-        "description": "Raw phone digits; secondary join key when prolific_pid is missing",
+        "description": "Raw phone digits; secondary join key when connect_id is missing",
         "mode": "NULLABLE",
         "name": "phone_number",
         "type": "STRING"

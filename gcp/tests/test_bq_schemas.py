@@ -269,7 +269,7 @@ class TestInsertRowMatchesSchema:
             survey_id="SV_test456",
             duration=487,
             consent="Yes",
-            prolific_pid="test_pid_abc",
+            connect_id="test_pid_abc",
             age_flag="Yes",
             fte_flag="Yes",
             location_flag="Yes",

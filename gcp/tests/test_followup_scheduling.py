@@ -33,32 +33,32 @@ class TestFollowupSchedulingMessage:
             timezone="US/Central",
         )
         assert msg.response_id == "R_abc123"
-        assert msg.prolific_pid is None
+        assert msg.connect_id is None
 
-    def test_prolific_pid_nullable(self):
+    def test_connect_id_nullable(self):
         msg = FollowupSchedulingMessage(
             response_id="R_abc123",
-            prolific_pid=None,
+            connect_id=None,
             phone="+18777804236",
             selected_date="2026-02-24",
             timezone="US/Central",
         )
-        assert msg.prolific_pid is None
+        assert msg.connect_id is None
 
-    def test_prolific_pid_present(self):
+    def test_connect_id_present(self):
         msg = FollowupSchedulingMessage(
             response_id="R_abc123",
-            prolific_pid="60a7c1b2e3f4a5b6c7d8e9f0",
+            connect_id="60a7c1b2e3f4a5b6c7d8e9f0",
             phone="+18777804236",
             selected_date="2026-02-24",
             timezone="US/Central",
         )
-        assert msg.prolific_pid == "60a7c1b2e3f4a5b6c7d8e9f0"
+        assert msg.connect_id == "60a7c1b2e3f4a5b6c7d8e9f0"
 
     def test_round_trips(self):
         msg = FollowupSchedulingMessage(
             response_id="R_abc123",
-            prolific_pid="test_pid",
+            connect_id="test_pid",
             phone="+18777804236",
             selected_date="2026-02-24",
             timezone="US/Central",
@@ -76,8 +76,8 @@ class TestFollowupSchedulingMessage:
             )
 
 
-class TestIntakeProcessedMessageProlificPid:
-    """Verify prolific_pid was added to IntakeProcessedMessage."""
+class TestIntakeProcessedMessageConnectId:
+    """Verify connect_id was added to IntakeProcessedMessage."""
 
     def test_default_none(self):
         msg = IntakeProcessedMessage(
@@ -86,20 +86,20 @@ class TestIntakeProcessedMessageProlificPid:
             selected_date="2026-02-24",
             timezone="US/Central",
         )
-        assert msg.prolific_pid is None
+        assert msg.connect_id is None
 
     def test_explicit_value(self):
         msg = IntakeProcessedMessage(
             response_id="R_abc123",
-            prolific_pid="test_pid",
+            connect_id="test_pid",
             phone="+18777804236",
             selected_date="2026-02-24",
             timezone="US/Central",
         )
-        assert msg.prolific_pid == "test_pid"
+        assert msg.connect_id == "test_pid"
 
     def test_backward_compatible_deserialization(self):
-        """Messages without prolific_pid (old format) still parse."""
+        """Messages without connect_id (old format) still parse."""
         raw = {
             "response_id": "R_abc123",
             "phone": "+18777804236",
@@ -107,7 +107,7 @@ class TestIntakeProcessedMessageProlificPid:
             "timezone": "US/Central",
         }
         msg = IntakeProcessedMessage.model_validate(raw)
-        assert msg.prolific_pid is None
+        assert msg.connect_id is None
 
 
 # -- Survey URL building tests ---------------------------------------
@@ -122,33 +122,33 @@ class TestBuildSurveyUrl:
             "https://ncsu.qualtrics.com/jfe/form"
         )
 
-    def test_url_with_prolific_pid(self):
+    def test_url_with_connect_id(self):
         from main import build_survey_url
 
         url = build_survey_url(
             survey_id="SV_test123",
             response_id="R_abc",
-            prolific_pid="pid_xyz",
+            connect_id="pid_xyz",
             survey_time=1,
             selected_date="2026-02-24",
         )
         assert "SV_test123" in url
         assert "response_id=R_abc" in url
-        assert "prolific_pid=pid_xyz" in url
+        assert "connect_id=pid_xyz" in url
         assert "survey_time=1" in url
         assert "selected_date=2026-02-24" in url
 
-    def test_url_without_prolific_pid(self):
+    def test_url_without_connect_id(self):
         from main import build_survey_url
 
         url = build_survey_url(
             survey_id="SV_test123",
             response_id="R_abc",
-            prolific_pid=None,
+            connect_id=None,
             survey_time=2,
             selected_date="2026-02-24",
         )
-        assert "prolific_pid" not in url
+        assert "connect_id" not in url
         assert "response_id=R_abc" in url
         assert "survey_time=2" in url
 
@@ -158,7 +158,7 @@ class TestBuildSurveyUrl:
         url = build_survey_url(
             survey_id="SV_test",
             response_id="R_abc+def",
-            prolific_pid=None,
+            connect_id=None,
             survey_time=1,
             selected_date="2026-02-24",
         )
@@ -172,7 +172,7 @@ class TestBuildSurveyUrl:
             url = build_survey_url(
                 survey_id=f"SV_slot{slot}",
                 response_id="R_test",
-                prolific_pid=None,
+                connect_id=None,
                 survey_time=slot,
                 selected_date="2026-02-24",
             )
@@ -379,7 +379,7 @@ class TestFollowupSchedulingHandler:
         event = self._make_cloud_event(
             {
                 "response_id": "R_test",
-                "prolific_pid": "pid_123",
+                "connect_id": "pid_123",
                 "phone": "+18777804236",
                 "selected_date": "2099-02-24",
                 "timezone": "US/Central",
@@ -482,14 +482,14 @@ class TestFollowupSchedulingHandler:
     @patch("main.is_already_scheduled", return_value=False)
     @patch("main.bigquery.Client")
     @patch("main.config")
-    def test_null_prolific_pid_flows_through(
+    def test_null_connect_id_flows_through(
         self,
         mock_config,
         mock_bq_client,
         mock_is_scheduled,
         mock_schedule,
     ):
-        """Verify None prolific_pid doesn't break the flow."""
+        """Verify None connect_id doesn't break the flow."""
         mock_config.gcp.project_id = "test-project"
         mock_config.followup_surveys.survey_base_url = (
             "https://ncsu.qualtrics.com/jfe/form"
@@ -513,7 +513,7 @@ class TestFollowupSchedulingHandler:
                 "phone": "+18777804236",
                 "selected_date": "2099-02-24",
                 "timezone": "US/Central",
-                # prolific_pid intentionally omitted
+                # connect_id intentionally omitted
             }
         )
 
@@ -522,10 +522,10 @@ class TestFollowupSchedulingHandler:
         with patch("main.write_scheduling_records", return_value=True):
             followup_scheduling_handler(event)
 
-        # Verify URLs don't contain prolific_pid
+        # Verify URLs don't contain connect_id
         for call in mock_schedule.call_args_list:
             body = call[0][1]  # second positional arg
-            assert "prolific_pid" not in body
+            assert "connect_id" not in body
 
 
 # -- Past-time skipping tests ------------------------------------------
@@ -798,9 +798,7 @@ class TestSendImmediately:
         expected_times = [
             frozen_utc + MIN_SCHEDULE_LEAD * slot for slot in (1, 2, 3)
         ]
-        actual_times = [
-            call.args[2] for call in mock_schedule.call_args_list
-        ]
+        actual_times = [call.args[2] for call in mock_schedule.call_args_list]
         assert actual_times == expected_times
 
     @patch("main.write_scheduling_records", return_value=True)
