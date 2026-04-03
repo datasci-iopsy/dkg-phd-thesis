@@ -912,7 +912,7 @@ def handle_test(args: argparse.Namespace) -> None:
 
     The ``--now-with-me PHONE`` flag behaves like ``--now`` but
     replaces the fixture's virtual phone number with PHONE and
-    uses a distinct response_id / prolific_pid so the BQ
+    uses a distinct response_id / connect_id so the BQ
     idempotency guard does not block it after a ``--now`` run.
     Pass PHONE as 10 digits, 11 digits, or E.164 (+1XXXXXXXXXX).
 
@@ -985,7 +985,7 @@ def handle_test(args: argparse.Namespace) -> None:
         _last4 = payload["phone"][-4:]
         _suffix = secrets.token_hex(3)
         payload["response_id"] = f"R_TEST_{_last4}_{_suffix}"
-        payload["prolific_pid"] = f"test_{_last4}_{_suffix}"
+        payload["connect_id"] = f"test_{_last4}_{_suffix}"
     elif args.selected_date:
         payload["selected_date"] = args.selected_date
     else:
@@ -1263,7 +1263,7 @@ def build_parser() -> argparse.ArgumentParser:
             "Like --now, but sends to PHONE instead of the fixture's "
             "virtual number. Accepts 10 digits, 11 digits, or E.164 "
             "(e.g. +15551234567). Uses a distinct response_id and "
-            "prolific_pid to avoid BQ idempotency collision with "
+            "connect_id to avoid BQ idempotency collision with "
             "--now runs. Mutually exclusive with --now and "
             "--selected-date."
         ),

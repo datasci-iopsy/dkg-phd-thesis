@@ -36,7 +36,7 @@ from pydantic import BaseModel, Field
 QID_MAP: dict[str, str] = {
     # -- Consent & identification ------------------------------------
     "consent": "QID31",
-    "prolific_pid": "QID3_TEXT",
+    "connect_id": "QID3_TEXT",
     # -- Eligibility flags -------------------------------------------
     "age_flag": "QID44",
     "fte_flag": "QID41",
@@ -154,8 +154,8 @@ class WebServicePayload(BaseModel):
     consent: str | None = Field(
         default=None, description="Consent label; 'Yes' = agreed"
     )
-    prolific_pid: str | None = Field(
-        default=None, description="Prolific participant identifier (free text)"
+    connect_id: str | None = Field(
+        default=None, description="Connect participant identifier (free text)"
     )
     # -- Eligibility flags (label: 'Yes' or 'No') -------------------
     age_flag: str | None = Field(

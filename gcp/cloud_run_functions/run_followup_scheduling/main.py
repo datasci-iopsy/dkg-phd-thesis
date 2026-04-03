@@ -113,20 +113,20 @@ def decode_pubsub_message(cloud_event: CloudEvent) -> dict | None:
 def build_survey_url(
     survey_id: str,
     response_id: str,
-    prolific_pid: str | None,
+    connect_id: str | None,
     survey_time: int,
     selected_date: str,
 ) -> str:
     """Construct a follow-up survey URL with query parameters.
 
     Builds a URL-encoded link to a Qualtrics follow-up survey
-    with embedded metadata for response linking. prolific_pid
+    with embedded metadata for response linking. connect_id
     is omitted from the URL when it is None.
 
     Args:
         survey_id: Qualtrics survey ID for this time slot.
         response_id: Original intake response ID.
-        prolific_pid: Prolific PID (omitted from URL if None).
+        connect_id: Connect ID (omitted from URL if None).
         survey_time: Time slot number (1, 2, or 3).
         selected_date: ISO date string (YYYY-MM-DD).
 
@@ -141,8 +141,8 @@ def build_survey_url(
         "selected_date": selected_date,
     }
 
-    if prolific_pid is not None:
-        params["prolific_pid"] = prolific_pid
+    if connect_id is not None:
+        params["connect_id"] = connect_id
 
     query_string = urlencode(params)
     return f"{base_url}/{survey_id}?{query_string}"
@@ -297,7 +297,7 @@ def is_already_scheduled(client: bigquery.Client, response_id: str) -> bool:
 def write_scheduling_records(
     client: bigquery.Client,
     response_id: str,
-    prolific_pid: str | None,
+    connect_id: str | None,
     phone: str,
     selected_date: str,
     timezone: str,
@@ -312,7 +312,7 @@ def write_scheduling_records(
     Args:
         client: BigQuery client.
         response_id: Qualtrics response ID.
-        prolific_pid: Prolific PID (nullable).
+        connect_id: Connect ID (nullable).
         phone: E.164 phone number.
         selected_date: ISO date string.
         timezone: IANA timezone.
@@ -333,7 +333,7 @@ def write_scheduling_records(
         rows.append(
             {
                 "response_id": response_id,
-                "prolific_pid": prolific_pid,
+                "connect_id": connect_id,
                 "phone": phone,
                 "selected_date": selected_date,
                 "timezone": timezone,
@@ -435,7 +435,7 @@ def followup_scheduling_handler(cloud_event: CloudEvent) -> None:
         url = build_survey_url(
             survey_id=survey_id,
             response_id=message.response_id,
-            prolific_pid=message.prolific_pid,
+            connect_id=message.connect_id,
             survey_time=slot_number,
             selected_date=message.selected_date,
         )
@@ -507,7 +507,7 @@ def followup_scheduling_handler(cloud_event: CloudEvent) -> None:
     write_success = write_scheduling_records(
         bq_client,
         response_id=message.response_id,
-        prolific_pid=message.prolific_pid,
+        connect_id=message.connect_id,
         phone=message.phone,
         selected_date=message.selected_date,
         timezone=message.timezone,

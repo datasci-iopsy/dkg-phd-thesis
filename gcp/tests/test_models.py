@@ -284,7 +284,7 @@ class TestParticipantData:
         """Minimal valid construction arguments."""
         return {
             "response_id": "R_test123",
-            "prolific_pid": "60a7c1b2e3f4a5b6c7d8e9f0",
+            "connect_id": "60a7c1b2e3f4a5b6c7d8e9f0",
             "phone": "+18777804236",
             "selected_date": date(2025, 12, 26),
             "timezone": "US/Central",
@@ -293,15 +293,15 @@ class TestParticipantData:
 
     def test_valid_construction(self, valid_kwargs):
         p = ParticipantData(**valid_kwargs)
-        assert p.prolific_pid == "60a7c1b2e3f4a5b6c7d8e9f0"
+        assert p.connect_id == "60a7c1b2e3f4a5b6c7d8e9f0"
         assert p.phone == "+18777804236"
         assert p.consent_given is True
         assert isinstance(p.created_at, datetime)
 
     def test_pid_is_stripped(self, valid_kwargs):
-        valid_kwargs["prolific_pid"] = "  60a7c1b2e3f4a5b6c7d8e9f0  "
+        valid_kwargs["connect_id"] = "  60a7c1b2e3f4a5b6c7d8e9f0  "
         p = ParticipantData(**valid_kwargs)
-        assert p.prolific_pid == "60a7c1b2e3f4a5b6c7d8e9f0"
+        assert p.connect_id == "60a7c1b2e3f4a5b6c7d8e9f0"
 
     def test_phone_masked(self, valid_kwargs):
         p = ParticipantData(**valid_kwargs)
@@ -312,7 +312,7 @@ class TestParticipantData:
         assert len(p.followup_times) == 3
 
     def test_rejects_blank_pid(self, valid_kwargs):
-        valid_kwargs["prolific_pid"] = "   "
+        valid_kwargs["connect_id"] = "   "
         with pytest.raises(Exception, match="[Pp]rolific|blank"):
             ParticipantData(**valid_kwargs)
 
@@ -354,7 +354,7 @@ class TestExtractionPipeline:
 
         participant = ParticipantData(
             response_id=web_service_payload.response_id,
-            prolific_pid=web_service_payload.prolific_pid,
+            connect_id=web_service_payload.connect_id,
             phone=phone,
             selected_date=selected_date,
             timezone=web_service_payload.timezone,
@@ -362,7 +362,7 @@ class TestExtractionPipeline:
         )
 
         assert participant.response_id == "R_2LObbbYBNZqyuhX"
-        assert participant.prolific_pid == "dkgdkgdkgdkgdkgdkgdkgdkg"
+        assert participant.connect_id == "dkgdkgdkgdkgdkgdkgdkgdkg"
         assert participant.phone == "+18777804236"
         assert participant.selected_date == date(
             2026, 2, 24
@@ -380,7 +380,7 @@ class TestExtractionPipeline:
         with pytest.raises(Exception, match="[Cc]onsent"):
             ParticipantData(
                 response_id=payload.response_id,
-                prolific_pid="test_pid",
+                connect_id="test_pid",
                 phone="+18777804236",
                 selected_date=date(2025, 12, 26),
                 timezone="US/Central",
