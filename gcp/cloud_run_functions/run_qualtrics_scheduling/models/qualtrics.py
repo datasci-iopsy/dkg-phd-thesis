@@ -23,7 +23,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import AliasGenerator, BaseModel, ConfigDict, Field
 
 # -- QID field mapping -----------------------------------------------
 # Maps semantic names -> Qualtrics question IDs.
@@ -132,12 +132,29 @@ class WebServicePayload(BaseModel):
     route participants to the end of the survey early if they
     fail screening or attention checks.
 
+    The model uses an AliasGenerator so it accepts UPPERCASE keys from
+    the Qualtrics Web Service task (e.g., ``CONNECT_ID``) while keeping
+    snake_case Python field names that flow through to BigQuery columns.
+    ``populate_by_name=True`` lets tests and internal code construct the
+    model using field names directly without needing the alias.
+
     When the survey changes:
         1. Update QID_MAP above.
         2. Add/remove fields on this model.
-        3. Update the Web Service JSON template in Qualtrics.
+        3. Update the Web Service JSON template in Qualtrics (use the
+           field name uppercased as the JSON key, e.g., ``CONNECT_ID``).
         4. The BigQuery schema regenerates automatically.
+
+    For forks: configure the AliasGenerator below to match whatever key
+    format your survey tool sends, and the rest of the pipeline adapts.
     """
+
+    model_config = ConfigDict(
+        alias_generator=AliasGenerator(
+            validation_alias=lambda name: name.upper()
+        ),
+        populate_by_name=True,
+    )
 
     # -- System identifiers (REQUIRED) -------------------------------
     response_id: str = Field(
