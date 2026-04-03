@@ -970,26 +970,26 @@ def handle_test(args: argparse.Namespace) -> None:
     payload = json.loads(fixture.read_text())
 
     if getattr(args, "now", False):
-        payload["selected_date"] = _date.today().isoformat()
+        payload["SELECTED_DATE"] = _date.today().isoformat()
         payload["send_immediately"] = True
     elif args.now_with_me:
         # Strip leading + so the raw-digit format matches what
         # Qualtrics submits; fn1's normalize_phone_number() converts
         # 10- or 11-digit strings to E.164 before sending.
-        payload["selected_date"] = _date.today().isoformat()
+        payload["SELECTED_DATE"] = _date.today().isoformat()
         payload["send_immediately"] = True
-        payload["phone"] = args.now_with_me.lstrip("+")
+        payload["PHONE"] = args.now_with_me.lstrip("+")
         # Generate a unique response_id per invocation so the fn2/fn3
         # idempotency guards don't block repeated runs with any phone
         # number. Format: R_TEST_{last4digits}_{6-char hex}.
-        _last4 = payload["phone"][-4:]
+        _last4 = payload["PHONE"][-4:]
         _suffix = secrets.token_hex(3)
-        payload["response_id"] = f"R_TEST_{_last4}_{_suffix}"
-        payload["connect_id"] = f"test_{_last4}_{_suffix}"
+        payload["RESPONSE_ID"] = f"R_TEST_{_last4}_{_suffix}"
+        payload["CONNECT_ID"] = f"test_{_last4}_{_suffix}"
     elif args.selected_date:
-        payload["selected_date"] = args.selected_date
+        payload["SELECTED_DATE"] = args.selected_date
     else:
-        payload["selected_date"] = (
+        payload["SELECTED_DATE"] = (
             _date.today() + _timedelta(days=1)
         ).isoformat()
 
@@ -998,14 +998,14 @@ def handle_test(args: argparse.Namespace) -> None:
     masked_key = f"{api_key[:8]}...{api_key[-4:]}"
     print(f"\n  Gateway:       {gateway_url}")
     print(f"  Fixture:       {fixture.name}")
-    print(f"  selected_date: {payload['selected_date']}")
+    print(f"  selected_date: {payload['SELECTED_DATE']}")
     if args.now_with_me:
-        masked_phone = payload["phone"][:3] + "***" + payload["phone"][-4:]
+        masked_phone = payload["PHONE"][:3] + "***" + payload["PHONE"][-4:]
         print(
             f"  Mode:          --now-with-me "
             f"(real phone {masked_phone}, SMS at now+16/32/48 min)"
         )
-        print(f"  response_id:   {payload['response_id']}")
+        print(f"  response_id:   {payload['RESPONSE_ID']}")
     elif payload.get("send_immediately"):
         print("  Mode:          --now (SMS scheduled at now+16/32/48 min)")
     print(f"  API key:       {masked_key}")

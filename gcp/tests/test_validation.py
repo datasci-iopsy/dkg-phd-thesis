@@ -108,7 +108,7 @@ class TestExtractWebServicePayload:
         assert result.PA1 is None
 
     def test_rejects_wrong_type(self, raw_web_service_json):
-        raw_web_service_json["age"] = "not_a_number"
+        raw_web_service_json["AGE"] = "not_a_number"
         with _app.test_request_context(
             "/",
             method="POST",
@@ -153,7 +153,7 @@ class TestExtractParticipantData:
         assert participant.consent_given is True
 
     def test_rejects_non_consent(self, raw_web_service_json):
-        raw_web_service_json["consent"] = "No"
+        raw_web_service_json["CONSENT"] = "No"
         payload = WebServicePayload.model_validate(raw_web_service_json)
 
         participant = extract_participant_data(payload)
@@ -166,7 +166,7 @@ class TestExtractParticipantData:
         assert participant is None
 
     def test_rejects_bad_phone(self, raw_web_service_json):
-        raw_web_service_json["phone"] = "123"
+        raw_web_service_json["PHONE"] = "123"
         payload = WebServicePayload.model_validate(raw_web_service_json)
 
         participant = extract_participant_data(payload)
@@ -186,7 +186,7 @@ class TestExtractParticipantData:
         assert participant is None
 
     def test_rejects_bad_date(self, raw_web_service_json):
-        raw_web_service_json["selected_date"] = "not-a-date"
+        raw_web_service_json["SELECTED_DATE"] = "not-a-date"
         payload = WebServicePayload.model_validate(raw_web_service_json)
 
         participant = extract_participant_data(payload)
@@ -232,14 +232,14 @@ class TestExtractParticipantData:
         assert participant is None
 
     def test_rejects_empty_timezone(self, raw_web_service_json):
-        raw_web_service_json["timezone"] = ""
+        raw_web_service_json["TIMEZONE"] = ""
         payload = WebServicePayload.model_validate(raw_web_service_json)
 
         participant = extract_participant_data(payload)
         assert participant is None
 
     def test_rejects_blank_connect_id(self, raw_web_service_json):
-        raw_web_service_json["connect_id"] = "   "
+        raw_web_service_json["CONNECT_ID"] = "   "
         payload = WebServicePayload.model_validate(raw_web_service_json)
 
         participant = extract_participant_data(payload)
