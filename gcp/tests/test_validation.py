@@ -144,7 +144,7 @@ class TestExtractParticipantData:
 
         assert participant is not None
         assert participant.response_id == "R_2LObbbYBNZqyuhX"
-        assert participant.prolific_pid == "dkgdkgdkgdkgdkgdkgdkgdkg"
+        assert participant.connect_id == "dkgdkgdkgdkgdkgdkgdkgdkg"
         assert participant.phone == "+18777804236"
         assert participant.selected_date == date(
             2026, 2, 24
@@ -178,7 +178,7 @@ class TestExtractParticipantData:
             response_id="R_test",
             survey_id="SV_test",
             consent="Yes",
-            prolific_pid="test_pid",
+            connect_id="test_pid",
             timezone="US/Central",
             selected_date="12/26/2025",
         )
@@ -198,7 +198,7 @@ class TestExtractParticipantData:
             response_id="R_test",
             survey_id="SV_test",
             consent="Yes",
-            prolific_pid="test_pid",
+            connect_id="test_pid",
             phone="8777804236",
             timezone="US/Central",
         )
@@ -211,15 +211,15 @@ class TestExtractParticipantData:
             response_id="R_test",
             survey_id="SV_test",
             consent="Yes",
-            prolific_pid="test_pid",
+            connect_id="test_pid",
             phone="8777804236",
             selected_date="12/26/2025",
         )
         participant = extract_participant_data(payload)
         assert participant is None
 
-    def test_rejects_none_prolific_pid(self):
-        """Missing prolific_pid (None) should be rejected."""
+    def test_rejects_none_connect_id(self):
+        """Missing connect_id (None) should be rejected."""
         payload = WebServicePayload(
             response_id="R_test",
             survey_id="SV_test",
@@ -238,8 +238,8 @@ class TestExtractParticipantData:
         participant = extract_participant_data(payload)
         assert participant is None
 
-    def test_rejects_blank_prolific_pid(self, raw_web_service_json):
-        raw_web_service_json["prolific_pid"] = "   "
+    def test_rejects_blank_connect_id(self, raw_web_service_json):
+        raw_web_service_json["connect_id"] = "   "
         payload = WebServicePayload.model_validate(raw_web_service_json)
 
         participant = extract_participant_data(payload)

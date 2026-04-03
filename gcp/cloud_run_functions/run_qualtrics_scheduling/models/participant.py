@@ -57,7 +57,7 @@ class ParticipantData(BaseModel):
 
     Attributes:
         response_id: Qualtrics response identifier (e.g., R_1KNaaa...).
-        prolific_pid: Prolific participant identifier from free-text field.
+        connect_id: Connect participant identifier from free-text field.
         phone: E.164 formatted phone number (validated).
         selected_date: Date chosen for follow-up scheduling.
         timezone: IANA-style timezone string (e.g., "US/Central").
@@ -67,20 +67,20 @@ class ParticipantData(BaseModel):
     """
 
     response_id: str
-    prolific_pid: str = Field(..., min_length=1)
+    connect_id: str = Field(..., min_length=1)
     phone: str
     selected_date: date
     timezone: str = Field(..., min_length=1)
     consent_given: bool
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    @field_validator("prolific_pid")
+    @field_validator("connect_id")
     @classmethod
-    def strip_and_validate_pid(cls, v: str) -> str:
-        """Strip whitespace and reject blank Prolific PIDs."""
+    def strip_and_validate_connect_id(cls, v: str) -> str:
+        """Strip whitespace and reject blank Connect IDs."""
         stripped = v.strip()
         if not stripped:
-            raise ValueError("Prolific PID cannot be blank")
+            raise ValueError("Connect ID cannot be blank")
         return stripped
 
     @field_validator("phone")
