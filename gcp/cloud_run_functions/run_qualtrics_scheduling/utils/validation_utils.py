@@ -69,7 +69,7 @@ def extract_participant_data(
 ) -> ParticipantData | None:
     """Extract and validate participant data from a Web Service payload.
 
-    Reads scheduling-relevant fields (Prolific PID, phone, date,
+    Reads scheduling-relevant fields (Connect ID, phone, date,
     timezone, consent) directly from the payload's semantic fields,
     normalizes them, and constructs a validated ParticipantData.
 
@@ -119,9 +119,9 @@ def extract_participant_data(
             )
             return None
 
-        if not payload.prolific_pid:
+        if not payload.connect_id:
             logger.error(
-                "Missing prolific_pid for response %s",
+                "Missing connect_id for response %s",
                 payload.response_id,
             )
             return None
@@ -153,7 +153,7 @@ def extract_participant_data(
         # -- Construct validated participant -------------------------
         participant = ParticipantData(
             response_id=payload.response_id,
-            prolific_pid=payload.prolific_pid,
+            connect_id=payload.connect_id,
             phone=phone,
             selected_date=selected_date,
             timezone=payload.timezone,

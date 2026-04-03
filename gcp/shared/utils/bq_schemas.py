@@ -170,10 +170,10 @@ SCHEDULED_FOLLOWUPS_SCHEMA: list[SchemaField] = [
         description="Qualtrics response ID (primary key)",
     ),
     SchemaField(
-        "prolific_pid",
+        "connect_id",
         "STRING",
         mode="NULLABLE",
-        description="Prolific participant ID (nullable)",
+        description="Connect participant ID (nullable)",
     ),
     SchemaField(
         "phone",

@@ -42,8 +42,8 @@ with
         select
             -- identifiers
             i.response_id,
-            i.prolific_pid,
-            i.has_prolific_pid,
+            i.connect_id,
+            i.has_connect_id,
             i.phone_number,
             f.survey_id as followup_survey_id,
             f.duration,
