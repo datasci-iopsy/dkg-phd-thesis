@@ -54,8 +54,9 @@ Schema changes: `models/qualtrics.py` → `bq_schemas.py` → `web_service_paylo
 
 - Use Plan mode for complex or multi-file tasks; iterate before implementing
 - Break large changes into reviewable chunks
-- **Worktrees**: safe for all code edits, tests, and R simulations — never run deploy commands from a worktree
-- When working across a worktree + main session simultaneously, coordinate schema changes through main only
+- **Task branches**: for Claude-driven work, create a short-lived branch off the current branch (e.g., `main--claude-<topic>`), commit there, and let the user review the diff before merging
+- Deploy commands (`manage_functions.py deploy`, `manage_infra.py`, `manage_gateway.py`, `manage_pubsub.py`, `manage_compute.py`) require explicit user confirmation — never run autonomously
+- **Worktrees**: still valid when Claude needs to work in parallel while the user is actively editing; never run deploy commands from a worktree
 
 ## CodeRabbit review triage
 
