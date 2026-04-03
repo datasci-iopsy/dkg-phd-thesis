@@ -150,28 +150,37 @@ class TestWebServicePayload:
             )
 
     def test_model_dump_round_trips(self, raw_web_service_json):
-        """model_validate -> model_dump should preserve all values."""
+        """model_validate -> model_dump should preserve all values.
+
+        The fixture uses UPPERCASE keys (Qualtrics format); model_dump()
+        returns the Python field names (snake_case for descriptive fields,
+        uppercase for scale items like PA1). Resolve each fixture key to
+        its field name by trying lowercase first, then the raw key.
+        """
         payload = WebServicePayload.model_validate(raw_web_service_json)
         dumped = payload.model_dump()
         for key, value in raw_web_service_json.items():
-            assert dumped[key] == value, (
+            # snake_case descriptive fields: CONNECT_ID -> connect_id
+            # Uppercase scale items: PA1 -> PA1 (already matches)
+            field_name = key.lower() if key.lower() in dumped else key
+            assert dumped[field_name] == value, (
                 f"Round-trip mismatch on '{key}': "
-                f"expected {value!r}, got {dumped[key]!r}"
+                f"expected {value!r}, got {dumped[field_name]!r}"
             )
 
     def test_rejects_missing_response_id(self, raw_web_service_json):
-        del raw_web_service_json["response_id"]
+        del raw_web_service_json["RESPONSE_ID"]
         with pytest.raises(Exception):
             WebServicePayload.model_validate(raw_web_service_json)
 
     def test_rejects_missing_survey_id(self, raw_web_service_json):
-        del raw_web_service_json["survey_id"]
+        del raw_web_service_json["SURVEY_ID"]
         with pytest.raises(Exception):
             WebServicePayload.model_validate(raw_web_service_json)
 
     def test_rejects_non_integer_age(self, raw_web_service_json):
         """Age must be an integer, not an arbitrary string."""
-        raw_web_service_json["age"] = "thirty"
+        raw_web_service_json["AGE"] = "thirty"
         with pytest.raises(Exception):
             WebServicePayload.model_validate(raw_web_service_json)
 
@@ -212,7 +221,7 @@ class TestPartialPayload:
 
     def test_missing_optional_field_is_none(self, raw_web_service_json):
         """Removing an optional field results in None, not an error."""
-        del raw_web_service_json["PA1"]
+        del raw_web_service_json["PA1"]  # PA1 is already uppercase in fixture
         payload = WebServicePayload.model_validate(raw_web_service_json)
         assert payload.PA1 is None
         # Other fields still populated
@@ -313,7 +322,7 @@ class TestParticipantData:
 
     def test_rejects_blank_pid(self, valid_kwargs):
         valid_kwargs["connect_id"] = "   "
-        with pytest.raises(Exception, match="[Pp]rolific|blank"):
+        with pytest.raises(Exception, match="[Cc]onnect|blank"):
             ParticipantData(**valid_kwargs)
 
     def test_rejects_bad_phone_format(self, valid_kwargs):
@@ -372,7 +381,7 @@ class TestExtractionPipeline:
 
     def test_non_consenting_response_rejected(self, raw_web_service_json):
         """If consent != 'Yes', construction must fail."""
-        raw_web_service_json["consent"] = "No"
+        raw_web_service_json["CONSENT"] = "No"
         payload = WebServicePayload.model_validate(raw_web_service_json)
         consent = payload.consent == CONSENT_AGREE_VALUE
         assert consent is False
