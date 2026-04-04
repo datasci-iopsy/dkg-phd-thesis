@@ -26,8 +26,6 @@ python = ">=3.12,<3.13"
 pydantic = "^2.12.5"
 pydantic-settings = "^2.12.0"
 PyYAML = "^6.0.3"
-rchitect = "^0.4.9"
-requests = "^2.32.5"
 
 [tool.poetry.group.fn-qualtrics-scheduling]
 optional = true
@@ -36,6 +34,7 @@ optional = true
 # deps specific to the qualtrics scheduling function (beyond shared)
 cloudevents = "^1.12.0"
 Flask = "^3.1.2"
+requests = "^2.32.5"
 functions-framework = "^3.10.0"
 google-auth = "^2.48.0"
 google-cloud-bigquery = "3.39.0"
@@ -71,6 +70,7 @@ pytest = "^9.0.2"
 pytest-cov = "^7.0.0"
 pytest-env = "^1.3.2"
 radian = "0.6.15"
+rchitect = "^0.4.9"
 ruff = "0.15.0"
 shandy-sqlfmt = { extras = ["jinjafmt"], version = "^0.29.0" }
 # faker = "37.1.0"
