@@ -46,10 +46,11 @@ python gcp/deploy/manage_compute.py teardown         # delete VM (warns if resul
 ## Architecture patterns
 
 - **Schema source of truth**: `WebServicePayload` in `models/qualtrics.py` → BQ schema via `shared/utils/bq_schemas.py` — change models first, schema follows
+- **Participant identifier**: `connect_id` throughout all models, BQ schema, and test fixtures — never `prolific_id`
 - **Config loading**: each function's `configs/` YAMLs merged alphabetically → validated against `AppConfig` in `shared/utils/config_models.py`
 - **Idempotency**: fn2 checks `_processed` flag in BQ; fn3 checks `scheduled_followups` table before writing
 - **Dependency groups**: deploy exports `main` + function-specific group to `requirements.txt`
-- **`functions.yaml`**: single source of truth for all functions, SAs, IAM roles, secrets, triggers
+- **Deploy YAMLs**: `functions.yaml` (functions, SAs, IAM, secrets, triggers), `gateway.yaml`, `pubsub.yaml`, `compute.yaml` — each is the source of truth for its subsystem
 - **`send_immediately` test flag**: carried on `IntakeProcessedMessage` / `FollowupSchedulingMessage` (`bool = False`). When `True`, fn3 schedules at now+16/32/48 min instead of fixed study times. Set via `manage_gateway.py test --now`; read from POST body by fn1 (not stored in BQ).
 
 ## Schema change workflow
