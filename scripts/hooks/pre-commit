@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Pre-commit hook: block accidental lock file commits.
+# Bypass: ALLOW_LOCK_COMMIT=1 git commit ...
+set -euo pipefail
+
+LOCK_FILES=()
+for f in poetry.lock renv.lock; do
+    if git diff --cached --name-only | grep -qx "$f"; then
+        LOCK_FILES+=("$f")
+    fi
+done
+
+[ ${#LOCK_FILES[@]} -eq 0 ] && exit 0
+
+echo ""
+echo "WARNING: Lock file(s) staged for commit:"
+for f in "${LOCK_FILES[@]}"; do echo "  - $f"; done
+echo ""
+
+if [ "${ALLOW_LOCK_COMMIT:-0}" = "1" ]; then
+    echo "ALLOW_LOCK_COMMIT=1 set -- proceeding."
+    exit 0
+fi
+
+echo "Dependencies are frozen. If this lock update is intentional:"
+echo "  ALLOW_LOCK_COMMIT=1 git commit ..."
+echo ""
+exit 1
