@@ -2,7 +2,8 @@
 
 PhD dissertation: within-person fluctuation in burnout, need frustration, and turnover intentions.
 Three pillars: `gcp/` (Python GCP pipeline), `analysis/run_power_analysis/` (R simulations), `analysis/run_synthetic_data/` (test data).
-Python >=3.12,<3.13 (Poetry) and R >= 4.4 (renv) managed separately. See `gcp/CLAUDE.md` and `analysis/CLAUDE.md` for domain specifics.
+Python >=3.12,<3.13 (Poetry 2.2.1; requires `poetry-plugin-sort`, `poetry-plugin-export`) and R >= 4.4 (renv) managed separately. `.python-version` pins `3.12.11` for pyenv.
+See `gcp/CLAUDE.md` and `analysis/CLAUDE.md` for domain specifics.
 
 ## Makefile
 
@@ -12,6 +13,9 @@ Python >=3.12,<3.13 (Poetry) and R >= 4.4 (renv) managed separately. See `gcp/CL
 ## Commands
 
 ```bash
+# Onboarding (setup_r + setup_python + setup_hooks)
+make setup
+
 # Python
 poetry install --with fn-qualtrics-scheduling,fn-intake-confirmation,fn-followup-scheduling,dev
 poetry run ruff check . && poetry run ruff format .
@@ -44,16 +48,25 @@ Three Cloud Run functions chained via Pub/Sub: `run_qualtrics_scheduling` (HTTP)
 
 Power analysis: `main.sh` → `run_power_analysis.r` → parallel `simr` simulations (Arend & Schafer 2019). Dev: 3 combos × 10 sims. Prod: 3,645 cells × 1,000 sims on GCP `c3-highcpu-176`.
 
+## Dependency freeze
+
+Both lock files are frozen against accidental changes. Guardrails in place:
+- `poetry.toml`: `installer.re-resolve = false` — `poetry install` uses the lock file exactly
+- `.envrc`: `poetry check --lock` runs before every install; shell entry fails fast on drift
+- `.Rprofile`: interactive `renv::snapshot()` and `renv::update()` require env var opt-in
+- `scripts/hooks/pre-commit`: blocks commits staging `poetry.lock` or `renv.lock`
+
+**Python update:** `poetry lock` → install → `ALLOW_LOCK_COMMIT=1 git commit` | **R update:** `make renv_snapshot` → `ALLOW_LOCK_COMMIT=1 git commit` | **Hook:** `make setup_hooks` (auto via `make setup`).
+
 ## Verification
 
-After Python changes: `poetry run pytest gcp/tests/ -v` → `ruff check . && ruff format --check .` → `sqlfmt --check .`
+After Python changes: `poetry check --lock` → `poetry run pytest gcp/tests/ -v` → `ruff check . && ruff format --check .` → `sqlfmt --check .`
 After R changes: `bash analysis/tests/validate_r_structure.sh`
 Schema changes: `models/qualtrics.py` → `bq_schemas.py` → `web_service_payload.json` → `test_models.py` → `manage_infra.py teardown/setup`
 
 ## Workflow
 
-- Use Plan mode for complex or multi-file tasks; iterate before implementing
-- Break large changes into reviewable chunks
+- Use Plan mode for complex or multi-file tasks; break large changes into reviewable chunks
 - **Task branches**: for Claude-driven work, create a short-lived branch off the current branch (e.g., `main--claude-<topic>`), commit there, and let the user review the diff before merging
 - Deploy commands (`manage_functions.py deploy`, `manage_infra.py`, `manage_gateway.py`, `manage_pubsub.py`, `manage_compute.py`) require explicit user confirmation — never run autonomously
 - **Worktrees**: still valid when Claude needs to work in parallel while the user is actively editing; never run deploy commands from a worktree

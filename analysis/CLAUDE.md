@@ -10,6 +10,7 @@ Shared utilities in `analysis/shared/utils/common_utils.r`.
 
 ```bash
 Rscript -e "renv::restore()"                               # restore packages from renv.lock
+make renv_snapshot                                         # update renv.lock (sanctioned path)
 bash run_power_analysis/main.sh dev                        # dev grid (seconds)
 bash run_power_analysis/main.sh prod                       # full grid (hours)
 bash run_power_analysis/main.sh benchmark_gcp              # GCP timing probe
@@ -40,6 +41,14 @@ bash analysis/tests/validate_r_structure.sh                # pre-flight; run fro
 - L2 time-invariant (grand-mean centered): `VAR.BP` — e.g. `PSYK.BR`
 - Never mix centering levels in a single model term
 
+## renv freeze
+
+`renv.lock` is frozen. In interactive R sessions, `renv::snapshot()` and `renv::update()` will error unless explicitly opted in. `renv::restore()` is unaffected.
+
+- **Sanctioned snapshot path**: `make renv_snapshot` (sets `RENV_ALLOW_SNAPSHOT=1` automatically)
+- **Manual opt-in**: `Sys.setenv(RENV_ALLOW_SNAPSHOT = "1"); renv::snapshot()`
+- **Commit the lock update**: `ALLOW_LOCK_COMMIT=1 git commit`
+
 ## GCP VM workflow
 
 For large grids, provision a GCP Compute Engine VM via `manage_compute.py`:
@@ -52,5 +61,6 @@ Machine type and zone are configured in `gcp/deploy/compute.yaml`.
 
 ## Worktree notes
 
-- `renv.lock` is shared — run `renv::restore()` once per worktree checkout, not repeatedly
+- `renv.lock` is frozen — do not run `renv::snapshot()` in a worktree session without opt-in
+- Run `renv::restore()` once per worktree checkout; it is unaffected by the freeze guard
 - Simulation output (`data/`) is gitignored; each worktree produces independent output
