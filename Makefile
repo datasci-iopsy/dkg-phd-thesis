@@ -32,6 +32,7 @@ FN ?= run_qualtrics_scheduling
         gcp_pubsub_up gcp_pubsub_down \
         gcp_compute_up gcp_compute_status gcp_compute_ssh \
         gcp_compute_scp gcp_compute_down \
+        setup_hooks \
         _check_r_env _check_synthetic_inputs
 
 # ---------------------------------------------------------------------------
@@ -162,7 +163,7 @@ help_gcp:
 # Setup
 # ---------------------------------------------------------------------------
 
-setup: setup_r setup_python
+setup: setup_r setup_python setup_hooks
 	@echo ""
 	@echo "✅ Full setup complete. Run 'make validate' to verify the structure."
 
@@ -193,6 +194,11 @@ setup_python:
 		echo "   Install: https://python-poetry.org/docs/#installation"; \
 		exit 1; \
 	}
+	@cd "$(ROOT)" && poetry check --lock || { \
+		echo "❌ poetry.lock is out of sync with pyproject.toml."; \
+		echo "   Run: poetry lock --no-update"; \
+		exit 1; \
+	}
 	@echo "📦 Installing Python dependencies..."
 	@cd "$(ROOT)" && poetry install \
 		--with fn-qualtrics-scheduling,fn-intake-confirmation,fn-followup-scheduling,dev || { \
@@ -200,6 +206,19 @@ setup_python:
 		exit 1; \
 	}
 	@echo "✅ Python environment ready."
+
+setup_hooks:
+	@mkdir -p "$(ROOT)/scripts/hooks"
+	@if [ -d "$(ROOT)/.git" ]; then \
+		mkdir -p "$(ROOT)/.git/hooks"; \
+		ln -sf "$(ROOT)/scripts/hooks/pre-commit" "$(ROOT)/.git/hooks/pre-commit"; \
+		chmod +x "$(ROOT)/scripts/hooks/pre-commit"; \
+		echo "✅ Pre-commit hook installed (blocks accidental lock file commits)."; \
+		echo "   Bypass: ALLOW_LOCK_COMMIT=1 git commit ..."; \
+	else \
+		echo "⚠️  No .git directory found — hooks skipped (archive checkout?)."; \
+		echo "   To install manually: ln -sf \$$(pwd)/scripts/hooks/pre-commit .git/hooks/pre-commit"; \
+	fi
 
 # ---------------------------------------------------------------------------
 # Pre-flight
@@ -261,8 +280,9 @@ renv_repair: _check_r_env
 
 renv_snapshot: _check_r_env
 	@echo "📸 Snapshotting R environment to renv.lock..."
+	@echo "   (Freeze guard bypassed via Makefile target)"
 	@echo ""
-	@cd "$(ROOT)" && Rscript -e "renv::snapshot()" || { \
+	@cd "$(ROOT)" && RENV_ALLOW_SNAPSHOT=1 Rscript -e "renv::snapshot()" || { \
 		echo "❌ renv::snapshot() failed."; \
 		exit 1; \
 	}
@@ -370,6 +390,11 @@ synthetic_analysis: synthetic_eda synthetic_correlation synthetic_measurement sy
 # ---------------------------------------------------------------------------
 
 py_install:
+	@cd "$(ROOT)" && poetry check --lock || { \
+		echo "❌ poetry.lock is out of sync with pyproject.toml."; \
+		echo "   Run: poetry lock --no-update"; \
+		exit 1; \
+	}
 	@echo "📦 Installing all Python dependency groups..."
 	@cd "$(ROOT)" && poetry install \
 		--with fn-qualtrics-scheduling,fn-intake-confirmation,fn-followup-scheduling,dev

@@ -1,3 +1,6 @@
 [virtualenvs]
 create = true
 in-project = true
+
+[installer]
+re-resolve = false
