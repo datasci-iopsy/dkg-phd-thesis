@@ -22,16 +22,16 @@ Install these tools before cloning. None are included in the repository.
 
 > **Linux users:** The table below gives `apt`-based hints, but R installation requires additional steps (signing key, CRAN PPA, system build libraries). `gcp/deploy/setup_gcp_vm.sh` contains a complete, tested R installation sequence for Ubuntu 22.04 and is the best reference for the R section — adapt it for your distro as needed. A dedicated Linux developer guide may be added as the project matures.
 
-| Tool | Purpose | macOS | Linux |
-|------|---------|-------|-------|
-| git | Version control | Xcode CLT (`xcode-select --install`) | `apt install git` |
-| make | Task runner | Xcode CLT | `apt install build-essential` |
-| pyenv | Python version manager — reads `.python-version` (pins 3.12.11) | `brew install pyenv` + [shell init](https://github.com/pyenv/pyenv#set-up-your-shell-environment-for-pyenv) | [pyenv-installer](https://github.com/pyenv/pyenv-installer) |
-| direnv | Auto-loads `.envrc` on `cd` | `brew install direnv` + [shell hook](https://direnv.net/docs/hook.html) | `apt install direnv` + shell hook |
-| pipx | Isolated Python app installer | `brew install pipx && pipx ensurepath` | `apt install pipx` |
-| Poetry ≥ 2.2.1 | Python dependency manager | `pipx install poetry` | `pipx install poetry` |
-| Poetry plugins | Required by `pyproject.toml` | `poetry self add poetry-plugin-sort poetry-plugin-export` | same |
-| R ≥ 4.4 | Statistical analysis | [CRAN macOS binary](https://cran.r-project.org/) | [CRAN PPA](https://cloud.r-project.org/bin/linux/ubuntu/) |
+| Tool           | Purpose                                                         | macOS                                                                                                       | Linux                                                       |
+| -------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| git            | Version control                                                 | Xcode CLT (`xcode-select --install`)                                                                        | `apt install git`                                           |
+| make           | Task runner                                                     | Xcode CLT                                                                                                   | `apt install build-essential`                               |
+| pyenv          | Python version manager — reads `.python-version` (pins 3.12.11) | `brew install pyenv` + [shell init](https://github.com/pyenv/pyenv#set-up-your-shell-environment-for-pyenv) | [pyenv-installer](https://github.com/pyenv/pyenv-installer) |
+| direnv         | Auto-loads `.envrc` on `cd`                                     | `brew install direnv` + [shell hook](https://direnv.net/docs/hook.html)                                     | `apt install direnv` + shell hook                           |
+| pipx           | Isolated Python app installer                                   | `brew install pipx && pipx ensurepath`                                                                      | `apt install pipx`                                          |
+| Poetry ≥ 2.2.1 | Python dependency manager                                       | `pipx install poetry`                                                                                       | `pipx install poetry`                                       |
+| Poetry plugins | Required by `pyproject.toml`                                    | `poetry self add poetry-plugin-sort poetry-plugin-export`                                                   | same                                                        |
+| R ≥ 4.4        | Statistical analysis                                            | [CRAN macOS binary](https://cran.r-project.org/)                                                            | [CRAN PPA](https://cloud.r-project.org/bin/linux/ubuntu/)   |
 
 ## Quick Start
 
@@ -186,14 +186,14 @@ Both `poetry.lock` and `renv.lock` are frozen against accidental changes:
 
 ## Troubleshooting
 
-| Symptom | Fix |
-|---------|-----|
-| `direnv: error .envrc is blocked` | Run `direnv allow` |
-| `poetry.lock is out of sync` | Run `poetry lock --no-update` |
-| `renv::restore()` fails | Try `make renv_repair` |
-| Tests fail with import errors | Confirm `direnv allow` completed; check `which python` points to `.venv/bin/python` |
-| `Rscript not found` or R version < 4.4 | Install R ≥ 4.4 from CRAN; verify with `Rscript --version` |
-| `make validate` fails with path error | Confirm you are running from the project root |
+| Symptom                                | Fix                                                                                 |
+| -------------------------------------- | ----------------------------------------------------------------------------------- |
+| `direnv: error .envrc is blocked`      | Run `direnv allow`                                                                  |
+| `poetry.lock is out of sync`           | Run `poetry lock --no-update`                                                       |
+| `renv::restore()` fails                | Try `make renv_repair`                                                              |
+| Tests fail with import errors          | Confirm `direnv allow` completed; check `which python` points to `.venv/bin/python` |
+| `Rscript not found` or R version < 4.4 | Install R ≥ 4.4 from CRAN; verify with `Rscript --version`                          |
+| `make validate` fails with path error  | Confirm you are running from the project root                                       |
 
 For a full command reference: `make help` (all commands) or `make help_gcp` (GCP-specific).
 
@@ -203,8 +203,8 @@ For a full command reference: `make help` (all commands) or `make help_gcp` (GCP
   - [Prerequisites](#prerequisites)
   - [Quick Start](#quick-start)
   - [Tracks](#tracks)
-    - [Track A — R Analysis](#track-a--r-analysis-power-analysis--synthetic-data)
-    - [Track B — Python Development](#track-b--python-development-testing-linting-local-dev-server)
+    - [Track A — R Analysis (Power Analysis + Synthetic Data)](#track-a--r-analysis-power-analysis--synthetic-data)
+    - [Track B — Python Development (Testing, Linting, Local Dev Server)](#track-b--python-development-testing-linting-local-dev-server)
     - [Track C — GCP Deployment](#track-c--gcp-deployment)
     - [Track D — GCP VM for Large Power Analysis](#track-d--gcp-vm-for-large-power-analysis)
   - [Dependency Management](#dependency-management)
@@ -212,8 +212,8 @@ For a full command reference: `make help` (all commands) or `make help_gcp` (GCP
 - [Table of Contents](#table-of-contents)
 - [Overview](#overview)
 - [Conceptual Framework](#conceptual-framework)
-  - [Hypotheses (Proposed)](#hypotheses-proposed)
-  - [Research Model (Proposed)](#research-model-proposed)
+  - [Hypotheses](#hypotheses)
+  - [Research Model](#research-model)
 - [Measures](#measures)
   - [Level 1 Variables (L1)](#level-1-variables-l1)
     - [Shirom-Melamed Burnout Measure (*SMBM; Shirom \& Melamed, 2006*)](#shirom-melamed-burnout-measure-smbm-shirom--melamed-2006)
@@ -236,7 +236,7 @@ For a full command reference: `make help` (all commands) or `make help_gcp` (GCP
 
 # Overview
 
-The objective of this study is to investigate, parse, quantify, and compare the within- and between-person variability of burnout and basic psychological need frustrations when predicting turnover intentions over the course of a workday. Given the longitudinal nature of this study, a repeated measures design is employed and analyzed using a mixed-effects model approach for enhanced statistically flexibility.
+This study utilizes an experience sampling design with three within-day measurement occasions across a single workday to model need frustration depletion and burnout trajectories as they relate to momentary turnover intentions. Grounded in Self-Determination Theory (SDT) and Basic Psychological Needs Theory (BPNT), the study examines how the active frustration of autonomy, competence, and relatedness needs — as well as the accumulated energetic depletion reflected in burnout — predicts shifts in turnover intentions within a workday. A multilevel (mixed-effects) modeling paradigm differentially parses and evaluates within-person (Level 1) and between-person (Level 2) effects, with psychological contract breach/violation and job satisfaction entered as stable Level 2 predictors, and meeting characteristics examined as a within-person moderator.
 
 # Conceptual Framework
 
@@ -256,40 +256,37 @@ Participants will be measured across three timepoints within a single respective
 - Psychological Contract (*L2*)
 - Job Satisfaction (*L2*)
 
-**Control Variables (Covariates)**:
+**Model Covariates** (all collected; age, tenure, and positive/negative affect included as model controls):
 
 - Positive & Negative Affect (*L2*)
 - Age (*L2*)
-- ~~Ethnicity (*L2*)~~
-- ~~Gender (*L2*)~~
 - Job Tenure (*L2*)
-- ~~Education Level (*L2*)~~
-- Remote Flag (*L2*)
+- Ethnicity (*L2*, collected, not modeled)
+- Gender (*L2*, collected, not modeled)
+- Education Level (*L2*, collected, not modeled)
+- Remote Flag (*L2*, collected, not modeled)
 
 **Marker Variable**: 
 
 - Attitude Toward the Color Blue (*L1*)
 
-## Hypotheses (Proposed)
+## Hypotheses
 
-- **H1.**  Burnout (i.e., (a) physical fatigue, (b) cognitive weariness, and (c) emotional exhaustion) will be positively related to turnover intentions at the within-person level.
+- **H1a.** Holding all other within-person predictors constant, individuals who experience higher levels of burnout relative to their personal average at a given measurement occasion are expected to report stronger turnover intentions.
 
-- **H2.** Need frustration (i.e., (a) competency thwarting, (b) autonomy thwarting, and (c) relatedness thwarting) will be positively related to turnover intentions at the within-person level.
+- **H1b.** Holding all other within-person predictors constant, individuals who experience higher levels of need frustration relative to their personal average at a given measurement occasion are expected to report stronger turnover intentions.
 
-- **H3.** The positive within-person relationship between burnout and turnover intentions will be moderated by meeting characteristics, such that meeting characteristics (i.e., (a) number of meetings and (b) amount of time spent in meetings) strengthens the relationship. 
+- **H2a.** Individuals who, on average, experience higher levels of burnout are expected to report stronger turnover intentions, controlling for all other between-person means and within-person deviations.
 
-- **H4.** The positive within-person relationship between need frustration and turnover intentions will be moderated by meeting characteristics, such that meeting characteristics (i.e., (a) number of meetings and (b) amount of time spent in meetings) strengthens the relationship.
+- **H2b.** Individuals who, on average, experience higher levels of need frustration are expected to report stronger turnover intentions, controlling for all other between-person means and within-person deviations.
 
-- **H5.** The positive within-person relationship between burnout and turnover intentions will be moderated by psychological contract perceptions, such that psychological contract perceptions (i.e., (a) perceived breach and (b) violation) at the between-level strengthen the within-person relationship.
+- **H3.** On average, turnover intentions are expected to be positively associated with individuals who experience chronically higher levels of (a) psychological contract breach and (b) violation, while negatively associated with consistently higher levels of (c) job satisfaction.
 
-- **H6.** The positive within-person relationship between need frustration and turnover intentions will be moderated by psychological contract perceptions, such that psychological contract perceptions (i.e., (a) perceived breach and (b) violation) at the between-level strengthen the within-person relationship.
+- **H4a.** Holding all other within-person predictors and between-person means constant, individuals who have more meetings than their personal average at a given measurement occasion are expected to report higher levels of turnover intentions; this effect will positively moderate the relationships between burnout and turnover intentions and between need frustration and turnover intentions.
 
-- **H7.** The positive within-person relationship between burnout and turnover intentions will be moderated by job satisfaction, such that job satisfaction at the between-level weaken the within-person relationship.
+- **H4b.** Holding all other within-person predictors and between-person means constant, individuals who spend more time in meetings than their personal average at a given measurement occasion are expected to report higher levels of turnover intentions; this effect will positively moderate the relationships between burnout and turnover intentions and between need frustration and turnover intentions.
 
-- **H8.** The positive within-person relationship between need frustration and turnover intentions will be moderated by job satisfaction, such that job satisfaction at the between-level weaken the within-person relationship.
-
-
-## Research Model (Proposed)
+## Research Model
 
 ![thesis-research-model](images/thesis-research-model.svg)
 
@@ -319,7 +316,7 @@ Response Anchors: Frequency-based (see [*Tong et al., 2020*](https://pubmed.ncbi
 3. I have felt physically drained.
 4. I have felt fed-up.
 5. I have felt like my “batteries” are “dead.”
-6. I have felt like burned out.
+6. I have felt burned out.
 
 **Cognitive Weariness**
 
@@ -331,7 +328,7 @@ Response Anchors: Frequency-based (see [*Tong et al., 2020*](https://pubmed.ncbi
 
 **Emotional Exhaustion**
 
-1. I feel I have been unable to be sensitive to the needs of coworkers or customers.
+1. I feel I have been unable to respond sensitively to the needs of coworkers or customers.
 2. I feel I have been incapable of investing emotionally in coworkers or customers.
 3. I feel I have been incapable of being sympathetic to coworkers or customers.
  
@@ -346,9 +343,9 @@ Response Anchors: Frequency-based (see [*Tong et al., 2020*](https://pubmed.ncbi
 Response Anchors: Agreement-based
 
 - 1 = Strongly disagree
-- 2 = Disagree
+- 2 = Somewhat disagree
 - 3 = Neither agree nor disagree
-- 4 = Agree
+- 4 = Somewhat agree
 - 5 = Strongly agree
 
 <details>
@@ -386,21 +383,18 @@ Response Anchors: Agreement-based
 Response Anchors: Agreement-based
 
 - 1 = Strongly disagree
-- 2 = Disagree
+- 2 = Somewhat disagree
 - 3 = Neither agree nor disagree
-- 4 = Agree
+- 4 = Somewhat agree
 - 5 = Strongly agree
 
 <details>
 <summary>Expand for items</summary>
 
-1. ~~Blue is a beautiful color~~
-2. Blue is a lovely color
-3. ~~Blue is a pleasant color~~
-4. ~~The color blue is wonderful~~
-5. Blue is a nice color
-6. I think blue is a pretty color
-7. I like the color blue
+1. Blue is a lovely color
+2. Blue is a nice color
+3. I think blue is a pretty color
+4. I like the color blue
 
 </details>
 
@@ -446,9 +440,9 @@ Indicate the extent to which you agree or disagree with the following statements
 
 Response Anchors: Agreement-based
 - 1 = Strongly disagree
-- 2 = Disagree
+- 2 = Somewhat disagree
 - 3 = Neither agree nor disagree
-- 4 = Agree
+- 4 = Somewhat agree
 - 5 = Strongly agree
 
 <details>
@@ -479,9 +473,9 @@ Overall, I am satisfied with my job.
 
 Response Anchors: Agreement-based
 - 1 = Strongly disagree
-- 2 = Disagree
+- 2 = Somewhat disagree
 - 3 = Neither agree nor disagree
-- 4 = Agree
+- 4 = Somewhat agree
 - 5 = Strongly agree
 
 ---
@@ -563,7 +557,7 @@ Response Anchors: Frequency-based
    - Master’s degree
    - Professional or Doctorate degree
 
-6. Remote Flag (Will you be working remotely on the date you selected to to receive the follow-up surveys?)
+6. Remote Flag (I will be working remotely on the date I selected to receive the follow-up surveys.)
    - True
    - False
 
@@ -584,7 +578,7 @@ Response Anchors: Frequency-based
   - Visualizations of group differences (e.g., bar plots, violin plots, etc.)
   - Effect size calculations (e.g., Cohen's d, eta-squared) for group differences
 - Visualizations of data distributions (e.g., histograms, boxplots, etc.)
-- ~~Test for homoscedasticity (i.e., group differences)~~ (moot since mixed-effects approach will be used)
+- Test for homoscedasticity (i.e., group differences)
 - Correlations between variables and visualizations of relationships
   - Pearson's *r* for continuous variables (L1 variables will be aggregated up to L2 level)
   - `rmcorr` exclusively for continuous variables at the L1 level
@@ -596,20 +590,20 @@ Response Anchors: Frequency-based
 
 ### Reliability
 
-- Composite index (McDonald’s omega, see *Geldhof et al., 2014; Fu, Wen, & Wang, 2022; Yang et al., 2022* for theoretical justification)
+- Multilevel composite reliability indices estimated across all levels (total, between-person, and within-person) via multilevel confirmatory factor analysis (MCFA) using the `lavaan` and `semTools` R packages (*Lai, 2021; Geldhof et al., 2014*)
 
 ### Common Method Variance & Factor Structure
 
-- CFA Marker Technique (see *Williams, Hartman, & Cavazotte, 2010*)
-- Multilevel CFA
+- Multilevel CFA (MCFA) to simultaneously verify the theoretical factor structure at Level 1 and Level 2
+- CFA Marker Technique to evaluate and control for common method bias (see *Williams, Hartman, & Cavazotte, 2010*)
 
 ### A Priori Sensitivity Analysis of Power
 
-The author developed an [R program](/srcR/run_power_analysis) to run robust sensitivity analyses of power based on the work of *Arend & Schäfer, 2019*. The program leverages the `furrr` (for parallelization) and `simr` packages in R. The original work of *Arend & Schäfer, 2019* was expanded to focus on a (customizable) matrix comprising the following parameters (values listed within parentheses are proposed in the current study):
+The author developed an [R program](analysis/run_power_analysis) to run robust sensitivity analyses of power based on the work of *Arend & Schäfer, 2019*. The program leverages the `furrr` (for parallelization) and `simr` packages in R. The original work of *Arend & Schäfer, 2019* was expanded to focus on a (customizable) matrix comprising the following parameters (values listed within parentheses are used in the current study):
 
 Parameter Variations:
 - Level 1 sample size (3)
-- Level 2 sample sizes (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000)
+- Level 2 sample sizes (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500)
 - Level 1 direct effect size (0.10, 0.30, 0.50)
 - Level 2 direct effect size (0.10, 0.30, 0.50)
 - Cross-level effect size (0.10, 0.30, 0.50)
@@ -617,20 +611,29 @@ Parameter Variations:
 - Random slope variance values (0.01, 0.09, 0.25)
 - Significance level (0.05)
 
-There are a few more configurable values included in the program, but the current study's setup created a 10 × 3 × 3 × 3 × 3 × 3 = **2,430 design matrix** where each cell represented a unique combination of parameters. The simulations were run for 1,000 iterations per cell, resulting in a total of **2,430,000 simulations**. To review the code and get a detailed breakdown along with instructions on how to run the process, see the program's [README](srcR/run_power_analysis/README.md). *Note:* The sample sizes were split in half (but retained all other parameter values) and run on two different virtual (i.e., set 1: 100, 300, 500, 700, 900; set 2: 200, 400, 600, 800, 1000). The outputs were then combined into a single table for analysis.
+The current implementation uses a 15 × 3 × 3 × 3 × 3 × 3 = **3,645 design matrix** where each cell represents a unique combination of parameters. The simulations are run for 1,000 iterations per cell, resulting in a total of **3,645,000 simulations**. To review the code and get a detailed breakdown along with instructions on how to run the process, see the program’s [README](analysis/run_power_analysis/README.md).
 
 Each power analysis calculated detection probability for three effects:
 - L1 Direct Effect
 - L2 Direct Effect
 - Cross-Level Interaction
 
-By systematically varying key assumptions (ICC, effect sizes, random slope variance, etc.) and running simulations, the program provided insights into the sensitivity of power estimates under different conditions. Figure 1 illustrates the power curves generated from the simulations using the aforementioned parameters with a small Level 1 effect and other parameters set to their medium values.
+By systematically varying key assumptions (ICC, effect sizes, random slope variance, etc.) and running simulations, the program provides insights into the sensitivity of power estimates under different conditions. Based on the results, the desired Level 2 sample size for the current study is **800 participants**, which achieves adequate power (> 90%) to detect practically meaningful effects at both levels when holding other components at medium values. Figure 1 illustrates the power curves generated from the simulations.
 
-![power curves](srcR/run_power_reporting/figs/power-curves-ex.png)
+![power curves](analysis/run_power_analysis/figs/01_power_curves_by_effect_size.svg)
 
 ### Mixed-Effects (Multilevel) Modeling
 
-(see *McNeish & Matta, 2018*)
+All hypotheses will be tested using multilevel modeling via the `lme4` R package (*Bates et al., 2015*; see also *McNeish & Matta, 2018*). Level 1 predictors will be person-mean (group) centered; Level 2 predictors will be grand-mean centered. A **sequential model-building approach** is used:
+
+1. **Null model** (unconditional means) — establishes ICC baseline and tests whether grouping structure accounts for variance in TI
+2. **H1** — add L1 within-person predictors (burnout subdimensions, NF subdimensions, meeting characteristics)
+3. **H2 & H3** — add L2 between-person predictors (burnout/NF person-means, PC breach/violation, job satisfaction, covariates)
+4. **H4** — add meeting × burnout and meeting × NF within-person interaction terms; composites for burnout and need frustration are computed to reduce model complexity
+
+Rather than conducting significance tests to evaluate slope variance (which are unreliable with only 3 timepoints), an effect size estimate called **ICC beta (ρ_β)** will be calculated to evaluate the proportion of within-group variance in TI attributable to between-group differences in slopes (*Aguinis & Culpepper, 2015*). ICC beta is orthogonal to the standard ICC and will be reported in place of formalized slope variance tests.
+
+Covariates modeled as between-person controls: age, job tenure, positive affect, and negative affect.
 
 ---
 
@@ -657,7 +660,7 @@ $$
 
 **Random Intercepts, Fixed Slopes (Full Research Model)**:
 
-The within-person predictors are person-mean centered and is indicated by "WP" in the notation (e.g., $X_{ti} - \overline X_{i}$). The between-person predictors are grand mean centered and is indicated by "BP" in the notation (e.g., $X_{i} - \overline X$). Inspiration drawn from [ChatGPT-5 review](https://www.perplexity.ai/search/attached-you-will-find-an-arti-WxzXWE_7Q7ifJf7F5TOhvA#0) of [*Du, C. et. al (2024)](https://doi.org/10.1186/s12877-024-05256-y). *Note*: $z_{i}$ is a placeholder for covariates but are consolidated for LaTex rendering purposes.
+The within-person predictors are person-mean centered and is indicated by "WP" in the notation (e.g., $X_{ti} - \overline X_{i}$). The between-person predictors are grand mean centered and is indicated by "BP" in the notation (e.g., $X_{i} - \overline X$). Inspiration drawn from [Perplexity](https://www.perplexity.ai/search/attached-you-will-find-an-arti-WxzXWE_7Q7ifJf7F5TOhvA#0) of [*Du, C. et. al (2024)](https://doi.org/10.1186/s12877-024-05256-y). *Note*: $z_{i}$ is a placeholder for covariates but are consolidated for LaTex rendering purposes.
 
 $$
 \begin{aligned}
@@ -679,12 +682,12 @@ $$
 & \quad\quad\quad\ + \mu_{0i} \\
 &\quad \text{where } \mu_{0i} \sim N(0, \sigma_{\mu_{0}}^2) \\
 \\
-& \quad \beta_{1i} = \gamma_{10} + \gamma_{11}(PSYK.BR_{i}) + \gamma_{12}(PSYK.VIO_{i}) + \gamma_{13}(JOBSAT_{i}) \\
-& \quad \beta_{2i} = \gamma_{20} + \gamma_{21}(PSYK.BR_{i}) + \gamma_{22}(PSYK.VIO_{i}) + \gamma_{23}(JOBSAT_{i}) \\
-& \quad \beta_{3i} = \gamma_{30} + \gamma_{31}(PSYK.BR_{i}) + \gamma_{32}(PSYK.VIO_{i}) + \gamma_{33}(JOBSAT_{i}) \\
-& \quad \beta_{4i} = \gamma_{40} + \gamma_{41}(PSYK.BR_{i}) + \gamma_{42}(PSYK.VIO_{i}) + \gamma_{43}(JOBSAT_{i}) \\
-& \quad \beta_{5i} = \gamma_{50} + \gamma_{51}(PSYK.BR_{i}) + \gamma_{52}(PSYK.VIO_{i}) + \gamma_{53}(JOBSAT_{i}) \\
-& \quad \beta_{6i} = \gamma_{60} + \gamma_{61}(PSYK.BR_{i}) + \gamma_{62}(PSYK.VIO_{i}) + \gamma_{63}(JOBSAT_{i}) \\
+& \quad \beta_{1i} = \gamma_{10} \\
+& \quad \beta_{2i} = \gamma_{20} \\
+& \quad \beta_{3i} = \gamma_{30} \\
+& \quad \beta_{4i} = \gamma_{40} \\
+& \quad \beta_{5i} = \gamma_{50} \\
+& \quad \beta_{6i} = \gamma_{60} \\
 & \quad \beta_{7i} = \gamma_{70} \\
 & \quad \beta_{8i} = \gamma_{80} \\
 & \quad \beta_{9i} = \gamma_{90} \\
@@ -698,7 +701,19 @@ $$
 
 Composite Notation:
 
-TO BE DETERMINED...
+$$
+\begin{aligned}
+TI_{ti} =\; & \gamma_{00} + \gamma_{01}(BURN.PHY.BP_{i}) + \gamma_{02}(BURN.COG.BP_{i}) + \gamma_{03}(BURN.EMO.BP_{i}) + \gamma_{04}(NF.COMP.BP_{i}) + \gamma_{05}(NF.AUTO.BP_{i}) + \gamma_{06}(NF.RLTD.BP_{i}) \\
+& + \gamma_{07}(MEET.COUNT.BP_{i}) + \gamma_{08}(MEET.TIME.BP_{i}) \\
+& + \gamma_{09}(PSYK.BR_{i}) + \gamma_{10}(PSYK.VIO_{i}) + \gamma_{11}(JOBSAT_{i}) + \gamma_{12}(z_{i}) \\
+& + \gamma_{10}(BURN.PHY.WP_{ti}) + \gamma_{20}(BURN.COG.WP_{ti}) + \gamma_{30}(BURN.EMO.WP_{ti}) \\
+& + \gamma_{40}(NF.COMP.WP_{ti}) + \gamma_{50}(NF.AUTO.WP_{ti}) + \gamma_{60}(NF.RLTD.WP_{ti}) \\
+& + \gamma_{70}(MEET.COUNT.WP_{ti}) + \gamma_{80}(MEET.TIME.WP_{ti}) \\
+& + \gamma_{90}(MEET.COUNT.WP_{ti} \times BURN.PHY.WP_{ti}) + \gamma_{100}(MEET.COUNT.WP_{ti} \times BURN.COG.WP_{ti}) + \gamma_{110}(MEET.COUNT.WP_{ti} \times BURN.EMO.WP_{ti}) \\
+& + \gamma_{120}(MEET.COUNT.WP_{ti} \times NF.COMP.WP_{ti}) + \gamma_{130}(MEET.COUNT.WP_{ti} \times NF.AUTO.WP_{ti}) + \gamma_{140}(MEET.COUNT.WP_{ti} \times NF.RLTD.WP_{ti}) \\
+& + \mu_{0i} + \epsilon_{ti}
+\end{aligned}
+$$
 
 ---
 
