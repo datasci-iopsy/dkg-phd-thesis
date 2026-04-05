@@ -12,29 +12,203 @@ Raleigh, North Carolina (2026)
 
 # Technical Setup
 
-This project is a combination of academic research, software engineering and data engineering, as well as data science and advanced statistical analysis. Rather than have the user meander the various aspects of the project piece by piece, I aimed to make many aspects as automatic as possible. Though one is bound to encounter something new when working with various paradigms. 
+This project combines academic research, software engineering, data engineering, and advanced statistical analysis. The Makefile is the primary interface — `make help` lists everything.
 
-TODO: I should get the `Makefile` handle these commands as much as possible!
+**Windows is not supported.** The R parallel backend and bash wrapper scripts require macOS or Linux.
 
-1. Use OS-specific package manager to download `pyenv`, and `direnv`
-   1. macOS: `homebrew`
-   2. Linux: `apt`, `Nix`, etc.
-2. Install and set up project virtual environment using `pyenv`
-3. Install `direnv` on your local machine (this will differ across OS)
-   1. The message `direnv: error {{ user_path }}.envrc is blocked. Run direnv allow to approve its content` is normal, so run the command.
-   2. Create `.envrc` file
-4. Install `poetry`
-   1. `pip install pipx`
-   2. `pipx install poetry=2.2.1`
-   3. It makes sense to run the command `pipx ensurepath` to automatically update `PATH` variable so `poetry` can be accessed globally.
-5. Ensure that you have R downloaded (preferably version `4.5.2` or later).
-   1. When programming using an IDE (e.g., VS Code), you'll leverage the python package `radian` as the terminal output is much clearer and packed with color-coded messages.
-   2. Install the `renv` package if you have not already.
-      1. `renv::init()` to get things started.
+## Prerequisites
+
+Install these tools before cloning. None are included in the repository.
+
+> **Linux users:** The table below gives `apt`-based hints, but R installation requires additional steps (signing key, CRAN PPA, system build libraries). `gcp/deploy/setup_gcp_vm.sh` contains a complete, tested R installation sequence for Ubuntu 22.04 and is the best reference for the R section — adapt it for your distro as needed. A dedicated Linux developer guide may be added as the project matures.
+
+| Tool | Purpose | macOS | Linux |
+|------|---------|-------|-------|
+| git | Version control | Xcode CLT (`xcode-select --install`) | `apt install git` |
+| make | Task runner | Xcode CLT | `apt install build-essential` |
+| pyenv | Python version manager — reads `.python-version` (pins 3.12.11) | `brew install pyenv` + [shell init](https://github.com/pyenv/pyenv#set-up-your-shell-environment-for-pyenv) | [pyenv-installer](https://github.com/pyenv/pyenv-installer) |
+| direnv | Auto-loads `.envrc` on `cd` | `brew install direnv` + [shell hook](https://direnv.net/docs/hook.html) | `apt install direnv` + shell hook |
+| pipx | Isolated Python app installer | `brew install pipx && pipx ensurepath` | `apt install pipx` |
+| Poetry ≥ 2.2.1 | Python dependency manager | `pipx install poetry` | `pipx install poetry` |
+| Poetry plugins | Required by `pyproject.toml` | `poetry self add poetry-plugin-sort poetry-plugin-export` | same |
+| R ≥ 4.4 | Statistical analysis | [CRAN macOS binary](https://cran.r-project.org/) | [CRAN PPA](https://cloud.r-project.org/bin/linux/ubuntu/) |
+
+## Quick Start
+
+These five steps bring both the Python and R environments to a fully working state.
+
+**1. Clone and enter the repo**
+
+```bash
+git clone <repo-url>
+cd dkg-phd-thesis
+```
+
+**2. Set up environment variables**
+
+```bash
+cp .env.example .env
+# Edit .env if your GCP project ID differs from 'dkg-phd-thesis'
+```
+
+**3. Allow direnv (Python environment)**
+
+```bash
+direnv allow
+```
+
+This triggers `.envrc`, which:
+- Installs Python 3.12.11 via pyenv (if not already present)
+- Validates `poetry.lock` against `pyproject.toml` (`poetry check --lock`)
+- Runs `poetry install` with all dependency groups into `.venv/`
+- Loads `.env` variables into the shell
+- Activates the Poetry virtualenv
+
+The message `direnv: error .envrc is blocked` on first entry is normal — just run `direnv allow`.
+
+**4. Run full setup (R environment + git hooks)**
+
+```bash
+make setup
+```
+
+This runs three targets in sequence:
+- `setup_r` — installs renv (if missing), restores all R packages from `renv.lock`
+- `setup_python` — re-validates the lock file and runs `poetry install` (idempotent after step 3)
+- `setup_hooks` — symlinks `scripts/hooks/pre-commit` into `.git/hooks/`
+
+**5. Verify**
+
+```bash
+make validate   # R directory structure check (fast, no internet)
+make py_test    # Python test suite (fully mocked, no GCP credentials needed)
+make py_lint    # Ruff linting + format check
+```
+
+All three should pass on a clean setup. If `make validate` fails, confirm `Rscript --version` shows R ≥ 4.4. If `make py_test` fails, confirm `direnv allow` completed without errors and `which python` points to `.venv/bin/python`.
+
+## Tracks
+
+After Quick Start, run whichever tracks are relevant to your work.
+
+### Track A — R Analysis (Power Analysis + Synthetic Data)
+
+Requires Quick Start steps 1–4.
+
+```bash
+make power_analysis_dev    # Power analysis: 3 combos × 10 sims (seconds)
+make power_analysis_prod   # Power analysis: full grid, runs in background (hours)
+make power_visual          # Power curve figures (after any run)
+make synthetic_analysis    # Synthetic data: EDA → correlation → measurement → MLM
+```
+
+See `analysis/run_power_analysis/README.md` for the full parameter grid and configuration.
+See `analysis/run_synthetic_data/README.md` for synthetic data inputs and outputs.
+
+### Track B — Python Development (Testing, Linting, Local Dev Server)
+
+Requires Quick Start steps 1–3. No GCP credentials needed — all tests are fully mocked.
+
+```bash
+make py_test       # Run test suite
+make py_lint       # Ruff check + format check
+make py_format     # Auto-fix formatting
+make py_sqlfmt     # SQL formatting check
+make gcp_dev       # Local dev server on :8080 (default: run_qualtrics_scheduling)
+make gcp_dev FN=run_intake_confirmation   # Override function
+```
+
+See `gcp/README.md` for architecture details, schema change workflow, and cURL testing.
+
+### Track C — GCP Deployment
+
+Requires Track B + `gcloud` CLI authenticated to `dkg-phd-thesis` + Twilio secrets in Secret Manager. See `gcp/README.md` → "Secrets" section for credential setup.
+
+Deploy in this order (resources depend on each other):
+
+```bash
+make gcp_infra_up                          # BigQuery tables
+make gcp_pubsub_up                         # Pub/Sub topics
+make gcp_deploy FN=run_qualtrics_scheduling
+make gcp_deploy FN=run_intake_confirmation
+make gcp_deploy FN=run_followup_scheduling
+make gcp_gateway_up                        # API Gateway (last — needs functions deployed)
+```
+
+End-to-end test:
+
+```bash
+make gcp_gateway_test         # Fixed survey times
+make gcp_gateway_test NOW=1   # Schedule at now + 16/32/48 min
+```
+
+See `make help_gcp` for the full GCP command reference.
+
+### Track D — GCP VM for Large Power Analysis
+
+Requires Track B + `gcloud` CLI. The VM is Linux-only and is used solely for R simulations.
+
+```bash
+python gcp/deploy/manage_compute.py setup   # Create VM (c3-highcpu-176)
+python gcp/deploy/manage_compute.py ssh     # SSH in
+```
+
+On the VM (run once after first SSH):
+
+```bash
+cd dkg-phd-thesis
+bash gcp/deploy/setup_gcp_vm.sh            # Install R, system libs, renv packages
+```
+
+Run the analysis:
+
+```bash
+make power_analysis_gcp_benchmark          # Timing probe (run this first)
+nohup make power_analysis_gcp_prod &       # Full grid in background (3,645 cells)
+```
+
+After completion:
+
+```bash
+python gcp/deploy/manage_compute.py scp      # Download results to local machine
+python gcp/deploy/manage_compute.py teardown # Delete VM to stop billing
+```
+
+See `analysis/run_power_analysis/README.md` for benchmarks and troubleshooting.
+
+## Dependency Management
+
+Both `poetry.lock` and `renv.lock` are frozen against accidental changes:
+- A pre-commit hook blocks commits that stage either lock file
+- Bypass for intentional updates: `ALLOW_LOCK_COMMIT=1 git commit ...`
+- Python update path: `poetry lock` → install → commit with bypass
+- R update path: `make renv_snapshot` → commit with bypass
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---------|-----|
+| `direnv: error .envrc is blocked` | Run `direnv allow` |
+| `poetry.lock is out of sync` | Run `poetry lock --no-update` |
+| `renv::restore()` fails | Try `make renv_repair` |
+| Tests fail with import errors | Confirm `direnv allow` completed; check `which python` points to `.venv/bin/python` |
+| `Rscript not found` or R version < 4.4 | Install R ≥ 4.4 from CRAN; verify with `Rscript --version` |
+| `make validate` fails with path error | Confirm you are running from the project root |
+
+For a full command reference: `make help` (all commands) or `make help_gcp` (GCP-specific).
 
 # Table of Contents
 - [“If You Only Knew the Power of the Dark Side”: Examining Within-Person Fluctuation in Psychological Need Frustration, Burnout, and Turnover Intentions Across a Workday.](#if-you-only-knew-the-power-of-the-dark-side-examining-within-person-fluctuation-in-psychological-need-frustration-burnout-and-turnover-intentions-across-a-workday)
 - [Technical Setup](#technical-setup)
+  - [Prerequisites](#prerequisites)
+  - [Quick Start](#quick-start)
+  - [Tracks](#tracks)
+    - [Track A — R Analysis](#track-a--r-analysis-power-analysis--synthetic-data)
+    - [Track B — Python Development](#track-b--python-development-testing-linting-local-dev-server)
+    - [Track C — GCP Deployment](#track-c--gcp-deployment)
+    - [Track D — GCP VM for Large Power Analysis](#track-d--gcp-vm-for-large-power-analysis)
+  - [Dependency Management](#dependency-management)
+  - [Troubleshooting](#troubleshooting)
 - [Table of Contents](#table-of-contents)
 - [Overview](#overview)
 - [Conceptual Framework](#conceptual-framework)
