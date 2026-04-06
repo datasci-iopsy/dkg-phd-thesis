@@ -58,6 +58,8 @@ Both lock files are frozen against accidental changes. Guardrails in place:
 
 **Python update:** `poetry lock` → install → `ALLOW_LOCK_COMMIT=1 git commit` | **R update:** `make renv_snapshot` → `ALLOW_LOCK_COMMIT=1 git commit` | **Hook:** `make setup_hooks` (auto via `make setup`).
 
+**Pre-change check:** Before any dependency modification, verify the active environment (`poetry env info --path`, `which python`) to avoid cross-environment contamination.
+
 ## Verification
 
 After Python changes: `poetry check --lock` → `poetry run pytest gcp/tests/ -v` → `ruff check . && ruff format --check .` → `sqlfmt --check .`
