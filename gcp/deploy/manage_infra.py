@@ -99,7 +99,13 @@ _fn_dir = str(FUNCTIONS_BASE / "run_qualtrics_scheduling")
 if _fn_dir not in sys.path:
     sys.path.insert(0, _fn_dir)
 
+_fn_followup_response_dir = str(FUNCTIONS_BASE / "run_followup_response")
+if _fn_followup_response_dir not in sys.path:
+    sys.path.insert(0, _fn_followup_response_dir)
+
 from shared.utils.bq_schemas import (
+    FOLLOWUP_RESPONSES_CLUSTER_FIELDS,
+    FOLLOWUP_RESPONSES_SCHEMA,
     SCHEDULED_FOLLOWUPS_CLUSTER_FIELDS,
     SCHEDULED_FOLLOWUPS_SCHEMA,
     SURVEY_RESPONSES_CLUSTER_FIELDS,
@@ -134,15 +140,19 @@ TABLE_REGISTRY: dict[str, dict] = {
             "SIDs for potential cancellation."
         ),
     },
+    "followup_raw": {
+        "schema": FOLLOWUP_RESPONSES_SCHEMA,
+        "cluster_fields": FOLLOWUP_RESPONSES_CLUSTER_FIELDS,
+        "description": (
+            "Raw follow-up survey responses (surveys 1-3) from "
+            "Qualtrics Web Service tasks. All three timepoints "
+            "share this table, differentiated by the timepoint "
+            "field. No _processed flag -- terminal table."
+        ),
+    },
     # -- Future tables -----------------------------------------------
     # "intake_clean": {
     #     "schema": INTAKE_CLEAN_SCHEMA,
-    #     "partition_field": ...,
-    #     "cluster_fields": ...,
-    #     "description": "...",
-    # },
-    # "followup_raw": {
-    #     "schema": FOLLOWUP_RESPONSES_SCHEMA,
     #     "partition_field": ...,
     #     "cluster_fields": ...,
     #     "description": "...",

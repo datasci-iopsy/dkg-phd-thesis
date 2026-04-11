@@ -22,6 +22,7 @@ from pathlib import Path
 
 import functions_framework
 from flask import Request, jsonify
+from shared.utils.bq_schemas import SURVEY_RESPONSES_SCHEMA
 from shared.utils.config_loader import load_config
 from shared.utils.gcp_utils import insert_survey_response
 from shared.utils.pubsub_utils import (
@@ -82,6 +83,7 @@ def qualtrics_webhook_handler(request: Request):
             payload=payload,
             table_name=config.bq.tables.intake_raw,
             config=config,
+            schema=SURVEY_RESPONSES_SCHEMA,
         )
 
         if not write_success:

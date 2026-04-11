@@ -67,6 +67,19 @@ functions:
         - roles/run.invoker
         - roles/secretmanager.secretAccessor
 
+  run-followup-response:
+    source_dir: run_followup_response
+    poetry_group: fn-followup-response
+    entry_point: followup_response_handler
+    trigger: http
+    allow_unauthenticated: false
+    service_account:
+      name: dkg-fn-followup-resp
+      display_name: "Cloud Run -- Follow-up Response Function"
+      roles:
+        - roles/bigquery.dataEditor
+        - roles/bigquery.jobUser
+
   # -- Future functions ----------------------------------------------
   # run-twilio-handler:
   #   source_dir: run_twilio_handler

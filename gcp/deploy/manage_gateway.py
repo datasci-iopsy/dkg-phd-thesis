@@ -70,6 +70,7 @@ class GatewaySettings(BaseModel):
 class GatewayConfig(BaseModel):
     gateway: GatewaySettings
     target_function: str
+    followup_function: str | None = None
 
 
 class FunctionsGlobal(BaseModel):
@@ -155,20 +156,68 @@ def generate_config_id(api_id: str) -> str:
 # -- OpenAPI spec generation ---------------------------------------
 
 
-def generate_openapi_spec(backend_url: str) -> dict:
+def _build_post_operation(
+    operation_id: str,
+    backend_url: str,
+) -> dict:
+    """Build a single POST operation dict for an OpenAPI path entry."""
+    return {
+        "operationId": operation_id,
+        "x-google-backend": {
+            "address": backend_url,
+            "jwt_audience": backend_url,
+        },
+        "security": [{"api_key": []}],
+        "parameters": [
+            {
+                "in": "body",
+                "name": "payload",
+                "required": True,
+                "schema": {"type": "object"},
+            }
+        ],
+        "responses": {
+            "200": {"description": "Successful processing"},
+            "400": {"description": "Validation error"},
+            "500": {"description": "Internal server error"},
+        },
+    }
+
+
+def generate_openapi_spec(
+    backend_url: str,
+    followup_backend_url: str | None = None,
+) -> dict:
     """Build a Swagger 2.0 spec for the API Gateway.
 
-    Defines a single POST / endpoint that:
-    - Requires an API key in the x-api-key header
-    - Forwards the full request body to Cloud Run
-    - Authenticates to Cloud Run via a gateway-signed JWT
+    Defines POST endpoints that:
+    - Require an API key in the x-api-key header
+    - Forward the full request body to Cloud Run
+    - Authenticate to Cloud Run via a gateway-signed JWT
+
+    POST / routes to the intake function (run-qualtrics-scheduling).
+    POST /followup routes to the followup response function
+    (run-followup-response) when followup_backend_url is provided.
 
     Args:
-        backend_url: The Cloud Run service URL to route to.
+        backend_url: Cloud Run URL for the intake function (POST /).
+        followup_backend_url: Cloud Run URL for the followup response
+            function (POST /followup). Omit to skip that route.
 
     Returns:
         Dict suitable for YAML serialization as an OpenAPI spec.
     """
+    paths: dict = {
+        "/": {"post": _build_post_operation("qualtricsWebhook", backend_url)}
+    }
+
+    if followup_backend_url:
+        paths["/followup"] = {
+            "post": _build_post_operation(
+                "followupResponse", followup_backend_url
+            )
+        }
+
     return {
         "swagger": "2.0",
         "info": {
@@ -182,31 +231,7 @@ def generate_openapi_spec(backend_url: str) -> dict:
         "schemes": ["https"],
         "produces": ["application/json"],
         "consumes": ["application/json"],
-        "paths": {
-            "/": {
-                "post": {
-                    "operationId": "qualtricsWebhook",
-                    "x-google-backend": {
-                        "address": backend_url,
-                        "jwt_audience": backend_url,
-                    },
-                    "security": [{"api_key": []}],
-                    "parameters": [
-                        {
-                            "in": "body",
-                            "name": "payload",
-                            "required": True,
-                            "schema": {"type": "object"},
-                        }
-                    ],
-                    "responses": {
-                        "200": {"description": "Successful processing"},
-                        "400": {"description": "Validation error"},
-                        "500": {"description": "Internal server error"},
-                    },
-                }
-            }
-        },
+        "paths": paths,
         "securityDefinitions": {
             "api_key": {
                 "type": "apiKey",
@@ -732,10 +757,27 @@ def handle_setup(args: argparse.Namespace) -> None:
             f"    python manage_functions.py deploy {gw_config.target_function}"
         )
         sys.exit(1)
-    print(f"  -> {backend_url}")
+    print(f"  -> {backend_url} (intake, POST /)")
+
+    followup_backend_url: str | None = None
+    if gw_config.followup_function:
+        followup_backend_url = get_cloud_run_url(
+            project, region, gw_config.followup_function
+        )
+        if followup_backend_url:
+            print(f"  -> {followup_backend_url} (followup, POST /followup)")
+        else:
+            print(
+                f"  -> '{gw_config.followup_function}' not deployed; "
+                f"POST /followup will be omitted from the spec."
+            )
 
     # Step 4: Grant Cloud Run Invoker to gateway SA
     grant_run_invoker(project, region, gw_config.target_function, backend_sa)
+    if followup_backend_url and gw_config.followup_function:
+        grant_run_invoker(
+            project, region, gw_config.followup_function, backend_sa
+        )
 
     # Step 5: Create API resource
     create_api(project, gw.api_id)
@@ -743,7 +785,7 @@ def handle_setup(args: argparse.Namespace) -> None:
     # Step 6: Generate OpenAPI spec and create API config.
     # This registers the service configuration with Service Management.
     # enable_managed_service (step 7) depends on this having run first.
-    spec = generate_openapi_spec(backend_url)
+    spec = generate_openapi_spec(backend_url, followup_backend_url)
     config_id = generate_config_id(gw.api_id)
     create_api_config(project, gw.api_id, config_id, spec, backend_sa)
 
@@ -885,11 +927,16 @@ def handle_status(args: argparse.Namespace) -> None:
     else:
         print("  API key: not found")
 
-    # Backend
+    # Backends
     backend_url = get_cloud_run_url(
         project, fn_config.global_.region, gw_config.target_function
     )
-    print(f"  Backend: {backend_url or 'not deployed'}")
+    print(f"  Backend (POST /):         {backend_url or 'not deployed'}")
+    if gw_config.followup_function:
+        followup_url = get_cloud_run_url(
+            project, fn_config.global_.region, gw_config.followup_function
+        )
+        print(f"  Backend (POST /followup): {followup_url or 'not deployed'}")
     print()
 
 
@@ -917,27 +964,39 @@ def handle_test(args: argparse.Namespace) -> None:
     Pass PHONE as 10 digits, 11 digits, or E.164 (+1XXXXXXXXXX).
 
     ``--now``, ``--now-with-me``, and ``--selected-date`` are
-    mutually exclusive.
+    mutually exclusive with each other.
+    ``--followup`` is mutually exclusive with all of the above.
 
     This is the closest thing to a 'dev' mode for the gateway.
     """
     from datetime import date as _date
     from datetime import timedelta as _timedelta
 
-    flags_set = sum(
-        [
-            bool(getattr(args, "now", False)),
-            bool(args.selected_date),
-            bool(args.now_with_me),
-        ]
-    )
-    if flags_set > 1:
-        print(
-            "\n-> --now, --now-with-me, and --selected-date "
-            "are mutually exclusive.",
-            file=sys.stderr,
+    followup_mode = args.followup
+
+    if followup_mode:
+        if args.now or args.selected_date or args.now_with_me:
+            print(
+                "\n-> --followup is mutually exclusive with "
+                "--now, --now-with-me, and --selected-date.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+    else:
+        flags_set = sum(
+            [
+                bool(args.now),
+                bool(args.selected_date),
+                bool(args.now_with_me),
+            ]
         )
-        sys.exit(1)
+        if flags_set > 1:
+            print(
+                "\n-> --now, --now-with-me, and --selected-date "
+                "are mutually exclusive.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
 
     gw_config = load_gateway_config()
     fn_config = load_functions_config()
@@ -961,55 +1020,71 @@ def handle_test(args: argparse.Namespace) -> None:
         print("\n-> Could not retrieve API key string.", file=sys.stderr)
         sys.exit(1)
 
-    # Load fixture and override selected_date
-    fixture = FIXTURES_DIR / "web_service_payload.json"
-    if not fixture.exists():
-        print(f"\n-> Fixture not found: {fixture}", file=sys.stderr)
-        sys.exit(1)
-
-    payload = json.loads(fixture.read_text())
-
-    if getattr(args, "now", False):
-        payload["SELECTED_DATE"] = _date.today().isoformat()
-        payload["send_immediately"] = True
-    elif args.now_with_me:
-        # Strip leading + so the raw-digit format matches what
-        # Qualtrics submits; fn1's normalize_phone_number() converts
-        # 10- or 11-digit strings to E.164 before sending.
-        payload["SELECTED_DATE"] = _date.today().isoformat()
-        payload["send_immediately"] = True
-        payload["PHONE"] = args.now_with_me.lstrip("+")
-        # Generate a unique response_id per invocation so the fn2/fn3
-        # idempotency guards don't block repeated runs with any phone
-        # number. Format: R_TEST_{last4digits}_{6-char hex}.
-        _last4 = payload["PHONE"][-4:]
-        _suffix = secrets.token_hex(3)
-        payload["RESPONSE_ID"] = f"R_TEST_{_last4}_{_suffix}"
-        payload["CONNECT_ID"] = f"test_{_last4}_{_suffix}"
-    elif args.selected_date:
-        payload["SELECTED_DATE"] = args.selected_date
-    else:
-        payload["SELECTED_DATE"] = (
-            _date.today() + _timedelta(days=1)
-        ).isoformat()
-
-    payload_json = json.dumps(payload)
-
     masked_key = f"{api_key[:8]}...{api_key[-4:]}"
-    print(f"\n  Gateway:       {gateway_url}")
-    print(f"  Fixture:       {fixture.name}")
-    print(f"  selected_date: {payload['SELECTED_DATE']}")
-    if args.now_with_me:
-        masked_phone = payload["PHONE"][:3] + "***" + payload["PHONE"][-4:]
+
+    if followup_mode:
+        # POST /followup -- no date manipulation, terminal endpoint
+        fixture = FIXTURES_DIR / "followup_web_service_payload.json"
+        if not fixture.exists():
+            print(f"\n-> Fixture not found: {fixture}", file=sys.stderr)
+            sys.exit(1)
+        payload = json.loads(fixture.read_text())
+        target_url = f"{gateway_url}/followup"
+        payload_json = json.dumps(payload)
+        print(f"\n  Gateway:  {target_url}")
+        print(f"  Fixture:  {fixture.name}")
+        print(f"  API key:  {masked_key}")
         print(
-            f"  Mode:          --now-with-me "
-            f"(real phone {masked_phone}, SMS at now+16/32/48 min)"
+            "\n  Sending POST /followup (no IAM token -- just the API key)..."
         )
-        print(f"  response_id:   {payload['RESPONSE_ID']}")
-    elif payload.get("send_immediately"):
-        print("  Mode:          --now (SMS scheduled at now+16/32/48 min)")
-    print(f"  API key:       {masked_key}")
-    print("\n  Sending POST (no IAM token -- just the API key)...")
+    else:
+        # POST / -- intake fixture with optional date overrides
+        fixture = FIXTURES_DIR / "web_service_payload.json"
+        if not fixture.exists():
+            print(f"\n-> Fixture not found: {fixture}", file=sys.stderr)
+            sys.exit(1)
+        payload = json.loads(fixture.read_text())
+
+        if getattr(args, "now", False):
+            payload["SELECTED_DATE"] = _date.today().isoformat()
+            payload["send_immediately"] = True
+        elif args.now_with_me:
+            # Strip leading + so the raw-digit format matches what
+            # Qualtrics submits; fn1's normalize_phone_number() converts
+            # 10- or 11-digit strings to E.164 before sending.
+            payload["SELECTED_DATE"] = _date.today().isoformat()
+            payload["send_immediately"] = True
+            payload["PHONE"] = args.now_with_me.lstrip("+")
+            # Generate a unique response_id per invocation so the fn2/fn3
+            # idempotency guards don't block repeated runs with any phone
+            # number. Format: R_TEST_{last4digits}_{6-char hex}.
+            _last4 = payload["PHONE"][-4:]
+            _suffix = secrets.token_hex(3)
+            payload["RESPONSE_ID"] = f"R_TEST_{_last4}_{_suffix}"
+            payload["CONNECT_ID"] = f"test_{_last4}_{_suffix}"
+        elif args.selected_date:
+            payload["SELECTED_DATE"] = args.selected_date
+        else:
+            payload["SELECTED_DATE"] = (
+                _date.today() + _timedelta(days=1)
+            ).isoformat()
+
+        target_url = gateway_url
+        payload_json = json.dumps(payload)
+        print(f"\n  Gateway:       {target_url}")
+        print(f"  Fixture:       {fixture.name}")
+        print(f"  selected_date: {payload['SELECTED_DATE']}")
+        if args.now_with_me:
+            masked_phone = payload["PHONE"][:3] + "***" + payload["PHONE"][-4:]
+            print(
+                f"  Mode:          --now-with-me "
+                f"(real phone {masked_phone}, SMS at now+16/32/48 min)"
+            )
+            print(f"  response_id:   {payload['RESPONSE_ID']}")
+        elif payload.get("send_immediately"):
+            print("  Mode:          --now (SMS scheduled at now+16/32/48 min)")
+        print(f"  API key:       {masked_key}")
+        print("\n  Sending POST (no IAM token -- just the API key)...")
 
     # Send the request exactly as Qualtrics would
     result = subprocess.run(
@@ -1020,7 +1095,7 @@ def handle_test(args: argparse.Namespace) -> None:
             "\n--- HTTP %{http_code} ---",
             "-X",
             "POST",
-            gateway_url,
+            target_url,
             "-H",
             "Content-Type: application/json",
             "-H",
@@ -1266,6 +1341,16 @@ def build_parser() -> argparse.ArgumentParser:
             "connect_id to avoid BQ idempotency collision with "
             "--now runs. Mutually exclusive with --now and "
             "--selected-date."
+        ),
+    )
+    test_parser.add_argument(
+        "--followup",
+        action="store_true",
+        help=(
+            "Send the followup fixture to POST /followup instead of "
+            "the intake fixture to POST /. Tests the "
+            "run-followup-response path end-to-end. Mutually exclusive "
+            "with --now, --now-with-me, and --selected-date."
         ),
     )
     test_parser.set_defaults(handler=handle_test)

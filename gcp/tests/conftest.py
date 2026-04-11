@@ -41,3 +41,12 @@ _fn_followup_dir = str(
 )
 if _fn_followup_dir not in sys.path:
     sys.path.insert(0, _fn_followup_dir)
+
+_fn_followup_response_dir = str(
+    _tests_dir.parent / "cloud_run_functions" / "run_followup_response"
+)
+if _fn_followup_response_dir not in sys.path:
+    # Append rather than insert so that fn4's main.py does not shadow
+    # run_followup_scheduling/main.py (same filename, different dir).
+    # Unique modules like models.followup are still found at the end.
+    sys.path.append(_fn_followup_response_dir)

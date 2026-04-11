@@ -319,7 +319,7 @@ class TestInsertRowMatchesSchema:
         """The keys in the insert row must exactly match the schema."""
         from shared.utils.gcp_utils import _build_insert_row
 
-        row = _build_insert_row(sample_payload)
+        row = _build_insert_row(sample_payload, SURVEY_RESPONSES_SCHEMA)
         row_keys = set(row.keys())
 
         assert row_keys == SURVEY_RESPONSES_COLUMNS, (
@@ -334,7 +334,7 @@ class TestInsertRowMatchesSchema:
         """All keys in the insert row must be lowercase."""
         from shared.utils.gcp_utils import _build_insert_row
 
-        row = _build_insert_row(sample_payload)
+        row = _build_insert_row(sample_payload, SURVEY_RESPONSES_SCHEMA)
 
         for key in row:
             assert key == key.lower(), f"Row key '{key}' is not lowercase"
@@ -344,7 +344,7 @@ class TestInsertRowMatchesSchema:
 
         from shared.utils.gcp_utils import _build_insert_row
 
-        row = _build_insert_row(sample_payload)
+        row = _build_insert_row(sample_payload, SURVEY_RESPONSES_SCHEMA)
 
         try:
             json.dumps(row)
@@ -355,7 +355,7 @@ class TestInsertRowMatchesSchema:
         """Partial payloads (failed screening) must also match schema."""
         from shared.utils.gcp_utils import _build_insert_row
 
-        row = _build_insert_row(partial_payload)
+        row = _build_insert_row(partial_payload, SURVEY_RESPONSES_SCHEMA)
         row_keys = set(row.keys())
 
         assert row_keys == SURVEY_RESPONSES_COLUMNS, (
