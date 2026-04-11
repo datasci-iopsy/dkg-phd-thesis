@@ -29,7 +29,9 @@ gateway:
   # gateway's managed service.
   api_key_display_name: qualtrics-webhook-key
 
-# Which Cloud Run function (from functions.yaml) this gateway
-# routes to. manage_gateway.py resolves the service URL
-# automatically at setup time.
+# Which Cloud Run function (from functions.yaml) handles intake
+# (POST /) and which handles followup responses (POST /followup).
+# manage_gateway.py resolves both service URLs automatically at
+# setup time.
 target_function: run-qualtrics-scheduling
+followup_function: run-followup-response

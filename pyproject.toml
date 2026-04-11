@@ -65,6 +65,15 @@ google-cloud-bigquery = "3.39.0"
 google-cloud-pubsub = "^2.35.0"
 twilio = "^9.10.0"
 
+[tool.poetry.group.fn-followup-response]
+optional = true
+
+[tool.poetry.group.fn-followup-response.dependencies]
+# deps specific to the followup response function (HTTP trigger, terminal -- no Pub/Sub or Twilio)
+functions-framework = "^3.10.0"
+google-cloud-bigquery = "3.39.0"
+google-cloud-bigquery-storage = "^2.36.0"
+
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0.2"
 pytest-cov = "^7.0.0"

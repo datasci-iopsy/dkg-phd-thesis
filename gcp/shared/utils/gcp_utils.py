@@ -4,8 +4,7 @@ import logging
 from datetime import UTC, datetime
 
 from google.cloud import bigquery
-from models.qualtrics import WebServicePayload
-from shared.utils.bq_schemas import SURVEY_RESPONSES_SCHEMA
+from pydantic import BaseModel
 from shared.utils.config_models import AppConfig
 
 logger = logging.getLogger(__name__)
@@ -31,7 +30,10 @@ _BQ_TO_PROTO_TYPE: dict[str, int] = {
 # is imported lazily. The dict is kept here for documentation only.
 
 
-def _build_insert_row(payload: WebServicePayload) -> dict:
+def _build_insert_row(
+    payload: BaseModel,
+    schema: list[bigquery.SchemaField],
+) -> dict:
     """Build the row dict for a BigQuery insert from a validated payload.
 
     Pure function: no I/O, no side effects, no external imports beyond
@@ -39,23 +41,23 @@ def _build_insert_row(payload: WebServicePayload) -> dict:
     can be tested independently of the Storage Write API client.
 
     Column names are lowercased to match the BigQuery schema
-    (PA1 -> pa1). System columns (_created_at, _processed) are
-    added after the model-derived fields, matching SYSTEM_FIELDS
-    in bq_schemas.py.
-
-    _created_at is set to the current UTC time as an ISO 8601 string.
-    _processed is always initialized to False.
+    (PA1 -> pa1). System columns are derived from the schema:
+    _created_at is always added; _processed is added only when
+    present in the schema (terminal tables omit it).
 
     Args:
-        payload: Validated survey response from the Qualtrics
-            Web Service task.
+        payload: Validated survey response (any Pydantic BaseModel).
+        schema: BigQuery schema for the target table, used to
+            determine which system fields to populate.
 
     Returns:
         Dict of column names to values, ready for BigQuery insert.
     """
+    schema_columns = {field.name for field in schema}
     row = {k.lower(): v for k, v in payload.model_dump().items()}
     row["_created_at"] = datetime.now(UTC).isoformat()
-    row["_processed"] = False
+    if "_processed" in schema_columns:
+        row["_processed"] = False
     return row
 
 
@@ -148,9 +150,10 @@ def get_bigquery_client(config: AppConfig) -> bigquery.Client:
 
 
 def insert_survey_response(
-    payload: WebServicePayload,
+    payload: BaseModel,
     table_name: str,
     config: AppConfig,
+    schema: list[bigquery.SchemaField],
 ) -> bool:
     """Insert a survey response into BigQuery via Storage Write API.
 
@@ -160,15 +163,11 @@ def insert_survey_response(
     conflict where update_processed_flag in run_intake_confirmation
     was blocked by the streaming buffer.
 
-    The public interface (arguments, return type) is identical to
-    the previous streaming implementation. No changes are needed
-    in run_qualtrics_scheduling/main.py.
-
     Args:
-        payload: Validated survey response from the Qualtrics
-            Web Service task.
+        payload: Validated survey response (any Pydantic BaseModel).
         table_name: Target BigQuery table name.
         config: Validated application configuration.
+        schema: BigQuery schema for the target table.
 
     Returns:
         True if the insert succeeded, False otherwise.
@@ -185,8 +184,7 @@ def insert_survey_response(
         project = config.gcp.project_id
         dataset = config.bq.dataset_id
 
-        row = _build_insert_row(payload)
-        schema = SURVEY_RESPONSES_SCHEMA
+        row = _build_insert_row(payload, schema)
 
         # Build the proto message class and serialize the row.
         msg_class = _build_proto_message_class(schema)
