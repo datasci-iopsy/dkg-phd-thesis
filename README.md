@@ -66,6 +66,16 @@ This triggers `.envrc`, which:
 
 The message `direnv: error .envrc is blocked` on first entry is normal — just run `direnv allow`.
 
+**3a. (iCloud users) Pin the renv cache outside iCloud**
+
+If your home directory or Documents folder is synced via iCloud, macOS can evict `~/Library/Caches/` (renv's default cache location) under storage pressure, breaking package symlinks. Add one line to `~/.Renviron` before running setup:
+
+```bash
+echo 'RENV_PATHS_CACHE=~/.renv/cache' >> ~/.Renviron
+```
+
+This moves the cache to a stable, non-purgeable path. The `>>` operator will create `~/.Renviron` if it does not already exist. Skip this step if you are not using iCloud Drive.
+
 **4. Run full setup (R environment + git hooks)**
 
 ```bash
@@ -191,6 +201,7 @@ Both `poetry.lock` and `renv.lock` are frozen against accidental changes:
 | `direnv: error .envrc is blocked`      | Run `direnv allow`                                                                  |
 | `poetry.lock is out of sync`           | Run `poetry lock --no-update`                                                       |
 | `renv::restore()` fails                | Try `make renv_repair`                                                              |
+| Broken renv symlinks after macOS eviction | From project root: add `RENV_PATHS_CACHE=~/.renv/cache` to `~/.Renviron`, then `find -L renv/library -type l -print0 \| xargs -0 rm && Rscript -e "renv::restore()"` |
 | Tests fail with import errors          | Confirm `direnv allow` completed; check `which python` points to `.venv/bin/python` |
 | `Rscript not found` or R version < 4.4 | Install R ≥ 4.4 from CRAN; verify with `Rscript --version`                          |
 | `make validate` fails with path error  | Confirm you are running from the project root                                       |

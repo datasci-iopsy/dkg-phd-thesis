@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
-# Pre-commit hook: block accidental lock file commits.
-# Bypass: ALLOW_LOCK_COMMIT=1 git commit ...
+# Pre-commit hooks:
+#   1. Block accidental lock file commits (ALLOW_LOCK_COMMIT=1 to bypass)
+#   2. Lint staged R files with lintr      (SKIP_R_LINT=1 to bypass)
 set -euo pipefail
 
+# --- R style lint (SKIP_R_LINT=1 guard is implemented inside r-lint-staged.sh) ---
+bash "$HOME/.claude/r-lint-staged.sh"
+
+# --- Lock file guard ---
 LOCK_FILES=()
 for f in poetry.lock renv.lock; do
     if git diff --cached --name-only | grep -qx "$f"; then
