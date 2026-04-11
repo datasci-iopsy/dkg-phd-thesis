@@ -57,7 +57,7 @@ reviews:
         All GCP and Twilio calls must be mocked — no real credentials or network access.
         Flag any test that could make an outbound call or require env credentials to pass.
 
-    - path: "analysis/**/*.r"
+    - path: "analysis/**/*.[rR]"
       instructions: |
         Apply analysis/CLAUDE.md R conventions:
         - Use native pipe |> only — flag any use of %>%

@@ -17,7 +17,7 @@ See `gcp/CLAUDE.md` and `analysis/CLAUDE.md` for domain specifics.
 make setup
 
 # Python
-poetry install --with fn-qualtrics-scheduling,fn-intake-confirmation,fn-followup-scheduling,dev
+poetry install --with fn-qualtrics-scheduling,fn-intake-confirmation,fn-followup-scheduling,fn-followup-response,dev
 poetry run ruff check . && poetry run ruff format .
 poetry run sqlfmt .
 poetry run pytest gcp/tests/ -v
@@ -44,7 +44,7 @@ python gcp/deploy/manage_compute.py setup|status|ssh|scp|teardown  # Compute Eng
 
 ## Architecture overview
 
-Three Cloud Run functions chained via Pub/Sub: `run_qualtrics_scheduling` (HTTP) → `run_intake_confirmation` (Pub/Sub) → `run_followup_scheduling` (Pub/Sub). API Gateway fronts function 1 with `x-api-key` validation and IAM JWT injection.
+Four Cloud Run functions: `run_qualtrics_scheduling` (HTTP) → `run_intake_confirmation` (Pub/Sub) → `run_followup_scheduling` (Pub/Sub) form the scheduling chain. `run_followup_response` (HTTP) is a terminal inbound endpoint — Qualtrics posts completed followup survey responses (9AM/1PM/5PM) directly to it; it validates and writes to BigQuery with no downstream publishing. API Gateway fronts function 1 with `x-api-key` validation and IAM JWT injection.
 
 Power analysis: `main.sh` → `run_power_analysis.r` → parallel `simr` simulations (Arend & Schafer 2019). Dev: 3 combos × 10 sims. Prod: 3,645 cells × 1,000 sims on GCP `c3-highcpu-176`.
 
