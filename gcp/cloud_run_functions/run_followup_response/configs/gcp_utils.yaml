@@ -1,0 +1,25 @@
+# ================================================================
+# GCP and BigQuery settings for the followup response function
+# (run-followup-response)
+# ================================================================
+# Triggered by Qualtrics Workflow Web Service tasks when any of
+# the three followup surveys (9AM/1PM/5PM) is completed.
+# Writes responses to stg_followup_responses.
+# ================================================================
+
+gcp:
+  project_id: "dkg-phd-thesis"
+  location: "US"        # Multi-region for BigQuery datasets
+  region: "us-east4"    # Specific region for Cloud Run functions
+
+bq:
+  dataset_id: "qualtrics"
+  tables:
+    # -- Intake (survey 0): enrollment, demographics, screening ------
+    intake_raw: "stg_intake_responses"
+    intake_clean: "int_intake_responses_scored"
+    # -- Follow-ups (surveys 1-3): repeated measures -----------------
+    followup_raw: "stg_followup_responses"
+    followup_clean: "int_followup_responses_scored"
+    # -- Scheduling records ------------------------------------------
+    scheduled_followups: "scheduled_followups"

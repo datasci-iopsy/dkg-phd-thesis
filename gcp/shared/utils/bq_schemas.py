@@ -136,26 +136,31 @@ def generate_schema(
 
 
 # -- Generate the survey_responses schema ----------------------------
-# Import here (not at module top) to keep the generic generate_schema
-# function free of model-specific dependencies. This import works
-# because the function directory is on sys.path at runtime
-# (functions-framework), in tests (conftest.py), and in CLI tools
-# (manage_infra.py adds it explicitly).
-from models.qualtrics import WebServicePayload  # noqa: E402
+# Each Cloud Run function deploys only its own models/ directory, so
+# models.qualtrics is not available in fn4 (run_followup_response) and
+# models.followup is not available in fn1-fn3. Guard each import so
+# the module loads cleanly regardless of which function context is
+# active. Tests and manage_infra.py have all models on sys.path, so
+# both blocks will execute there.
+try:
+    from models.qualtrics import WebServicePayload  # noqa: E402
+except ImportError:
+    WebServicePayload = None  # models.qualtrics not present in this function's deployment bundle
 
-SURVEY_RESPONSES_SCHEMA: list[SchemaField] = generate_schema(
-    WebServicePayload,
-    system_fields=SYSTEM_FIELDS,
-)
+if WebServicePayload is not None:
+    SURVEY_RESPONSES_SCHEMA: list[SchemaField] = generate_schema(
+        WebServicePayload,
+        system_fields=SYSTEM_FIELDS,
+    )
 
-# Partitioning and clustering configuration for survey_responses.
-# SURVEY_RESPONSES_PARTITION_FIELD: str = "_created_at"
-SURVEY_RESPONSES_CLUSTER_FIELDS: list[str] = ["survey_id"]
+    # Partitioning and clustering configuration for survey_responses.
+    # SURVEY_RESPONSES_PARTITION_FIELD: str = "_created_at"
+    SURVEY_RESPONSES_CLUSTER_FIELDS: list[str] = ["survey_id"]
 
-# Column name set for consistency checking in tests.
-SURVEY_RESPONSES_COLUMNS: set[str] = {
-    field.name for field in SURVEY_RESPONSES_SCHEMA
-}
+    # Column name set for consistency checking in tests.
+    SURVEY_RESPONSES_COLUMNS: set[str] = {
+        field.name for field in SURVEY_RESPONSES_SCHEMA
+    }
 
 
 # -- Scheduled follow-ups schema ------------------------------------
@@ -232,3 +237,37 @@ SCHEDULED_FOLLOWUPS_SCHEMA: list[SchemaField] = [
 ]
 
 SCHEDULED_FOLLOWUPS_CLUSTER_FIELDS: list[str] = ["response_id"]
+
+
+# -- Generate the followup_responses schema --------------------------
+# Uses only _created_at as a system field -- no _processed because
+# run_followup_response is a terminal function with no downstream
+# processing. The import works for the same reason as above: the
+# function directory is on sys.path in all contexts that import
+# this module (conftest.py, manage_infra.py, fn4 at runtime).
+FOLLOWUP_SYSTEM_FIELDS: list[SchemaField] = [
+    SchemaField(
+        "_created_at",
+        "TIMESTAMP",
+        mode="REQUIRED",
+        description="UTC timestamp when this row was inserted",
+    ),
+]
+
+try:
+    from models.followup import FollowupWebServicePayload  # noqa: E402
+
+    FOLLOWUP_RESPONSES_SCHEMA: list[SchemaField] = generate_schema(
+        FollowupWebServicePayload,
+        system_fields=FOLLOWUP_SYSTEM_FIELDS,
+    )
+
+    # Clustering configuration for stg_followup_responses.
+    FOLLOWUP_RESPONSES_CLUSTER_FIELDS: list[str] = ["connect_id"]
+
+    # Column name set for consistency checking in tests.
+    FOLLOWUP_RESPONSES_COLUMNS: set[str] = {
+        field.name for field in FOLLOWUP_RESPONSES_SCHEMA
+    }
+except ImportError:
+    pass  # models.followup not present in this function's deployment bundle
