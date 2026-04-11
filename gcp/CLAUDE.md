@@ -1,6 +1,6 @@
 # gcp/CLAUDE.md
 
-Python (`>=3.12,<3.13, Poetry`) Cloud Run pipeline. Three async functions chained via Pub/Sub.
+Python (`>=3.12,<3.13, Poetry`) Cloud Run pipeline. Four Cloud Run functions: three chained via Pub/Sub (scheduling pipeline) plus one terminal HTTP inbound function (`run_followup_response`).
 All tests mock GCP/Twilio — no credentials or network access needed for local work.
 
 ## Commands

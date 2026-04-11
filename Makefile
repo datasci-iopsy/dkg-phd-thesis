@@ -201,7 +201,7 @@ setup_python:
 	}
 	@echo "📦 Installing Python dependencies..."
 	@cd "$(ROOT)" && poetry install \
-		--with fn-qualtrics-scheduling,fn-intake-confirmation,fn-followup-scheduling,dev || { \
+		--with fn-qualtrics-scheduling,fn-intake-confirmation,fn-followup-scheduling,fn-followup-response,dev || { \
 		echo "❌ poetry install failed"; \
 		exit 1; \
 	}
@@ -397,7 +397,7 @@ py_install:
 	}
 	@echo "📦 Installing all Python dependency groups..."
 	@cd "$(ROOT)" && poetry install \
-		--with fn-qualtrics-scheduling,fn-intake-confirmation,fn-followup-scheduling,dev
+		--with fn-qualtrics-scheduling,fn-intake-confirmation,fn-followup-scheduling,fn-followup-response,dev
 	@echo "✅ Python dependencies installed."
 
 py_lint:
