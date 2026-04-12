@@ -1,71 +1,54 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# -------------------------------------------------------------------
-# Configuration
-# -------------------------------------------------------------------
+# Provision and load syn_qualtrics.stg_intake_responses.
+# Schema is cloned from the production table. Idempotent -- safe to rerun.
+
 PROJECT="dkg-phd-thesis"
 DATASET="syn_qualtrics"
 TABLE="stg_intake_responses"
-SOURCE_DATASET="qualtrics"
-SOURCE_TABLE="${PROJECT}.${SOURCE_DATASET}.${TABLE}"
+SOURCE_TABLE="${PROJECT}.qualtrics.${TABLE}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DATA_FILE="${SCRIPT_DIR}/../data/import/claude_gen_syn_intake_responses_20260223.csv"
 
-# -------------------------------------------------------------------
-# 0. Create dataset if it does not exist
-# -------------------------------------------------------------------
-echo "Creating dataset ${PROJECT}.${DATASET} if it does not exist..."
+[[ -f "${DATA_FILE}" ]] || { echo "ERROR: data file not found: ${DATA_FILE}" >&2; exit 1; }
 
-if ! bq show \
-	--dataset \
-	--project_id="${PROJECT}" \
-	"${PROJECT}:${DATASET}" >/dev/null 2>&1; then
-	bq mk \
-		--dataset \
-		--location="US" \
-		--project_id="${PROJECT}" \
-		"${PROJECT}:${DATASET}"
-	echo "Dataset ${DATASET} created."
-else
-	echo "Dataset ${DATASET} already exists -- skipping."
+# -- 1. Dataset ----------------------------------------------------------
+if ! bq show --dataset --project_id="${PROJECT}" "${PROJECT}:${DATASET}" >/dev/null 2>&1; then
+    echo "Creating dataset ${DATASET}..."
+    bq mk \
+        --dataset \
+        --location=US \
+        --project_id="${PROJECT}" \
+        "${PROJECT}:${DATASET}"
 fi
 
-# -------------------------------------------------------------------
-# 1. Create table (schema only, no data)
-# -------------------------------------------------------------------
-echo "Creating table ${PROJECT}.${DATASET}.${TABLE} if it does not exist..."
-
+# -- 2. Table (schema cloned from production) ----------------------------
 bq query \
-	--use_legacy_sql=false \
-	--project_id="${PROJECT}" \
-	--location="US" \
-	"CREATE TABLE IF NOT EXISTS \`${PROJECT}.${DATASET}.${TABLE}\`
-    LIKE \`${SOURCE_TABLE}\`;"
+    --use_legacy_sql=false \
+    --project_id="${PROJECT}" \
+    --location=US \
+    "CREATE TABLE IF NOT EXISTS \`${PROJECT}.${DATASET}.${TABLE}\`
+     LIKE \`${SOURCE_TABLE}\`;"
 
-# -------------------------------------------------------------------
-# 2. Truncate table (data only, maintain schema)
-# -------------------------------------------------------------------
-echo "Truncating table ${PROJECT}.${DATASET}.${TABLE}..."
-
+# -- 3. Truncate for idempotency -----------------------------------------
 bq query \
-	--use_legacy_sql=false \
-	--project_id="${PROJECT}" \
-	--location="US" \
-	"TRUNCATE TABLE \`${PROJECT}.${DATASET}.${TABLE}\`;"
+    --use_legacy_sql=false \
+    --project_id="${PROJECT}" \
+    --location=US \
+    "TRUNCATE TABLE \`${PROJECT}.${DATASET}.${TABLE}\`;"
 
-# -------------------------------------------------------------------
-# 3. Load CSV data into the table
-# -------------------------------------------------------------------
-echo "Loading data from ${DATA_FILE}..."
-
+# -- 4. Load CSV ---------------------------------------------------------
+echo "Loading ${DATA_FILE}..."
 bq load \
-	--source_format=CSV \
-	--skip_leading_rows=1 \
-	--project_id="${PROJECT}" \
-	--location="US" \
-	"${PROJECT}:${DATASET}.${TABLE}" \
-	"${DATA_FILE}"
+    --source_format=CSV \
+    --skip_leading_rows=1 \
+    --project_id="${PROJECT}" \
+    --location=US \
+    "${PROJECT}:${DATASET}.${TABLE}" \
+    "${DATA_FILE}"
 
-echo "Done. Data loaded into ${PROJECT}.${DATASET}.${TABLE}."
+# -- 5. Verify -----------------------------------------------------------
+META=$(bq show --format=json "${PROJECT}:${DATASET}.${TABLE}")
+echo "${META}" | jq -r '"Rows: \(.numRows)  Bytes: \(.numBytes)  Columns: \(.schema.fields | length)  Modified: \(.lastModifiedTime | tonumber / 1000 | gmtime | strftime("%Y-%m-%dT%H:%M:%SZ"))"'
