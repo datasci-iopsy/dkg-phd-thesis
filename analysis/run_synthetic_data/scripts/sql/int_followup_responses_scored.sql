@@ -20,6 +20,7 @@ with
         select
             response_id,
             survey_id,
+            intake_response_id,  -- foreign key back to stg_intake_responses
             duration,
             timepoint,
             connect_id,
@@ -58,15 +59,15 @@ with
             case
                 when (
                     survey_id = "SV_5nV942MJGubDmqq"
-                    and attention_check = "Once" -- ! UPDATE WITH OFFICIAL VALUES
-                )
-                or (
-                    survey_id = "SV_eRKl4lgMZDAurT8" -- ! UPDATE WITH OFFICIAL VALUES
                     and attention_check = "Once"
                 )
                 or (
-                    survey_id = "SV_6J3svun1r97AAHc" -- ! UPDATE WITH OFFICIAL VALUES
-                    and attention_check = "Once"
+                    survey_id = "SV_eRKl4lgMZDAurT8"
+                    and attention_check = "Strongly agree"
+                )
+                or (
+                    survey_id = "SV_6J3svun1r97AAHc"
+                    and attention_check = "Strongly disagree"
                 ) then true
                 else false
             end as has_passed_attention_check,
