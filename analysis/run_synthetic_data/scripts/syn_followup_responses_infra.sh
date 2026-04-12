@@ -1,60 +1,54 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# -------------------------------------------------------------------
-# Configuration
-# -------------------------------------------------------------------
+# Provision and load syn_qualtrics.stg_followup_responses.
+# Schema is cloned from the production table. Idempotent -- safe to rerun.
+
 PROJECT="dkg-phd-thesis"
 DATASET="syn_qualtrics"
 TABLE="stg_followup_responses"
-# SOURCE_TABLE="${PROJECT}.${DATASET}.followup_responses"
+SOURCE_TABLE="${PROJECT}.qualtrics.${TABLE}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SCHEMA_FILE="${SCRIPT_DIR}/../schemas/stg_syn_followup_responses.json"
 DATA_FILE="${SCRIPT_DIR}/../data/import/claude_gen_syn_followup_responses_20260223.csv"
 
-# -------------------------------------------------------------------
-# 1. Create table (schema only, no data)
-# -------------------------------------------------------------------
-echo "Creating table ${PROJECT}.${DATASET}.${TABLE} if it does not exist..."
+[[ -f "${DATA_FILE}" ]] || { echo "ERROR: data file not found: ${DATA_FILE}" >&2; exit 1; }
 
-if ! bq mk \
-	--table \
-	--schema="${SCHEMA_FILE}" \
-	--project_id="${PROJECT}" \
-	--location="US" \
-	"${PROJECT}:${DATASET}.${TABLE}" 2>&1; then
-	# Check if table already exists
-	if bq show "${PROJECT}:${DATASET}.${TABLE}" >/dev/null 2>&1; then
-		echo "Table ${PROJECT}.${DATASET}.${TABLE} already exists, skipping creation."
-	else
-		echo "Error: Failed to create table ${PROJECT}:${DATASET}.${TABLE}" >&2
-		exit 1
-	fi
+# -- 1. Dataset ----------------------------------------------------------
+if ! bq show --dataset --project_id="${PROJECT}" "${PROJECT}:${DATASET}" >/dev/null 2>&1; then
+    echo "Creating dataset ${DATASET}..."
+    bq mk \
+        --dataset \
+        --location=US \
+        --project_id="${PROJECT}" \
+        "${PROJECT}:${DATASET}"
 fi
 
-# -------------------------------------------------------------------
-# 2. Truncate table (data only, maintain schema)
-# -------------------------------------------------------------------
-echo "Truncating table ${PROJECT}.${DATASET}.${TABLE}..."
-
+# -- 2. Table (schema cloned from production) ----------------------------
 bq query \
-	--use_legacy_sql=false \
-	--project_id="${PROJECT}" \
-	--location="US" \
-	"TRUNCATE TABLE \`${PROJECT}.${DATASET}.${TABLE}\`;"
+    --use_legacy_sql=false \
+    --project_id="${PROJECT}" \
+    --location=US \
+    "CREATE TABLE IF NOT EXISTS \`${PROJECT}.${DATASET}.${TABLE}\`
+     LIKE \`${SOURCE_TABLE}\`;"
 
-# -------------------------------------------------------------------
-# 3. Load CSV data into the table
-# -------------------------------------------------------------------
-echo "Loading data from ${DATA_FILE}..."
+# -- 3. Truncate for idempotency -----------------------------------------
+bq query \
+    --use_legacy_sql=false \
+    --project_id="${PROJECT}" \
+    --location=US \
+    "TRUNCATE TABLE \`${PROJECT}.${DATASET}.${TABLE}\`;"
 
+# -- 4. Load CSV ---------------------------------------------------------
+echo "Loading ${DATA_FILE}..."
 bq load \
-	--source_format=CSV \
-	--skip_leading_rows=1 \
-	--project_id="${PROJECT}" \
-	--location="US" \
-	"${PROJECT}:${DATASET}.${TABLE}" \
-	"${DATA_FILE}"
+    --source_format=CSV \
+    --skip_leading_rows=1 \
+    --project_id="${PROJECT}" \
+    --location=US \
+    "${PROJECT}:${DATASET}.${TABLE}" \
+    "${DATA_FILE}"
 
-echo "Done. Data loaded into ${PROJECT}.${DATASET}.${TABLE}."
+# -- 5. Verify -----------------------------------------------------------
+META=$(bq show --format=json "${PROJECT}:${DATASET}.${TABLE}")
+echo "${META}" | jq -r '"Rows: \(.numRows)  Bytes: \(.numBytes)  Columns: \(.schema.fields | length)  Modified: \(.lastModifiedTime | tonumber / 1000 | gmtime | strftime("%Y-%m-%dT%H:%M:%SZ"))"'
