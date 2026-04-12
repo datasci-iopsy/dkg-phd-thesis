@@ -44,7 +44,7 @@ with
             to_bool (fte_flag) as is_fte,
             to_bool (location_flag) as is_domestic,
             to_bool (language_flag) as is_english_proficient,
-            cast(phone as int64) as phone_number,
+            safe_cast(phone as int64) as phone_number,
             to_iana_tz (timezone) as time_zone,
             date(selected_date) as followup_date,
             age,

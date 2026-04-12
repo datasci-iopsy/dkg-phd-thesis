@@ -18,22 +18,24 @@ with
             and is_english_proficient = true
     ),
     failed_attention as (
+        -- participants who failed any timepoint; used for listwise deletion
         select distinct
-            response_id
+            intake_response_id
         from
             `dkg-phd-thesis.syn_qualtrics.int_followup_responses_scored`
         where
             has_passed_attention_check = false
     ),
     followup as (
+        -- exclude all timepoints for any participant who failed any attention check
         select
             f.*
         from
             `dkg-phd-thesis.syn_qualtrics.int_followup_responses_scored` as f
         where
-            f.response_id not in (
+            f.intake_response_id not in (
                 select
-                    response_id
+                    intake_response_id
                 from
                     failed_attention
             )
@@ -133,7 +135,7 @@ with
             f.turnover_intention_mean,
         from
             intake as i
-            inner join followup as f on i.response_id = f.response_id
+            inner join followup as f on i.response_id = f.intake_response_id
     )
 select
     *
