@@ -1,7 +1,7 @@
 # * Power Analysis Configuration
 # * Version: Dev
 params:
-  max_cores: # ! ADJUST AS NEEDED; default (i.e., NULL) is conserved at 4 cores
+  max_cores: # ! ADJUST AS NEEDED; default (NULL) auto-detects available_cores - 2
   n_lvl1: [3]
   n_lvl2: [100, 200, 300]
   lvl1_effect_std: [0.30]

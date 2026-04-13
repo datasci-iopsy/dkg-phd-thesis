@@ -1,9 +1,9 @@
 # * Power Analysis Configuration
-# * Version: Benchmark GCP (calibrate per-core GCP speed vs university VM)
-# * Uses 14 workers intentionally — matches university benchmark for direct comparison
-# * Calibration: speedup = 61.2 / gcp_wall_min; prod_hours = 1426 / (174 × speedup)
+# * Version: Benchmark GCP (timing probe to calibrate expected runtime on any VM)
+# * Grid: 729 cells x 50 sims = 36,450 total sims (100x smaller than prod_gcp)
+# * Calibration: prod_min ~= benchmark_min x 100 (same worker count; linear scaling)
 params:
-  max_cores: 14 # intentionally matches university worker count for speed comparison
+  max_cores: # auto-detect (available_cores - 2); hardcode only to override
   n_lvl1: [3]
   n_lvl2: [200, 800, 1500]
   lvl1_effect_std: [0.10, 0.30, 0.50]

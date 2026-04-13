@@ -1,8 +1,9 @@
 # * Power Analysis Configuration
-# * Version: Prod GCP (single large VM — full 3,645-cell grid)
-# * Recommended instance: c3-highcpu-176 (174 workers = 176 vCPUs - 2)
+# * Version: Prod GCP (single large VM -- full 3,645-cell grid)
+# * Recommended instance: c3-highcpu-176 (auto-detect yields 174 workers = 176 vCPUs - 2)
+# * Hardcode max_cores only if overriding auto-detection (e.g., to reserve extra capacity)
 params:
-  max_cores: 174 # c3-highcpu-176; set to your instance's vCPUs - 2
+  max_cores: # auto-detect (available_cores - 2); on c3-highcpu-176 this yields 174 workers
   n_lvl1: [3]
   n_lvl2: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500]
   lvl1_effect_std: [0.10, 0.30, 0.50]

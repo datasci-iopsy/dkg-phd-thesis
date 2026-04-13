@@ -108,8 +108,8 @@ echo "----------------------------------------------------------------------"
 
 required_files=(
 	"analysis/run_power_analysis/main.sh"
-	"analysis/run_power_analysis/scripts/run_power_analysis.r"
-	"analysis/run_power_analysis/utils/power_analysis_utils.r"
+	"analysis/run_power_analysis/scripts/run_power_analysis.R"
+	"analysis/run_power_analysis/utils/power_analysis_utils.R"
 	"analysis/run_power_analysis/configs/run_power_analysis.dev.yaml"
 	"analysis/run_power_analysis/configs/run_power_analysis.prod.yaml"
 	"analysis/shared/utils/common_utils.r"
@@ -149,10 +149,10 @@ if [ -f "${main_sh}" ]; then
 		fail "main.sh does not pass --version flag to Rscript"
 	fi
 
-	if grep -q 'scripts/run_power_analysis.r' "${main_sh}"; then
+	if grep -q 'scripts/run_power_analysis.R' "${main_sh}"; then
 		pass "main.sh references correct R script path"
 	else
-		fail "main.sh does not reference scripts/run_power_analysis.r"
+		fail "main.sh does not reference scripts/run_power_analysis.R"
 	fi
 else
 	fail "Cannot check main.sh -- file missing"
@@ -165,7 +165,7 @@ echo "5. Path resolution alignment"
 echo "----------------------------------------------------------------------"
 
 # Simulate what resolve_paths() in R would compute
-r_script="analysis/run_power_analysis/scripts/run_power_analysis.r"
+r_script="analysis/run_power_analysis/scripts/run_power_analysis.R"
 if [ -f "${r_script}" ]; then
 	scripts_dir="$(dirname "${r_script}")"
 	program_dir="$(dirname "${scripts_dir}")"
@@ -181,7 +181,7 @@ if [ -f "${r_script}" ]; then
 	derived_common="${analysis_dir}/shared/utils/common_utils.r"
 	derived_config_dev="${program_dir}/configs/run_power_analysis.dev.yaml"
 	derived_config_prod="${program_dir}/configs/run_power_analysis.prod.yaml"
-	derived_utils="${program_dir}/utils/power_analysis_utils.r"
+	derived_utils="${program_dir}/utils/power_analysis_utils.R"
 
 	if [ -f "${derived_common}" ]; then
 		pass "Derived common_utils path resolves: ${derived_common}"
@@ -219,8 +219,8 @@ echo "----------------------------------------------------------------------"
 if command -v Rscript &>/dev/null; then
 	r_files=(
 		"analysis/shared/utils/common_utils.r"
-		"analysis/run_power_analysis/utils/power_analysis_utils.r"
-		"analysis/run_power_analysis/scripts/run_power_analysis.r"
+		"analysis/run_power_analysis/utils/power_analysis_utils.R"
+		"analysis/run_power_analysis/scripts/run_power_analysis.R"
 	)
 
 	for f in "${r_files[@]}"; do
@@ -246,8 +246,8 @@ echo "----------------------------------------------------------------------"
 
 code_files=(
 	"analysis/shared/utils/common_utils.r"
-	"analysis/run_power_analysis/utils/power_analysis_utils.r"
-	"analysis/run_power_analysis/scripts/run_power_analysis.r"
+	"analysis/run_power_analysis/utils/power_analysis_utils.R"
+	"analysis/run_power_analysis/scripts/run_power_analysis.R"
 	"analysis/run_power_analysis/main.sh"
 )
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # ---------------------------------------------------------------------------
-# power_analysis_utils.r - Simulation engine for two-level power analysis
+# power_analysis_utils.R - Simulation engine for two-level power analysis
 #
 # Based on: Arend & Schafer (2019)
 # Implements Monte Carlo power simulations using simr with Kenward-Roger
