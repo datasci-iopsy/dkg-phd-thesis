@@ -46,10 +46,11 @@ save_svg <- function(plot, filepath, width = 10, height = 7) {
         width = width, height = height
     )
     log_msg("Saved: ", filepath)
+    invisible(NULL)
 }
 
 
-#' Save a ggplot table as a PDF file
+#' Save a ggplot object as a PDF file
 #'
 #' @param plot    A ggplot object
 #' @param filepath Full output path (including .pdf extension)
@@ -63,4 +64,5 @@ save_pdf <- function(plot, filepath, width = 10, height = 7) {
         width = width, height = height
     )
     log_msg("Saved: ", filepath)
+    invisible(NULL)
 }

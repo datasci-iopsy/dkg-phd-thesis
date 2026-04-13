@@ -485,10 +485,13 @@ def generate_followup_scales(followup_meta: pd.DataFrame) -> pd.DataFrame:
     df["meetings_num"] = mtg_count
 
     # --- Meeting minutes: conditional on count; per-meeting duration ~35 min ---
-    # lat_mtg_t adds between-occasion variability in duration per meeting
-    mtg_time_raw = mtg_count * (35.0 + 12.0 * lat_mtg_t)
+    # lat_mtg_t adds between-occasion variability in duration per meeting.
+    # Clamp per-meeting duration to [1, 240] so extreme lat_mtg_t values never
+    # produce a negative product that clips to zero for positive mtg_count.
+    per_meeting_duration = np.clip(35.0 + 12.0 * lat_mtg_t, 1.0, 240.0)
+    mtg_time_raw = mtg_count * per_meeting_duration
     mtg_time = np.where(
-        mtg_count == 0, 0, np.clip(np.round(mtg_time_raw).astype(int), 0, 240)
+        mtg_count == 0, 0, np.clip(np.round(mtg_time_raw).astype(int), 1, 240)
     )
     df["meetings_time"] = mtg_time.astype(int)
 
@@ -515,6 +518,7 @@ def load_to_bigquery(
     original shell scripts).  Idempotent: truncates before loading.
     """
     try:
+        from google.api_core.exceptions import NotFound
         from google.cloud import bigquery
     except ImportError:
         sys.exit(
@@ -537,7 +541,7 @@ def load_to_bigquery(
         ds_ref = f"{project}.{dataset}"
         try:
             client.get_dataset(ds_ref)
-        except Exception:
+        except NotFound:
             ds = bigquery.Dataset(ds_ref)
             ds.location = "US"
             client.create_dataset(ds, exists_ok=True)

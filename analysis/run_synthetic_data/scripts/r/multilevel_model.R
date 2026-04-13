@@ -687,10 +687,10 @@ if (use_random_slope) {
 
     # Extract random slope variance
     vc_m2 <- as.data.frame(VarCorr(m2_reml))
-    tau_11_row <- vc_m2[
-        vc_m2$grp == "response_id" & vc_m2$var1 == "time_c" & is.na(vc_m2$var2),
+    tau_11_val <- vc_m2$vcov[
+        vc_m2$grp == "response_id" & vc_m2$var1 == "time_c" & is.na(vc_m2$var2)
     ]
-    tau_11 <- if (nrow(tau_11_row) > 0) tau_11_row$vcov[1] else NA
+    tau_11 <- if (length(tau_11_val) > 0) tau_11_val[1] else NA
 
     log_msg(
         "  Random slope variance (tau_11) = ",
