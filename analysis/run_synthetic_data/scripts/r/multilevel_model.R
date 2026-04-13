@@ -849,7 +849,7 @@ comparison_tbl <- purrr::map2_dfr(
             AIC            = gl$AIC,
             BIC            = gl$BIC,
             logLik         = gl$logLik,
-            deviance       = gl$deviance,
+            deviance       = if ("deviance" %in% names(gl)) gl$deviance else NA_real_,
             n_fixed        = length(fixef(fit)),
             R2_marginal    = r2$R2_marginal,
             R2_conditional = r2$R2_conditional,
@@ -900,54 +900,6 @@ readr::write_csv(
 )
 log_msg("  Saved model comparison CSV")
 
-# Phase 6 supplemental table (H4a-b moderation; composite predictor structure)
-phase6_names <- c(
-    "Model 7a: Count x Composites",
-    "Model 7b: Minutes x Composites"
-)
-phase6_fits_reml <- list(m7a_reml, m7b_reml)
-
-phase6_tbl <- purrr::map2_dfr(
-    phase6_fits_reml, phase6_names,
-    function(fit, name) {
-        if (is.null(fit)) return(tibble::tibble(Model = name))
-        gl <- broom.mixed::glance(fit)
-        r2 <- tryCatch(
-            performance::r2_nakagawa(fit),
-            error = function(e) list(R2_marginal = NA, R2_conditional = NA)
-        )
-        vc <- as.data.frame(VarCorr(fit))
-        tau_00_val <- vc$vcov[
-            vc$grp == "response_id" &
-                vc$var1 == "(Intercept)" & is.na(vc$var2)
-        ]
-        if (length(tau_00_val) == 0) tau_00_val <- NA
-        sigma2_val <- vc$vcov[vc$grp == "Residual"]
-        if (length(sigma2_val) == 0) sigma2_val <- NA
-        tibble::tibble(
-            Model = name, AIC = gl$AIC, BIC = gl$BIC,
-            logLik = gl$logLik, deviance = gl$deviance,
-            n_fixed = length(fixef(fit)),
-            R2_marginal = r2$R2_marginal, R2_conditional = r2$R2_conditional,
-            tau_00 = tau_00_val, sigma2 = sigma2_val
-        )
-    }
-)
-
-phase6_lrt <- dplyr::bind_rows(
-    lrt_7av_base |> dplyr::transmute(
-        Model = phase6_names[1],
-        LRT_chi2 = chi_sq, LRT_df = df, LRT_p = p_value
-    ),
-    lrt_7bv_base |> dplyr::transmute(
-        Model = phase6_names[2],
-        LRT_chi2 = chi_sq, LRT_df = df, LRT_p = p_value
-    )
-)
-phase6_tbl <- dplyr::left_join(phase6_tbl, phase6_lrt, by = "Model")
-readr::write_csv(phase6_tbl, file.path(FIGS_DIR, "mlm_01b_phase6_comparison.csv"))
-log_msg("  Saved Phase 6 model comparison CSV (M7a, M7b vs composite base)")
-
 # SVG table
 comparison_display <- comparison_tbl |>
     dplyr::mutate(across(where(is.numeric), ~ round(., 3)))
@@ -977,17 +929,6 @@ fe_all <- purrr::map2_dfr(model_fits_reml, model_names, function(fit, name) {
     ) |>
         dplyr::mutate(model = name)
 })
-
-# Append Phase 6 (M7a, M7b) fixed effects
-fe_phase6_all <- purrr::map2_dfr(
-    list(m7a_reml, m7b_reml), phase6_names,
-    function(fit, name) {
-        if (is.null(fit)) return(tibble::tibble(model = name))
-        broom.mixed::tidy(fit, effects = "fixed", conf.int = TRUE) |>
-            dplyr::mutate(model = name)
-    }
-)
-fe_all <- dplyr::bind_rows(fe_all, fe_phase6_all)
 
 readr::write_csv(fe_all, file.path(FIGS_DIR, "mlm_02_fixed_effects.csv"))
 log_msg("  Saved fixed effects CSV")
@@ -1202,38 +1143,6 @@ for (lbl in names(h4_main_map)) {
     hyp_results$Supported[hyp_idx(lbl)] <- ifelse(isTRUE(r$supported), "Yes", "No")
 }
 
-# H4a-b moderation (M7a, M7b)
-fe7a_tbl <- broom.mixed::tidy(m7a_reml, effects = "fixed", conf.int = TRUE) |>
-    dplyr::mutate(model = "Model 7a: Count x Composites")
-fe7b_tbl <- broom.mixed::tidy(m7b_reml, effects = "fixed", conf.int = TRUE) |>
-    dplyr::mutate(model = "Model 7b: Minutes x Composites")
-fe_phase6 <- dplyr::bind_rows(fe7a_tbl, fe7b_tbl)
-
-h4_mod_map <- list(
-    "H4a:burn" = list(model = "Model 7a: Count x Composites",
-                      term  = "burnout_mean_within:meetings_count_within"),
-    "H4a:nf"   = list(model = "Model 7a: Count x Composites",
-                      term  = "nf_mean_within:meetings_count_within"),
-    "H4b:burn" = list(model = "Model 7b: Minutes x Composites",
-                      term  = "burnout_mean_within:meetings_mins_within"),
-    "H4b:nf"   = list(model = "Model 7b: Minutes x Composites",
-                      term  = "nf_mean_within:meetings_mins_within")
-)
-for (lbl in names(h4_mod_map)) {
-    r_row <- fe_phase6 |>
-        dplyr::filter(
-            model == h4_mod_map[[lbl]]$model,
-            term  == h4_mod_map[[lbl]]$term
-        )
-    if (nrow(r_row) > 0) {
-        hyp_results$Estimate[hyp_idx(lbl)]  <- round(r_row$estimate[1], 4)
-        hyp_results$p_value[hyp_idx(lbl)]   <- r_row$p.value[1]
-        hyp_results$Supported[hyp_idx(lbl)] <- ifelse(
-            r_row$p.value[1] < 0.05, "Yes", "No"
-        )
-    }
-}
-
 hyp_results <- hyp_results |>
     dplyr::mutate(p_value = round(p_value, 4))
 
@@ -1261,14 +1170,10 @@ log_msg("=== [15] Assumption diagnostics ===")
 
 check_assumptions(m5_reml, "Model 5")
 check_assumptions(m6_reml, "Model 6")
-check_assumptions(m7a_reml, "Model 7a")
-check_assumptions(m7b_reml, "Model 7b")
 
 # VIF plots for key models
 save_vif_plot(vif_m5, "Model 5", figs_dir = FIGS_DIR)
 save_vif_plot(vif_m6, "Model 6", figs_dir = FIGS_DIR)
-save_vif_plot(check_vif(m7a_reml, "Model 7a"), "Model 7a", figs_dir = FIGS_DIR)
-save_vif_plot(check_vif(m7b_reml, "Model 7b"), "Model 7b", figs_dir = FIGS_DIR)
 
 
 # =============================================================================
@@ -1279,13 +1184,11 @@ log_msg("=== [16] Effect sizes ===")
 # --- 16a. Standardized coefficients (beta) -----------------------------------
 log_msg("  Computing standardized coefficients (method = 'basic')...")
 
-es_models <- list(m3_reml, m5_reml, m6_reml, m7a_reml, m7b_reml)
+es_models <- list(m3_reml, m5_reml, m6_reml)
 es_names <- c(
     "Model 3: L1 Within-Person",
     "Model 5: L1 + L2 Study Variables",
-    "Model 6: Full Model with Covariates",
-    "Model 7a: Count x Composites",
-    "Model 7b: Minutes x Composites"
+    "Model 6: Full Model with Covariates"
 )
 
 std_effects <- purrr::map2_dfr(es_models, es_names, compute_standardized_coefs)
@@ -1839,6 +1742,129 @@ p_iccbeta <- iccb_results |>
 
 save_fig(p_iccbeta, "mlm_08_iccbeta.svg", width = 10, height = 6)
 log_msg("  Saved rho_beta bar chart SVG")
+
+
+# =============================================================================
+# [17b] PHASE 6 POST-FIT: SUMMARY COMPLETIONS (M7a, M7b)
+# =============================================================================
+log_msg("=== [17b] Phase 6 post-fit completions ===")
+
+phase6_names <- c(
+    "Model 7a: Count x Composites",
+    "Model 7b: Minutes x Composites"
+)
+phase6_fits_reml <- list(m7a_reml, m7b_reml)
+
+# Phase 6 model comparison table (supplements mlm_01)
+phase6_tbl <- purrr::map2_dfr(
+    phase6_fits_reml, phase6_names,
+    function(fit, name) {
+        if (is.null(fit)) return(tibble::tibble(Model = name))
+        gl <- broom.mixed::glance(fit)
+        r2 <- tryCatch(
+            performance::r2_nakagawa(fit),
+            error = function(e) list(R2_marginal = NA, R2_conditional = NA)
+        )
+        vc <- as.data.frame(VarCorr(fit))
+        tau_00_val <- vc$vcov[
+            vc$grp == "response_id" &
+                vc$var1 == "(Intercept)" & is.na(vc$var2)
+        ]
+        if (length(tau_00_val) == 0) tau_00_val <- NA
+        sigma2_val <- vc$vcov[vc$grp == "Residual"]
+        if (length(sigma2_val) == 0) sigma2_val <- NA
+        tibble::tibble(
+            Model = name, AIC = gl$AIC, BIC = gl$BIC,
+            logLik = gl$logLik,
+            deviance = if ("deviance" %in% names(gl)) gl$deviance else NA_real_,
+            n_fixed = length(fixef(fit)),
+            R2_marginal = r2$R2_marginal, R2_conditional = r2$R2_conditional,
+            tau_00 = tau_00_val, sigma2 = sigma2_val
+        )
+    }
+)
+
+phase6_lrt <- dplyr::bind_rows(
+    lrt_7av_base |> dplyr::transmute(
+        Model = phase6_names[1],
+        LRT_chi2 = chi_sq, LRT_df = df, LRT_p = p_value
+    ),
+    lrt_7bv_base |> dplyr::transmute(
+        Model = phase6_names[2],
+        LRT_chi2 = chi_sq, LRT_df = df, LRT_p = p_value
+    )
+)
+phase6_tbl <- dplyr::left_join(phase6_tbl, phase6_lrt, by = "Model")
+readr::write_csv(phase6_tbl, file.path(FIGS_DIR, "mlm_01b_phase6_comparison.csv"))
+log_msg("  Saved Phase 6 model comparison CSV (M7a, M7b vs composite base)")
+
+# Append M7a/M7b to fixed effects table and re-save
+fe_phase6_all <- purrr::map2_dfr(
+    phase6_fits_reml, phase6_names,
+    function(fit, name) {
+        if (is.null(fit)) return(tibble::tibble(model = name))
+        broom.mixed::tidy(fit, effects = "fixed", conf.int = TRUE) |>
+            dplyr::mutate(model = name)
+    }
+)
+fe_all <- dplyr::bind_rows(fe_all, fe_phase6_all)
+readr::write_csv(fe_all, file.path(FIGS_DIR, "mlm_02_fixed_effects.csv"))
+log_msg("  Updated fixed effects CSV with M7a/M7b rows")
+
+# Complete H4a-b moderation rows in hypothesis table
+fe7a_tbl <- broom.mixed::tidy(m7a_reml, effects = "fixed", conf.int = TRUE) |>
+    dplyr::mutate(model = "Model 7a: Count x Composites")
+fe7b_tbl <- broom.mixed::tidy(m7b_reml, effects = "fixed", conf.int = TRUE) |>
+    dplyr::mutate(model = "Model 7b: Minutes x Composites")
+fe_phase6 <- dplyr::bind_rows(fe7a_tbl, fe7b_tbl)
+
+h4_mod_map <- list(
+    "H4a:burn" = list(model = "Model 7a: Count x Composites",
+                      term  = "burnout_mean_within:meetings_count_within"),
+    "H4a:nf"   = list(model = "Model 7a: Count x Composites",
+                      term  = "nf_mean_within:meetings_count_within"),
+    "H4b:burn" = list(model = "Model 7b: Minutes x Composites",
+                      term  = "burnout_mean_within:meetings_mins_within"),
+    "H4b:nf"   = list(model = "Model 7b: Minutes x Composites",
+                      term  = "nf_mean_within:meetings_mins_within")
+)
+for (lbl in names(h4_mod_map)) {
+    r_row <- fe_phase6 |>
+        dplyr::filter(
+            model == h4_mod_map[[lbl]]$model,
+            term  == h4_mod_map[[lbl]]$term
+        )
+    if (nrow(r_row) > 0) {
+        hyp_results$Estimate[hyp_idx(lbl)]  <- round(r_row$estimate[1], 4)
+        hyp_results$p_value[hyp_idx(lbl)]   <- r_row$p.value[1]
+        hyp_results$Supported[hyp_idx(lbl)] <- ifelse(
+            r_row$p.value[1] < 0.05, "Yes", "No"
+        )
+    }
+}
+hyp_results <- hyp_results |> dplyr::mutate(p_value = round(p_value, 4))
+readr::write_csv(hyp_results, file.path(FIGS_DIR, "mlm_04_hypothesis_tests.csv"))
+log_msg("  Updated hypothesis tests CSV with H4 moderation results")
+
+# Assumption diagnostics for M7a/M7b
+check_assumptions(m7a_reml, "Model 7a")
+check_assumptions(m7b_reml, "Model 7b")
+save_vif_plot(check_vif(m7a_reml, "Model 7a"), "Model 7a", figs_dir = FIGS_DIR)
+save_vif_plot(check_vif(m7b_reml, "Model 7b"), "Model 7b", figs_dir = FIGS_DIR)
+
+# Effect sizes for M7a/M7b (append to existing CSVs)
+es_m7_models <- list(m7a_reml, m7b_reml)
+es_m7_names  <- phase6_names
+
+std_effects_m7 <- purrr::map2_dfr(es_m7_models, es_m7_names, compute_standardized_coefs)
+std_effects_all <- dplyr::bind_rows(std_effects, std_effects_m7)
+readr::write_csv(std_effects_all, file.path(FIGS_DIR, "mlm_05_standardized_effects.csv"))
+log_msg("  Updated standardized effects CSV with M7a/M7b")
+
+pseudo_d_m7 <- purrr::map2_dfr(es_m7_models, es_m7_names, compute_level_specific_es)
+pseudo_d_all_final <- dplyr::bind_rows(pseudo_d_all, pseudo_d_m7)
+readr::write_csv(pseudo_d_all_final, file.path(FIGS_DIR, "mlm_06_level_specific_es.csv"))
+log_msg("  Updated level-specific effect sizes CSV with M7a/M7b")
 
 
 # =============================================================================
