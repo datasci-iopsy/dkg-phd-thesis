@@ -1143,12 +1143,12 @@ p_comp <- gridExtra::tableGrob(comparison_display,
     rows = NULL,
     theme = gridExtra::ttheme_minimal(base_size = 8)
 )
-svg(file.path(FIGS_DIR, "mlm_01_model_comparison.svg"),
+pdf(file.path(FIGS_DIR, "mlm_01_model_comparison.pdf"),
     width = 18, height = 6
 )
 grid::grid.draw(p_comp)
 dev.off()
-log_msg("  Saved model comparison SVG")
+log_msg("  Saved model comparison PDF")
 
 
 # =============================================================================
@@ -1171,7 +1171,7 @@ readr::write_csv(fe_all, file.path(FIGS_DIR, "mlm_02_fixed_effects.csv"))
 log_msg("  Saved fixed effects CSV")
 
 # SVG: one sub-table per model
-svg(file.path(FIGS_DIR, "mlm_02_fixed_effects.svg"),
+pdf(file.path(FIGS_DIR, "mlm_02_fixed_effects.pdf"),
     width = 14, height = 10
 )
 for (i in seq_along(model_names)) {
@@ -1195,7 +1195,7 @@ for (i in seq_along(model_names)) {
     )
 }
 dev.off()
-log_msg("  Saved fixed effects SVG")
+log_msg("  Saved fixed effects PDF")
 
 
 # =============================================================================
@@ -1216,13 +1216,13 @@ log_msg("  Saved random effects CSV")
 
 re_display <- re_all |>
     dplyr::mutate(across(where(is.numeric), ~ round(., 4)))
-svg(file.path(FIGS_DIR, "mlm_03_random_effects.svg"), width = 12, height = 8)
+pdf(file.path(FIGS_DIR, "mlm_03_random_effects.pdf"), width = 12, height = 8)
 grid::grid.draw(gridExtra::tableGrob(re_display,
     rows = NULL,
     theme = gridExtra::ttheme_minimal(base_size = 9)
 ))
 dev.off()
-log_msg("  Saved random effects SVG")
+log_msg("  Saved random effects PDF")
 
 
 # =============================================================================
@@ -1369,10 +1369,10 @@ p_hyp <- gridExtra::tableGrob(hyp_results,
     rows = NULL,
     theme = gridExtra::ttheme_minimal(base_size = 9)
 )
-svg(file.path(FIGS_DIR, "mlm_04_hypothesis_tests.svg"), width = 18, height = 10)
+pdf(file.path(FIGS_DIR, "mlm_04_hypothesis_tests.pdf"), width = 18, height = 10)
 grid::grid.draw(p_hyp)
 dev.off()
-log_msg("  Saved hypothesis tests SVG")
+log_msg("  Saved hypothesis tests PDF")
 
 
 # =============================================================================
@@ -1972,9 +1972,11 @@ log_msg("=== [18] Session Summary ===")
 
 csv_files <- list.files(FIGS_DIR, pattern = "\\.csv$")
 svg_files <- list.files(FIGS_DIR, pattern = "\\.svg$")
+pdf_files <- list.files(FIGS_DIR, pattern = "\\.pdf$")
 log_msg("Output directory: ", FIGS_DIR)
 log_msg("CSV files generated: ", length(csv_files))
 log_msg("SVG files generated: ", length(svg_files))
+log_msg("PDF files generated: ", length(pdf_files))
 log_msg("")
 log_msg("Random effects decision: ", re_note)
 log_msg("Phases 1-5 models: M0 (null) through M6 (full with demographics)")
