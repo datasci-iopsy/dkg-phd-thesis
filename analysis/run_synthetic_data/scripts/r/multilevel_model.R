@@ -7,7 +7,7 @@
 #
 # Design : ~800 participants (L2) x 3 within-day timepoints (L1)
 # DV     : turnover_intention_mean (1-5 ordinal, treated as continuous)
-# Output : CSVs + PDFs -> analysis/run_synthetic_data/figs/mlm/
+# Output : CSVs + SVGs -> analysis/run_synthetic_data/figs/mlm/
 #
 # Phase 1 (M0-M2) : Variance partitioning and time trends
 # Phase 2 (M3)    : Within-person main effects — L1 facets
@@ -55,37 +55,19 @@ library(interactions)
 options(tibble.width = Inf)
 here::here()
 
-# Source shared utilities (log_msg, ensure_dir)
+# Source shared utilities (log_msg, ensure_dir, theme_apa, save_svg)
 source(here::here("analysis", "shared", "utils", "common_utils.r"))
+source(here::here("analysis", "shared", "utils", "plot_utils.r"))
 
 # --- Global settings ----------------------------------------------------------
 FIGS_DIR <- here::here("analysis", "run_synthetic_data", "figs", "mlm")
 ensure_dir(FIGS_DIR)
 
-# APA-like ggplot2 theme
-theme_apa <- theme_minimal(base_size = 12, base_family = "serif") +
-    theme(
-        panel.grid.minor = element_blank(),
-        panel.grid.major = element_line(color = "grey92"),
-        axis.line        = element_line(color = "black", linewidth = 0.4),
-        axis.ticks       = element_line(color = "black", linewidth = 0.3),
-        strip.text       = element_text(face = "bold", size = 11),
-        plot.title       = element_text(face = "bold", size = 13, hjust = 0),
-        plot.subtitle    = element_text(size = 10, hjust = 0, color = "grey30"),
-        legend.position  = "bottom",
-        legend.title     = element_text(face = "bold", size = 10),
-        plot.margin      = margin(10, 15, 10, 15)
-    )
 theme_set(theme_apa)
 
-# PDF save helper
-save_pdf <- function(plot, filename, width = 10, height = 7) {
-    filepath <- file.path(FIGS_DIR, filename)
-    ggsave(filepath,
-        plot = plot, device = "pdf",
-        width = width, height = height, dpi = 300
-    )
-    log_msg("Saved: ", filepath)
+# SVG save helper (binds FIGS_DIR for convenience at call sites)
+save_fig <- function(plot, filename, width = 10, height = 7) {
+    save_svg(plot, file.path(FIGS_DIR, filename), width, height)
 }
 
 # Default optimizer control for lmer
@@ -100,13 +82,15 @@ log_msg("Output directory: ", FIGS_DIR)
 # =============================================================================
 log_msg("=== [1] Loading data ===")
 
-df_raw <- readr::read_csv(
-    here::here(
-        "analysis", "run_synthetic_data", "data", "export",
-        "syn_qualtrics_fct_panel_responses_20260308.csv"
-    ),
-    show_col_types = FALSE
+export_files <- list.files(
+    here::here("analysis", "run_synthetic_data", "data", "export"),
+    pattern = "^syn_qualtrics_fct_panel_responses_.*\\.csv$",
+    full.names = TRUE
 )
+if (length(export_files) == 0) stop("No export CSV found in data/export/")
+export_path <- sort(export_files, decreasing = TRUE)[1]
+log_msg("Loading: ", basename(export_path))
+df_raw <- readr::read_csv(export_path, show_col_types = FALSE)
 log_msg("Loaded: ", nrow(df_raw), " rows x ", ncol(df_raw), " columns")
 
 n_participants <- dplyr::n_distinct(df_raw$response_id)
@@ -301,7 +285,7 @@ compare_models <- function(fit_a, fit_b, name_a, name_b) {
 }
 
 
-#' Generate 4-panel residual diagnostic PDF
+#' Generate 4-panel residual diagnostic SVG
 check_assumptions <- function(fit, model_name) {
     if (is.null(fit)) {
         return(invisible(NULL))
@@ -365,9 +349,9 @@ check_assumptions <- function(fit, model_name) {
 
     filename <- paste0(
         "mlm_diag_",
-        tolower(gsub(" ", "_", model_name)), ".pdf"
+        tolower(gsub(" ", "_", model_name)), ".svg"
     )
-    save_pdf(combined, filename, width = 12, height = 9)
+    save_fig(combined, filename, width = 12, height = 9)
 }
 
 
@@ -412,7 +396,7 @@ check_vif <- function(fit, model_name) {
 }
 
 
-#' Save a VIF bar chart as PDF
+#' Save a VIF bar chart as SVG
 save_vif_plot <- function(vif_tbl, model_name) {
     if (nrow(vif_tbl) == 0) {
         return(invisible(NULL))
@@ -439,9 +423,9 @@ save_vif_plot <- function(vif_tbl, model_name) {
 
     filename <- paste0(
         "mlm_vif_",
-        tolower(gsub(" ", "_", model_name)), ".pdf"
+        tolower(gsub(" ", "_", model_name)), ".svg"
     )
-    save_pdf(p, filename, width = 10, height = max(6, nrow(vif_tbl) * 0.35))
+    save_fig(p, filename, width = 10, height = max(6, nrow(vif_tbl) * 0.35))
 }
 
 
@@ -495,8 +479,9 @@ compute_level_specific_es <- function(fit, model_name) {
     # Extract variance components
     vc <- as.data.frame(VarCorr(fit))
     sigma_val <- sqrt(vc$vcov[vc$grp == "Residual"])
-    tau_00_row <- vc$vcov[vc$grp == "response_id" &
-        vc$var1 == "(Intercept)" & is.na(vc$var2)]
+    tau_00_row <- vc$vcov[
+        vc$grp == "response_id" & vc$var1 == "(Intercept)" & is.na(vc$var2)
+    ]
     tau_00_sd <- if (length(tau_00_row) > 0) sqrt(tau_00_row) else NA_real_
 
     # Extract fixed effects with CIs
@@ -702,8 +687,9 @@ if (use_random_slope) {
 
     # Extract random slope variance
     vc_m2 <- as.data.frame(VarCorr(m2_reml))
-    tau_11_row <- vc_m2[vc_m2$grp == "response_id" &
-        vc_m2$var1 == "time_c" & is.na(vc_m2$var2), ]
+    tau_11_row <- vc_m2[
+        vc_m2$grp == "response_id" & vc_m2$var1 == "time_c" & is.na(vc_m2$var2),
+    ]
     tau_11 <- if (nrow(tau_11_row) > 0) tau_11_row$vcov[1] else NA
 
     log_msg(
@@ -1038,13 +1024,15 @@ comparison_tbl <- purrr::map2_dfr(
         )
         vc <- as.data.frame(VarCorr(fit))
 
-        tau_00_val <- vc$vcov[vc$grp == "response_id" &
-            vc$var1 == "(Intercept)" & is.na(vc$var2)]
+        tau_00_val <- vc$vcov[
+            vc$grp == "response_id" & vc$var1 == "(Intercept)" & is.na(vc$var2)
+        ]
         if (length(tau_00_val) == 0) tau_00_val <- NA
         sigma2_val <- vc$vcov[vc$grp == "Residual"]
         if (length(sigma2_val) == 0) sigma2_val <- NA
-        tau_11_val <- vc$vcov[vc$grp == "response_id" &
-            vc$var1 == "time_c" & is.na(vc$var2)]
+        tau_11_val <- vc$vcov[
+            vc$grp == "response_id" & vc$var1 == "time_c" & is.na(vc$var2)
+        ]
         if (length(tau_11_val) == 0) tau_11_val <- NA
 
         tibble::tibble(
@@ -1148,19 +1136,19 @@ phase6_names <- c(
 # readr::write_csv(phase6_tbl, file.path(FIGS_DIR, "mlm_01b_phase6_comparison.csv"))
 # log_msg("  Saved Phase 6 model comparison CSV (M7a, M7b vs composite base)")
 
-# PDF table
+# SVG table
 comparison_display <- comparison_tbl |>
     dplyr::mutate(across(where(is.numeric), ~ round(., 3)))
 p_comp <- gridExtra::tableGrob(comparison_display,
     rows = NULL,
     theme = gridExtra::ttheme_minimal(base_size = 8)
 )
-pdf(file.path(FIGS_DIR, "mlm_01_model_comparison.pdf"),
+svg(file.path(FIGS_DIR, "mlm_01_model_comparison.svg"),
     width = 18, height = 6
 )
 grid::grid.draw(p_comp)
 dev.off()
-log_msg("  Saved model comparison PDF")
+log_msg("  Saved model comparison SVG")
 
 
 # =============================================================================
@@ -1182,8 +1170,8 @@ fe_all <- purrr::map2_dfr(model_fits_reml, model_names, function(fit, name) {
 readr::write_csv(fe_all, file.path(FIGS_DIR, "mlm_02_fixed_effects.csv"))
 log_msg("  Saved fixed effects CSV")
 
-# PDF: one sub-table per model
-pdf(file.path(FIGS_DIR, "mlm_02_fixed_effects.pdf"),
+# SVG: one sub-table per model
+svg(file.path(FIGS_DIR, "mlm_02_fixed_effects.svg"),
     width = 14, height = 10
 )
 for (i in seq_along(model_names)) {
@@ -1207,7 +1195,7 @@ for (i in seq_along(model_names)) {
     )
 }
 dev.off()
-log_msg("  Saved fixed effects PDF")
+log_msg("  Saved fixed effects SVG")
 
 
 # =============================================================================
@@ -1228,13 +1216,13 @@ log_msg("  Saved random effects CSV")
 
 re_display <- re_all |>
     dplyr::mutate(across(where(is.numeric), ~ round(., 4)))
-pdf(file.path(FIGS_DIR, "mlm_03_random_effects.pdf"), width = 12, height = 8)
+svg(file.path(FIGS_DIR, "mlm_03_random_effects.svg"), width = 12, height = 8)
 grid::grid.draw(gridExtra::tableGrob(re_display,
     rows = NULL,
     theme = gridExtra::ttheme_minimal(base_size = 9)
 ))
 dev.off()
-log_msg("  Saved random effects PDF")
+log_msg("  Saved random effects SVG")
 
 
 # =============================================================================
@@ -1376,15 +1364,15 @@ readr::write_csv(
 )
 log_msg("  Saved hypothesis tests CSV")
 
-# PDF
+# SVG
 p_hyp <- gridExtra::tableGrob(hyp_results,
     rows = NULL,
     theme = gridExtra::ttheme_minimal(base_size = 9)
 )
-pdf(file.path(FIGS_DIR, "mlm_04_hypothesis_tests.pdf"), width = 18, height = 10)
+svg(file.path(FIGS_DIR, "mlm_04_hypothesis_tests.svg"), width = 18, height = 10)
 grid::grid.draw(p_hyp)
 dev.off()
-log_msg("  Saved hypothesis tests PDF")
+log_msg("  Saved hypothesis tests SVG")
 
 
 # =============================================================================
@@ -1524,7 +1512,7 @@ if (nrow(plot_data) > 0) {
             y = NULL,
             color = "Level"
         )
-    save_pdf(p_forest, "mlm_es_forest_plot.pdf",
+    save_fig(p_forest, "mlm_es_forest_plot.svg",
         width = 11, height = max(6, nrow(plot_data) * 0.4)
     )
 }
@@ -1575,7 +1563,7 @@ p_r2 <- ggplot(r2_plot_data, aes(
     ) +
     coord_flip()
 
-save_pdf(p_r2, "mlm_es_r2_decomposition.pdf", width = 10, height = 6)
+save_fig(p_r2, "mlm_es_r2_decomposition.svg", width = 10, height = 6)
 
 
 # =============================================================================
@@ -1655,8 +1643,7 @@ if (nrow(row_nf_cnt) > 0) {
 
 # Simple slopes if significant (burnout x count)
 m7a_plots <- list()
-if (!is.null(m7a_reml) &&
-    nrow(row_burn_cnt) > 0 && row_burn_cnt$p.value < 0.05) {
+if (!is.null(m7a_reml) && nrow(row_burn_cnt) > 0 && row_burn_cnt$p.value < 0.05) {
     log_msg("  Probing H10a interaction (burnout x meeting count)...")
     ss_burn_cnt <- tryCatch(
         interactions::sim_slopes(m7a_reml,
@@ -1685,8 +1672,7 @@ if (!is.null(m7a_reml) &&
 }
 
 # Simple slopes if significant (NF x count)
-if (!is.null(m7a_reml) &&
-    nrow(row_nf_cnt) > 0 && row_nf_cnt$p.value < 0.05) {
+if (!is.null(m7a_reml) && nrow(row_nf_cnt) > 0 && row_nf_cnt$p.value < 0.05) {
     log_msg("  Probing H10b interaction (NF x meeting count)...")
     p_int_nf <- tryCatch(
         interactions::interact_plot(m7a_reml,
@@ -1706,7 +1692,7 @@ if (!is.null(m7a_reml) &&
 
 if (length(m7a_plots) > 0) {
     p_m7a_combined <- patchwork::wrap_plots(m7a_plots, ncol = 1)
-    save_pdf(p_m7a_combined, "mlm_m7a_interaction.pdf",
+    save_fig(p_m7a_combined, "mlm_m7a_interaction.svg",
         width = 10, height = 5 * length(m7a_plots)
     )
 }
@@ -1761,8 +1747,7 @@ if (nrow(row_nf_min) > 0) {
 }
 
 m7b_plots <- list()
-if (!is.null(m7b_reml) &&
-    nrow(row_burn_min) > 0 && row_burn_min$p.value < 0.05) {
+if (!is.null(m7b_reml) && nrow(row_burn_min) > 0 && row_burn_min$p.value < 0.05) {
     log_msg("  Probing H10c interaction (burnout x meeting minutes)...")
     p_int_bm <- tryCatch(
         interactions::interact_plot(m7b_reml,
@@ -1780,8 +1765,7 @@ if (!is.null(m7b_reml) &&
     if (!is.null(p_int_bm)) m7b_plots[["burnout_mins"]] <- p_int_bm
 }
 
-if (!is.null(m7b_reml) &&
-    nrow(row_nf_min) > 0 && row_nf_min$p.value < 0.05) {
+if (!is.null(m7b_reml) && nrow(row_nf_min) > 0 && row_nf_min$p.value < 0.05) {
     log_msg("  Probing H10d interaction (NF x meeting minutes)...")
     p_int_nm <- tryCatch(
         interactions::interact_plot(m7b_reml,
@@ -1801,7 +1785,7 @@ if (!is.null(m7b_reml) &&
 
 if (length(m7b_plots) > 0) {
     p_m7b_combined <- patchwork::wrap_plots(m7b_plots, ncol = 1)
-    save_pdf(p_m7b_combined, "mlm_m7b_interaction.pdf",
+    save_fig(p_m7b_combined, "mlm_m7b_interaction.svg",
         width = 10, height = 5 * length(m7b_plots)
     )
 }
@@ -1876,8 +1860,9 @@ iccb_results <- purrr::map_dfr(rho_beta_predictors, function(pred) {
 
     # Extract tau11 (random slope variance)
     vc <- as.data.frame(VarCorr(fit))
-    tau11_val <- vc$vcov[vc$grp == "response_id" &
-        vc$var1 == pred & is.na(vc$var2)]
+    tau11_val <- vc$vcov[
+        vc$grp == "response_id" & vc$var1 == pred & is.na(vc$var2)
+    ]
     if (length(tau11_val) == 0) tau11_val <- 0
 
     log_msg("  rho_beta = ", round(rb, 4), " | tau11 = ", round(tau11_val, 4))
@@ -1976,8 +1961,8 @@ p_iccbeta <- iccb_results |>
         fill = "Magnitude"
     )
 
-save_pdf(p_iccbeta, "mlm_08_iccbeta.pdf", width = 10, height = 6)
-log_msg("  Saved rho_beta bar chart PDF")
+save_fig(p_iccbeta, "mlm_08_iccbeta.svg", width = 10, height = 6)
+log_msg("  Saved rho_beta bar chart SVG")
 
 
 # =============================================================================
@@ -1986,10 +1971,10 @@ log_msg("  Saved rho_beta bar chart PDF")
 log_msg("=== [18] Session Summary ===")
 
 csv_files <- list.files(FIGS_DIR, pattern = "\\.csv$")
-pdf_files <- list.files(FIGS_DIR, pattern = "\\.pdf$")
+svg_files <- list.files(FIGS_DIR, pattern = "\\.svg$")
 log_msg("Output directory: ", FIGS_DIR)
 log_msg("CSV files generated: ", length(csv_files))
-log_msg("PDF files generated: ", length(pdf_files))
+log_msg("SVG files generated: ", length(svg_files))
 log_msg("")
 log_msg("Random effects decision: ", re_note)
 log_msg("Phases 1-5 models: M0 (null) through M6 (full with demographics)")

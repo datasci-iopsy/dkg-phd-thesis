@@ -3,13 +3,14 @@
 # analysis/run_synthetic_data/scripts/r/eda.R
 #
 # Comprehensive Exploratory Data Analysis for the synthetic panel dataset.
-# Produces publication-quality PDF figures and diagnostic tables across 8
+# Comprehensive Exploratory Data Analysis for the synthetic panel dataset.
+# Produces publication-quality SVG figures and diagnostic tables across 8
 # phases: screening, demographics, distributions, multilevel structure,
 # within-person dynamics, bivariate relationships, model diagnostics, and
 # cross-level interaction exploration.
 #
 # Design: 800 participants × 3 within-day timepoints (2,391 rows × 81 cols)
-# Output: PDF figures → analysis/run_synthetic_data/figs/eda/
+# Output: SVG figures → analysis/run_synthetic_data/figs/eda/
 # =============================================================================
 
 # --- [0] Libraries and setup ------------------------------------------------
@@ -48,37 +49,24 @@ library(glue)
 options(tibble.width = Inf)
 here::here()
 
-# Source shared utilities (log_msg, ensure_dir, load_config)
+# Source shared utilities (log_msg, ensure_dir, load_config, theme_apa, save_svg)
 source(here::here("analysis", "shared", "utils", "common_utils.r"))
+source(here::here("analysis", "shared", "utils", "plot_utils.r"))
 
 # --- Global settings ---------------------------------------------------------
 FIGS_DIR <- here::here("analysis", "run_synthetic_data", "figs", "eda")
 ensure_dir(FIGS_DIR)
 
-# Custom APA-like ggplot2 theme (applied globally via theme_set)
-theme_apa <- theme_minimal(base_size = 12, base_family = "serif") +
-    theme(
-        panel.grid.minor = element_blank(),
-        panel.grid.major = element_line(color = "grey92"),
-        axis.line        = element_line(color = "black", linewidth = 0.4),
-        axis.ticks       = element_line(color = "black", linewidth = 0.3),
-        strip.text       = element_text(face = "bold", size = 11),
-        plot.title       = element_text(face = "bold", size = 13, hjust = 0),
-        plot.subtitle    = element_text(size = 10, hjust = 0, color = "grey30"),
-        legend.position  = "bottom",
-        legend.title     = element_text(face = "bold", size = 10),
-        plot.margin      = margin(10, 15, 10, 15)
-    )
 theme_set(theme_apa)
 
-# PDF save helper
-save_pdf <- function(plot, filename, width = 10, height = 7) {
-    filepath <- file.path(FIGS_DIR, filename)
-    ggsave(filepath,
-        plot = plot, device = "pdf",
-        width = width, height = height, dpi = 300
-    )
-    log_msg("Saved: ", filepath)
+# SVG save helper (binds FIGS_DIR for convenience at call sites)
+save_fig <- function(plot, filename, width = 10, height = 7) {
+    save_svg(plot, file.path(FIGS_DIR, filename), width, height)
+}
+
+# PDF save helper for table outputs (binds FIGS_DIR for convenience at call sites)
+save_table <- function(plot, filename, width = 10, height = 7) {
+    save_pdf(plot, file.path(FIGS_DIR, filename), width, height)
 }
 
 # Color palettes
@@ -92,13 +80,15 @@ pal_nf <- viridis::viridis(3, option = "D", end = 0.85) # COMP/AUTO/RELT
 # =============================================================================
 log_msg("=== [1] Loading data ===")
 
-df_raw <- readr::read_csv(
-    here::here(
-        "analysis", "run_synthetic_data", "data", "export",
-        "syn_qualtrics_fct_panel_responses_20260308.csv"
-    ),
-    show_col_types = TRUE
+export_files <- list.files(
+    here::here("analysis", "run_synthetic_data", "data", "export"),
+    pattern = "^syn_qualtrics_fct_panel_responses_.*\\.csv$",
+    full.names = TRUE
 )
+if (length(export_files) == 0) stop("No export CSV found in data/export/")
+export_path <- sort(export_files, decreasing = TRUE)[1]
+log_msg("Loading: ", basename(export_path))
+df_raw <- readr::read_csv(export_path, show_col_types = TRUE)
 log_msg("Loaded: ", nrow(df_raw), " rows x ", ncol(df_raw), " columns")
 
 tbls <- list()
@@ -200,7 +190,7 @@ if (any(miss_rates$pct_missing > 0)) {
         theme_void() +
         labs(title = "Missing Data Screening: Complete Dataset")
 }
-save_pdf(p_miss, "eda_01_missing_data_pattern.pdf")
+save_fig(p_miss, "eda_01_missing_data_pattern.svg")
 
 
 # --- 1.2 Survey duration diagnostics ----------------------------------------
@@ -217,7 +207,7 @@ p_duration <- tbls$l1 |>
         subtitle = "Dashed lines at 60s (speeder) and 1800s (distracted)",
         x = "Duration (seconds, log scale)", y = "Density"
     )
-save_pdf(p_duration, "eda_02_duration_diagnostics.pdf")
+save_fig(p_duration, "eda_02_duration_diagnostics.svg")
 
 
 # --- 1.3 Univariate distributions: density + QQ -----------------------------
@@ -241,7 +231,7 @@ l1_dist_plots <- purrr::map(
 )
 p_l1_dists <- patchwork::wrap_plots(l1_dist_plots, ncol = 1) +
     patchwork::plot_annotation(title = "L1 Variable Distributions (Pooled)")
-save_pdf(p_l1_dists, "eda_03a_l1_univariate_distributions.pdf",
+save_fig(p_l1_dists, "eda_03a_l1_univariate_distributions.svg",
     width = 12, height = 30
 )
 
@@ -252,7 +242,7 @@ l2_dist_plots <- purrr::map(
 )
 p_l2_dists <- patchwork::wrap_plots(l2_dist_plots, ncol = 1) +
     patchwork::plot_annotation(title = "L2 Variable Distributions (Person-Level)")
-save_pdf(p_l2_dists, "eda_03b_l2_univariate_distributions.pdf",
+save_fig(p_l2_dists, "eda_03b_l2_univariate_distributions.svg",
     width = 12, height = 18
 )
 
@@ -303,7 +293,7 @@ print(as.data.frame(all_desc))
 cat("\n=== Floor/Ceiling (L1 Scales) ===\n")
 print(as.data.frame(floor_ceil))
 
-# Save as PDF table
+# Save as SVG table
 desc_grob <- gridExtra::tableGrob(all_desc,
     rows = NULL,
     theme = gridExtra::ttheme_minimal(base_size = 8)
@@ -311,7 +301,7 @@ desc_grob <- gridExtra::tableGrob(all_desc,
 p_desc <- cowplot::ggdraw() +
     cowplot::draw_grob(desc_grob) +
     labs(title = "Descriptive Statistics: All Scales")
-save_pdf(p_desc, "eda_04_descriptive_statistics.pdf", width = 12, height = 8)
+save_table(p_desc, "eda_04_descriptive_statistics.pdf", width = 12, height = 8)
 
 
 # --- 1.5 Mahalanobis distance (L2) ------------------------------------------
@@ -347,7 +337,7 @@ p_mahal <- ggplot(tibble::tibble(md = sort(md)), aes(sample = md)) +
         ),
         x = "Chi-squared Quantiles", y = "Mahalanobis Distance"
     )
-save_pdf(p_mahal, "eda_05_mahalanobis_l2.pdf")
+save_fig(p_mahal, "eda_05_mahalanobis_l2.svg")
 
 
 # --- 1.6 Marker variable (ATCB) diagnostics ---------------------------------
@@ -376,7 +366,7 @@ p_atcb <- atcb_cors |>
         subtitle = "Dashed lines at r = +/- .10 (Lindell & Whitney threshold)",
         x = NULL, y = "Pearson r"
     )
-save_pdf(p_atcb, "eda_06_marker_variable_diagnostics.pdf")
+save_fig(p_atcb, "eda_06_marker_variable_diagnostics.svg")
 
 
 # =============================================================================
@@ -409,7 +399,7 @@ demo_plots <- purrr::map2(
 )
 p_demos <- patchwork::wrap_plots(demo_plots, ncol = 2) +
     patchwork::plot_annotation(title = "Sample Demographics (N = 800)")
-save_pdf(p_demos, "eda_07_demographic_distributions.pdf", width = 14, height = 10)
+save_fig(p_demos, "eda_07_demographic_distributions.svg", width = 14, height = 10)
 
 
 # --- 2.2 Age distribution ---------------------------------------------------
@@ -436,7 +426,7 @@ p_age <- ggplot(tbls$l2, aes(x = age)) +
         )
     ) +
     labs(title = "Age Distribution", x = "Age (years)", y = "Density")
-save_pdf(p_age, "eda_08_age_distribution.pdf")
+save_fig(p_age, "eda_08_age_distribution.svg")
 
 
 # --- 2.3 Cross-tabulations --------------------------------------------------
@@ -462,7 +452,7 @@ p_cross_2 <- tbls$l2 |>
 
 p_crosstabs <- p_cross_1 / p_cross_2 +
     patchwork::plot_annotation(title = "Demographic Cross-Tabulations")
-save_pdf(p_crosstabs, "eda_09_demographic_crosstabs.pdf", height = 10)
+save_fig(p_crosstabs, "eda_09_demographic_crosstabs.svg", height = 10)
 
 
 # --- 2.4 APA-Style Table 1 --------------------------------------------------
@@ -489,7 +479,7 @@ cont_summary <- tbls$l2 |>
     dplyr::select(variable, n, mean, sd) |>
     dplyr::mutate(across(c(mean, sd), ~ round(., 2)))
 
-# Render to PDF
+# Render to SVG
 t1_cat_grob <- gridExtra::tableGrob(cat_summary,
     rows = NULL,
     theme = gridExtra::ttheme_minimal(base_size = 8)
@@ -539,7 +529,7 @@ p_raincloud <- tbls$l1 |>
         title = "L1 Scale Distributions by Timepoint (Raincloud Plots)",
         x = "Timepoint", y = "Scale Mean"
     )
-save_pdf(p_raincloud, "eda_11_l1_raincloud_by_timepoint.pdf",
+save_fig(p_raincloud, "eda_11_l1_raincloud_by_timepoint.svg",
     width = 14, height = 10
 )
 
@@ -563,7 +553,7 @@ p_ridge_burn <- tbls$l1 |>
         title = "Burnout Subscale Distributions (SMBM)",
         x = "Scale Mean", y = NULL
     )
-save_pdf(p_ridge_burn, "eda_12a_burnout_ridgelines.pdf", width = 8, height = 5)
+save_fig(p_ridge_burn, "eda_12a_burnout_ridgelines.svg", width = 8, height = 5)
 
 p_ridge_nf <- tbls$l1 |>
     tidyr::pivot_longer(
@@ -581,7 +571,7 @@ p_ridge_nf <- tbls$l1 |>
         title = "Need Frustration Subscale Distributions (PNTS)",
         x = "Scale Mean", y = NULL
     )
-save_pdf(p_ridge_nf, "eda_12b_need_frustration_ridgelines.pdf",
+save_fig(p_ridge_nf, "eda_12b_need_frustration_ridgelines.svg",
     width = 8, height = 5
 )
 
@@ -606,22 +596,27 @@ p_l2_dist <- tbls$l2 |>
         title = "L2 Scale Distributions (Person-Level)",
         x = NULL, y = "Scale Mean"
     )
-save_pdf(p_l2_dist, "eda_13_l2_distributions.pdf")
+save_fig(p_l2_dist, "eda_13_l2_distributions.svg")
 
 
 # --- 3.4 Skewness/Kurtosis diagnostic panel ---------------------------------
 log_msg("  3.4 Skewness/kurtosis panel")
 
-all_sk <- dplyr::bind_rows(
-    psych::describe(tbls$l1 |> dplyr::select(all_of(l1_all_vars))) |>
-        as.data.frame() |>
-        tibble::rownames_to_column("var") |>
-        dplyr::mutate(level = "L1"),
-    psych::describe(tbls$l2 |> dplyr::select(all_of(l2_cont_vars))) |>
-        as.data.frame() |>
-        tibble::rownames_to_column("var") |>
-        dplyr::mutate(level = "L2")
-)
+sk_l1 <- tbls$l1 |>
+    dplyr::select(all_of(l1_all_vars)) |>
+    psych::describe() |>
+    as.data.frame() |>
+    tibble::rownames_to_column("var") |>
+    dplyr::mutate(level = "L1")
+
+sk_l2 <- tbls$l2 |>
+    dplyr::select(all_of(l2_cont_vars)) |>
+    psych::describe() |>
+    as.data.frame() |>
+    tibble::rownames_to_column("var") |>
+    dplyr::mutate(level = "L2")
+
+all_sk <- dplyr::bind_rows(sk_l1, sk_l2)
 
 p_sk <- ggplot(all_sk, aes(
     x = skew, y = reorder(var, skew),
@@ -636,7 +631,7 @@ p_sk <- ggplot(all_sk, aes(
         subtitle = "Dashed lines at skewness = ±2 (Curran et al., 1996)",
         x = "Skewness", y = NULL
     )
-save_pdf(p_sk, "eda_14_skew_kurtosis_panel.pdf")
+save_fig(p_sk, "eda_14_skew_kurtosis_panel.svg")
 
 
 # =============================================================================
@@ -680,7 +675,7 @@ print(as.data.frame(icc_results))
 readr::write_csv(icc_results, file.path(FIGS_DIR, "eda_15_icc_table.csv"))
 log_msg("Saved: ", file.path(FIGS_DIR, "eda_15_icc_table.csv"))
 
-# Render ICC table as PDF
+# Render ICC table as SVG
 icc_display <- icc_results |>
     dplyr::mutate(across(where(is.numeric), ~ round(., 3)))
 icc_grob <- gridExtra::tableGrob(icc_display,
@@ -720,7 +715,7 @@ p_icc <- ggplot(
         subtitle = "Dashed lines correspond to power analysis ICC scenarios",
         x = NULL, y = "ICC (Adjusted)"
     )
-save_pdf(p_icc, "eda_16_icc_barchart.pdf")
+save_fig(p_icc, "eda_16_icc_barchart.svg")
 
 
 # --- 4.3 Variance decomposition (stacked bar) -------------------------------
@@ -747,7 +742,7 @@ p_vardecomp <- icc_results |>
         title = "Variance Decomposition: Within vs. Between Person",
         x = NULL, y = "Proportion of Total Variance"
     )
-save_pdf(p_vardecomp, "eda_17_variance_decomposition.pdf")
+save_fig(p_vardecomp, "eda_17_variance_decomposition.svg")
 
 
 # --- 4.4 Spaghetti plots (individual trajectories) --------------------------
@@ -798,7 +793,7 @@ p_spaghetti <- patchwork::wrap_plots(spaghetti_plots, ncol = 4) +
     patchwork::plot_annotation(
         title = "Individual Trajectories (All Participants) + Group Mean"
     )
-save_pdf(p_spaghetti, "eda_18_spaghetti_plots.pdf", width = 16, height = 10)
+save_fig(p_spaghetti, "eda_18_spaghetti_plots.svg", width = 16, height = 10)
 
 
 # --- 4.5 Person-level SD distributions --------------------------------------
@@ -832,7 +827,7 @@ p_person_sd <- person_sds |>
         subtitle = "Higher values = more within-person fluctuation",
         x = "Person SD (across 3 timepoints)", y = "Density"
     )
-save_pdf(p_person_sd, "eda_19_person_sd_distributions.pdf", width = 14, height = 8)
+save_fig(p_person_sd, "eda_19_person_sd_distributions.svg", width = 14, height = 8)
 
 
 # --- 4.6 Random intercept distributions -------------------------------------
@@ -852,7 +847,7 @@ p_ri <- ggplot(ri_dfs, aes(x = random_intercept, fill = variable)) +
         title = "Random Intercept Distributions (Unconditional Models)",
         x = "Random Intercept (BLUP)", y = "Density"
     )
-save_pdf(p_ri, "eda_20_random_intercept_distributions.pdf",
+save_fig(p_ri, "eda_20_random_intercept_distributions.svg",
     width = 14, height = 8
 )
 
@@ -891,7 +886,7 @@ p_cwc <- tbls$l1_cwc |>
         subtitle = "Deviations from each person's mean across 3 timepoints",
         x = "CWC Score", y = "Density"
     )
-save_pdf(p_cwc, "eda_21_cwc_distributions.pdf", width = 14, height = 8)
+save_fig(p_cwc, "eda_21_cwc_distributions.svg", width = 14, height = 8)
 
 
 # --- 5.2 Timepoint-level means with SE bands --------------------------------
@@ -923,7 +918,7 @@ p_tp_means <- ggplot(
         title = "Scale Means by Timepoint (with 95% CI)",
         x = "Timepoint", y = "Mean"
     )
-save_pdf(p_tp_means, "eda_22_timepoint_means.pdf", width = 14, height = 8)
+save_fig(p_tp_means, "eda_22_timepoint_means.svg", width = 14, height = 8)
 
 
 # --- 5.3 Trajectory clustering (exploratory) --------------------------------
@@ -971,7 +966,7 @@ p_cluster <- tbls$l1 |>
         subtitle = "K-means (k=3) on person-level mean, SD, and slope",
         x = "Timepoint", y = "Turnover Intention"
     )
-save_pdf(p_cluster, "eda_23_trajectory_clusters.pdf")
+save_fig(p_cluster, "eda_23_trajectory_clusters.svg")
 
 
 # --- 5.4 Lag-1 autocorrelations within persons ------------------------------
@@ -1006,7 +1001,7 @@ p_lag1 <- lag1_cors |>
         subtitle = "Each bar = number of persons with that autocorrelation",
         x = "Lag-1 Autocorrelation", y = "Count"
     )
-save_pdf(p_lag1, "eda_24_lag1_autocorrelations.pdf", width = 14, height = 8)
+save_fig(p_lag1, "eda_24_lag1_autocorrelations.svg", width = 14, height = 8)
 
 
 # =============================================================================
@@ -1021,7 +1016,7 @@ l2_cor_data <- tbls$l2 |>
     dplyr::select(age, all_of(l2_cont_vars))
 l2_cor_mat <- cor(l2_cor_data, use = "complete.obs")
 
-pdf(file.path(FIGS_DIR, "eda_25_l2_correlation_matrix.pdf"),
+svg(file.path(FIGS_DIR, "eda_25_l2_correlation_matrix.svg"),
     width = 9, height = 9
 )
 corrplot::corrplot(l2_cor_mat,
@@ -1032,7 +1027,7 @@ corrplot::corrplot(l2_cor_mat,
     mar = c(0, 0, 2, 0)
 )
 dev.off()
-log_msg("Saved: ", file.path(FIGS_DIR, "eda_25_l2_correlation_matrix.pdf"))
+log_msg("Saved: ", file.path(FIGS_DIR, "eda_25_l2_correlation_matrix.svg"))
 
 
 # --- 6.2 Within-person (CWC) scatterplots -----------------------------------
@@ -1062,7 +1057,7 @@ p_cwc_scatter <- patchwork::wrap_plots(cwc_scatter_plots, ncol = 3) +
         title = "Within-Person (CWC) Bivariate Relationships with Turnover Intention",
         subtitle = "Person-mean centered scores isolate within-person associations"
     )
-save_pdf(p_cwc_scatter, "eda_26_cwc_scatterplots.pdf", width = 12, height = 8)
+save_fig(p_cwc_scatter, "eda_26_cwc_scatterplots.svg", width = 12, height = 8)
 
 
 # --- 6.3 Cross-level scatterplots -------------------------------------------
@@ -1098,7 +1093,7 @@ p_xlvl <- patchwork::wrap_plots(xlvl_plots, ncol = 3) +
         title = "Cross-Level: L2 Moderators vs. Person-Mean Turnover Intention",
         subtitle = "Blue = LOESS, Red dashed = linear fit"
     )
-save_pdf(p_xlvl, "eda_27_crosslevel_scatterplots.pdf", width = 14, height = 5)
+save_fig(p_xlvl, "eda_27_crosslevel_scatterplots.svg", width = 14, height = 5)
 
 
 # --- 6.4 Repeated-measures correlation (rmcorr) key pairs --------------------
@@ -1111,7 +1106,7 @@ rmc_pairs <- list(
     c("auto_mean", "turnover_intention_mean")
 )
 
-pdf(file.path(FIGS_DIR, "eda_28_rmcorr_key_pairs.pdf"),
+svg(file.path(FIGS_DIR, "eda_28_rmcorr_key_pairs.svg"),
     width = 12, height = 10
 )
 par(mfrow = c(2, 2))
@@ -1130,7 +1125,7 @@ for (pair in rmc_pairs) {
     )
 }
 dev.off()
-log_msg("Saved: ", file.path(FIGS_DIR, "eda_28_rmcorr_key_pairs.pdf"))
+log_msg("Saved: ", file.path(FIGS_DIR, "eda_28_rmcorr_key_pairs.svg"))
 
 
 # --- 6.5 Three-way correlation comparison -----------------------------------
@@ -1190,7 +1185,7 @@ readr::write_csv(
 )
 log_msg("Saved: ", file.path(FIGS_DIR, "eda_29_correlation_comparison.csv"))
 
-# Render as PDF table
+# Render as SVG table
 cc_grob <- gridExtra::tableGrob(
     corr_compare,
     rows = NULL,
@@ -1352,7 +1347,7 @@ p_resid <- (p_qq_l1 + p_resid_fit) / (p_qq_l2 + p_scale_loc) +
     patchwork::plot_annotation(
         title = "Residual Diagnostics: Turnover Intention (Unconditional Means)"
     )
-save_pdf(p_resid, "eda_32_residual_diagnostics_ti.pdf", width = 10, height = 10)
+save_fig(p_resid, "eda_32_residual_diagnostics_ti.svg", width = 10, height = 10)
 
 
 # --- 7.4 Influence diagnostics ----------------------------------------------
@@ -1373,21 +1368,23 @@ p_influence <- tryCatch(
     error = function(e) {
         # Fallback: manual Cook's D via residuals
         cooks_d <- cooks.distance(fit_ti_biv)
-        ggplot(tibble::tibble(obs = seq_along(cooks_d), cooksd = cooks_d),
-            aes(x = obs, y = cooksd)) +
+        ggplot(
+            tibble::tibble(obs = seq_along(cooks_d), cooksd = cooks_d),
+            aes(x = obs, y = cooksd)
+        ) +
             geom_point(alpha = 0.3) +
             geom_hline(
-                yintercept = 4 / nrow(tbls$l1), 
-                linetype = "dashed", 
+                yintercept = 4 / nrow(tbls$l1),
+                linetype = "dashed",
                 color = "red"
-                ) +
+            ) +
             labs(
                 title = "Cook's Distance (PF → TI)",
                 x = "Observation", y = "Cook's Distance"
             )
     }
 )
-save_pdf(p_influence, "eda_33_influence_diagnostics.pdf")
+save_fig(p_influence, "eda_33_influence_diagnostics.svg")
 
 
 # =============================================================================
@@ -1439,7 +1436,7 @@ p_sao <- patchwork::wrap_plots(sao_plots, ncol = 3) +
         title = "Slope-as-Outcome: Within-Person Slopes vs. L2 Moderators",
         subtitle = "Each point = one person's OLS slope of L1 predictor → TI"
     )
-save_pdf(p_sao, "eda_34_slope_as_outcome.pdf", width = 14, height = 16)
+save_fig(p_sao, "eda_34_slope_as_outcome.svg", width = 14, height = 16)
 
 
 # --- 8.2 Conditional means panels (simple slopes preview) --------------------
@@ -1478,21 +1475,21 @@ make_cond_panel <- function(data, l1_preds, moderator_col, mod_label) {
 p_cond_br <- make_cond_panel(
     tbls$full, l1_preds, "br_tertile", "Breach Level"
 )
-save_pdf(p_cond_br, "eda_35_conditional_slopes_breach.pdf",
+save_fig(p_cond_br, "eda_35_conditional_slopes_breach.svg",
     width = 14, height = 10
 )
 
 p_cond_vio <- make_cond_panel(
     tbls$full, l1_preds, "vio_tertile", "Violation Level"
 )
-save_pdf(p_cond_vio, "eda_36_conditional_slopes_violation.pdf",
+save_fig(p_cond_vio, "eda_36_conditional_slopes_violation.svg",
     width = 14, height = 10
 )
 
 p_cond_js <- make_cond_panel(
     tbls$full, l1_preds, "js_tertile", "Job Satisfaction Level"
 )
-save_pdf(p_cond_js, "eda_37_conditional_slopes_js.pdf",
+save_fig(p_cond_js, "eda_37_conditional_slopes_js.svg",
     width = 14, height = 10
 )
 
@@ -1508,7 +1505,7 @@ heat_mat <- cor(
 )
 rownames(heat_mat) <- stringr::str_remove(slope_cols, "slope_")
 
-pdf(file.path(FIGS_DIR, "eda_38_interaction_heatmap.pdf"),
+svg(file.path(FIGS_DIR, "eda_38_interaction_heatmap.svg"),
     width = 8, height = 6
 )
 corrplot::corrplot(heat_mat,
@@ -1519,7 +1516,7 @@ corrplot::corrplot(heat_mat,
     mar = c(0, 0, 3, 0)
 )
 dev.off()
-log_msg("Saved: ", file.path(FIGS_DIR, "eda_38_interaction_heatmap.pdf"))
+log_msg("Saved: ", file.path(FIGS_DIR, "eda_38_interaction_heatmap.svg"))
 
 
 # =============================================================================
@@ -1527,7 +1524,8 @@ log_msg("Saved: ", file.path(FIGS_DIR, "eda_38_interaction_heatmap.pdf"))
 # =============================================================================
 log_msg("=== EDA COMPLETE ===")
 log_msg("Output directory: ", FIGS_DIR)
-log_msg("Total PDFs generated: 38")
+log_msg("Total SVGs generated: 32 (figures)")
+log_msg("Total PDFs generated: 6 (tables)")
 log_msg("Total CSVs generated: 2")
 cat("\n=== File Listing ===\n")
-list.files(FIGS_DIR, pattern = "\\.(pdf|csv)$") |> sort() |> cat(sep = "\n")
+list.files(FIGS_DIR, pattern = "\\.(svg|pdf|csv)$") |> sort() |> cat(sep = "\n")
