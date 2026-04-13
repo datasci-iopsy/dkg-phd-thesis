@@ -128,7 +128,7 @@ l1_marker_var <- "atcb_mean"
 l1_all_center <- l1_predictor_vars
 
 l2_study_vars <- c("pa_mean", "na_mean", "br_mean", "vio_mean", "js_mean")
-l2_demo_vars <- c("age", "gender", "job_tenure", "is_remote")
+l2_demo_vars <- c("age", "gender", "job_tenure", "is_remote", "edu_lvl", "ethnicity")
 
 dv <- "turnover_intention_mean"
 
@@ -195,7 +195,9 @@ df <- df |>
         age_c      = age - mean(age, na.rm = TRUE),
         gender     = factor(gender),
         job_tenure = factor(job_tenure),
-        is_remote  = as.integer(is_remote)
+        is_remote  = as.integer(is_remote),
+        edu_lvl    = factor(edu_lvl),
+        ethnicity  = factor(ethnicity)
     )
 
 # 2e. Phase 6 composites (burnout_mean, nf_mean) — used exclusively in M7a/M7b
@@ -285,7 +287,7 @@ check_assumptions <- function(fit, model_name) {
 
     filename <- paste0(
         "mlm_diag_",
-        tolower(gsub(" ", "_", model_name)), ".svg"
+        gsub("[^a-z0-9]+", "_", tolower(model_name)), ".svg"
     )
     save_fig(combined, filename, width = 12, height = 9)
 }
@@ -689,11 +691,15 @@ m5_summary <- extract_model_summary(
 # [10] MODEL 6: DEMOGRAPHIC COVARIATES — DATA-DRIVEN SELECTION
 # =============================================================================
 log_msg("=== [10] Model 6: Demographic Covariates (data-driven selection) ===")
-log_msg("  Per Bernerth & Aguinis (2016): screen via bivariate associations")
-log_msg("  Primary candidates: age (age_c), job_tenure; exploratory: gender, is_remote")
+log_msg("  Mandatory controls (theory-justified): age_c, job_tenure")
+log_msg("  Screened via Bernerth & Aguinis (2016): gender, is_remote, edu_lvl, ethnicity")
+log_msg("  Note: pa_mean_c / na_mean_c already entered in Model 5 as affect controls")
 
-# 10a. Bivariate screening: correlate candidates with the person-level DV mean
+# 10a. Bivariate screening: correlate screened candidates with person-level DV mean
 #      (use person-level data to avoid inflation from repeated occasions)
+mandatory_covs <- c("age_c", "job_tenure")
+screened_candidates <- c("gender", "is_remote", "edu_lvl", "ethnicity")
+
 df_bp <- df |>
     dplyr::group_by(response_id) |>
     dplyr::summarise(
@@ -702,13 +708,15 @@ df_bp <- df |>
         gender     = dplyr::first(gender),
         job_tenure = dplyr::first(job_tenure),
         is_remote  = dplyr::first(is_remote),
+        edu_lvl    = dplyr::first(edu_lvl),
+        ethnicity  = dplyr::first(ethnicity),
         .groups = "drop"
     )
 
 cov_screen <- select_covariates_bivariate(
     df_bp,
-    dv         = "ti_mean",
-    candidates = c("age_c", "gender", "job_tenure", "is_remote"),
+    dv          = "ti_mean",
+    candidates  = screened_candidates,
     r_threshold = 0.10
 )
 
@@ -736,7 +744,8 @@ readr::write_csv(
 )
 log_msg("  Saved covariate screening CSV")
 
-# 10b. Build M6 formula dynamically
+# 10b. Build M6 formula: mandatory controls always included; screened covariates
+#      added only if they pass the |r| >= .10 threshold
 m5_base_terms <- paste(
     "turnover_intention_mean ~ time_c +",
     "pf_mean_within + cw_mean_within + ee_mean_within +",
@@ -748,30 +757,26 @@ m5_base_terms <- paste(
     "pa_mean_c + na_mean_c + br_mean_c + vio_mean_c + js_mean_c"
 )
 
-if (length(cov_screen$selected) == 0) {
-    log_msg("  No covariates passed screen; M6 = M5 (no new model fit)")
-    m6_reml <- m5_reml
-    m6_ml   <- m5_ml
-    lrt_6v5 <- tibble::tibble(
-        comparison = "Model 6 vs Model 5",
-        chi_sq = NA_real_, df = NA_real_, p_value = NA_real_
-    )
-    fe6 <- fe5
-} else {
-    cov_terms <- paste(cov_screen$selected, collapse = " + ")
-    m6_formula <- as.formula(paste(m5_base_terms, "+", cov_terms, "+", re_term))
-    log_msg("  Formula: ", deparse(m6_formula, width.cutoff = 200))
+all_m6_covs <- c(mandatory_covs, cov_screen$selected)
+log_msg("  Mandatory covariates entered: ", paste(mandatory_covs, collapse = ", "))
+log_msg("  Screened covariates added (|r| >= .10): ",
+    if (length(cov_screen$selected) > 0) paste(cov_screen$selected, collapse = ", ")
+    else "none"
+)
 
-    m6_reml <- safe_lmer(m6_formula, data = df, REML = TRUE)
-    m6_ml   <- safe_lmer(m6_formula, data = df, REML = FALSE)
+cov_terms  <- paste(all_m6_covs, collapse = " + ")
+m6_formula <- as.formula(paste(m5_base_terms, "+", cov_terms, "+", re_term))
+log_msg("  Formula: ", deparse(m6_formula, width.cutoff = 200))
 
-    lrt_6v5 <- compare_models(m5_ml, m6_ml, "Model 5", "Model 6")
-    log_msg(
-        "  LRT Model 6 vs 5: chi2 = ", round(lrt_6v5$chi_sq, 3),
-        ", df = ", lrt_6v5$df, ", p = ", format.pval(lrt_6v5$p_value, digits = 4)
-    )
-    fe6 <- broom.mixed::tidy(m6_reml, effects = "fixed", conf.int = TRUE)
-}
+m6_reml <- safe_lmer(m6_formula, data = df, REML = TRUE)
+m6_ml   <- safe_lmer(m6_formula, data = df, REML = FALSE)
+
+lrt_6v5 <- compare_models(m5_ml, m6_ml, "Model 5", "Model 6")
+log_msg(
+    "  LRT Model 6 vs 5: chi2 = ", round(lrt_6v5$chi_sq, 3),
+    ", df = ", lrt_6v5$df, ", p = ", format.pval(lrt_6v5$p_value, digits = 4)
+)
+fe6 <- broom.mixed::tidy(m6_reml, effects = "fixed", conf.int = TRUE)
 
 # 10c. Coefficient stability: flag >20% change in substantive effects
 log_msg("  Checking stability of substantive effects (Model 5 -> 6):")
