@@ -142,6 +142,7 @@ make gcp_pubsub_up                         # Pub/Sub topics
 make gcp_deploy FN=run_qualtrics_scheduling
 make gcp_deploy FN=run_intake_confirmation
 make gcp_deploy FN=run_followup_scheduling
+make gcp_deploy FN=run_followup_response
 make gcp_gateway_up                        # API Gateway (last — needs functions deployed)
 ```
 

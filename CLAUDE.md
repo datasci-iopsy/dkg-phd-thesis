@@ -46,7 +46,7 @@ python gcp/deploy/manage_compute.py setup|status|ssh|scp|teardown  # Compute Eng
 
 Four Cloud Run functions: `run_qualtrics_scheduling` (HTTP) → `run_intake_confirmation` (Pub/Sub) → `run_followup_scheduling` (Pub/Sub) form the scheduling chain. `run_followup_response` (HTTP) is a terminal inbound endpoint — Qualtrics posts completed followup survey responses (9AM/1PM/5PM) directly to it; it validates and writes to BigQuery with no downstream publishing. API Gateway fronts function 1 with `x-api-key` validation and IAM JWT injection.
 
-Power analysis: `main.sh` → `run_power_analysis.r` → parallel `simr` simulations (Arend & Schafer 2019). Dev: 3 combos × 10 sims. Prod: 3,645 cells × 1,000 sims on GCP `c3-highcpu-176`.
+Power analysis: `main.sh` → `run_power_analysis.R` → parallel `simr` simulations (Arend & Schafer 2019). Dev: 3 combos × 10 sims. Prod (local): 1,215 cells × 1,000 sims. Prod GCP (`prod_gcp`): 3,645 cells × 1,000 sims on `c3-highcpu-176`.
 
 ## Dependency freeze
 
@@ -64,7 +64,8 @@ Both lock files are frozen against accidental changes. Guardrails in place:
 
 After Python changes: `poetry check --lock` → `poetry run pytest gcp/tests/ -v` → `ruff check . && ruff format --check .` → `sqlfmt --check .`
 After R changes: `bash analysis/tests/validate_r_structure.sh`
-Schema changes: `models/qualtrics.py` → `bq_schemas.py` → `web_service_payload.json` → `test_models.py` → `manage_infra.py teardown/setup`
+Schema changes (intake): `models/qualtrics.py` → `bq_schemas.py` → `web_service_payload.json` → `test_models.py` → `manage_infra.py teardown/setup`
+Schema changes (followup): `models/followup.py` → `bq_schemas.py` → `followup_web_service_payload.json` → `test_followup_response.py` → `manage_infra.py teardown/setup`
 
 ## Workflow
 

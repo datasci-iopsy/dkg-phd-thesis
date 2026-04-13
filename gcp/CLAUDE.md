@@ -55,7 +55,8 @@ python gcp/deploy/manage_compute.py teardown         # delete VM (warns if resul
 
 ## Schema change workflow
 
-`models/qualtrics.py` → `bq_schemas.py` → `web_service_payload.json` fixture → `test_models.py` → `manage_infra.py teardown` → `manage_infra.py setup`
+Intake: `models/qualtrics.py` → `bq_schemas.py` → `web_service_payload.json` fixture → `test_models.py` → `manage_infra.py teardown` → `manage_infra.py setup`
+Followup: `models/followup.py` → `bq_schemas.py` → `followup_web_service_payload.json` fixture → `test_followup_response.py` → `manage_infra.py teardown` → `manage_infra.py setup`
 
 Schema changes require BQ table teardown/recreate (streaming API limitation).
 
