@@ -3,7 +3,6 @@
 # analysis/run_synthetic_data/scripts/r/eda.R
 #
 # Comprehensive Exploratory Data Analysis for the synthetic panel dataset.
-# Comprehensive Exploratory Data Analysis for the synthetic panel dataset.
 # Produces publication-quality SVG figures and diagnostic tables across 8
 # phases: screening, demographics, distributions, multilevel structure,
 # within-person dynamics, bivariate relationships, model diagnostics, and
