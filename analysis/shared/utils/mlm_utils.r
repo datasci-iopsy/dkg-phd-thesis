@@ -95,7 +95,18 @@ safe_lmer <- function(formula, data, REML = TRUE, ctrl = NULL) {
 #'
 extract_model_summary <- function(fit, model_name) {
     if (is.null(fit)) {
-        return(tibble::tibble(model = model_name, note = "Model failed to converge"))
+        null_result <- list(
+            fixed  = tibble::tibble(),
+            random = tibble::tibble(),
+            fit    = NULL,
+            r2     = tibble::tibble(
+                model           = model_name,
+                R2_marginal     = NA_real_,
+                R2_conditional  = NA_real_
+            )
+        )
+        attr(null_result, "note") <- paste0(model_name, ": Model failed to converge")
+        return(null_result)
     }
 
     fe <- broom.mixed::tidy(fit,
@@ -314,8 +325,9 @@ compute_level_specific_es <- function(fit, model_name) {
 
     vc <- as.data.frame(VarCorr(fit))
     sigma_val <- sqrt(vc$vcov[vc$grp == "Residual"])
+    grp_name <- unique(vc$grp[vc$grp != "Residual"])[1]
     tau_00_row <- vc$vcov[
-        vc$grp == "response_id" & vc$var1 == "(Intercept)" & is.na(vc$var2)
+        vc$grp == grp_name & vc$var1 == "(Intercept)" & is.na(vc$var2)
     ]
     tau_00_sd <- if (length(tau_00_row) > 0) sqrt(tau_00_row) else NA_real_
 
@@ -370,7 +382,6 @@ compute_delta_r2 <- function(comparison_tbl) {
     denom <- if (r2_full < 1) (1 - r2_full) else NA_real_
 
     comparison_tbl |>
-        dplyr::arrange(match(Model, comparison_tbl$Model)) |>
         dplyr::mutate(
             delta_R2_marginal = R2_marginal - dplyr::lag(R2_marginal, default = 0),
             delta_R2_conditional = R2_conditional -
@@ -409,6 +420,18 @@ compute_delta_r2 <- function(comparison_tbl) {
 #'
 verify_centering <- function(df, id_col, within_vars) {
     within_vars <- intersect(within_vars, names(df))
+
+    if (length(within_vars) == 0) {
+        return(list(
+            table         = tibble::tibble(
+                variable      = NA_character_,
+                max_deviation = NA_real_,
+                pass          = FALSE
+            ),
+            max_deviation = NA_real_,
+            all_pass      = FALSE
+        ))
+    }
 
     wp_check <- df |>
         dplyr::group_by(.data[[id_col]]) |>
@@ -449,8 +472,10 @@ verify_centering <- function(df, id_col, within_vars) {
 #' Computes the bivariate association between each candidate covariate and the
 #' dependent variable:
 #'   - Continuous covariates: Pearson r via cor.test()
-#'   - Factor / character covariates: eta-squared from one-way ANOVA
-#'     (sqrt(eta2) reported as r-equivalent for comparability)
+#'   - Factor / character covariates: eta-squared from one-way ANOVA;
+#'     r = sqrt(eta2), which is always non-negative (unsigned effect size).
+#'     Continuous rows carry a signed Pearson r from cor.test().
+#'     The selection filter uses abs(r) so both types are handled correctly.
 #'
 #' Returns candidates with |r| >= r_threshold as selected.
 #'
