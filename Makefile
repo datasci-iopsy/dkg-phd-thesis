@@ -25,11 +25,11 @@ FN ?= run_qualtrics_scheduling
         power_visual \
         synthetic_analysis synthetic_eda synthetic_measurement \
         synthetic_mlm synthetic_correlation \
-        py_install py_lint py_format py_sqlfmt py_test \
+        py_lint py_format py_sqlfmt py_test \
         gcp_dev gcp_deploy \
-        gcp_infra_up gcp_infra_down \
-        gcp_gateway_up gcp_gateway_test gcp_gateway_down \
-        gcp_pubsub_up gcp_pubsub_down \
+        gcp_infra_up gcp_infra_status gcp_infra_down \
+        gcp_gateway_up gcp_gateway_status gcp_gateway_test gcp_gateway_down \
+        gcp_pubsub_up gcp_pubsub_status gcp_pubsub_down \
         gcp_compute_up gcp_compute_status gcp_compute_ssh \
         gcp_compute_scp gcp_compute_down \
         setup_hooks \
@@ -94,9 +94,9 @@ help:
 	@echo ""
 	@echo "📊 POWER ANALYSIS  (Arend & Schafer 2019)"
 	@echo "   make power_analysis_dev          Dev grid, foreground (~seconds)"
-	@echo "   make power_analysis_prod         Full local grid, background (~hours)"
-	@echo "   make power_analysis_gcp_benchmark GCP timing probe (14 workers)"
-	@echo "   make power_analysis_gcp_prod     GCP full grid (174 workers)"
+	@echo "   make power_analysis_prod         Full local grid, 1,215 cells, background (~hours)"
+	@echo "   make power_analysis_gcp_benchmark GCP timing probe; prod ~= benchmark x 100"
+	@echo "   make power_analysis_gcp_prod     GCP full grid, 3,645 cells, background"
 	@echo "   make power_visual                Power curve figures (after any run)"
 	@echo ""
 	@echo "🔬 SYNTHETIC DATA ANALYSIS"
@@ -138,25 +138,31 @@ help_gcp:
 	@echo "     run_qualtrics_scheduling   HTTP trigger, fronted by API Gateway"
 	@echo "     run_intake_confirmation    Pub/Sub trigger"
 	@echo "     run_followup_scheduling    Pub/Sub trigger"
+	@echo "     run_followup_response      HTTP trigger, terminal inbound (/followup path)"
 	@echo ""
 	@echo "   Dev server:    make gcp_dev FN=run_qualtrics_scheduling"
 	@echo "   Deploy:        make gcp_deploy FN=run_qualtrics_scheduling"
 	@echo ""
 	@echo "   Infrastructure:"
 	@echo "     make gcp_infra_up          Create BigQuery tables"
+	@echo "     make gcp_infra_status      Show table state"
 	@echo "     make gcp_infra_down        Tear down BigQuery tables"
 	@echo "     make gcp_pubsub_up         Create Pub/Sub topics"
+	@echo "     make gcp_pubsub_status     Show topic state and subscriptions"
 	@echo "     make gcp_pubsub_down       Tear down Pub/Sub topics"
 	@echo ""
 	@echo "   API Gateway:"
 	@echo "     make gcp_gateway_up        Set up API Gateway"
+	@echo "     make gcp_gateway_status    Show current gateway resource state"
 	@echo "     make gcp_gateway_test      End-to-end test (fixed survey times)"
 	@echo "     make gcp_gateway_test NOW=1  E2E test (schedule at now+16/32/48 min)"
 	@echo "     make gcp_gateway_down      Tear down API Gateway"
 	@echo ""
 	@echo "   Schema change workflow:"
-	@echo "     models/qualtrics.py → bq_schemas.py → web_service_payload.json"
-	@echo "     → test_models.py → make gcp_infra_down && make gcp_infra_up"
+	@echo "     Intake:   models/qualtrics.py → bq_schemas.py → web_service_payload.json"
+	@echo "               → test_models.py → make gcp_infra_down && make gcp_infra_up"
+	@echo "     Followup: models/followup.py → bq_schemas.py → followup_web_service_payload.json"
+	@echo "               → test_followup_response.py → make gcp_infra_down && make gcp_infra_up"
 	@echo ""
 
 # ---------------------------------------------------------------------------
@@ -227,7 +233,7 @@ setup_hooks:
 validate:
 	@echo "✅ Running static structure validation (no packages needed)..."
 	@echo ""
-	@cd "$(ROOT)/analysis/tests" && bash validate_r_structure.sh || { \
+	@bash "$(ROOT)/analysis/tests/validate_r_structure.sh" || { \
 		echo ""; \
 		echo "❌ Validation failed. Fix reported issues before running analyses."; \
 		exit 1; \
@@ -389,17 +395,6 @@ synthetic_analysis: synthetic_eda synthetic_correlation synthetic_measurement sy
 # Python Dev
 # ---------------------------------------------------------------------------
 
-py_install:
-	@cd "$(ROOT)" && poetry check --lock || { \
-		echo "❌ poetry.lock is out of sync with pyproject.toml."; \
-		echo "   Run: poetry lock --no-update"; \
-		exit 1; \
-	}
-	@echo "📦 Installing all Python dependency groups..."
-	@cd "$(ROOT)" && poetry install \
-		--with fn-qualtrics-scheduling,fn-intake-confirmation,fn-followup-scheduling,fn-followup-response,dev
-	@echo "✅ Python dependencies installed."
-
 py_lint:
 	@echo "🔍 Running ruff check..."
 	@cd "$(ROOT)" && poetry run ruff check . && echo "✅ ruff check passed"
@@ -442,6 +437,10 @@ gcp_infra_up:
 	@echo "🏗️  Setting up BigQuery tables..."
 	@cd "$(ROOT)" && python gcp/deploy/manage_infra.py setup
 
+gcp_infra_status:
+	@echo "🔍 BigQuery table state..."
+	@cd "$(ROOT)" && python gcp/deploy/manage_infra.py status
+
 gcp_infra_down:
 	@echo "🗑️  Tearing down BigQuery tables..."
 	@cd "$(ROOT)" && python gcp/deploy/manage_infra.py teardown
@@ -449,6 +448,10 @@ gcp_infra_down:
 gcp_gateway_up:
 	@echo "🌐 Setting up API Gateway..."
 	@cd "$(ROOT)" && python gcp/deploy/manage_gateway.py setup
+
+gcp_gateway_status:
+	@echo "🔍 API Gateway resource state..."
+	@cd "$(ROOT)" && python gcp/deploy/manage_gateway.py status
 
 gcp_gateway_test:
 	@echo "🧪 Running end-to-end gateway test..."
@@ -467,6 +470,10 @@ gcp_gateway_down:
 gcp_pubsub_up:
 	@echo "📨 Setting up Pub/Sub topics..."
 	@cd "$(ROOT)" && python gcp/deploy/manage_pubsub.py setup
+
+gcp_pubsub_status:
+	@echo "🔍 Pub/Sub topic state..."
+	@cd "$(ROOT)" && python gcp/deploy/manage_pubsub.py status
 
 gcp_pubsub_down:
 	@echo "🗑️  Tearing down Pub/Sub topics..."
@@ -529,6 +536,7 @@ clean:
 	@find "$(ROOT)" -name "*.tmp" -delete 2>/dev/null || true
 	@find "$(ROOT)" -name ".Rhistory" -delete 2>/dev/null || true
 	@find "$(ROOT)" -name "Rplots.pdf" -delete 2>/dev/null || true
+	@find "$(ROOT)" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 	@echo "✅ Cleanup complete."
 
 welcome:
