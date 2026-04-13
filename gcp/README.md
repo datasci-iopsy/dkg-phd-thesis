@@ -18,7 +18,7 @@ Survey response ETL pipeline for a longitudinal ESM study. Receives Qualtrics We
   - [Dependencies](#dependencies)
   - [Adding a new function](#adding-a-new-function)
 
-Three Cloud Run functions live under `cloud_run_functions/`, each with its own `main.py` and `configs/`. Shared utilities (`bq_schemas.py`, `config_loader.py`, `pubsub_utils.py`, etc.) live in `shared/utils/`. Deployment scripts and YAML configs live in `deploy/`. Tests under `tests/` are fully mocked — no GCP credentials or network access needed.
+Four Cloud Run functions live under `cloud_run_functions/`, each with its own `main.py` and `configs/`. Shared utilities (`bq_schemas.py`, `config_loader.py`, `pubsub_utils.py`, etc.) live in `shared/utils/`. Deployment scripts and YAML configs live in `deploy/`. Tests under `tests/` are fully mocked — no GCP credentials or network access needed.
 
 ## How it works
 
@@ -31,6 +31,8 @@ A participant completes the intake survey in Qualtrics, which triggers a Workflo
 **Function 2: `run_intake_confirmation`** ([main.py](cloud_run_functions/run_intake_confirmation/main.py)) — Pub/Sub trigger on `dkg-intake-processed`. Decodes the CloudEvent message, checks BigQuery for idempotency (`_processed` flag), sends an SMS via Twilio confirming the participant's follow-up schedule, publishes a `FollowupSchedulingMessage` to `dkg-followup-scheduling`, and updates `_processed = TRUE`. If SMS fails, the function raises so Pub/Sub retries with exponential backoff. Malformed messages are acknowledged to prevent infinite retries.
 
 **Function 3: `run_followup_scheduling`** ([main.py](cloud_run_functions/run_followup_scheduling/main.py)) — Pub/Sub trigger on `dkg-followup-scheduling`. Checks the `scheduled_followups` BigQuery table for idempotency (keyed by `response_id`). Builds three survey URLs with participant-specific query parameters (Connect ID, response ID, survey number). Schedules three SMS messages via the Twilio Message Scheduling API — one for each daily time slot (9:00 AM, 1:00 PM, 5:00 PM in the participant's local timezone). Writes scheduling records (Twilio message SIDs) to BigQuery only after all three Twilio calls succeed. A `send_immediately` test flag (set via `manage_gateway.py test --now`) bypasses fixed times and schedules at now+16/32/48 min for rapid end-to-end testing.
+
+**Function 4: `run_followup_response`** ([main.py](cloud_run_functions/run_followup_response/main.py)) — HTTP trigger, fronted by the API Gateway at the `/followup` path. This is the terminal inbound endpoint for completed ESM survey responses. All three daily surveys (9AM/1PM/5PM) POST to this endpoint; the `timepoint` field in the payload distinguishes them. Validates the incoming JSON against `FollowupWebServicePayload` (a Pydantic model in `models/followup.py`) and writes to the `followup_raw` BigQuery table via `FOLLOWUP_RESPONSES_SCHEMA`. No Twilio, no Pub/Sub publishing. Validation failures return 400; successful writes return 200 with `response_id` and `timepoint`.
 
 ## CLI tools
 
@@ -312,6 +314,7 @@ Dependencies are managed by Poetry with dependency groups:
 - `fn-qualtrics-scheduling`: Intake webhook (Flask, functions-framework, google-cloud-bigquery, google-cloud-pubsub).
 - `fn-intake-confirmation`: SMS confirmation (functions-framework, google-cloud-bigquery, twilio, cloudevents).
 - `fn-followup-scheduling`: Follow-up SMS scheduling (functions-framework, google-cloud-bigquery, twilio, cloudevents).
+- `fn-followup-response`: Followup response ingestion (functions-framework, google-cloud-bigquery). No Twilio or Pub/Sub.
 - `dev`: Development tools (pytest, pytest-cov, ruff, radian).
 
 At deploy time, `manage_functions.py` exports `main` + the function's group into a `requirements.txt` that Cloud Run uses to build the container. New functions get their own Poetry group and an entry in [`functions.yaml`](deploy/functions.yaml).
