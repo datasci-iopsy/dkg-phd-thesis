@@ -240,7 +240,7 @@ save_vif_plot <- function(vif_tbl, model_name, figs_dir = NULL) {
     if (!is.null(figs_dir)) {
         filename <- file.path(
             figs_dir,
-            paste0("mlm_vif_", tolower(gsub("[^a-z0-9]", "_", model_name)), ".svg")
+            paste0("mlm_vif_", gsub("[^a-z0-9]+", "_", tolower(model_name)), ".svg")
         )
         save_svg(p, filename,
             width = 10,
