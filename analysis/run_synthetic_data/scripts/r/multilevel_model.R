@@ -973,7 +973,7 @@ for (i in seq_along(model_names)) {
     )
     save_tbl(p_sub, filename, width = 14, height = max(4, nrow(sub_tbl) * 0.4))
 }
-log_msg("  Saved fixed effects SVGs")
+log_msg("  Saved fixed effects PDFs")
 
 
 # =============================================================================
