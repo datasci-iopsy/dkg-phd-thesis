@@ -28,13 +28,13 @@ Rather than solving a closed-form equation, it uses Monte Carlo simulation to em
 
 The program builds a full factorial grid from configuration parameters, distributes the grid across parallel workers via `furrr`, and saves timestamped results. It is designed to run from the command line, eliminating the need for IDEs (e.g., RStudio, VS Code).
 
-The architecture follows a thin-wrapper pattern: [`main.sh`](main.sh) handles process lifecycle (log file creation, wall-clock timing), while [`run_power_analysis.r`](scripts/run_power_analysis.r) owns all application logic (path resolution, configuration, renv activation, parallel execution, and output).
+The architecture follows a thin-wrapper pattern: [`main.sh`](main.sh) handles process lifecycle (log file creation, wall-clock timing), while [`run_power_analysis.R`](scripts/run_power_analysis.R) owns all application logic (path resolution, configuration, renv activation, parallel execution, and output).
 
-Key entry points: [`main.sh`](main.sh) (bash wrapper) and [`scripts/run_power_analysis.r`](scripts/run_power_analysis.r) (orchestrator). The simulation engine lives in [`utils/power_analysis_utils.r`](utils/power_analysis_utils.r). Runtime directories (`data/`, `logs/`, `figs/`) are created automatically and gitignored.
+Key entry points: [`main.sh`](main.sh) (bash wrapper), [`scripts/run_power_analysis.R`](scripts/run_power_analysis.R) (orchestrator), and [`scripts/visualize_power_analysis.R`](scripts/visualize_power_analysis.R) (visualization). The visualizer auto-detects the most recent results file, produces SVG power curve figures saved to `figs/`, and scales from dev to prod grids without changes. The simulation engine lives in [`utils/power_analysis_utils.R`](utils/power_analysis_utils.R). Runtime directories (`data/`, `logs/`, `figs/`) are created automatically and gitignored.
 
 ## How it works
 
-The simulation engine ([`power_analysis_utils.r`](utils/power_analysis_utils.r)) implements the Arend & Schafer (2019) procedure for each parameter combination in the grid. The process has five steps.
+The simulation engine ([`power_analysis_utils.R`](utils/power_analysis_utils.R)) implements the Arend & Schafer (2019) procedure for each parameter combination in the grid. The process has five steps.
 
 **Step 1: Derive variance components.** Starting from standardized inputs (ICC, standardized effect sizes, random slope variance), the function computes unconditional and conditional variance components using Arend & Schafer's equations 10-11. Unconditional Level 1 variance is fixed at 1.00 as the standardization anchor. Level 2 unconditional variance is derived from the ICC as `icc / (1 - icc)`. Conditional variances account for the variance explained by each predictor.
 
@@ -44,7 +44,7 @@ The simulation engine ([`power_analysis_utils.r`](utils/power_analysis_utils.r))
 
 **Step 4: Run Monte Carlo power simulations.** For each of three fixed effects (L1 direct effect of `x`, L2 direct effect of `Z`, cross-level interaction `x:Z`), `simr::powerSim()` generates `n_sims` datasets from the population model, fits the mixed model to each, and tests significance using Kenward-Roger. Power is the proportion of simulations that reject the null.
 
-**Step 5: Return results.** Each combination produces power estimates with 95% confidence intervals for all three effects. The grid runner ([`run_power_analysis.r`](scripts/run_power_analysis.r)) collects these into a single data frame with full parameter context, timing, and success/failure status.
+**Step 5: Return results.** Each combination produces power estimates with 95% confidence intervals for all three effects. The grid runner ([`run_power_analysis.R`](scripts/run_power_analysis.R)) collects these into a single data frame with full parameter context, timing, and success/failure status.
 
 ## Requirements
 
@@ -92,13 +92,13 @@ The program uses YAML configuration files in [`configs/`](configs/) to define th
 
 **[`run_power_analysis.prod.yaml`](configs/run_power_analysis.prod.yaml)**: The full factorial grid used for the dissertation. Crosses 5 Level 2 sample sizes (200-1000) with 3 values each for Level 1 effect size, Level 2 effect size, cross-level effect size, ICC, and random slope variance, yielding **1,215 combinations at 1,000 simulations each**.
 
-**[`run_power_analysis.benchmark_gcp.yaml`](configs/run_power_analysis.benchmark_gcp.yaml)**: A timing probe for GCP VMs. Uses the full effect-size grid with 3 Level 2 sizes, yielding **729 combinations at 50 simulations each**. Uses 14 workers (matching local benchmarks for direct speed comparison). Run this first on a new VM to calibrate expected runtime.
+**[`run_power_analysis.benchmark_gcp.yaml`](configs/run_power_analysis.benchmark_gcp.yaml)**: A timing probe for any VM. Uses the full effect-size grid with 3 Level 2 sizes, yielding **729 combinations at 50 simulations each**. Uses auto-detected workers. Run this first on a new VM to calibrate expected runtime: `prod_min ≈ benchmark_min × 100` (the benchmark grid is 100× smaller than prod_gcp -- 729 cells × 50 sims vs 3,645 cells × 1,000 sims -- at the same worker count).
 
-**[`run_power_analysis.prod_gcp.yaml`](configs/run_power_analysis.prod_gcp.yaml)**: The expanded GCP grid. Crosses 15 Level 2 sample sizes (100-1500 by 100) with the same effect-size grid as prod, yielding **3,645 combinations at 1,000 simulations each**. Configured for 174 workers on a `c3-highcpu-176` instance.
+**[`run_power_analysis.prod_gcp.yaml`](configs/run_power_analysis.prod_gcp.yaml)**: The expanded GCP grid. Crosses 15 Level 2 sample sizes (100-1500 by 100) with the same effect-size grid as prod, yielding **3,645 combinations at 1,000 simulations each**. Auto-detects workers on any instance; on a `c3-highcpu-176` this yields 174 workers (176 vCPUs - 2).
 
 | Parameter         | Description                                            |
 | ----------------- | ------------------------------------------------------ |
-| `max_cores`       | Max parallel workers (NULL = conservative default)     |
+| `max_cores`       | Max parallel workers (NULL = auto-detect: `available_cores - 2`, floor 1) |
 | `n_lvl1`          | Level 1 sample sizes (repeated measures)               |
 | `n_lvl2`          | Level 2 sample sizes (individuals)                     |
 | `lvl1_effect_std` | Standardized L1 direct effect sizes                    |
@@ -113,7 +113,7 @@ The program uses YAML configuration files in [`configs/`](configs/) to define th
 | `return_df`       | Return results as data frame (TRUE for grid runner)    |
 | `rand_seed`       | Base random seed (each combination gets seed + run_id) |
 
-**Parallel execution.** The `max_cores` parameter caps parallel workers. If NULL, the program defaults to `min(4, available_cores - 4)`. If set, it is capped at `available_cores - 2`. BLAS threads are pinned to 1 per worker via `RhpcBLASctl` to prevent oversubscription.
+**Parallel execution.** The `max_cores` parameter caps parallel workers. If NULL, the program defaults to `available_cores - 2` (floor of 1), using all available capacity. If set, it is capped at `available_cores - 2`. BLAS threads are pinned to 1 per worker via `RhpcBLASctl` to prevent oversubscription.
 
 **Reproducibility.** Each parameter combination receives a unique seed derived from `rand_seed + run_id`, where `run_id` is the row number in the factorial grid. This ensures reproducibility while avoiding seed collisions across combinations.
 
@@ -141,7 +141,7 @@ nohup bash analysis/run_power_analysis/main.sh prod_gcp &
 ### What happens at runtime
 
 1. `main.sh` creates a timestamped log file in `logs/` and starts the wall-clock timer.
-2. `main.sh` hands off to `Rscript run_power_analysis.r --version <dev|prod>`.
+2. `main.sh` hands off to `Rscript run_power_analysis.R --version <dev|prod|benchmark_gcp|prod_gcp>`.
 3. The R script activates `renv` via the project-root [`.Rprofile`](../../.Rprofile), resolves all paths from its own filesystem location, and loads the version-specific configuration.
 4. A full factorial parameter grid is built via `tidyr::expand_grid()` and its size is logged.
 5. System information (OS, cores, memory) is logged.
@@ -209,7 +209,7 @@ Reference benchmarks:
 | `prod`    | MacBook Pro M1 Max       | 1,215    | 6 of 10    | ~18.5 hours     |
 | `prod_gcp`| GCP `c3-highcpu-176`     | 3,645    | 174 of 176 | ~7 hours 10 min |
 
-Runtime scales roughly inversely with core count. Use `benchmark_gcp` to calibrate on a new VM: `speedup = 61.2 / gcp_wall_min`; then `prod_hours = grid_cells / (workers x speedup)`. Set `max_cores` in the config to the VM's vCPU count minus 2.
+Runtime scales roughly inversely with core count. Use `benchmark_gcp` to calibrate on a new VM: `prod_min ≈ benchmark_min × 100` (the benchmark runs 729 cells × 50 sims; prod_gcp runs 3,645 cells × 1,000 sims -- a 100× difference -- at the same auto-detected worker count). Core count is auto-detected (`available_cores - 2`); hardcode `max_cores` in the config only to override.
 
 The program logs system info at startup so you can verify core allocation.
 </details>
