@@ -81,6 +81,13 @@ save_fig <- function(plot, filename, width = 10, height = 7) {
     save_svg(plot, file.path(FIGS_DIR, filename), width, height)
 }
 
+# PDF save helper for table outputs (tableGrob-based ggplots)
+save_tbl <- function(plot, filename, width = 12, height = 8) {
+    path <- file.path(FIGS_DIR, filename)
+    ggplot2::ggsave(path, plot = plot, device = "pdf", width = width, height = height)
+    invisible(path)
+}
+
 # Default optimizer control for lmer
 CTRL <- lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 200000))
 
@@ -910,8 +917,8 @@ p_comp_grob <- gridExtra::tableGrob(comparison_display,
 p_comp <- ggplot2::ggplot() +
     ggplot2::annotation_custom(p_comp_grob) +
     ggplot2::theme_void()
-save_fig(p_comp, "mlm_01_model_comparison.svg", width = 18, height = 6)
-log_msg("  Saved model comparison SVG")
+save_tbl(p_comp, "mlm_01_model_comparison.pdf", width = 18, height = 6)
+log_msg("  Saved model comparison PDF")
 
 
 # =============================================================================
@@ -957,9 +964,9 @@ for (i in seq_along(model_names)) {
         ))
     filename <- paste0(
         "mlm_02_fixed_effects_",
-        tolower(gsub("[^a-z0-9]", "_", model_names[i])), ".svg"
+        gsub("[^a-z0-9]+", "_", tolower(model_names[i])), ".pdf"
     )
-    save_fig(p_sub, filename, width = 14, height = max(4, nrow(sub_tbl) * 0.4))
+    save_tbl(p_sub, filename, width = 14, height = max(4, nrow(sub_tbl) * 0.4))
 }
 log_msg("  Saved fixed effects SVGs")
 
@@ -989,8 +996,8 @@ re_grob <- gridExtra::tableGrob(re_display,
 p_re <- ggplot2::ggplot() +
     ggplot2::annotation_custom(re_grob) +
     ggplot2::theme_void()
-save_fig(p_re, "mlm_03_random_effects.svg", width = 12, height = 8)
-log_msg("  Saved random effects SVG")
+save_tbl(p_re, "mlm_03_random_effects.pdf", width = 12, height = 8)
+log_msg("  Saved random effects PDF")
 
 
 # =============================================================================
@@ -1159,8 +1166,8 @@ p_hyp_grob <- gridExtra::tableGrob(hyp_results,
 p_hyp <- ggplot2::ggplot() +
     ggplot2::annotation_custom(p_hyp_grob) +
     ggplot2::theme_void()
-save_fig(p_hyp, "mlm_04_hypothesis_tests.svg", width = 18, height = 10)
-log_msg("  Saved hypothesis tests SVG")
+save_tbl(p_hyp, "mlm_04_hypothesis_tests.pdf", width = 18, height = 10)
+log_msg("  Saved hypothesis tests PDF")
 
 
 # =============================================================================
