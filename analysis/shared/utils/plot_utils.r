@@ -9,6 +9,7 @@
 # ---------------------------------------------------------------------------
 
 library(ggplot2)
+library(knitr)
 library(svglite)
 
 
@@ -63,6 +64,35 @@ save_pdf <- function(plot, filepath, width = 10, height = 7) {
         plot = plot, device = "pdf",
         width = width, height = height
     )
+    log_msg("Saved: ", filepath)
+    invisible(NULL)
+}
+
+
+#' Save a data frame as a GitHub-viewable Markdown table
+#'
+#' Writes a pipe-format Markdown table that GitHub renders natively.
+#' Pass a named list of data frames to produce a multi-section document;
+#' list names become section headers.
+#'
+#' @param x       A data frame/tibble, or a named list of data frames
+#' @param filepath Full output path (including .md extension)
+#' @return NULL (invisible); called for side effect
+#'
+save_md <- function(x, filepath) {
+    if (is.data.frame(x)) {
+        lines <- knitr::kable(x, format = "pipe")
+    } else if (is.list(x)) {
+        if (length(x) == 0) stop("save_md: x is an empty list; nothing to write to ", filepath)
+        if (is.null(names(x))) stop("save_md: list x must have names; got an unnamed list")
+        lines <- character(0)
+        for (nm in names(x)) {
+            lines <- c(lines, paste0("## ", nm), "", knitr::kable(x[[nm]], format = "pipe"), "")
+        }
+    } else {
+        stop("save_md: x must be a data.frame or named list, got ", class(x)[[1]])
+    }
+    writeLines(lines, filepath)
     log_msg("Saved: ", filepath)
     invisible(NULL)
 }
