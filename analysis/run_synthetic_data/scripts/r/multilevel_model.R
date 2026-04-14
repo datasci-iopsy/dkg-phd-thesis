@@ -63,7 +63,6 @@ library(iccbeta)
 library(interactions)
 
 options(tibble.width = Inf)
-here::here()
 
 # Source shared utilities (log_msg, ensure_dir, theme_apa, save_svg, mlm helpers)
 source(here::here("analysis", "shared", "utils", "common_utils.r"))
@@ -923,6 +922,7 @@ p_comp <- ggplot2::ggplot() +
     ggplot2::annotation_custom(p_comp_grob) +
     ggplot2::theme_void()
 save_tbl(p_comp, "mlm_01_model_comparison.pdf", width = 18, height = 6)
+save_md(comparison_display, file.path(FIGS_DIR, "mlm_01_model_comparison.md"))
 log_msg("  Saved model comparison PDF")
 
 
@@ -953,7 +953,15 @@ for (i in seq_along(model_names)) {
             term, estimate, std.error, statistic, df, p.value,
             conf.low, conf.high
         ) |>
-        dplyr::mutate(across(where(is.numeric), ~ round(., 4)))
+        dplyr::mutate(
+            across(c(estimate, std.error, statistic, conf.low, conf.high), ~ round(., 4)),
+            df      = round(df, 1),
+            p.value = dplyr::case_when(
+                is.na(p.value)  ~ NA_character_,
+                p.value < .001  ~ "< .001",
+                TRUE            ~ as.character(round(p.value, 4))
+            )
+        )
 
     grob <- gridExtra::tableGrob(
         sub_tbl,
@@ -972,7 +980,24 @@ for (i in seq_along(model_names)) {
         gsub("[^a-z0-9]+", "_", tolower(model_names[i])), ".pdf"
     )
     save_tbl(p_sub, filename, width = 14, height = max(4, nrow(sub_tbl) * 0.4))
+    md_filename <- paste0(
+        "mlm_02_fixed_effects_",
+        gsub("[^a-z0-9]+", "_", tolower(model_names[i])), ".md"
+    )
+    save_md(sub_tbl, file.path(FIGS_DIR, md_filename))
 }
+save_md(
+    fe_all |> dplyr::mutate(
+        across(c(estimate, std.error, statistic, conf.low, conf.high), ~ round(., 4)),
+        df      = round(df, 1),
+        p.value = dplyr::case_when(
+            is.na(p.value) ~ NA_character_,
+            p.value < .001 ~ "< .001",
+            TRUE           ~ as.character(round(p.value, 4))
+        )
+    ),
+    file.path(FIGS_DIR, "mlm_02_fixed_effects.md")
+)
 log_msg("  Saved fixed effects PDFs")
 
 
@@ -1002,6 +1027,7 @@ p_re <- ggplot2::ggplot() +
     ggplot2::annotation_custom(re_grob) +
     ggplot2::theme_void()
 save_tbl(p_re, "mlm_03_random_effects.pdf", width = 12, height = 8)
+save_md(re_display, file.path(FIGS_DIR, "mlm_03_random_effects.md"))
 log_msg("  Saved random effects PDF")
 
 
@@ -1172,6 +1198,7 @@ p_hyp <- ggplot2::ggplot() +
     ggplot2::annotation_custom(p_hyp_grob) +
     ggplot2::theme_void()
 save_tbl(p_hyp, "mlm_04_hypothesis_tests.pdf", width = 18, height = 10)
+save_md(hyp_results, file.path(FIGS_DIR, "mlm_04_hypothesis_tests.md"))
 log_msg("  Saved hypothesis tests PDF")
 
 
@@ -1822,6 +1849,15 @@ fe_phase6_all <- purrr::map2_dfr(
 fe_all <- dplyr::bind_rows(fe_all, fe_phase6_all)
 readr::write_csv(fe_all, file.path(FIGS_DIR, "mlm_02_fixed_effects.csv"))
 log_msg("  Updated fixed effects CSV with M7a/M7b rows")
+
+# Append M7a/M7b random effects (gap fix: M0-M6 were saved in [13]; Phase 6 adds these)
+re_phase6 <- purrr::map2_dfr(phase6_fits_reml, phase6_names, function(fit, name) {
+    if (is.null(fit)) return(tibble::tibble(model = name))
+    broom.mixed::tidy(fit, effects = "ran_pars") |> dplyr::mutate(model = name)
+})
+re_all <- dplyr::bind_rows(re_all, re_phase6)
+readr::write_csv(re_all, file.path(FIGS_DIR, "mlm_03_random_effects.csv"))
+log_msg("  Updated random effects CSV with M7a/M7b rows")
 
 # Complete H4a-b moderation rows in hypothesis table
 fe7a_tbl <- broom.mixed::tidy(m7a_reml, effects = "fixed", conf.int = TRUE) |>
