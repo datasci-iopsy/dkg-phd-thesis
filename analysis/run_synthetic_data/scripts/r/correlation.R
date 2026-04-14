@@ -1,180 +1,281 @@
-library(corrplot)
-library(here)
-library(rmcorr)
-library(dplyr)
-library(readr)
-library(correlation)
-library(tidyr)
-library(see)
-# library(tinytable)
+#!/usr/bin/env Rscript
+# =============================================================================
+# analysis/run_synthetic_data/scripts/r/correlation.R
+#
+# Correlation analysis for the synthetic panel dataset.
+# Computes L2 Pearson correlations, L1 standard Pearson correlations, and
+# within-person repeated-measures correlations (Bakdash & Marusich, 2017)
+# using both correlation::correlation (multilevel) and rmcorr::rmcorr_mat.
+#
+# Output: SVG figures → analysis/run_synthetic_data/figs/corr/
+# =============================================================================
 
-# options for script
+# --- [0] Libraries and setup -------------------------------------------------
+library(corrplot)
+library(rmcorr)
+library(correlation)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(here)
+library(svglite)
+
 options(tibble.width = Inf)
 
-# proj root; build paths from here ;)
-here::here()
+# Source shared utilities (log_msg, ensure_dir, load_config)
+source(here::here("analysis", "shared", "utils", "common_utils.r"))
 
-# Load fact table exported from BigQuery via scripts/syn_export_for_r.sh
-readr::read_csv(
-    here::here("analysis", "run_synthetic_data", "data", "export", "syn_qualtrics_fct_panel_responses_20260227.csv"),
-    show_col_types = TRUE
-) -> df_raw
+# --- Global settings ---------------------------------------------------------
+FIGS_DIR <- here::here("analysis", "run_synthetic_data", "figs", "corr")
+ensure_dir(FIGS_DIR)
 
-list() -> tbls
+#' Reshape a correlation::correlation result into a symmetric square matrix
+#'
+#' Pivots the long-format correlation data frame to wide, forces rows and
+#' columns into the same sorted order (pivot_wider does not guarantee this),
+#' and sets the diagonal to 1.
+#'
+#' @param corr_obj Data frame or tibble with columns "Parameter1", "Parameter2",
+#'   and "r" as returned by correlation::correlation().
+#' @return Numeric square matrix with row/column names and diagonal equal to 1.
+corr_to_matrix <- function(corr_obj) {
+    df <- as.data.frame(corr_obj)[, c("Parameter1", "Parameter2", "r")]
+    sym <- dplyr::bind_rows(
+        df,
+        dplyr::rename(df, Parameter1 = Parameter2, Parameter2 = Parameter1)
+    )
+    wide  <- tidyr::pivot_wider(sym, names_from = Parameter2, values_from = r)
+    vars  <- wide$Parameter1                    # row order
+    mat   <- as.matrix(wide[, vars])            # columns forced to same order as rows
+    rownames(mat) <- vars
+    diag(mat) <- 1
+    mat
+}
+
+#' Save a base R graphics plot as an SVG file via svglite
+#'
+#' Opens an svglite device, forces evaluation of the plotting expression,
+#' closes the device, and logs the output path.
+#'
+#' @param filename Character; file name (not full path) for the SVG output,
+#'   written into FIGS_DIR.
+#' @param width  Numeric; SVG width in inches.
+#' @param height Numeric; SVG height in inches.
+#' @param expr   Unevaluated plotting expression (passed via force()).
+#' @return Invisibly returns the full path to the saved SVG file.
+save_corr_svg <- function(filename, width, height, expr) {
+    path <- file.path(FIGS_DIR, filename)
+    svglite::svglite(path, width = width, height = height)
+    tryCatch(
+        {
+            force(expr)
+            dev.off()
+            log_msg("Saved: ", path)
+        },
+        error = function(e) {
+            dev.off()
+            stop(e)
+        }
+    )
+    invisible(path)
+}
+
+
+# =============================================================================
+# [1] DATA LOADING AND PARTITIONING
+# =============================================================================
+log_msg("=== [1] Loading data ===")
+
+export_files <- list.files(
+    here::here("analysis", "run_synthetic_data", "data", "export"),
+    pattern = "^syn_qualtrics_fct_panel_responses_.*\\.csv$",
+    full.names = TRUE
+)
+if (length(export_files) == 0) stop("No export CSV found in data/export/")
+export_path <- sort(export_files, decreasing = TRUE)[1]
+log_msg("Loading: ", basename(export_path))
+df_raw <- readr::read_csv(export_path, show_col_types = FALSE)
+log_msg("Loaded: ", nrow(df_raw), " rows x ", ncol(df_raw), " columns")
 
 # L2: one row per participant (time-invariant variables)
-df_raw |>
+df_l2 <- df_raw |>
+    dplyr::distinct(response_id, .keep_all = TRUE) |>
     dplyr::select(
         response_id,
-        age,
-        ethnicity,
-        gender,
-        job_tenure,
-        edu_lvl,
-        is_remote,
-        pa_mean,
-        na_mean,
-        br_mean,
-        vio_mean,
-        js_mean
-    ) -> tbls$lvl_2_vars
+        age, ethnicity, gender, job_tenure, edu_lvl, is_remote,
+        pa_mean, na_mean, br_mean, vio_mean, js_mean
+    )
 
 # L1: all rows (time-varying variables)
-# Renamed to match the rmcorr_mat variables vector below
-df_raw |>
+df_l1 <- df_raw |>
     dplyr::select(
-        response_id,
-        timepoint,
-        pf_mean,
-        cw_mean,
-        ee_mean,
-        comp_mean,
-        auto_mean,
-        relt_mean,
-        atcb_mean,
-        meetings_count,
-        meetings_mins,
+        response_id, timepoint,
+        pf_mean, cw_mean, ee_mean,
+        comp_mean, auto_mean, relt_mean,
+        atcb_mean, meetings_count, meetings_mins,
         turnover_intention_mean
-    ) -> tbls$lvl_1_vars
+    )
 
-tbls$lvl_2_vars |>
-    dplyr::select(where(is.numeric)) |> # only num type used
-    correlation::correlation(method = "pearson", redundant = FALSE) |>
-    summary() |>
-    plot()
+log_msg(
+    "Partitioned: L2 n=", nrow(df_l2),
+    "; L1 n=", nrow(df_l1), " (", dplyr::n_distinct(df_l1$response_id), " participants)"
+)
 
-# non-multilevel correlation
-tbls$lvl_1_vars |>
+
+# =============================================================================
+# [2] L2 PEARSON CORRELATIONS
+# =============================================================================
+log_msg("=== [2] L2 Pearson correlations ===")
+
+l2_corr <- df_l2 |>
+    dplyr::select(where(is.numeric)) |>
+    correlation::correlation(method = "pearson", redundant = FALSE)
+
+l2_mat <- summary(l2_corr) |> as.data.frame()
+log_msg("L2 correlation matrix: ", nrow(l2_mat), " pairs")
+
+l2_sq <- corr_to_matrix(l2_corr)
+
+write.csv(l2_sq, file.path(FIGS_DIR, "corr_01_l2_pearson_matrix.csv"))
+log_msg("Saved: corr_01_l2_pearson_matrix.csv")
+
+save_corr_svg("corr_l2_pearson.svg", width = 10, height = 10, {
+    corrplot::corrplot(
+        l2_sq,
+        method    = "color",
+        type      = "lower",
+        addCoef.col = "black",
+        number.cex  = 0.65,
+        title     = "L2 Pearson correlations (between-person)",
+        mar       = c(0, 0, 2, 0)
+    )
+})
+
+
+# =============================================================================
+# [3] L1 STANDARD PEARSON CORRELATIONS (ignores nesting)
+# =============================================================================
+log_msg("=== [3] L1 standard Pearson correlations ===")
+
+l1_corr <- df_l1 |>
     dplyr::select(-response_id) |>
-    correlation::correlation(method = "pearson", redundant = FALSE) |>
-    summary() |>
-    plot()
+    correlation::correlation(method = "pearson", redundant = FALSE)
 
-# corrected multilevel correlation
-tbls$lvl_1_vars |>
+l1_sq <- corr_to_matrix(l1_corr)
+
+write.csv(l1_sq, file.path(FIGS_DIR, "corr_02_l1_pearson_matrix.csv"))
+log_msg("Saved: corr_02_l1_pearson_matrix.csv")
+
+save_corr_svg("corr_l1_pearson.svg", width = 10, height = 10, {
+    corrplot::corrplot(
+        l1_sq,
+        method      = "color",
+        type        = "lower",
+        addCoef.col = "black",
+        number.cex  = 0.65,
+        title       = "L1 Pearson correlations (ignores nesting)",
+        mar         = c(0, 0, 2, 0)
+    )
+})
+
+
+# =============================================================================
+# [4] WITHIN-PERSON REPEATED-MEASURES CORRELATIONS
+# =============================================================================
+log_msg("=== [4] Within-person repeated-measures correlations ===")
+
+# --- 4a: correlation::correlation multilevel approach -----------------------
+log_msg("  [4a] correlation::correlation (multilevel = TRUE)")
+
+mlm_corr <- df_l1 |>
     correlation::correlation(
-        method = "pearson",
+        method     = "pearson",
         multilevel = TRUE,
-        redundant = FALSE
-    ) -> mlm_corr
+        redundant  = FALSE
+    )
 
-# mlm_corr |>
-#     summary() |>
-#     plot()
+mlm_mat <- corr_to_matrix(mlm_corr)
 
-# ! repeated measures violate the independence assumption; try alt approach: Bakdash, J. Z., & Marusich, L. R. (2017)
-rmcorr::rmcorr_mat(
+# --- 4b: rmcorr (Bakdash & Marusich, 2017) ----------------------------------
+log_msg("  [4b] rmcorr::rmcorr_mat")
+
+l1_vars <- c(
+    "timepoint",
+    "pf_mean", "cw_mean", "ee_mean",
+    "comp_mean", "auto_mean", "relt_mean",
+    "atcb_mean", "meetings_count", "meetings_mins",
+    "turnover_intention_mean"
+)
+
+rmc_corr <- rmcorr::rmcorr_mat(
     participant = response_id,
-    variables = c(
-        "timepoint",
-        "pf_mean",
-        "cw_mean",
-        "ee_mean",
-        "comp_mean",
-        "auto_mean",
-        "relt_mean",
-        "atcb_mean",
-        "meetings_count",
-        "meetings_mins",
-        "turnover_intention_mean"
-    ),
-    dataset = tbls$lvl_1_vars,
-    CI.level = 0.95
-) -> rmc_corr
-
-# rmc_mat$matrix |>
-#     corrplot::corrplot(
-#         method = "number",
-#         type = "lower",
-#         diag = FALSE
-#     )
-
-# figs_dir <- here::here("analysis", "run_synthetic_data", "figs")
-# dir.create(figs_dir, recursive = TRUE, showWarnings = FALSE)
-
-# jpeg(filename = file.path(figs_dir, "rmc_fig.jpeg"), width = 800, height = 800)
-# --- Compare mlm_corr (correlation::correlation, multilevel) vs rmc_corr (rmcorr::rmcorr_mat) ---
-#
-# mlm_corr is a long-format easycorrelation data frame; each row is one pair (r as numeric).
-# rmc_corr$matrix is already a square numeric matrix.
-# Reshape mlm_corr into a square matrix so corrplot can handle both uniformly.
-
-mlm_df <- as.data.frame(mlm_corr)[, c("Parameter1", "Parameter2", "r")]
-
-# Symmetrize: add transposed rows so pivot_wider fills both triangles
-mlm_sym <- dplyr::bind_rows(
-    mlm_df,
-    dplyr::rename(mlm_df, Parameter1 = Parameter2, Parameter2 = Parameter1)
+    variables   = l1_vars,
+    dataset     = df_l1,
+    CI.level    = 0.95
 )
-mlm_wide <- tidyr::pivot_wider(mlm_sym, names_from = Parameter2, values_from = r)
-mlm_mat <- as.matrix(mlm_wide[, -1])
-rownames(mlm_mat) <- mlm_wide$Parameter1
-diag(mlm_mat) <- 1 # diagonal is always 1 by definition
 
-# Align variable ordering to rmc_corr$matrix (keep only shared variables)
+# NaN in the rmcorr matrix occurs when SSFactor + SSresidual collapses to zero
+# for a near-zero within-person correlation (numerical artifact, not missing data).
+# Replace NaN with 0 so corrplot renders the cell rather than displaying "?".
+rmc_corr$matrix[is.nan(rmc_corr$matrix)] <- 0
+
+# Align variable ordering to shared variables
 shared_vars <- intersect(colnames(rmc_corr$matrix), rownames(mlm_mat))
-mlm_mat <- mlm_mat[shared_vars, shared_vars]
-rmc_mat <- rmc_corr$matrix[shared_vars, shared_vars]
+mlm_sq <- mlm_mat[shared_vars, shared_vars]
+rmc_sq <- rmc_corr$matrix[shared_vars, shared_vars]
 
-figs_dir <- here::here("analysis", "run_synthetic_data", "figs")
-dir.create(figs_dir, recursive = TRUE, showWarnings = FALSE)
+log_msg("  Shared variables for comparison: ", length(shared_vars))
 
-# --- Side-by-side comparison ---
-jpeg(filename = file.path(figs_dir, "corr_comparison.jpeg"), width = 1800, height = 900)
-par(mfrow = c(1, 2))
-corrplot::corrplot(
-    mlm_mat,
-    method = "color", type = "lower",
-    addCoef.col = "black", number.cex = 0.65,
-    title = "MLM correlation (correlation pkg, multilevel = TRUE)",
-    mar = c(0, 0, 2, 0)
-)
-corrplot::corrplot(
-    rmc_mat,
-    method = "color", type = "lower",
-    addCoef.col = "black", number.cex = 0.65,
-    title = "Repeated-measures correlation (rmcorr)",
-    mar = c(0, 0, 2, 0)
-)
-dev.off()
+write.csv(mlm_sq, file.path(FIGS_DIR, "corr_03_mlm_between_matrix.csv"))
+write.csv(rmc_sq, file.path(FIGS_DIR, "corr_04_rmcorr_within_matrix.csv"))
+log_msg("Saved: corr_03_mlm_between_matrix.csv and corr_04_rmcorr_within_matrix.csv")
 
-# --- Individual figures ---
-jpeg(filename = file.path(figs_dir, "mlm_corr.jpeg"), width = 900, height = 900)
-corrplot::corrplot(
-    mlm_mat,
-    method = "color", type = "lower",
-    addCoef.col = "black", number.cex = 0.7,
-    title = "MLM correlation (correlation pkg, multilevel = TRUE)",
-    mar = c(0, 0, 2, 0)
-)
-dev.off()
+# --- 4c: side-by-side comparison --------------------------------------------
+save_corr_svg("corr_comparison.svg", width = 20, height = 10, {
+    par(mfrow = c(1, 2))
+    corrplot::corrplot(
+        mlm_sq,
+        method      = "color",
+        type        = "lower",
+        addCoef.col = "black",
+        number.cex  = 0.65,
+        title       = "MLM correlation (correlation pkg, multilevel = TRUE)",
+        mar         = c(0, 0, 2, 0)
+    )
+    corrplot::corrplot(
+        rmc_sq,
+        method      = "color",
+        type        = "lower",
+        addCoef.col = "black",
+        number.cex  = 0.65,
+        title       = "Repeated-measures correlation (rmcorr)",
+        mar         = c(0, 0, 2, 0)
+    )
+})
 
-jpeg(filename = file.path(figs_dir, "rmc_corr.jpeg"), width = 900, height = 900)
-corrplot::corrplot(
-    rmc_mat,
-    method = "color", type = "lower",
-    addCoef.col = "black", number.cex = 0.7,
-    title = "Repeated-measures correlation (rmcorr)",
-    mar = c(0, 0, 2, 0)
-)
-dev.off()
+# --- 4d: individual figures --------------------------------------------------
+save_corr_svg("corr_mlm.svg", width = 10, height = 10, {
+    corrplot::corrplot(
+        mlm_sq,
+        method      = "color",
+        type        = "lower",
+        addCoef.col = "black",
+        number.cex  = 0.70,
+        title       = "MLM correlation (correlation pkg, multilevel = TRUE)",
+        mar         = c(0, 0, 2, 0)
+    )
+})
+
+save_corr_svg("corr_rmc.svg", width = 10, height = 10, {
+    corrplot::corrplot(
+        rmc_sq,
+        method      = "color",
+        type        = "lower",
+        addCoef.col = "black",
+        number.cex  = 0.70,
+        title       = "Repeated-measures correlation (rmcorr)",
+        mar         = c(0, 0, 2, 0)
+    )
+})
+
+log_msg("=== Correlation analysis complete. Figures -> ", FIGS_DIR, " ===")
