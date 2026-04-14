@@ -46,7 +46,6 @@ library(here)
 library(glue)
 
 options(tibble.width = Inf)
-here::here()
 
 # Source shared utilities (log_msg, ensure_dir, load_config, theme_apa, save_svg)
 source(here::here("analysis", "shared", "utils", "common_utils.r"))
@@ -301,6 +300,9 @@ p_desc <- cowplot::ggdraw() +
     cowplot::draw_grob(desc_grob) +
     labs(title = "Descriptive Statistics: All Scales")
 save_table(p_desc, "eda_04_descriptive_statistics.pdf", width = 12, height = 8)
+save_md(all_desc, file.path(FIGS_DIR, "eda_04_descriptive_statistics.md"))
+readr::write_csv(all_desc, file.path(FIGS_DIR, "eda_04_descriptive_statistics.csv"))
+log_msg("Saved: eda_04_descriptive_statistics.csv")
 
 
 # --- 1.5 Mahalanobis distance (L2) ------------------------------------------
@@ -498,6 +500,13 @@ gridExtra::grid.arrange(
 )
 dev.off()
 log_msg("Saved: ", file.path(FIGS_DIR, "eda_10_table1.pdf"))
+save_md(
+    list("Continuous Variables" = cont_summary, "Categorical Variables" = cat_summary),
+    file.path(FIGS_DIR, "eda_10_table1.md")
+)
+readr::write_csv(cont_summary, file.path(FIGS_DIR, "eda_10_table1_continuous.csv"))
+readr::write_csv(cat_summary, file.path(FIGS_DIR, "eda_10_table1_categorical.csv"))
+log_msg("Saved: eda_10_table1_continuous.csv and eda_10_table1_categorical.csv")
 
 
 # =============================================================================
@@ -685,6 +694,7 @@ pdf(file.path(FIGS_DIR, "eda_15_icc_table.pdf"), width = 12, height = 5)
 grid::grid.draw(icc_grob)
 dev.off()
 log_msg("Saved: ", file.path(FIGS_DIR, "eda_15_icc_table.pdf"))
+save_md(icc_display, file.path(FIGS_DIR, "eda_15_icc_table.md"))
 
 
 # --- 4.2 ICC bar chart with power analysis reference lines -------------------
@@ -1196,6 +1206,7 @@ pdf(file.path(FIGS_DIR, "eda_29_correlation_comparison.pdf"),
 grid::grid.draw(cc_grob)
 dev.off()
 log_msg("Saved: ", file.path(FIGS_DIR, "eda_29_correlation_comparison.pdf"))
+save_md(corr_compare, file.path(FIGS_DIR, "eda_29_correlation_comparison.md"))
 
 
 # =============================================================================
@@ -1242,6 +1253,7 @@ pdf(file.path(FIGS_DIR, "eda_30_unconditional_means_table.pdf"),
 grid::grid.draw(ucm_grob)
 dev.off()
 log_msg("Saved: ", file.path(FIGS_DIR, "eda_30_unconditional_means_table.pdf"))
+save_md(ucm_full, file.path(FIGS_DIR, "eda_30_unconditional_means_table.md"))
 
 
 # --- 7.2 Unconditional growth models ----------------------------------------
@@ -1302,6 +1314,7 @@ pdf(file.path(FIGS_DIR, "eda_31_unconditional_growth_comparison.pdf"),
 grid::grid.draw(ugm_grob)
 dev.off()
 log_msg("Saved: ", file.path(FIGS_DIR, "eda_31_unconditional_growth_comparison.pdf"))
+save_md(ugm_results, file.path(FIGS_DIR, "eda_31_unconditional_growth_comparison.md"))
 
 
 # --- 7.3 Residual diagnostics -----------------------------------------------
