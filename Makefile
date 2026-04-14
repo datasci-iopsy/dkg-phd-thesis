@@ -24,7 +24,7 @@ FN ?= run_qualtrics_scheduling
         power_analysis_gcp_benchmark power_analysis_gcp_prod \
         power_visual \
         synthetic_analysis synthetic_eda synthetic_measurement \
-        synthetic_mlm synthetic_correlation \
+        synthetic_mlm synthetic_correlation synthetic_tables \
         py_lint py_format py_sqlfmt py_test \
         gcp_dev gcp_deploy \
         gcp_infra_up gcp_infra_status gcp_infra_down \
@@ -385,11 +385,19 @@ synthetic_correlation: _check_r_env _check_synthetic_inputs
 		echo "❌ correlation.R failed"; \
 		exit 1; \
 	}
-	@echo "✅ Correlation analysis complete."
+	@echo "✅ Correlation analysis complete. Figures → analysis/run_synthetic_data/figs/corr/"
 
 synthetic_analysis: synthetic_eda synthetic_correlation synthetic_measurement synthetic_mlm
 	@echo ""
 	@echo "✅ All synthetic data analyses complete."
+
+synthetic_tables: _check_r_env _check_synthetic_inputs
+	@echo "📋 Generating publication tables..."
+	@Rscript "$(ROOT)/analysis/run_synthetic_data/scripts/r/publication_tables.R" || { \
+		echo "❌ publication_tables.R failed"; \
+		exit 1; \
+	}
+	@echo "✅ Publication tables → analysis/run_synthetic_data/tables/"
 
 # ---------------------------------------------------------------------------
 # Python Dev
