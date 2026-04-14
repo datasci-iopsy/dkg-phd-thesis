@@ -25,6 +25,7 @@
 # document files
 docs/
 *.docx
+*.pdf
 
 # misc
 _archive/
@@ -33,7 +34,6 @@ logs/
 *.session.sql
 *.DS_Store
 *tempCodeRunnerFile*
-.Rplots.pdf
 
 # exceptions
 !analysis/run_synthetic_data/data/import/*.csv
