@@ -8,6 +8,7 @@ Shared utilities in `analysis/shared/utils/`:
 - `common_utils.r` — `log_msg()`, `load_config()`, `ensure_dir()`, `get_system_info()`
 - `mlm_utils.r` — multilevel model helpers
 - `plot_utils.r` — ggplot2 theme and palette utilities
+- `table_utils.r` — flextable/officer helpers for APA Word table generation
 
 ## Commands
 
