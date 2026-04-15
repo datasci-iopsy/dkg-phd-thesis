@@ -86,12 +86,21 @@ save_corr_svg <- function(filename, width, height, expr) {
 # =============================================================================
 log_msg("=== [1] Loading data ===")
 
+# Prefer careless-screened file; fall back to raw export with a warning
 export_files <- list.files(
     here::here("analysis", "run_synthetic_data", "data", "export"),
-    pattern = "^syn_qualtrics_fct_panel_responses_.*\\.csv$",
+    pattern = "^syn_qualtrics_fct_panel_responses_cleaned_.*\\.csv$",
     full.names = TRUE
 )
-if (length(export_files) == 0) stop("No export CSV found in data/export/")
+if (length(export_files) == 0) {
+    log_msg("WARNING: No cleaned data file found. Run make synthetic_data_quality first.")
+    export_files <- list.files(
+        here::here("analysis", "run_synthetic_data", "data", "export"),
+        pattern = "^syn_qualtrics_fct_panel_responses_\\d{8}\\.csv$",
+        full.names = TRUE
+    )
+    if (length(export_files) == 0) stop("No export CSV found in data/export/")
+}
 export_path <- sort(export_files, decreasing = TRUE)[1]
 log_msg("Loading: ", basename(export_path))
 df_raw <- readr::read_csv(export_path, show_col_types = FALSE)
