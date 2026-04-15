@@ -64,7 +64,7 @@
 <rect x='204.66' y='274.05' width='91.52' height='91.52' style='stroke-width: 0.75; stroke: #EB9172; fill: #EB9172;' />
 <rect x='204.66' y='365.57' width='91.52' height='91.52' style='stroke-width: 0.75; stroke: #F6B394; fill: #F6B394;' />
 <rect x='204.66' y='457.09' width='91.52' height='91.52' style='stroke-width: 0.75; stroke: #F9C6AC; fill: #F9C6AC;' />
-<rect x='204.66' y='548.62' width='91.52' height='91.52' style='stroke-width: 0.75; stroke: #5FA5CC; fill: #5FA5CC;' />
+<rect x='204.66' y='548.62' width='91.52' height='91.52' style='stroke-width: 0.75; stroke: #5BA2CB; fill: #5BA2CB;' />
 <rect x='296.19' y='274.05' width='91.52' height='91.52' style='stroke-width: 0.75; stroke: #053061; fill: #053061;' />
 <rect x='296.19' y='365.57' width='91.52' height='91.52' style='stroke-width: 0.75; stroke: #7FB9D7; fill: #7FB9D7;' />
 <rect x='296.19' y='457.09' width='91.52' height='91.52' style='stroke-width: 0.75; stroke: #92C5DE; fill: #92C5DE;' />
@@ -97,15 +97,15 @@
 <rect x='479.24' y='548.62' width='91.52' height='91.52' style='stroke-width: 0.75; stroke: none;' />
 <rect x='570.76' y='548.62' width='91.52' height='91.52' style='stroke-width: 0.75; stroke: none;' />
 <text x='158.90' y='139.52' text-anchor='middle' style='font-size: 7.80px; font-weight: bold; font-family: "Arial";' textLength='17.38px' lengthAdjust='spacingAndGlyphs'> 1.00</text>
-<text x='158.90' y='231.04' text-anchor='middle' style='font-size: 7.80px; font-weight: bold; font-family: "Arial";' textLength='17.38px' lengthAdjust='spacingAndGlyphs'> 0.02</text>
+<text x='158.90' y='231.04' text-anchor='middle' style='font-size: 7.80px; font-weight: bold; font-family: "Arial";' textLength='17.38px' lengthAdjust='spacingAndGlyphs'> 0.01</text>
 <text x='158.90' y='322.56' text-anchor='middle' style='font-size: 7.80px; font-weight: bold; font-family: "Arial";' textLength='17.80px' lengthAdjust='spacingAndGlyphs'>-0.03</text>
 <text x='158.90' y='414.09' text-anchor='middle' style='font-size: 7.80px; font-weight: bold; font-family: "Arial";' textLength='17.80px' lengthAdjust='spacingAndGlyphs'>-0.03</text>
 <text x='158.90' y='505.61' text-anchor='middle' style='font-size: 7.80px; font-weight: bold; font-family: "Arial";' textLength='17.80px' lengthAdjust='spacingAndGlyphs'>-0.03</text>
 <text x='158.90' y='597.13' text-anchor='middle' style='font-size: 7.80px; font-weight: bold; font-family: "Arial";' textLength='17.38px' lengthAdjust='spacingAndGlyphs'> 0.04</text>
 <text x='250.43' y='231.04' text-anchor='middle' style='font-size: 7.80px; font-weight: bold; font-family: "Arial";' textLength='17.38px' lengthAdjust='spacingAndGlyphs'> 1.00</text>
 <text x='250.43' y='322.56' text-anchor='middle' style='font-size: 7.80px; font-weight: bold; font-family: "Arial";' textLength='17.80px' lengthAdjust='spacingAndGlyphs'>-0.46</text>
-<text x='250.43' y='414.09' text-anchor='middle' style='font-size: 7.80px; font-weight: bold; font-family: "Arial";' textLength='17.80px' lengthAdjust='spacingAndGlyphs'>-0.34</text>
-<text x='250.43' y='505.61' text-anchor='middle' style='font-size: 7.80px; font-weight: bold; font-family: "Arial";' textLength='17.80px' lengthAdjust='spacingAndGlyphs'>-0.27</text>
+<text x='250.43' y='414.09' text-anchor='middle' style='font-size: 7.80px; font-weight: bold; font-family: "Arial";' textLength='17.80px' lengthAdjust='spacingAndGlyphs'>-0.35</text>
+<text x='250.43' y='505.60' text-anchor='middle' style='font-size: 7.80px; font-weight: bold; font-family: "Arial";' textLength='17.80px' lengthAdjust='spacingAndGlyphs'>-0.28</text>
 <text x='250.43' y='597.13' text-anchor='middle' style='font-size: 7.80px; font-weight: bold; font-family: "Arial";' textLength='17.38px' lengthAdjust='spacingAndGlyphs'> 0.53</text>
 <text x='341.95' y='322.56' text-anchor='middle' style='font-size: 7.80px; font-weight: bold; font-family: "Arial";' textLength='17.38px' lengthAdjust='spacingAndGlyphs'> 1.00</text>
 <text x='341.95' y='414.09' text-anchor='middle' style='font-size: 7.80px; font-weight: bold; font-family: "Arial";' textLength='17.38px' lengthAdjust='spacingAndGlyphs'> 0.44</text>
