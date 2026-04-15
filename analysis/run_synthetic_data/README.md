@@ -57,9 +57,64 @@ Steps 2–5 load the cleaned dataset written by Step 1. If the cleaned file is a
 
 **Prerequisites:** Complete Quick Start steps 1–4 in the root `README.md` (R + renv packages required).
 
+## Data Quality Screening
+
+`data_quality.R` (Step 1) implements careless responding detection using the `careless` package (Yentes & Wilhelm, 2018) adapted for a **repeated-measures design**. Each of the three within-day surveys is evaluated independently; a participant is excluded based on their pattern of flagging across all surveys.
+
+### Why per-survey analysis matters
+
+In a cross-sectional design, careless responding can be detected once per person. In a 3-survey ESM design, a participant may respond carefully in the morning and afternoon but rush through the evening survey, or vice versa. Collapsing across surveys (e.g., taking the person mean) would obscure this pattern. This script computes all L1 indices separately for each survey and flags at the survey level before aggregating to the person level for the exclusion decision.
+
+### Screening criteria
+
+Six criteria are evaluated. A person-level criterion flag is `TRUE` if it was triggered on **any** survey.
+
+| # | Criterion | Applied to | Default threshold | Rationale |
+|---|-----------|-----------|-------------------|-----------|
+| 1 | **Longstring L1** | Each survey (30 items) | > 10 consecutive identical responses | Straight-lining within a survey; 10/30 = 33% |
+| 2 | **Longstring L2** | Intake block (20 items, once) | > 10 consecutive identical responses | Straight-lining in the baseline intake survey |
+| 3 | **IRV L1** | Each survey (30 items) | SD < 0.50 | Very flat response distribution within a survey |
+| 4 | **IRV L2** | Intake block (20 items, once) | SD < 0.25 | Very flat distribution in intake items |
+| 5 | **Duration** | Each survey completion time | < 90 seconds | Rushing; 90 s / 30 items ≈ 3 s per item |
+| 6 | **Mahalanobis** | L1 scale means per survey + L2 scale means once | p < .001 (chi-sq cutoff) | Multivariate outlier in the scale-mean space |
+
+For the Mahalanobis criterion, two distances are computed and combined into a single flag:
+- **L1 Mahalanobis** (chi-sq df = 8): computed independently on the 8 L1 scale means at each survey. Detects survey-specific multivariate outliers.
+- **L2 Mahalanobis** (chi-sq df = 5): computed once on the 5 intake scale means. Detects overall baseline outliers.
+
+A participant is flagged on criterion 6 if either distance exceeds its cutoff on any survey.
+
+### Exclusion rule
+
+A participant is **excluded** when flagged on **2 or more** of the 6 criteria (Curran, 2016, multi-flag approach). This reduces false positives relative to any-flag exclusion while still catching systematic careless responding.
+
+All thresholds and the minimum flag count are defined at the top of `data_quality.R` and can be adjusted there without changing downstream logic.
+
+### Diagnostic outputs
+
+All figures overwrite on each run (no date stamps); CSVs in `figs/data_quality/` are gitignored and regenerated locally.
+
+| File | Type | Content |
+|------|------|---------|
+| `dq_01_longstring_l1_by_survey.svg` | Figure | 3-panel faceted histogram of L1 longstring per survey with flag threshold line and per-survey flag count |
+| `dq_02_irv_l1_by_survey.svg` | Figure | 3-panel faceted histogram of L1 IRV per survey |
+| `dq_03_duration_by_survey.svg` | Figure | 3-panel faceted histogram of completion time per survey |
+| `dq_04_mahalanobis_l1_by_survey.svg` | Figure | 3-panel rank plot of L1 Mahalanobis distances per survey; flagged points colored red |
+| `dq_05_l2_indices.svg` | Figure | 3-panel composite for intake (L2) longstring, IRV, and Mahalanobis |
+| `dq_06_flag_summary.svg` | Figure | Grouped bar chart of flags by criterion and survey; person-level flag count distribution with exclusion coloring |
+| `dq_07_screening_detail.csv` | Table | One row per person × survey; columns: `longstring_l1`, `irv_l1`, `duration`, `mahad_l1_dist`, and per-criterion flags |
+| `dq_08_person_summary.csv` | Table | One row per person; per-survey raw values (tp1/tp2/tp3 columns), worst-case aggregates, L2 indices, all criterion flags, `n_flags`, `exclude` |
+| `dq_09_excluded_participants.csv` | Table | Excluded participant IDs with flag details |
+
+### References
+
+Curran, P. G. (2016). Methods for the detection of carelessly invalid responses in self-report inventories. *Journal of Experimental Social Psychology*, 66, 125–137.
+
+Yentes, R. D., & Wilhelm, F. (2018). The careless R package: Bad data before bad analyses. *Practical Assessment, Research & Evaluation*, 23(2).
+
 ## Output
 
-- `figs/data_quality/` — careless responding diagnostic SVGs and CSV screening summary (longstring, IRV, Mahalanobis, duration distributions; per-participant flag table)
+- `figs/data_quality/` — careless responding diagnostic SVGs (6 figures); CSVs regenerated locally on each run
 - `data/export/syn_qualtrics_fct_panel_responses_cleaned_YYYYMMDD.csv` — panel dataset after careless responding exclusions
 - `figs/eda/` — SVG figures and select CSVs/MD tables (descriptive statistics, ICC table, correlation comparison, ~38 outputs)
 - `figs/corr/` — SVG correlation matrices and CSV data (L1 Pearson, L2 Pearson, MLM-based, rmcorr within-person)
