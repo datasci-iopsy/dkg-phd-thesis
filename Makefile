@@ -23,7 +23,8 @@ FN ?= run_qualtrics_scheduling
         power_analysis_dev power_analysis_prod \
         power_analysis_gcp_benchmark power_analysis_gcp_prod \
         power_visual \
-        synthetic_analysis synthetic_eda synthetic_measurement \
+        synthetic_analysis synthetic_data_quality \
+        synthetic_eda synthetic_measurement \
         synthetic_mlm synthetic_correlation synthetic_tables \
         py_lint py_format py_sqlfmt py_test \
         gcp_dev gcp_deploy \
@@ -33,7 +34,7 @@ FN ?= run_qualtrics_scheduling
         gcp_compute_up gcp_compute_status gcp_compute_ssh \
         gcp_compute_scp gcp_compute_down \
         setup_hooks \
-        _check_r_env _check_synthetic_inputs
+        _check_r_env _check_synthetic_inputs _check_synthetic_export
 
 # ---------------------------------------------------------------------------
 # Internal guards (not shown in help)
@@ -66,6 +67,16 @@ _check_synthetic_inputs:
 		exit 1; \
 	fi; \
 	echo "ℹ️  Found $$n input CSV(s) in data/import/"
+
+_check_synthetic_export:
+	@export_dir="$(ROOT)/analysis/run_synthetic_data/data/export"; \
+	n=$$(find "$$export_dir" -name "syn_qualtrics_fct_panel_responses_[0-9]*.csv" 2>/dev/null | wc -l | tr -d ' '); \
+	if [ "$$n" -eq 0 ]; then \
+		echo "❌ No raw panel CSV found in analysis/run_synthetic_data/data/export/"; \
+		echo "   Expected: syn_qualtrics_fct_panel_responses_YYYYMMDD.csv"; \
+		exit 1; \
+	fi; \
+	echo "ℹ️  Found raw panel export CSV in data/export/"
 
 # ---------------------------------------------------------------------------
 # Help
@@ -100,11 +111,13 @@ help:
 	@echo "   make power_visual                Power curve figures (after any run)"
 	@echo ""
 	@echo "🔬 SYNTHETIC DATA ANALYSIS"
-	@echo "   make synthetic_analysis    Run all four scripts in sequence"
-	@echo "   make synthetic_eda         1. Exploratory data analysis"
-	@echo "   make synthetic_correlation 2. Correlation analysis"
-	@echo "   make synthetic_measurement 3. Measurement model"
-	@echo "   make synthetic_mlm         4. Multilevel model (main analysis)"
+	@echo "   make synthetic_analysis        Run all six steps in sequence"
+	@echo "   make synthetic_data_quality    1. Careless responding detection + exclusions"
+	@echo "   make synthetic_eda             2. Exploratory data analysis"
+	@echo "   make synthetic_correlation     3. Correlation analysis"
+	@echo "   make synthetic_measurement     4. Measurement model"
+	@echo "   make synthetic_mlm             5. Multilevel model (main analysis)"
+	@echo "   make synthetic_tables          6. Publication-ready Word tables"
 	@echo ""
 	@echo "🐍 PYTHON DEV"
 	@echo "   make py_lint            ruff check + format check"
@@ -355,6 +368,15 @@ power_visual: _check_r_env
 # Synthetic Data Analysis
 # ---------------------------------------------------------------------------
 
+synthetic_data_quality: _check_r_env _check_synthetic_export
+	@echo "Running data quality screening (careless responding)..."
+	@Rscript "$(ROOT)/analysis/run_synthetic_data/scripts/r/data_quality.R" || { \
+		echo "❌ data_quality.R failed"; \
+		exit 1; \
+	}
+	@echo "✅ Data quality complete. Cleaned CSV → analysis/run_synthetic_data/data/export/"
+	@echo "   Diagnostics  → analysis/run_synthetic_data/figs/data_quality/"
+
 synthetic_eda: _check_r_env _check_synthetic_inputs
 	@echo "📊 Running EDA script..."
 	@Rscript "$(ROOT)/analysis/run_synthetic_data/scripts/r/eda.R" || { \
@@ -387,7 +409,7 @@ synthetic_correlation: _check_r_env _check_synthetic_inputs
 	}
 	@echo "✅ Correlation analysis complete. Figures → analysis/run_synthetic_data/figs/corr/"
 
-synthetic_analysis: synthetic_eda synthetic_correlation synthetic_measurement synthetic_mlm
+synthetic_analysis: synthetic_data_quality synthetic_eda synthetic_correlation synthetic_measurement synthetic_mlm
 	@echo ""
 	@echo "✅ All synthetic data analyses complete."
 

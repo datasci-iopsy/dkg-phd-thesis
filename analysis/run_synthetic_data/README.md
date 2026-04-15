@@ -4,17 +4,18 @@ Pipeline for validating the analysis plan against Claude-generated synthetic ESM
 
 ## Overview
 
-Five R scripts run in sequence. Steps 1–4 are independent analyses; Step 5 reads their CSV outputs to produce publication-ready Word tables.
+Six R scripts run in sequence. Step 1 screens for careless responding and writes the cleaned dataset used by Steps 2–5. Step 6 reads CSV outputs from Steps 2–5 to produce publication-ready Word tables.
 
-| Step | Script | Output directory | What it does |
-|------|--------|-----------------|--------------|
-| 1 | `eda.R` | `figs/eda/` | Descriptive stats, distributions, ICCs, missing data, spaghetti plots, lag-1 autocorrelations |
-| 2 | `correlation.R` | `figs/corr/` | Bivariate correlations, repeated-measures correlations, L1/L2 correlation matrices |
-| 3 | `measurement_model.R` | `figs/cfa/` | CFA factor structure, reliability (omega, alpha), common method variance diagnostics |
-| 4 | `multilevel_model.R` | `figs/mlm/` | Model comparison (null → full), fixed/random effects, hypothesis tests, effect sizes |
-| 5 | `publication_tables.R` | `tables/` | APA-formatted Word tables (demographics, descriptives/correlations, CFA, MLM, hypotheses) |
+| Step | Script | Output | What it does |
+|------|--------|--------|--------------|
+| 1 | `data_quality.R` | `figs/data_quality/`, `data/export/…cleaned….csv` | Careless responding detection (longstring, IRV, Mahalanobis, duration); excludes flagged participants |
+| 2 | `eda.R` | `figs/eda/` | Descriptive stats, distributions, ICCs, missing data, spaghetti plots, lag-1 autocorrelations |
+| 3 | `correlation.R` | `figs/corr/` | Bivariate correlations, repeated-measures correlations, L1/L2 correlation matrices |
+| 4 | `measurement_model.R` | `figs/cfa/` | CFA factor structure, reliability (omega, alpha), common method variance diagnostics |
+| 5 | `multilevel_model.R` | `figs/mlm/` | Model comparison (null → full), fixed/random effects, hypothesis tests, effect sizes |
+| 6 | `publication_tables.R` | `tables/` | APA-formatted Word tables (demographics, descriptives/correlations, CFA, MLM, hypotheses) |
 
-Step 5 is a downstream pass: run `make synthetic_analysis` first, then `make synthetic_tables`.
+Step 6 is a downstream pass: run `make synthetic_analysis` first, then `make synthetic_tables`.
 
 ## Input Requirements
 
@@ -30,31 +31,36 @@ Current inputs (synthetic, Claude-generated):
 
 ## How to Run
 
-**All four analysis scripts in sequence (recommended):**
+**All six steps in sequence (recommended):**
 
 ```bash
 make synthetic_analysis
 ```
 
-**Individual analysis scripts:**
+**Individual steps:**
 
 ```bash
-make synthetic_eda          # Step 1: EDA
-make synthetic_correlation  # Step 2: Correlations
-make synthetic_measurement  # Step 3: Measurement model
-make synthetic_mlm          # Step 4: Multilevel models
+make synthetic_data_quality    # Step 1: Careless responding screening
+make synthetic_eda             # Step 2: EDA
+make synthetic_correlation     # Step 3: Correlations
+make synthetic_measurement     # Step 4: Measurement model
+make synthetic_mlm             # Step 5: Multilevel models
 ```
 
 **Publication tables (run after `synthetic_analysis`):**
 
 ```bash
-make synthetic_tables       # Step 5: Word .docx tables
+make synthetic_tables          # Step 6: Word .docx tables
 ```
+
+Steps 2–5 load the cleaned dataset written by Step 1. If the cleaned file is absent (e.g., running a step individually before Step 1 has run), the script falls back to the raw export and logs a warning.
 
 **Prerequisites:** Complete Quick Start steps 1–4 in the root `README.md` (R + renv packages required).
 
 ## Output
 
+- `figs/data_quality/` — careless responding diagnostic SVGs and CSV screening summary (longstring, IRV, Mahalanobis, duration distributions; per-participant flag table)
+- `data/export/syn_qualtrics_fct_panel_responses_cleaned_YYYYMMDD.csv` — panel dataset after careless responding exclusions
 - `figs/eda/` — SVG figures and select CSVs/MD tables (descriptive statistics, ICC table, correlation comparison, ~38 outputs)
 - `figs/corr/` — SVG correlation matrices and CSV data (L1 Pearson, L2 Pearson, MLM-based, rmcorr within-person)
 - `figs/cfa/` — CSV + MD tables for fit indices, factor loadings, and omega reliability (no figures; all outputs are tabular)
