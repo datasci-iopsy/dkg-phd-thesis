@@ -753,7 +753,7 @@ save_docx_table(
     ft4b,
     filepath  = file.path(TABLES_DIR, "table_04b_moderation.docx"),
     table_num = "4b",
-    title     = "Moderation Models: Meeting Characteristics x Burnout/NF Composites (M7a-M7b)"
+    title     = "Moderation Models: Meeting Load x Burnout/NF Composites (M7a-M7b)"
 )
 
 
