@@ -231,7 +231,7 @@ For a full command reference: `make help` (all commands) or `make help_gcp` (GCP
     - [Shirom-Melamed Burnout Measure (*SMBM; Shirom \& Melamed, 2006*)](#shirom-melamed-burnout-measure-smbm-shirom--melamed-2006)
     - [Basic Psychological Needs Thwarting Scale (*PNTS; Bartholomew et al., 2011*)](#basic-psychological-needs-thwarting-scale-pnts-bartholomew-et-al-2011)
     - [Attitude Toward the Color Blue (*ATCB; Miller et al., 2024*; *Miller \& Simmering, 2023*)](#attitude-toward-the-color-blue-atcb-miller-et-al-2024-miller--simmering-2023)
-    - [Meeting Characteristics](#meeting-characteristics)
+    - [Meeting Load](#meeting-characteristics)
     - [Turnover Intentions (*Spector et al., 1988*)](#turnover-intentions-spector-et-al-1988)
   - [Level 2 Variables (L2)](#level-2-variables-l2)
     - [Psychological Contract (*Robinson \& Morrison, 2000*)](#psychological-contract-robinson--morrison-2000)
@@ -248,7 +248,7 @@ For a full command reference: `make help` (all commands) or `make help_gcp` (GCP
 
 # Overview
 
-This study utilizes an experience sampling design with three within-day measurement occasions across a single workday to model need frustration depletion and burnout trajectories as they relate to momentary turnover intentions. Grounded in Self-Determination Theory (SDT) and Basic Psychological Needs Theory (BPNT), the study examines how the active frustration of autonomy, competence, and relatedness needs — as well as the accumulated energetic depletion reflected in burnout — predicts shifts in turnover intentions within a workday. A multilevel (mixed-effects) modeling paradigm differentially parses and evaluates within-person (Level 1) and between-person (Level 2) effects, with psychological contract breach/violation and job satisfaction entered as stable Level 2 predictors, and meeting characteristics examined as a within-person moderator.
+This study utilizes an experience sampling design with three within-day measurement occasions across a single workday to model need frustration depletion and burnout trajectories as they relate to momentary turnover intentions. Grounded in Self-Determination Theory (SDT) and Basic Psychological Needs Theory (BPNT), the study examines how the active frustration of autonomy, competence, and relatedness needs — as well as the accumulated energetic depletion reflected in burnout — predicts shifts in turnover intentions within a workday. A multilevel (mixed-effects) modeling paradigm differentially parses and evaluates within-person (Level 1) and between-person (Level 2) effects, with psychological contract breach/violation and job satisfaction entered as stable Level 2 predictors, and meeting load examined as a within-person moderator.
 
 # Conceptual Framework
 
@@ -264,7 +264,7 @@ Participants will be measured across three timepoints within a single respective
 
 - Burnout (*L1*)
 - Need Frustration (*L1*)
-- Meeting Characteristics (*L1*)
+- Meeting Load (*L1*)
 - Psychological Contract (*L2*)
 - Job Satisfaction (*L2*)
 
@@ -412,7 +412,7 @@ Response Anchors: Agreement-based
 
 ---
 
-### Meeting Characteristics
+### Meeting Load
 
 <details>
 <summary>Expand for items</summary>
@@ -639,7 +639,7 @@ By systematically varying key assumptions (ICC, effect sizes, random slope varia
 All hypotheses will be tested using multilevel modeling via the `lme4` R package (*Bates et al., 2015*; see also *McNeish & Matta, 2018*). Level 1 predictors will be person-mean (group) centered; Level 2 predictors will be grand-mean centered. A **sequential model-building approach** is used:
 
 1. **Null model** (unconditional means) — establishes ICC baseline and tests whether grouping structure accounts for variance in TI
-2. **H1** — add L1 within-person predictors (burnout subdimensions, NF subdimensions, meeting characteristics)
+2. **H1** — add L1 within-person predictors (burnout subdimensions, NF subdimensions, meeting load)
 3. **H2 & H3** — add L2 between-person predictors (burnout/NF person-means, PC breach/violation, job satisfaction, covariates)
 4. **H4** — add meeting × burnout and meeting × NF within-person interaction terms; composites for burnout and need frustration are computed to reduce model complexity
 
