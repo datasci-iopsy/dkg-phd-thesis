@@ -87,6 +87,8 @@ This runs three targets in sequence:
 - `setup_python` — re-validates the lock file and runs `poetry install` (idempotent after step 3)
 - `setup_hooks` — symlinks `scripts/hooks/pre-commit` into `.git/hooks/`
 
+> **Note on pre-commit linting:** the repo's pre-commit hook delegates R (lintr) and Python (ruff) lint checks to `~/.claude/hooks/repo-pre-commit.sh`, which is part of the [author's dotfiles](https://github.com/datasci-iopsy/.dotfiles). Without that dispatcher in place, staged-file linting is skipped silently (each script exits gracefully if its tool or dispatcher is absent). The lock file guard runs regardless. Collaborators without the dotfiles will not see linting blocked at commit time and should run `make py_lint` and `lintr::lint_dir()` manually before pushing.
+
 **5. Verify**
 
 ```bash

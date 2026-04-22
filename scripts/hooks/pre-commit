@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Pre-commit hooks:
-#   1. Block accidental lock file commits (ALLOW_LOCK_COMMIT=1 to bypass)
-#   2. Lint staged R files with lintr      (SKIP_R_LINT=1 to bypass)
+#   1. Lint staged R/Python files        (SKIP_R_LINT=1 / SKIP_RUFF=1 to bypass)
+#   2. Block accidental lock file commits (ALLOW_LOCK_COMMIT=1 to bypass)
 set -euo pipefail
 
-# --- R style lint (SKIP_R_LINT=1 guard is implemented inside r-lint-staged.sh) ---
-bash "$HOME/.claude/r-lint-staged.sh"
+# Dotfiles lint hooks (managed by ~/.dotfiles -- never edit this line)
+bash "$HOME/.claude/hooks/repo-pre-commit.sh"
 
 # --- Lock file guard ---
 LOCK_FILES=()
