@@ -769,57 +769,35 @@ std_fx <- readr::read_csv(file.path(MLM_DIR, "mlm_05_standardized_effects.csv"),
 ps_d   <- readr::read_csv(file.path(MLM_DIR, "mlm_06_level_specific_es.csv"),
                           show_col_types = FALSE)
 
-# Lookup: term name from hypothesis test field
-hyp_term_map <- c(
-    "pf_mean_within > 0"             = "pf_mean_within",
-    "cw_mean_within > 0"             = "cw_mean_within",
-    "ee_mean_within > 0"             = "ee_mean_within",
-    "comp_mean_within > 0"           = "comp_mean_within",
-    "auto_mean_within > 0"           = "auto_mean_within",
-    "relt_mean_within > 0"           = "relt_mean_within",
-    "pf_mean_between > 0"            = "pf_mean_between",
-    "cw_mean_between > 0"            = "cw_mean_between",
-    "ee_mean_between > 0"            = "ee_mean_between",
-    "comp_mean_between > 0"          = "comp_mean_between",
-    "auto_mean_between > 0"          = "auto_mean_between",
-    "relt_mean_between > 0"          = "relt_mean_between",
-    "br_mean_c > 0"                  = "br_mean_c",
-    "vio_mean_c > 0"                 = "vio_mean_c",
-    "js_mean_c < 0"                  = "js_mean_c",
-    "meetings_count_within > 0"      = "meetings_count_within",
-    "meetings_mins_within > 0"       = "meetings_mins_within",
-    "interaction p < .05"            = NA_character_
-)
-
-# Standardized beta lookup (join on model + term)
+# Standardized beta lookup: join on model name + lme4 term name.
+# mlm_05 uses 'Parameter' for the term column and 'model' for the model column.
 std_lookup <- std_fx |>
     dplyr::select(model, term = Parameter, beta = Std_Coefficient) |>
     dplyr::mutate(beta = round(beta, 3))
 
-# Pseudo-d lookup (L1 within or L2 between level)
+# Pseudo-d lookup: keep only L1 (within) and L2 (between) rows to avoid
+# duplicating intercept / time rows which share term names across levels.
 pd_lookup <- ps_d |>
     dplyr::filter(level %in% c("L1 (within)", "L2 (between)")) |>
-    dplyr::select(model, term, pseudo_d, magnitude) |>
+    dplyr::select(model, term, pseudo_d) |>
     dplyr::mutate(pseudo_d = round(pseudo_d, 3))
 
+# Hypothesis CSV already carries 'term' and 'model_name' columns (added during
+# the modularization refactor). Join directly without a secondary lookup map.
 t5 <- hyp |>
+    dplyr::left_join(std_lookup, by = c("model_name" = "model", "term" = "term")) |>
+    dplyr::left_join(pd_lookup,  by = c("model_name" = "model", "term" = "term")) |>
     dplyr::mutate(
-        term      = hyp_term_map[Test],
-        model_key = Model
-    ) |>
-    dplyr::left_join(std_lookup, by = c("model_key" = "model", "term" = "term")) |>
-    dplyr::left_join(pd_lookup,  by = c("model_key" = "model", "term" = "term")) |>
-    dplyr::mutate(
-        B   = ifelse(is.na(Estimate) | Hypothesis == "Prereq", "",
-                     formatC(Estimate, digits = 3, format = "f")),
-        p   = ifelse(is.na(p_value), "", fmt_p(p_value)),
-        `beta` = ifelse(is.na(beta), "", as.character(beta)),
-        `d`    = ifelse(is.na(pseudo_d), "", as.character(pseudo_d))
+        B    = ifelse(is.na(Estimate) | hypothesis == "Prereq", "",
+                      formatC(Estimate, digits = 3, format = "f")),
+        p    = ifelse(is.na(p_value), "", fmt_p(p_value)),
+        beta = ifelse(is.na(beta), "", as.character(beta)),
+        d    = ifelse(is.na(pseudo_d), "", as.character(pseudo_d))
     ) |>
     dplyr::select(
-        Hypothesis,
-        Description,
-        Model,
+        hypothesis,
+        description,
+        model_name,
         B,
         beta,
         d,
@@ -832,7 +810,7 @@ ft5 <- apa_flextable(t5) |>
         "B = unstandardized regression coefficient. beta = standardized coefficient. ",
         "d = level-specific pseudo-d effect size (Lorah, 2018). ",
         "Hypothesis supported requires correct directional sign AND p < .05 ",
-        "(one-tailed directional test). Moderation hypotheses (H4a/H4b) require p < .05 ",
+        "(one-tailed directional test). Moderation hypotheses (H3a/H3b) require p < .05 ",
         "(two-tailed). WP = within-person; BP = between-person. ",
         "* p < .05. ** p < .01. *** p < .001. ",
         "PC = Psychological Contract. NF = Need Frustration."
