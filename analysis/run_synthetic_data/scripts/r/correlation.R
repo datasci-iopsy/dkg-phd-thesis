@@ -22,8 +22,10 @@ library(svglite)
 
 options(tibble.width = Inf)
 
-# Source shared utilities (log_msg, ensure_dir, load_config)
+# Source shared utilities (log_msg, ensure_dir, plot helpers)
 source(here::here("analysis", "shared", "utils", "common_utils.r"))
+source(here::here("analysis", "shared", "utils", "plot_utils.r"))
+source(here::here("analysis", "run_synthetic_data", "utils", "data_loader.R"))
 
 # --- Global settings ---------------------------------------------------------
 FIGS_DIR <- here::here("analysis", "run_synthetic_data", "figs", "corr")
@@ -52,33 +54,8 @@ corr_to_matrix <- function(corr_obj) {
     mat
 }
 
-#' Save a base R graphics plot as an SVG file via svglite
-#'
-#' Opens an svglite device, forces evaluation of the plotting expression,
-#' closes the device, and logs the output path.
-#'
-#' @param filename Character; file name (not full path) for the SVG output,
-#'   written into FIGS_DIR.
-#' @param width  Numeric; SVG width in inches.
-#' @param height Numeric; SVG height in inches.
-#' @param expr   Unevaluated plotting expression (passed via force()).
-#' @return Invisibly returns the full path to the saved SVG file.
-save_corr_svg <- function(filename, width, height, expr) {
-    path <- file.path(FIGS_DIR, filename)
-    svglite::svglite(path, width = width, height = height)
-    tryCatch(
-        {
-            force(expr)
-            dev.off()
-            log_msg("Saved: ", path)
-        },
-        error = function(e) {
-            dev.off()
-            stop(e)
-        }
-    )
-    invisible(path)
-}
+# Base-R SVG save helper bound to FIGS_DIR (svglite device, for corrplot etc.)
+save_corr_svg <- make_save_base_svg(FIGS_DIR)
 
 
 # =============================================================================
@@ -86,25 +63,7 @@ save_corr_svg <- function(filename, width, height, expr) {
 # =============================================================================
 log_msg("=== [1] Loading data ===")
 
-# Prefer careless-screened file; fall back to raw export with a warning
-export_files <- list.files(
-    here::here("analysis", "run_synthetic_data", "data", "export"),
-    pattern = "^syn_qualtrics_fct_panel_responses_cleaned_.*\\.csv$",
-    full.names = TRUE
-)
-if (length(export_files) == 0) {
-    log_msg("WARNING: No cleaned data file found. Run make synthetic_data_quality first.")
-    export_files <- list.files(
-        here::here("analysis", "run_synthetic_data", "data", "export"),
-        pattern = "^syn_qualtrics_fct_panel_responses_\\d{8}\\.csv$",
-        full.names = TRUE
-    )
-    if (length(export_files) == 0) stop("No export CSV found in data/export/")
-}
-export_path <- sort(export_files, decreasing = TRUE)[1]
-log_msg("Loading: ", basename(export_path))
-df_raw <- readr::read_csv(export_path, show_col_types = FALSE)
-log_msg("Loaded: ", nrow(df_raw), " rows x ", ncol(df_raw), " columns")
+df_raw <- load_cleaned_data()
 
 # L2: one row per participant (time-invariant variables)
 df_l2 <- df_raw |>

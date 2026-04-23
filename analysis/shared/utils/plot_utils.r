@@ -69,6 +69,72 @@ save_pdf <- function(plot, filepath, width = 10, height = 7) {
 }
 
 
+#' Create a save_fig() function bound to a specific output directory
+#'
+#' Returns a closure that calls save_svg() with the captured figs_dir,
+#' eliminating per-script boilerplate for SVG figure output.
+#'
+#' @param figs_dir       Character; output directory path.
+#' @param default_width  Default plot width in inches (default: 10).
+#' @param default_height Default plot height in inches (default: 7).
+#' @return A function(plot, filename, width, height)
+#'
+make_save_fig <- function(figs_dir, default_width = 10, default_height = 7) {
+    force(figs_dir)
+    function(plot, filename, width = default_width, height = default_height) {
+        save_svg(plot, file.path(figs_dir, filename), width, height)
+    }
+}
+
+
+#' Create a save_tbl() function bound to a specific output directory
+#'
+#' Returns a closure that calls save_pdf() with the captured figs_dir,
+#' for tableGrob-based ggplot objects saved as PDF.
+#'
+#' @param figs_dir       Character; output directory path.
+#' @param default_width  Default plot width in inches (default: 12).
+#' @param default_height Default plot height in inches (default: 8).
+#' @return A function(plot, filename, width, height)
+#'
+make_save_tbl <- function(figs_dir, default_width = 12, default_height = 8) {
+    force(figs_dir)
+    function(plot, filename, width = default_width, height = default_height) {
+        save_pdf(plot, file.path(figs_dir, filename), width, height)
+    }
+}
+
+
+#' Create a save_base_svg() function bound to a specific output directory
+#'
+#' Returns a closure for saving base-R graphics (e.g., corrplot) as SVG via
+#' svglite. The expr argument is evaluated after opening the device, which
+#' captures the rendered plot.
+#'
+#' @param figs_dir Character; output directory path.
+#' @return A function(filename, width, height, expr)
+#'
+make_save_base_svg <- function(figs_dir) {
+    force(figs_dir)
+    function(filename, width, height, expr) {
+        path <- file.path(figs_dir, filename)
+        svglite::svglite(path, width = width, height = height)
+        tryCatch(
+            {
+                force(expr)
+                dev.off()
+                log_msg("Saved: ", path)
+            },
+            error = function(e) {
+                dev.off()
+                stop(e)
+            }
+        )
+        invisible(path)
+    }
+}
+
+
 #' Save a data frame as a GitHub-viewable Markdown table
 #'
 #' Writes a pipe-format Markdown table that GitHub renders natively.

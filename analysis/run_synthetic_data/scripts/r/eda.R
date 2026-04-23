@@ -50,6 +50,7 @@ options(tibble.width = Inf)
 # Source shared utilities (log_msg, ensure_dir, load_config, theme_apa, save_svg)
 source(here::here("analysis", "shared", "utils", "common_utils.r"))
 source(here::here("analysis", "shared", "utils", "plot_utils.r"))
+source(here::here("analysis", "run_synthetic_data", "utils", "data_loader.R"))
 
 # --- Global settings ---------------------------------------------------------
 FIGS_DIR <- here::here("analysis", "run_synthetic_data", "figs", "eda")
@@ -57,15 +58,9 @@ ensure_dir(FIGS_DIR)
 
 theme_set(theme_apa)
 
-# SVG save helper (binds FIGS_DIR for convenience at call sites)
-save_fig <- function(plot, filename, width = 10, height = 7) {
-    save_svg(plot, file.path(FIGS_DIR, filename), width, height)
-}
-
-# PDF save helper for table outputs (binds FIGS_DIR for convenience at call sites)
-save_table <- function(plot, filename, width = 10, height = 7) {
-    save_pdf(plot, file.path(FIGS_DIR, filename), width, height)
-}
+# SVG and PDF save helpers bound to FIGS_DIR
+save_fig   <- make_save_fig(FIGS_DIR)
+save_table <- make_save_tbl(FIGS_DIR, default_width = 10, default_height = 7)
 
 # Color palettes
 pal_3 <- viridis::viridis(3, end = 0.85) # 3-level timepoint palette
@@ -78,25 +73,7 @@ pal_nf <- viridis::viridis(3, option = "D", end = 0.85) # COMP/AUTO/RELT
 # =============================================================================
 log_msg("=== [1] Loading data ===")
 
-# Prefer careless-screened file; fall back to raw export with a warning
-export_files <- list.files(
-    here::here("analysis", "run_synthetic_data", "data", "export"),
-    pattern = "^syn_qualtrics_fct_panel_responses_cleaned_.*\\.csv$",
-    full.names = TRUE
-)
-if (length(export_files) == 0) {
-    log_msg("WARNING: No cleaned data file found. Run make synthetic_data_quality first.")
-    export_files <- list.files(
-        here::here("analysis", "run_synthetic_data", "data", "export"),
-        pattern = "^syn_qualtrics_fct_panel_responses_\\d{8}\\.csv$",
-        full.names = TRUE
-    )
-    if (length(export_files) == 0) stop("No export CSV found in data/export/")
-}
-export_path <- sort(export_files, decreasing = TRUE)[1]
-log_msg("Loading: ", basename(export_path))
-df_raw <- readr::read_csv(export_path, show_col_types = TRUE)
-log_msg("Loaded: ", nrow(df_raw), " rows x ", ncol(df_raw), " columns")
+df_raw <- load_cleaned_data(show_col_types = TRUE)
 
 tbls <- list()
 

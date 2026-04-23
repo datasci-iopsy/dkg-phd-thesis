@@ -59,10 +59,8 @@ today <- format(Sys.Date(), "%Y%m%d")
 
 theme_set(theme_apa)
 
-# SVG helper (binds FIGS_DIR; no timestamp — script overwrites on each run)
-save_fig <- function(plot, filename, width = 10, height = 6) {
-    save_svg(plot, file.path(FIGS_DIR, filename), width, height)
-}
+# SVG save helper (binds FIGS_DIR; no timestamp — script overwrites on each run)
+save_fig <- make_save_fig(FIGS_DIR, default_height = 6)
 
 # Survey label helper: converts integer timepoint to readable label
 survey_label <- function(tp) paste0("Survey ", tp)

@@ -31,6 +31,7 @@ options(tibble.width = Inf)
 # Source shared utilities (log_msg, ensure_dir, save_md)
 source(here::here("analysis", "shared", "utils", "common_utils.r"))
 source(here::here("analysis", "shared", "utils", "plot_utils.r"))
+source(here::here("analysis", "run_synthetic_data", "utils", "data_loader.R"))
 
 FIGS_DIR <- here::here("analysis", "run_synthetic_data", "figs", "cfa")
 ensure_dir(FIGS_DIR)
@@ -44,26 +45,7 @@ log_msg("Output directory: ", FIGS_DIR)
 # =============================================================================
 log_msg("=== [1] Loading data ===")
 
-# Prefer careless-screened file; fall back to raw export with a warning
-export_files <- list.files(
-    here::here("analysis", "run_synthetic_data", "data", "export"),
-    pattern = "^syn_qualtrics_fct_panel_responses_cleaned_.*\\.csv$",
-    full.names = TRUE
-)
-if (length(export_files) == 0) {
-    log_msg("WARNING: No cleaned data file found. Run make synthetic_data_quality first.")
-    export_files <- list.files(
-        here::here("analysis", "run_synthetic_data", "data", "export"),
-        pattern = "^syn_qualtrics_fct_panel_responses_\\d{8}\\.csv$",
-        full.names = TRUE
-    )
-    if (length(export_files) == 0) stop("No export CSV found in data/export/")
-}
-export_path <- sort(export_files, decreasing = TRUE)[1]
-log_msg("Loading: ", basename(export_path))
-
-df_raw <- readr::read_csv(export_path, show_col_types = FALSE)
-log_msg("Loaded: ", nrow(df_raw), " rows x ", ncol(df_raw), " columns")
+df_raw <- load_cleaned_data()
 
 
 # =============================================================================
