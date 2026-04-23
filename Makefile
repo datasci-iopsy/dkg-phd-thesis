@@ -111,7 +111,7 @@ help:
 	@echo "   make power_visual                Power curve figures (after any run)"
 	@echo ""
 	@echo "🔬 SYNTHETIC DATA ANALYSIS"
-	@echo "   make synthetic_analysis        Run all six steps in sequence"
+	@echo "   make synthetic_analysis        Run steps 1–5 (data quality through MLM)"
 	@echo "   make synthetic_data_quality    1. Careless responding detection + exclusions"
 	@echo "   make synthetic_eda             2. Exploratory data analysis"
 	@echo "   make synthetic_correlation     3. Correlation analysis"

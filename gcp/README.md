@@ -169,7 +169,7 @@ Runtime configuration for each function lives in YAML files under its `configs/`
 
 **[`run_qualtrics_scheduling/configs/qualtrics_config.yaml`](cloud_run_functions/run_qualtrics_scheduling/configs/qualtrics_config.yaml)**: Qualtrics REST API base URL and survey URL base (used for constructing follow-up survey links).
 
-**[`run_intake_confirmation/configs/gcp_config.yaml`](cloud_run_functions/run_intake_confirmation/configs/gcp_config.yaml)**: GCP project ID, compute region, BigQuery references, and the Pub/Sub topic ID for publishing follow-up scheduling messages.
+**[`run_intake_confirmation/configs/gcp_utils.yaml`](cloud_run_functions/run_intake_confirmation/configs/gcp_utils.yaml)**: GCP project ID, compute region, BigQuery references, and the Pub/Sub topic ID for publishing follow-up scheduling messages.
 
 **[`run_followup_scheduling/configs/gcp_utils.yaml`](cloud_run_functions/run_followup_scheduling/configs/gcp_utils.yaml)**: GCP project ID, compute region, BigQuery references (including `scheduled_followups` table), and follow-up survey configuration (Qualtrics survey base URL and three survey IDs corresponding to the 9 AM, 1 PM, and 5 PM time slots).
 
@@ -301,7 +301,9 @@ poetry run pytest gcp/tests/test_models.py -v
 poetry run pytest gcp/tests/test_bq_schemas.py -v
 poetry run pytest gcp/tests/test_config.py -v
 poetry run pytest gcp/tests/test_validation.py -v
+poetry run pytest gcp/tests/test_intake_confirmation.py -v
 poetry run pytest gcp/tests/test_followup_scheduling.py -v
+poetry run pytest gcp/tests/test_followup_response.py -v
 ```
 
 Tests mock BigQuery calls and use Flask test request contexts, so no GCP credentials or network access are needed.

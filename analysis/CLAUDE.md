@@ -5,10 +5,10 @@ R (4.4, renv) analysis pipeline. Two pillars:
 - `run_synthetic_data/` — synthetic ESM data generation (Python + R + SQL + bash); analysis pipeline runs in 6 steps starting with `data_quality.R` (careless responding screening)
 
 Shared utilities in `analysis/shared/utils/`:
-- `common_utils.r` — `log_msg()`, `load_config()`, `ensure_dir()`, `get_system_info()`
-- `mlm_utils.r` — multilevel model helpers
-- `plot_utils.r` — ggplot2 theme and palette utilities
-- `table_utils.r` — flextable/officer helpers for APA Word table generation
+- `common_utils.R` — `log_msg()`, `load_config()`, `ensure_dir()`, `get_system_info()`
+- `mlm_utils.R` — multilevel model helpers
+- `plot_utils.r` — ggplot2 theme, palette utilities, and save-helper factories (`make_save_fig`, `make_save_tbl`, `make_save_base_svg`)
+- `table_utils.r` — flextable/officer helpers for APA Word table generation; formatting functions (`fmt_p`, `fmt_r`, `fmt_est`)
 
 ## Commands
 
@@ -23,7 +23,7 @@ bash analysis/run_power_analysis/main.sh benchmark_gcp                 # GCP tim
 bash analysis/run_power_analysis/main.sh prod_gcp                      # GCP full grid (3,645 cells)
 Rscript analysis/run_power_analysis/scripts/visualize_power_analysis.R # SVG figures from latest results
 bash analysis/tests/validate_r_structure.sh                            # pre-flight static validation
-make synthetic_analysis                                                 # all 6 synthetic data steps in sequence
+make synthetic_analysis                                                 # steps 1–5; run make synthetic_tables separately for publication output
 make synthetic_data_quality                                             # Step 1 only: careless responding screening
 ```
 

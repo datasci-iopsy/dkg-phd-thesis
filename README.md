@@ -286,19 +286,23 @@ Participants will be measured across three timepoints within a single respective
 
 ## Hypotheses
 
-- **H1a.** Holding all other within-person predictors constant, individuals who experience higher levels of burnout relative to their personal average at a given measurement occasion are expected to report stronger turnover intentions.
+- **H1a.** Holding all other within-person predictors constant, individuals who experience higher levels of need frustration relative to their personal average at a given measurement occasion are expected to report stronger turnover intentions.
 
-- **H1b.** Holding all other within-person predictors constant, individuals who experience higher levels of need frustration relative to their personal average at a given measurement occasion are expected to report stronger turnover intentions.
+- **H1b.** Individuals who, on average, experience higher levels of need frustration are expected to report stronger turnover intentions, controlling for all other between-person means and within-person deviations.
 
-- **H2a.** Individuals who, on average, experience higher levels of burnout are expected to report stronger turnover intentions, controlling for all other between-person means and within-person deviations.
+- **H2a.** Holding all other within-person predictors constant, individuals who experience higher levels of burnout relative to their personal average at a given measurement occasion are expected to report stronger turnover intentions.
 
-- **H2b.** Individuals who, on average, experience higher levels of need frustration are expected to report stronger turnover intentions, controlling for all other between-person means and within-person deviations.
+- **H2b.** Individuals who, on average, experience higher levels of burnout are expected to report stronger turnover intentions, controlling for all other between-person means and within-person deviations.
 
-- **H3.** On average, turnover intentions are expected to be positively associated with individuals who experience chronically higher levels of (a) psychological contract breach and (b) violation, while negatively associated with consistently higher levels of (c) job satisfaction.
+- **H3a.** Holding all other within-person predictors and between-person means constant, individuals who have more meetings than their personal average at a given measurement occasion are expected to report higher levels of turnover intentions; meeting count will positively moderate the relationships between need frustration and turnover intentions and between burnout and turnover intentions.
 
-- **H4a.** Holding all other within-person predictors and between-person means constant, individuals who have more meetings than their personal average at a given measurement occasion are expected to report higher levels of turnover intentions; this effect will positively moderate the relationships between burnout and turnover intentions and between need frustration and turnover intentions.
+- **H3b.** Holding all other within-person predictors and between-person means constant, individuals who spend more time in meetings than their personal average at a given measurement occasion are expected to report higher levels of turnover intentions; meeting minutes will positively moderate the relationships between need frustration and turnover intentions and between burnout and turnover intentions.
 
-- **H4b.** Holding all other within-person predictors and between-person means constant, individuals who spend more time in meetings than their personal average at a given measurement occasion are expected to report higher levels of turnover intentions; this effect will positively moderate the relationships between burnout and turnover intentions and between need frustration and turnover intentions.
+- **H4a.** On average, turnover intentions are expected to be positively associated with individuals who experience chronically higher levels of psychological contract breach.
+
+- **H4b.** On average, turnover intentions are expected to be positively associated with individuals who experience chronically higher levels of psychological contract violation.
+
+- **H5.** On average, turnover intentions are expected to be negatively associated with individuals who report consistently higher levels of job satisfaction.
 
 ## Research Model
 
@@ -641,9 +645,10 @@ By systematically varying key assumptions (ICC, effect sizes, random slope varia
 All hypotheses will be tested using multilevel modeling via the `lme4` R package (*Bates et al., 2015*; see also *McNeish & Matta, 2018*). Level 1 predictors will be person-mean (group) centered; Level 2 predictors will be grand-mean centered. A **sequential model-building approach** is used:
 
 1. **Null model** (unconditional means) — establishes ICC baseline and tests whether grouping structure accounts for variance in TI
-2. **H1** — add L1 within-person predictors (burnout subdimensions, NF subdimensions, meeting load)
-3. **H2 & H3** — add L2 between-person predictors (burnout/NF person-means, PC breach/violation, job satisfaction, covariates)
-4. **H4** — add meeting × burnout and meeting × NF within-person interaction terms; composites for burnout and need frustration are computed to reduce model complexity
+2. **H1a/H2a** — add L1 within-person predictors (NF subdimensions, burnout subdimensions, meeting load)
+3. **H1b/H2b** — add L2 between-person means (NF/burnout person-means)
+4. **H4a/H4b/H5** — add L2 study variables (PC breach, violation, job satisfaction) and demographic covariates
+5. **H3a/H3b** — add meeting × NF and meeting × burnout within-person interaction terms; burnout and NF composites are computed for construct-level moderation testing
 
 Rather than conducting significance tests to evaluate slope variance (which are unreliable with only 3 timepoints), an effect size estimate called **ICC beta (ρ_β)** will be calculated to evaluate the proportion of within-group variance in TI attributable to between-group differences in slopes (*Aguinis & Culpepper, 2015*). ICC beta is orthogonal to the standard ICC and will be reported in place of formalized slope variance tests.
 

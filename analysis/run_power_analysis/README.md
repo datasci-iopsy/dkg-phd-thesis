@@ -28,13 +28,13 @@ Rather than solving a closed-form equation, it uses Monte Carlo simulation to em
 
 The program builds a full factorial grid from configuration parameters, distributes the grid across parallel workers via `furrr`, and saves timestamped results. It is designed to run from the command line, eliminating the need for IDEs (e.g., RStudio, VS Code).
 
-The architecture follows a thin-wrapper pattern: [`main.sh`](main.sh) handles process lifecycle (log file creation, wall-clock timing), while [`run_power_analysis.R`](scripts/run_power_analysis.R) owns all application logic (path resolution, configuration, renv activation, parallel execution, and output).
+The architecture follows a thin-wrapper pattern: [`main.sh`](main.sh) handles process lifecycle (log file creation, wall-clock timing), while [`run_power_analysis.r`](scripts/run_power_analysis.r) owns all application logic (path resolution, configuration, renv activation, parallel execution, and output).
 
-Key entry points: [`main.sh`](main.sh) (bash wrapper), [`scripts/run_power_analysis.R`](scripts/run_power_analysis.R) (orchestrator), and [`scripts/visualize_power_analysis.R`](scripts/visualize_power_analysis.R) (visualization). The visualizer auto-detects the most recent results file, produces SVG power curve figures saved to `figs/`, and scales from dev to prod grids without changes. The simulation engine lives in [`utils/power_analysis_utils.R`](utils/power_analysis_utils.R). Runtime directories (`data/`, `logs/`, `figs/`) are created automatically and gitignored.
+Key entry points: [`main.sh`](main.sh) (bash wrapper), [`scripts/run_power_analysis.r`](scripts/run_power_analysis.r) (orchestrator), and [`scripts/visualize_power_analysis.R`](scripts/visualize_power_analysis.R) (visualization). The visualizer auto-detects the most recent results file, produces SVG power curve figures saved to `figs/`, and scales from dev to prod grids without changes. The simulation engine lives in [`utils/power_analysis_utils.r`](utils/power_analysis_utils.r). Runtime directories (`data/`, `logs/`, `figs/`) are created automatically and gitignored.
 
 ## How it works
 
-The simulation engine ([`power_analysis_utils.R`](utils/power_analysis_utils.R)) implements the Arend & Schafer (2019) procedure for each parameter combination in the grid. The process has five steps.
+The simulation engine ([`power_analysis_utils.r`](utils/power_analysis_utils.r)) implements the Arend & Schafer (2019) procedure for each parameter combination in the grid. The process has five steps.
 
 **Step 1: Derive variance components.** Starting from standardized inputs (ICC, standardized effect sizes, random slope variance), the function computes unconditional and conditional variance components using Arend & Schafer's equations 10-11. Unconditional Level 1 variance is fixed at 1.00 as the standardization anchor. Level 2 unconditional variance is derived from the ICC as `icc / (1 - icc)`. Conditional variances account for the variance explained by each predictor.
 
@@ -44,7 +44,7 @@ The simulation engine ([`power_analysis_utils.R`](utils/power_analysis_utils.R))
 
 **Step 4: Run Monte Carlo power simulations.** For each of three fixed effects (L1 direct effect of `x`, L2 direct effect of `Z`, cross-level interaction `x:Z`), `simr::powerSim()` generates `n_sims` datasets from the population model, fits the mixed model to each, and tests significance using Kenward-Roger. Power is the proportion of simulations that reject the null.
 
-**Step 5: Return results.** Each combination produces power estimates with 95% confidence intervals for all three effects. The grid runner ([`run_power_analysis.R`](scripts/run_power_analysis.R)) collects these into a single data frame with full parameter context, timing, and success/failure status.
+**Step 5: Return results.** Each combination produces power estimates with 95% confidence intervals for all three effects. The grid runner ([`run_power_analysis.r`](scripts/run_power_analysis.r)) collects these into a single data frame with full parameter context, timing, and success/failure status.
 
 ## Requirements
 
@@ -141,7 +141,7 @@ nohup bash analysis/run_power_analysis/main.sh prod_gcp &
 ### What happens at runtime
 
 1. `main.sh` creates a timestamped log file in `logs/` and starts the wall-clock timer.
-2. `main.sh` hands off to `Rscript run_power_analysis.R --version <dev|prod|benchmark_gcp|prod_gcp>`.
+2. `main.sh` hands off to `Rscript run_power_analysis.r --version <dev|prod|benchmark_gcp|prod_gcp>`.
 3. The R script activates `renv` via the project-root [`.Rprofile`](../../.Rprofile), resolves all paths from its own filesystem location, and loads the version-specific configuration.
 4. A full factorial parameter grid is built via `tidyr::expand_grid()` and its size is logged.
 5. System information (OS, cores, memory) is logged.
@@ -187,7 +187,7 @@ Power > 0.80 is conventionally interpreted as adequate statistical power.
 
 ## Static validation
 
-A pre-flight validation script checks directory structure, file presence, path resolution logic, configuration parsing, and R syntax without requiring any R packages to be installed. Run it from the `analysis/tests/` directory:
+A pre-flight validation script checks directory structure, file presence, path resolution logic, configuration parsing, and R syntax without requiring any R packages to be installed. Run from the project root directory:
 
 ```bash
 bash analysis/tests/validate_r_structure.sh
