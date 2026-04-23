@@ -75,6 +75,10 @@ expected_dirs=(
 	"analysis/run_power_analysis/configs"
 	"analysis/run_power_analysis/scripts"
 	"analysis/run_power_analysis/utils"
+	"analysis/run_synthetic_data"
+	"analysis/run_synthetic_data/scripts"
+	"analysis/run_synthetic_data/scripts/r"
+	"analysis/run_synthetic_data/utils"
 )
 
 for dir in "${expected_dirs[@]}"; do
@@ -113,6 +117,17 @@ required_files=(
 	"analysis/run_power_analysis/configs/run_power_analysis.dev.yaml"
 	"analysis/run_power_analysis/configs/run_power_analysis.prod.yaml"
 	"analysis/shared/utils/common_utils.r"
+	"analysis/shared/utils/mlm_utils.r"
+	"analysis/shared/utils/plot_utils.r"
+	"analysis/shared/utils/table_utils.r"
+	"analysis/run_synthetic_data/utils/data_loader.R"
+	"analysis/run_synthetic_data/utils/mlm_hypothesis_map.R"
+	"analysis/run_synthetic_data/utils/mlm_diagnostics.R"
+	"analysis/run_synthetic_data/scripts/r/multilevel_model.R"
+	"analysis/run_synthetic_data/scripts/r/eda.R"
+	"analysis/run_synthetic_data/scripts/r/correlation.R"
+	"analysis/run_synthetic_data/scripts/r/measurement_model.R"
+	"analysis/run_synthetic_data/scripts/r/publication_tables.R"
 )
 
 for f in "${required_files[@]}"; do
@@ -219,8 +234,18 @@ echo "----------------------------------------------------------------------"
 if command -v Rscript &>/dev/null; then
 	r_files=(
 		"analysis/shared/utils/common_utils.r"
+		"analysis/shared/utils/mlm_utils.r"
+		"analysis/shared/utils/plot_utils.r"
+		"analysis/shared/utils/table_utils.r"
 		"analysis/run_power_analysis/utils/power_analysis_utils.R"
 		"analysis/run_power_analysis/scripts/run_power_analysis.R"
+		"analysis/run_synthetic_data/utils/data_loader.R"
+		"analysis/run_synthetic_data/utils/mlm_hypothesis_map.R"
+		"analysis/run_synthetic_data/utils/mlm_diagnostics.R"
+		"analysis/run_synthetic_data/scripts/r/multilevel_model.R"
+		"analysis/run_synthetic_data/scripts/r/eda.R"
+		"analysis/run_synthetic_data/scripts/r/correlation.R"
+		"analysis/run_synthetic_data/scripts/r/measurement_model.R"
 	)
 
 	for f in "${r_files[@]}"; do
@@ -246,9 +271,20 @@ echo "----------------------------------------------------------------------"
 
 code_files=(
 	"analysis/shared/utils/common_utils.r"
+	"analysis/shared/utils/mlm_utils.r"
+	"analysis/shared/utils/plot_utils.r"
 	"analysis/run_power_analysis/utils/power_analysis_utils.R"
 	"analysis/run_power_analysis/scripts/run_power_analysis.R"
 	"analysis/run_power_analysis/main.sh"
+	"analysis/run_synthetic_data/utils/data_loader.R"
+	"analysis/run_synthetic_data/utils/mlm_hypothesis_map.R"
+	"analysis/run_synthetic_data/utils/mlm_diagnostics.R"
+	"analysis/run_synthetic_data/scripts/r/multilevel_model.R"
+	"analysis/run_synthetic_data/scripts/r/publication_tables.R"
+	"analysis/run_synthetic_data/scripts/r/eda.R"
+	"analysis/run_synthetic_data/scripts/r/correlation.R"
+	"analysis/run_synthetic_data/scripts/r/measurement_model.R"
+	"analysis/shared/utils/table_utils.r"
 )
 
 for f in "${code_files[@]}"; do
