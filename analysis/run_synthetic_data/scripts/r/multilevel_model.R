@@ -9,21 +9,23 @@
 # DV     : turnover_intention_mean (1-5 ordinal, treated as continuous)
 # Output : CSVs + SVGs -> analysis/run_synthetic_data/figs/mlm/
 #
-# Hypotheses:
-#   H1a  : WP burnout facets (pf, cw, ee) -> TI (+)              [M3]
-#   H1b  : WP NF facets (comp, auto, relt) -> TI (+)             [M3]
-#   H2a  : BP burnout facet means -> TI (+)                       [M4]
-#   H2b  : BP NF facet means -> TI (+)                            [M4]
-#   H3a-c: BP breach (+), violation (+), job satisfaction (-) -> TI [M5]
-#   H4a  : WP meeting count -> TI (+); moderates burnout/NF -> TI  [M3, M7a]
-#   H4b  : WP meeting time -> TI (+); moderates burnout/NF -> TI   [M3, M7b]
+# Hypotheses (aligned to dissertation proposal numbering):
+#   H1a  : WP NF facets (comp, auto, relt) -> TI (+)              [M3]
+#   H1b  : BP NF facet means -> TI (+)                             [M4]
+#   H2a  : WP burnout facets (pf, cw, ee) -> TI (+)               [M3]
+#   H2b  : BP burnout facet means -> TI (+)                        [M4]
+#   H3a  : WP meeting load x NF composite -> TI (moderation)      [M7a/M7b]
+#   H3b  : WP meeting load x burnout composite -> TI (moderation) [M7a/M7b]
+#   H4a  : BP PC breach -> TI (+)                                  [M5]
+#   H4b  : BP PC violation -> TI (+)                               [M5]
+#   H5   : BP job satisfaction -> TI (-)                           [M5]
 #
 # Phase 1 (M0-M2) : Variance partitioning and time trend baselines
-# Phase 2 (M3)    : WP main effects — L1 facets (H1a, H1b, H4a-b main effects)
-# Phase 3 (M4)    : BP mean components of L1 variables (H2a, H2b)
-# Phase 4 (M5)    : L2 study variables: breach, violation, JS (H3a-c)
+# Phase 2 (M3)    : WP main effects — L1 facets (H2a, H1a, meeting main effects)
+# Phase 3 (M4)    : BP mean components of L1 variables (H2b, H1b)
+# Phase 4 (M5)    : L2 study variables: breach, violation, JS (H4a, H4b, H5)
 # Phase 5 (M6)    : Demographic sensitivity — data-driven covariate selection
-# Phase 6 (M7a-b) : L1 x L1 moderation — meetings x burnout/NF composites (H4a-b)
+# Phase 6 (M7a-b) : L1 x L1 moderation — meetings x burnout/NF composites (H3a, H3b)
 # Phase 7         : ICC-beta (rho_beta) slope heterogeneity
 #
 # Centering: Enders & Tofighi (2007) / Curran & Bauer (2011)
@@ -64,10 +66,15 @@ library(interactions)
 
 options(tibble.width = Inf)
 
-# Source shared utilities (log_msg, ensure_dir, theme_apa, save_svg, mlm helpers)
+# Source shared utilities (log_msg, ensure_dir, theme_apa, save_svg, save_md, mlm helpers)
 source(here::here("analysis", "shared", "utils", "common_utils.r"))
 source(here::here("analysis", "shared", "utils", "plot_utils.r"))
 source(here::here("analysis", "shared", "utils", "mlm_utils.r"))
+
+# Source domain-specific utilities
+source(here::here("analysis", "run_synthetic_data", "utils", "data_loader.R"))
+source(here::here("analysis", "run_synthetic_data", "utils", "mlm_hypothesis_map.R"))
+source(here::here("analysis", "run_synthetic_data", "utils", "mlm_diagnostics.R"))
 
 # --- Global settings ----------------------------------------------------------
 FIGS_DIR <- here::here("analysis", "run_synthetic_data", "figs", "mlm")
@@ -75,17 +82,9 @@ ensure_dir(FIGS_DIR)
 
 theme_set(theme_apa)
 
-# SVG save helper (binds FIGS_DIR for convenience at call sites)
-save_fig <- function(plot, filename, width = 10, height = 7) {
-    save_svg(plot, file.path(FIGS_DIR, filename), width, height)
-}
-
-# PDF save helper for table outputs (tableGrob-based ggplots)
-save_tbl <- function(plot, filename, width = 12, height = 8) {
-    path <- file.path(FIGS_DIR, filename)
-    ggplot2::ggsave(path, plot = plot, device = "pdf", width = width, height = height)
-    invisible(path)
-}
+# SVG and PDF save helpers bound to FIGS_DIR
+save_fig <- make_save_fig(FIGS_DIR)
+save_tbl <- make_save_tbl(FIGS_DIR)
 
 # Default optimizer control for lmer
 CTRL <- lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 200000))
@@ -99,46 +98,19 @@ log_msg("Output directory: ", FIGS_DIR)
 # =============================================================================
 log_msg("=== [1] Loading data ===")
 
-# Prefer careless-screened file; fall back to raw export with a warning
-export_files <- list.files(
-    here::here("analysis", "run_synthetic_data", "data", "export"),
-    pattern = "^syn_qualtrics_fct_panel_responses_cleaned_.*\\.csv$",
-    full.names = TRUE
-)
-if (length(export_files) == 0) {
-    log_msg("WARNING: No cleaned data file found. Run make synthetic_data_quality first.")
-    export_files <- list.files(
-        here::here("analysis", "run_synthetic_data", "data", "export"),
-        pattern = "^syn_qualtrics_fct_panel_responses_\\d{8}\\.csv$",
-        full.names = TRUE
-    )
-    if (length(export_files) == 0) stop("No export CSV found in data/export/")
-}
-export_path <- sort(export_files, decreasing = TRUE)[1]
-log_msg("Loading: ", basename(export_path))
-df_raw <- readr::read_csv(export_path, show_col_types = FALSE)
-log_msg("Loaded: ", nrow(df_raw), " rows x ", ncol(df_raw), " columns")
+df_raw <- load_cleaned_data()
 
 n_participants <- dplyr::n_distinct(df_raw$response_id)
 log_msg("Participants (L2): ", n_participants)
 log_msg("Timepoints  (L1) : ", max(df_raw$timepoint))
 
-# Variable name vectors
-l1_predictor_vars <- c(
-    "pf_mean", "cw_mean", "ee_mean",
-    "comp_mean", "auto_mean", "relt_mean",
-    "meetings_count", "meetings_mins"
-)
-# ATCB is the CFA marker variable (lavaan measurement model only).
-# It is CWC-decomposed below to keep the data frame consistent, but it is
-# NOT included in any MLM formula.
-l1_marker_var <- "atcb_mean"
-l1_all_center <- l1_predictor_vars
-
-l2_study_vars <- c("pa_mean", "na_mean", "br_mean", "vio_mean", "js_mean")
-l2_demo_vars <- c("age", "gender", "job_tenure", "is_remote", "edu_lvl", "ethnicity")
-
-dv <- "turnover_intention_mean"
+# Variable name vectors from canonical definitions
+l1_predictor_vars <- VARIABLE_DEFS$l1_predictor_vars
+l1_marker_var     <- VARIABLE_DEFS$l1_marker_var
+l1_all_center     <- l1_predictor_vars
+l2_study_vars     <- VARIABLE_DEFS$l2_study_vars
+l2_demo_vars      <- VARIABLE_DEFS$l2_demo_vars
+dv                <- VARIABLE_DEFS$dv
 
 # Pretty labels for output tables
 var_labels <- c(
@@ -228,78 +200,12 @@ log_msg("  Centering complete. Total columns: ", ncol(df))
 # select_covariates_bivariate) are sourced from:
 #   analysis/shared/utils/mlm_utils.r
 #
-# Script-specific helpers below: check_assumptions, get_coef_result
+# check_assumptions() is sourced from:
+#   analysis/run_synthetic_data/utils/mlm_diagnostics.R
+#
+# HYPOTHESIS_MAP, get_coef_result(), evaluate_hypotheses() are sourced from:
+#   analysis/run_synthetic_data/utils/mlm_hypothesis_map.R
 # =============================================================================
-
-#' Generate 4-panel residual diagnostic SVG
-check_assumptions <- function(fit, model_name) {
-    if (is.null(fit)) {
-        return(invisible(NULL))
-    }
-
-    resids <- residuals(fit)
-    fitted_vals <- fitted(fit)
-    re <- ranef(fit)$response_id
-
-    # Panel 1: L1 residual QQ
-    p1 <- ggplot(data.frame(r = resids), aes(sample = r)) +
-        stat_qq(alpha = 0.3, size = 0.8) +
-        stat_qq_line(color = "red") +
-        labs(title = "L1 Residual QQ Plot", x = "Theoretical", y = "Sample")
-
-    # Panel 2: Residuals vs fitted
-    p2 <- ggplot(
-        data.frame(fitted = fitted_vals, resid = resids),
-        aes(x = fitted, y = resid)
-    ) +
-        geom_point(alpha = 0.2, size = 0.8) +
-        geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
-        geom_smooth(
-            method = "loess", se = FALSE, color = "blue",
-            linewidth = 0.6
-        ) +
-        labs(title = "Residuals vs. Fitted", x = "Fitted", y = "Residual")
-
-    # Panel 3: Random intercept QQ
-    p3 <- ggplot(data.frame(ri = re[["(Intercept)"]]), aes(sample = ri)) +
-        stat_qq(alpha = 0.5, size = 0.8) +
-        stat_qq_line(color = "red") +
-        labs(
-            title = "Random Intercept QQ Plot",
-            x = "Theoretical", y = "Sample"
-        )
-
-    # Panel 4: Scale-location
-    p4 <- ggplot(
-        data.frame(
-            fitted = fitted_vals,
-            sqrt_abs_resid = sqrt(abs(resids))
-        ),
-        aes(x = fitted, y = sqrt_abs_resid)
-    ) +
-        geom_point(alpha = 0.2, size = 0.8) +
-        geom_smooth(
-            method = "loess", se = FALSE, color = "blue",
-            linewidth = 0.6
-        ) +
-        labs(
-            title = "Scale-Location",
-            x = "Fitted", y = expression(sqrt("|Residual|"))
-        )
-
-    combined <- (p1 | p2) / (p3 | p4) +
-        patchwork::plot_annotation(
-            title = paste("Model Diagnostics:", model_name),
-            theme = theme(plot.title = element_text(face = "bold", size = 14))
-        )
-
-    filename <- paste0(
-        "mlm_diag_",
-        gsub("[^a-z0-9]+", "_", tolower(model_name)), ".svg"
-    )
-    save_fig(combined, filename, width = 12, height = 9)
-}
-
 
 
 # =============================================================================
@@ -449,24 +355,16 @@ if (use_random_slope) {
     }
 
     log_msg(
-        "  H2b result: tau_11 = ",
+        "  Random slope tau_11 = ",
         ifelse(is.na(tau_11), "NA", round(tau_11, 4)),
-        " -> ", ifelse(!is.na(tau_11) && tau_11 > 0 && lrt_2v1$p_value < 0.05,
-            "SUPPORTED", "NOT SUPPORTED"
-        )
-    )
-    log_msg(
-        "  H2c result: LRT p = ",
-        format.pval(lrt_2v1$p_value, digits = 4),
-        " -> ", ifelse(lrt_2v1$p_value < 0.05, "SUPPORTED", "NOT SUPPORTED")
+        " | LRT p = ", format.pval(lrt_2v1$p_value, digits = 4)
     )
 } else {
     lrt_2v1 <- tibble::tibble(
         comparison = "Model 2 vs Model 1",
         chi_sq = NA_real_, df = NA_integer_, p_value = NA_real_
     )
-    log_msg("  H2b result: NOT SUPPORTED (random slope not estimable)")
-    log_msg("  H2c result: NOT SUPPORTED (random slope not estimable)")
+    log_msg("  Random slope not estimable with 3 timepoints; retained random intercept only.")
 }
 
 m2_summary <- extract_model_summary(m2_reml, "Model 2: Random Slope")
@@ -480,7 +378,7 @@ log_msg(
 # [7] MODEL 3: WITHIN-PERSON (L1) PREDICTORS
 # =============================================================================
 log_msg("=== [7] Model 3: Within-Person (L1) Predictors ===")
-log_msg("  Tests H1a (WP burnout facets), H1b (WP NF facets), H4a-b main effects (WP meetings)")
+log_msg("  Tests H2a (WP burnout facets), H1a (WP NF facets), meeting main effects")
 
 # Build formula dynamically based on random slope decision
 re_term <- if (use_random_slope) "(time_c | response_id)" else "(1 | response_id)"
@@ -507,7 +405,7 @@ log_msg(
     ", df = ", lrt_3vp$df, ", p = ", format.pval(lrt_3vp$p_value, digits = 4)
 )
 
-# Hypothesis tests for H1a, H1b, H4a-b main effects
+# Hypothesis tests: H2a (burnout WP), H1a (NF WP), meeting main effects
 fe3 <- broom.mixed::tidy(m3_reml, effects = "fixed", conf.int = TRUE)
 h3_vars <- c(
     "pf_mean_within", "cw_mean_within", "ee_mean_within",
@@ -515,9 +413,9 @@ h3_vars <- c(
     "meetings_count_within", "meetings_mins_within"
 )
 h3_labels <- c(
-    "H1a:pf", "H1a:cw", "H1a:ee",
-    "H1b:comp", "H1b:auto", "H1b:relt",
-    "H4a:main", "H4b:main"
+    "H2a:pf", "H2a:cw", "H2a:ee",
+    "H1a:comp", "H1a:auto", "H1a:relt",
+    "meetings_count:main", "meetings_mins:main"
 )
 for (i in seq_along(h3_vars)) {
     row <- fe3[fe3$term == h3_vars[i], ]
@@ -542,7 +440,7 @@ m3_summary <- extract_model_summary(m3_reml, "Model 3: L1 Within-Person")
 # [8] MODEL 4: ADD BETWEEN-PERSON COMPONENTS OF L1 VARIABLES
 # =============================================================================
 log_msg("=== [8] Model 4: Between-Person Components of L1 Variables ===")
-log_msg("  Tests H2a (BP burnout facet means -> TI), H2b (BP NF facet means -> TI)")
+log_msg("  Tests H2b (BP burnout facet means -> TI), H1b (BP NF facet means -> TI)")
 log_msg("  Also evaluates contextual effects (BP - WP difference)")
 
 m4_formula <- as.formula(paste(
@@ -580,14 +478,14 @@ for (v in l1_predictor_vars) {
     }
 }
 
-# H2a: BP burnout facet means -> TI (+)
-h2a_vars <- c("pf_mean_between", "cw_mean_between", "ee_mean_between")
-h2a_labels <- c("H2a:pf", "H2a:cw", "H2a:ee")
-for (i in seq_along(h2a_vars)) {
-    row <- fe4[fe4$term == h2a_vars[i], ]
+# H2b: BP burnout facet means -> TI (+)
+h2b_vars <- c("pf_mean_between", "cw_mean_between", "ee_mean_between")
+h2b_labels <- c("H2b:pf", "H2b:cw", "H2b:ee")
+for (i in seq_along(h2b_vars)) {
+    row <- fe4[fe4$term == h2b_vars[i], ]
     if (nrow(row) > 0) {
         log_msg(
-            "  ", h2a_labels[i], " (", h2a_vars[i], "): b = ",
+            "  ", h2b_labels[i], " (", h2b_vars[i], "): b = ",
             round(row$estimate, 4), ", p = ",
             format.pval(row$p.value, digits = 4),
             " -> ", ifelse(row$estimate > 0 & row$p.value < 0.05,
@@ -597,14 +495,14 @@ for (i in seq_along(h2a_vars)) {
     }
 }
 
-# H2b: BP NF facet means -> TI (+)
-h2b_vars <- c("comp_mean_between", "auto_mean_between", "relt_mean_between")
-h2b_labels <- c("H2b:comp", "H2b:auto", "H2b:relt")
-for (i in seq_along(h2b_vars)) {
-    row <- fe4[fe4$term == h2b_vars[i], ]
+# H1b: BP NF facet means -> TI (+)
+h1b_vars <- c("comp_mean_between", "auto_mean_between", "relt_mean_between")
+h1b_labels <- c("H1b:comp", "H1b:auto", "H1b:relt")
+for (i in seq_along(h1b_vars)) {
+    row <- fe4[fe4$term == h1b_vars[i], ]
     if (nrow(row) > 0) {
         log_msg(
-            "  ", h2b_labels[i], " (", h2b_vars[i], "): b = ",
+            "  ", h1b_labels[i], " (", h1b_vars[i], "): b = ",
             round(row$estimate, 4), ", p = ",
             format.pval(row$p.value, digits = 4),
             " -> ", ifelse(row$estimate > 0 & row$p.value < 0.05,
@@ -625,7 +523,8 @@ m4_summary <- extract_model_summary(
 # [9] MODEL 5: ADD L2 STUDY VARIABLES
 # =============================================================================
 log_msg("=== [9] Model 5: L2 Between-Person Study Variables ===")
-log_msg("  Tests H3a-c: breach/violation/JS -> TI; PA/NA entered as controls")
+log_msg("  Tests H4a (breach -> TI), H4b (violation -> TI), H5 (JS -> TI)")
+log_msg("  PA/NA entered as affect controls")
 
 m5_formula <- as.formula(paste(
     "turnover_intention_mean ~ time_c +",
@@ -649,7 +548,6 @@ log_msg(
     ", df = ", lrt_5v4$df, ", p = ", format.pval(lrt_5v4$p_value, digits = 4)
 )
 
-# Hypothesis tests for H9a-c (breach, violation, JS) — PA/NA are controls
 fe5 <- broom.mixed::tidy(m5_reml, effects = "fixed", conf.int = TRUE)
 
 # Controls: PA and NA (log direction, no hypothesis label)
@@ -665,22 +563,23 @@ for (ctrl in c("pa_mean_c", "na_mean_c")) {
     }
 }
 
-h4_vars <- c("br_mean_c", "vio_mean_c", "js_mean_c")
-h4_labels <- c("H3a", "H3b", "H3c")
-h4_directions <- c("positive", "positive", "negative")
-for (i in seq_along(h4_vars)) {
-    row <- fe5[fe5$term == h4_vars[i], ]
+# Hypothesis tests: H4a (breach), H4b (violation), H5 (JS)
+h5_vars      <- c("br_mean_c", "vio_mean_c", "js_mean_c")
+h5_labels    <- c("H4a", "H4b", "H5")
+h5_directions <- c("positive", "positive", "negative")
+for (i in seq_along(h5_vars)) {
+    row <- fe5[fe5$term == h5_vars[i], ]
     if (nrow(row) > 0) {
-        expected <- if (h4_directions[i] == "positive") {
+        expected <- if (h5_directions[i] == "positive") {
             row$estimate > 0
         } else {
             row$estimate < 0
         }
         log_msg(
-            "  ", h4_labels[i], " (", h4_vars[i], "): b = ",
+            "  ", h5_labels[i], " (", h5_vars[i], "): b = ",
             round(row$estimate, 4), ", p = ",
             format.pval(row$p.value, digits = 4),
-            " (expected: ", h4_directions[i], ")",
+            " (expected: ", h5_directions[i], ")",
             " -> ", ifelse(expected & row$p.value < 0.05,
                 "SUPPORTED", "NOT SUPPORTED"
             )
@@ -790,7 +689,7 @@ fe6 <- broom.mixed::tidy(m6_reml, effects = "fixed", conf.int = TRUE)
 log_msg("  Checking stability of substantive effects (Model 5 -> 6):")
 check_stability_vars <- c(
     h3_vars, paste0(l1_predictor_vars, "_between"),
-    h4_vars
+    h5_vars
 )
 for (v in check_stability_vars) {
     r5 <- fe5[fe5$term == v, ]
@@ -1045,150 +944,15 @@ log_msg("  Saved random effects PDF")
 # =============================================================================
 log_msg("=== [14] Building hypothesis testing summary ===")
 
-hyp_tbl <- tibble::tribble(
-    ~Hypothesis,  ~Description,                                      ~Test,                          ~Model,
-    # --- Design prerequisite ---
-    "Prereq",     "Between-person variance in TI",                   "ICC > 0.05",                   "Model 0",
-    # --- H1a: WP burnout facets ---
-    "H1a:pf",     "Physical fatigue -> TI (+, WP)",                  "pf_mean_within > 0",           "Model 3",
-    "H1a:cw",     "Cognitive weariness -> TI (+, WP)",               "cw_mean_within > 0",           "Model 3",
-    "H1a:ee",     "Emotional exhaustion -> TI (+, WP)",              "ee_mean_within > 0",           "Model 3",
-    # --- H1b: WP NF facets ---
-    "H1b:comp",   "Competence frustration -> TI (+, WP)",            "comp_mean_within > 0",         "Model 3",
-    "H1b:auto",   "Autonomy frustration -> TI (+, WP)",              "auto_mean_within > 0",         "Model 3",
-    "H1b:relt",   "Relatedness frustration -> TI (+, WP)",           "relt_mean_within > 0",         "Model 3",
-    # --- H2a: BP burnout facet means ---
-    "H2a:pf",     "BP physical fatigue mean -> TI (+)",              "pf_mean_between > 0",          "Model 4",
-    "H2a:cw",     "BP cognitive weariness mean -> TI (+)",           "cw_mean_between > 0",          "Model 4",
-    "H2a:ee",     "BP emotional exhaustion mean -> TI (+)",          "ee_mean_between > 0",          "Model 4",
-    # --- H2b: BP NF facet means ---
-    "H2b:comp",   "BP competence frustration mean -> TI (+)",        "comp_mean_between > 0",        "Model 4",
-    "H2b:auto",   "BP autonomy frustration mean -> TI (+)",          "auto_mean_between > 0",        "Model 4",
-    "H2b:relt",   "BP relatedness frustration mean -> TI (+)",       "relt_mean_between > 0",        "Model 4",
-    # --- H3a-c: L2 study variables ---
-    "H3a",        "PC breach -> TI (+, BP)",                         "br_mean_c > 0",                "Model 5",
-    "H3b",        "PC violation -> TI (+, BP)",                      "vio_mean_c > 0",               "Model 5",
-    "H3c",        "Job satisfaction -> TI (-, BP)",                  "js_mean_c < 0",                "Model 5",
-    # --- H4a: Meeting count main effect + moderation ---
-    "H4a:main",   "Meeting count -> TI (+, WP)",                     "meetings_count_within > 0",    "Model 3",
-    "H4a:burn",   "Mtg count x burnout composite (WP)",              "interaction p < .05",          "Model 7a",
-    "H4a:nf",     "Mtg count x NF composite (WP)",                   "interaction p < .05",          "Model 7a",
-    # --- H4b: Meeting time main effect + moderation ---
-    "H4b:main",   "Meeting time -> TI (+, WP)",                      "meetings_mins_within > 0",     "Model 3",
-    "H4b:burn",   "Mtg time x burnout composite (WP)",               "interaction p < .05",          "Model 7b",
-    "H4b:nf",     "Mtg time x NF composite (WP)",                    "interaction p < .05",          "Model 7b"
+# evaluate_hypotheses() and HYPOTHESIS_MAP sourced from mlm_hypothesis_map.R.
+# Produces one row per test with Estimate, p_value, and Supported columns.
+hyp_results <- evaluate_hypotheses(
+    fe_all      = fe_all,
+    hyp_map     = HYPOTHESIS_MAP,
+    icc_value   = icc_m0$ICC_adjusted
 )
 
-# Pull test results — lookup by hypothesis label and term name
-get_coef_result <- function(fe_tbl, model_name, term_name, direction) {
-    row <- fe_tbl |>
-        dplyr::filter(model == model_name, term == term_name)
-    if (nrow(row) == 0) {
-        return(list(est = NA, p = NA, supported = NA))
-    }
-    est <- row$estimate[1]
-    p <- row$p.value[1]
-    dir_ok <- if (direction == "+") est > 0 else est < 0
-    supported <- dir_ok & p < 0.05
-    list(est = round(est, 4), p = p, supported = supported)
-}
-
-hyp_results <- hyp_tbl |>
-    dplyr::mutate(
-        Estimate  = NA_real_,
-        p_value   = NA_real_,
-        Supported = NA_character_
-    )
-
-# Helper to find row index by hypothesis label
-hyp_idx <- function(label) which(hyp_results$Hypothesis == label)
-
-# Design prerequisite (ICC)
-hyp_results$Estimate[hyp_idx("Prereq")]  <- round(icc_m0$ICC_adjusted, 4)
-hyp_results$p_value[hyp_idx("Prereq")]   <- NA
-hyp_results$Supported[hyp_idx("Prereq")] <- ifelse(
-    icc_m0$ICC_adjusted > 0.05, "Yes", "No"
-)
-
-# H1a: WP burnout facets (M3)
-h1a_map <- list(
-    "H1a:pf" = "pf_mean_within",
-    "H1a:cw" = "cw_mean_within",
-    "H1a:ee" = "ee_mean_within"
-)
-for (lbl in names(h1a_map)) {
-    r <- get_coef_result(fe_all, "Model 3: L1 Within-Person", h1a_map[[lbl]], "+")
-    hyp_results$Estimate[hyp_idx(lbl)]  <- r$est
-    hyp_results$p_value[hyp_idx(lbl)]   <- r$p
-    hyp_results$Supported[hyp_idx(lbl)] <- ifelse(isTRUE(r$supported), "Yes", "No")
-}
-
-# H1b: WP NF facets (M3)
-h1b_map <- list(
-    "H1b:comp" = "comp_mean_within",
-    "H1b:auto" = "auto_mean_within",
-    "H1b:relt" = "relt_mean_within"
-)
-for (lbl in names(h1b_map)) {
-    r <- get_coef_result(fe_all, "Model 3: L1 Within-Person", h1b_map[[lbl]], "+")
-    hyp_results$Estimate[hyp_idx(lbl)]  <- r$est
-    hyp_results$p_value[hyp_idx(lbl)]   <- r$p
-    hyp_results$Supported[hyp_idx(lbl)] <- ifelse(isTRUE(r$supported), "Yes", "No")
-}
-
-# H2a: BP burnout facet means (M4)
-h2a_map <- list(
-    "H2a:pf" = "pf_mean_between",
-    "H2a:cw" = "cw_mean_between",
-    "H2a:ee" = "ee_mean_between"
-)
-for (lbl in names(h2a_map)) {
-    r <- get_coef_result(fe_all, "Model 4: L1 Within + Between", h2a_map[[lbl]], "+")
-    hyp_results$Estimate[hyp_idx(lbl)]  <- r$est
-    hyp_results$p_value[hyp_idx(lbl)]   <- r$p
-    hyp_results$Supported[hyp_idx(lbl)] <- ifelse(isTRUE(r$supported), "Yes", "No")
-}
-
-# H2b: BP NF facet means (M4)
-h2b_map <- list(
-    "H2b:comp" = "comp_mean_between",
-    "H2b:auto" = "auto_mean_between",
-    "H2b:relt" = "relt_mean_between"
-)
-for (lbl in names(h2b_map)) {
-    r <- get_coef_result(fe_all, "Model 4: L1 Within + Between", h2b_map[[lbl]], "+")
-    hyp_results$Estimate[hyp_idx(lbl)]  <- r$est
-    hyp_results$p_value[hyp_idx(lbl)]   <- r$p
-    hyp_results$Supported[hyp_idx(lbl)] <- ifelse(isTRUE(r$supported), "Yes", "No")
-}
-
-# H3a-c: L2 study variables (M5)
-h3_map <- list(
-    "H3a" = list(term = "br_mean_c",  dir = "+"),
-    "H3b" = list(term = "vio_mean_c", dir = "+"),
-    "H3c" = list(term = "js_mean_c",  dir = "-")
-)
-for (lbl in names(h3_map)) {
-    r <- get_coef_result(
-        fe_all, "Model 5: L1 + L2 Study Variables",
-        h3_map[[lbl]]$term, h3_map[[lbl]]$dir
-    )
-    hyp_results$Estimate[hyp_idx(lbl)]  <- r$est
-    hyp_results$p_value[hyp_idx(lbl)]   <- r$p
-    hyp_results$Supported[hyp_idx(lbl)] <- ifelse(isTRUE(r$supported), "Yes", "No")
-}
-
-# H4a-b main effects (M3)
-h4_main_map <- list(
-    "H4a:main" = "meetings_count_within",
-    "H4b:main" = "meetings_mins_within"
-)
-for (lbl in names(h4_main_map)) {
-    r <- get_coef_result(fe_all, "Model 3: L1 Within-Person", h4_main_map[[lbl]], "+")
-    hyp_results$Estimate[hyp_idx(lbl)]  <- r$est
-    hyp_results$p_value[hyp_idx(lbl)]   <- r$p
-    hyp_results$Supported[hyp_idx(lbl)] <- ifelse(isTRUE(r$supported), "Yes", "No")
-}
+# M7a/M7b moderation rows (H3a, H3b) will be completed in [17b] after fitting.
 
 hyp_results <- hyp_results |>
     dplyr::mutate(p_value = round(p_value, 4))
@@ -1197,7 +961,7 @@ readr::write_csv(
     hyp_results,
     file.path(FIGS_DIR, "mlm_04_hypothesis_tests.csv")
 )
-log_msg("  Saved hypothesis tests CSV")
+log_msg("  Saved hypothesis tests CSV (moderation rows pending Phase 6)")
 
 p_hyp_grob <- gridExtra::tableGrob(hyp_results,
     rows = NULL,
@@ -1216,8 +980,9 @@ log_msg("  Saved hypothesis tests PDF")
 # =============================================================================
 log_msg("=== [15] Assumption diagnostics ===")
 
-check_assumptions(m5_reml, "Model 5")
-check_assumptions(m6_reml, "Model 6")
+# check_assumptions() sourced from mlm_diagnostics.R; accepts figs_dir explicitly
+check_assumptions(m5_reml, "Model 5", FIGS_DIR)
+check_assumptions(m6_reml, "Model 6", FIGS_DIR)
 
 # VIF plots for key models
 save_vif_plot(vif_m5, "Model 5", figs_dir = FIGS_DIR)
@@ -1232,9 +997,10 @@ log_msg("=== [16] Effect sizes ===")
 # --- 16a. Standardized coefficients (beta) -----------------------------------
 log_msg("  Computing standardized coefficients (method = 'basic')...")
 
-es_models <- list(m3_reml, m5_reml, m6_reml)
+es_models <- list(m3_reml, m4_reml, m5_reml, m6_reml)
 es_names <- c(
     "Model 3: L1 Within-Person",
+    "Model 4: L1 Within + Between",
     "Model 5: L1 + L2 Study Variables",
     "Model 6: Full Model with Covariates"
 )
@@ -1297,7 +1063,6 @@ for (i in seq_len(nrow(delta_r2_tbl))) {
 # --- 16d. Forest plot of pseudo-d (Model 5) ----------------------------------
 log_msg("  Generating effect size forest plot...")
 
-# Use Model 5 (substantive model before demographics)
 plot_data <- pseudo_d_all |>
     dplyr::filter(
         model == "Model 5: L1 + L2 Study Variables",
@@ -1397,15 +1162,26 @@ save_fig(p_r2, "mlm_es_r2_decomposition.svg", width = 10, height = 6)
 # [17] PHASE 6: L1 x L1 MODERATION (M7a AND M7b)
 # =============================================================================
 log_msg("=== [17] Phase 6: L1 x L1 Moderation ===")
-log_msg("  H4a moderation: Meeting count moderates burnout/NF composite -> TI (WP)")
-log_msg("  H4b moderation: Meeting minutes moderates burnout/NF composite -> TI (WP)")
+log_msg("  H3a moderation: Meeting load moderates NF composite -> TI (WP)")
+log_msg("  H3b moderation: Meeting load moderates burnout composite -> TI (WP)")
 log_msg("  Composites replace facets; within/between decomp retained")
-
-# Product terms (both components already CWC from variable prep)
-df$burnout_x_mtgcount <- df$burnout_mean_within * df$meetings_count_within
-df$nf_x_mtgcount <- df$nf_mean_within * df$meetings_count_within
-df$burnout_x_mtgmins <- df$burnout_mean_within * df$meetings_mins_within
-df$nf_x_mtgmins <- df$nf_mean_within * df$meetings_mins_within
+#
+# OPERATIONALIZATION NOTE: The manuscript refers to "meeting load" as a single
+# moderator. It is operationalized as two indicators (meeting count and meeting
+# minutes), yielding four interaction tests (count x NF, mins x NF,
+# count x burnout, mins x burnout). This provides finer-grained insight into
+# whether meeting frequency or duration drives the moderation effect.
+# Both indicators should be significant for full support of H3a or H3b.
+#
+# COVARIATE NOTE: M7a/M7b intentionally omit the demographic covariates selected
+# in M6. The switch to composites already reduces model complexity relative to
+# M3-M6 (6 facets -> 2 composites). Adding the M6 covariate set would introduce
+# additional free parameters to a moderation test that the design is not
+# adequately powered to support with only 3 timepoints per person. The composite
+# baseline (m7a_base / m7b_base) provides the correct LRT reference frame.
+#
+# Interaction terms are computed implicitly by lme4 via R's : formula syntax.
+# No manual product columns are needed.
 
 
 # --- [17a] M7a: Meeting Count x Burnout/NF Composites -----------------------
@@ -1448,21 +1224,21 @@ log_msg(
 
 fe7a <- broom.mixed::tidy(m7a_reml, effects = "fixed", conf.int = TRUE)
 
-# H4a: burnout x meeting count
+# H3b: burnout x meeting count
 row_burn_cnt <- fe7a[fe7a$term == "burnout_mean_within:meetings_count_within", ]
 if (nrow(row_burn_cnt) > 0) {
     log_msg(
-        "  H4a:burn burnout x mtgcount: b = ", round(row_burn_cnt$estimate, 4),
+        "  H3b:count burnout x mtgcount: b = ", round(row_burn_cnt$estimate, 4),
         ", p = ", format.pval(row_burn_cnt$p.value, digits = 4),
         " -> ", ifelse(row_burn_cnt$p.value < 0.05, "SIGNIFICANT", "ns")
     )
 }
 
-# H4a: nf x meeting count
+# H3a: nf x meeting count
 row_nf_cnt <- fe7a[fe7a$term == "nf_mean_within:meetings_count_within", ]
 if (nrow(row_nf_cnt) > 0) {
     log_msg(
-        "  H4a:nf NF x mtgcount: b = ", round(row_nf_cnt$estimate, 4),
+        "  H3a:count NF x mtgcount: b = ", round(row_nf_cnt$estimate, 4),
         ", p = ", format.pval(row_nf_cnt$p.value, digits = 4),
         " -> ", ifelse(row_nf_cnt$p.value < 0.05, "SIGNIFICANT", "ns")
     )
@@ -1471,7 +1247,7 @@ if (nrow(row_nf_cnt) > 0) {
 # Simple slopes if significant (burnout x count)
 m7a_plots <- list()
 if (!is.null(m7a_reml) && nrow(row_burn_cnt) > 0 && row_burn_cnt$p.value < 0.05) {
-    log_msg("  Probing H4a:burn interaction (burnout x meeting count)...")
+    log_msg("  Probing H3b:count interaction (burnout x meeting count)...")
     ss_burn_cnt <- tryCatch(
         interactions::sim_slopes(m7a_reml,
             pred = burnout_mean_within,
@@ -1490,8 +1266,8 @@ if (!is.null(m7a_reml) && nrow(row_burn_cnt) > 0 && row_burn_cnt$p.value < 0.05)
             interval = TRUE
         ) +
             labs(
-                title = "H4a: Meeting Count x Within-Person Burnout",
-                subtitle = "Simple slopes at ±1 SD of meeting count",
+                title = "H3b: Meeting Count x Within-Person Burnout",
+                subtitle = "Simple slopes at +/-1 SD of meeting count",
                 x = "Within-Person Burnout (CWC)", y = "Turnover Intention"
             )
         m7a_plots[["burnout_count"]] <- p_int
@@ -1500,7 +1276,7 @@ if (!is.null(m7a_reml) && nrow(row_burn_cnt) > 0 && row_burn_cnt$p.value < 0.05)
 
 # Simple slopes if significant (NF x count)
 if (!is.null(m7a_reml) && nrow(row_nf_cnt) > 0 && row_nf_cnt$p.value < 0.05) {
-    log_msg("  Probing H4a:nf interaction (NF x meeting count)...")
+    log_msg("  Probing H3a:count interaction (NF x meeting count)...")
     p_int_nf <- tryCatch(
         interactions::interact_plot(m7a_reml,
             pred = nf_mean_within,
@@ -1508,8 +1284,8 @@ if (!is.null(m7a_reml) && nrow(row_nf_cnt) > 0 && row_nf_cnt$p.value < 0.05) {
             interval = TRUE
         ) +
             labs(
-                title = "H4a: Meeting Count x Within-Person NF",
-                subtitle = "Simple slopes at ±1 SD of meeting count",
+                title = "H3a: Meeting Count x Within-Person NF",
+                subtitle = "Simple slopes at +/-1 SD of meeting count",
                 x = "Within-Person NF (CWC)", y = "Turnover Intention"
             ),
         error = function(e) NULL
@@ -1558,7 +1334,7 @@ fe7b <- broom.mixed::tidy(m7b_reml, effects = "fixed", conf.int = TRUE)
 row_burn_min <- fe7b[fe7b$term == "burnout_mean_within:meetings_mins_within", ]
 if (nrow(row_burn_min) > 0) {
     log_msg(
-        "  H4b:burn burnout x mtgmins: b = ", round(row_burn_min$estimate, 4),
+        "  H3b:mins burnout x mtgmins: b = ", round(row_burn_min$estimate, 4),
         ", p = ", format.pval(row_burn_min$p.value, digits = 4),
         " -> ", ifelse(row_burn_min$p.value < 0.05, "SIGNIFICANT", "ns")
     )
@@ -1567,7 +1343,7 @@ if (nrow(row_burn_min) > 0) {
 row_nf_min <- fe7b[fe7b$term == "nf_mean_within:meetings_mins_within", ]
 if (nrow(row_nf_min) > 0) {
     log_msg(
-        "  H4b:nf NF x mtgmins: b = ", round(row_nf_min$estimate, 4),
+        "  H3a:mins NF x mtgmins: b = ", round(row_nf_min$estimate, 4),
         ", p = ", format.pval(row_nf_min$p.value, digits = 4),
         " -> ", ifelse(row_nf_min$p.value < 0.05, "SIGNIFICANT", "ns")
     )
@@ -1575,7 +1351,7 @@ if (nrow(row_nf_min) > 0) {
 
 m7b_plots <- list()
 if (!is.null(m7b_reml) && nrow(row_burn_min) > 0 && row_burn_min$p.value < 0.05) {
-    log_msg("  Probing H4b:burn interaction (burnout x meeting minutes)...")
+    log_msg("  Probing H3b:mins interaction (burnout x meeting minutes)...")
     p_int_bm <- tryCatch(
         interactions::interact_plot(m7b_reml,
             pred = burnout_mean_within,
@@ -1583,8 +1359,8 @@ if (!is.null(m7b_reml) && nrow(row_burn_min) > 0 && row_burn_min$p.value < 0.05)
             interval = TRUE
         ) +
             labs(
-                title = "H4b: Meeting Minutes x Within-Person Burnout",
-                subtitle = "Simple slopes at ±1 SD of meeting minutes",
+                title = "H3b: Meeting Minutes x Within-Person Burnout",
+                subtitle = "Simple slopes at +/-1 SD of meeting minutes",
                 x = "Within-Person Burnout (CWC)", y = "Turnover Intention"
             ),
         error = function(e) NULL
@@ -1593,7 +1369,7 @@ if (!is.null(m7b_reml) && nrow(row_burn_min) > 0 && row_burn_min$p.value < 0.05)
 }
 
 if (!is.null(m7b_reml) && nrow(row_nf_min) > 0 && row_nf_min$p.value < 0.05) {
-    log_msg("  Probing H4b:nf interaction (NF x meeting minutes)...")
+    log_msg("  Probing H3a:mins interaction (NF x meeting minutes)...")
     p_int_nm <- tryCatch(
         interactions::interact_plot(m7b_reml,
             pred = nf_mean_within,
@@ -1601,8 +1377,8 @@ if (!is.null(m7b_reml) && nrow(row_nf_min) > 0 && row_nf_min$p.value < 0.05) {
             interval = TRUE
         ) +
             labs(
-                title = "H4b: Meeting Minutes x Within-Person NF",
-                subtitle = "Simple slopes at ±1 SD of meeting minutes",
+                title = "H3a: Meeting Minutes x Within-Person NF",
+                subtitle = "Simple slopes at +/-1 SD of meeting minutes",
                 x = "Within-Person NF (CWC)", y = "Turnover Intention"
             ),
         error = function(e) NULL
@@ -1793,9 +1569,9 @@ log_msg("  Saved rho_beta bar chart SVG")
 
 
 # =============================================================================
-# [17b] PHASE 6 POST-FIT: SUMMARY COMPLETIONS (M7a, M7b)
+# [17d] PHASE 6 POST-FIT: SUMMARY COMPLETIONS (M7a, M7b)
 # =============================================================================
-log_msg("=== [17b] Phase 6 post-fit completions ===")
+log_msg("=== [17d] Phase 6 post-fit completions ===")
 
 phase6_names <- c(
     "Model 7a: Count x Composites",
@@ -1859,7 +1635,7 @@ fe_all <- dplyr::bind_rows(fe_all, fe_phase6_all)
 readr::write_csv(fe_all, file.path(FIGS_DIR, "mlm_02_fixed_effects.csv"))
 log_msg("  Updated fixed effects CSV with M7a/M7b rows")
 
-# Append M7a/M7b random effects (gap fix: M0-M6 were saved in [13]; Phase 6 adds these)
+# Append M7a/M7b random effects
 re_phase6 <- purrr::map2_dfr(phase6_fits_reml, phase6_names, function(fit, name) {
     if (is.null(fit)) return(tibble::tibble(model = name))
     broom.mixed::tidy(fit, effects = "ran_pars") |> dplyr::mutate(model = name)
@@ -1868,44 +1644,41 @@ re_all <- dplyr::bind_rows(re_all, re_phase6)
 readr::write_csv(re_all, file.path(FIGS_DIR, "mlm_03_random_effects.csv"))
 log_msg("  Updated random effects CSV with M7a/M7b rows")
 
-# Complete H4a-b moderation rows in hypothesis table
-fe7a_tbl <- broom.mixed::tidy(m7a_reml, effects = "fixed", conf.int = TRUE) |>
-    dplyr::mutate(model = "Model 7a: Count x Composites")
-fe7b_tbl <- broom.mixed::tidy(m7b_reml, effects = "fixed", conf.int = TRUE) |>
-    dplyr::mutate(model = "Model 7b: Minutes x Composites")
-fe_phase6 <- dplyr::bind_rows(fe7a_tbl, fe7b_tbl)
+# Complete H3a/H3b moderation rows in hypothesis table
+hyp_mod_rows <- HYPOTHESIS_MAP |>
+    dplyr::filter(stringr::str_starts(hypothesis, "H3"))
 
-h4_mod_map <- list(
-    "H4a:burn" = list(model = "Model 7a: Count x Composites",
-                      term  = "burnout_mean_within:meetings_count_within"),
-    "H4a:nf"   = list(model = "Model 7a: Count x Composites",
-                      term  = "nf_mean_within:meetings_count_within"),
-    "H4b:burn" = list(model = "Model 7b: Minutes x Composites",
-                      term  = "burnout_mean_within:meetings_mins_within"),
-    "H4b:nf"   = list(model = "Model 7b: Minutes x Composites",
-                      term  = "nf_mean_within:meetings_mins_within")
-)
-for (lbl in names(h4_mod_map)) {
-    r_row <- fe_phase6 |>
-        dplyr::filter(
-            model == h4_mod_map[[lbl]]$model,
-            term  == h4_mod_map[[lbl]]$term
-        )
-    if (nrow(r_row) > 0) {
-        hyp_results$Estimate[hyp_idx(lbl)]  <- round(r_row$estimate[1], 4)
-        hyp_results$p_value[hyp_idx(lbl)]   <- r_row$p.value[1]
-        hyp_results$Supported[hyp_idx(lbl)] <- ifelse(
-            r_row$p.value[1] < 0.05, "Yes", "No"
-        )
-    }
-}
+hyp_results <- hyp_results |>
+    dplyr::rows_update(
+        evaluate_hypotheses(
+            fe_all    = fe_all,
+            hyp_map   = hyp_mod_rows,
+            icc_value = icc_m0$ICC_adjusted
+        ),
+        by = "hypothesis"
+    )
+
 hyp_results <- hyp_results |> dplyr::mutate(p_value = round(p_value, 4))
 readr::write_csv(hyp_results, file.path(FIGS_DIR, "mlm_04_hypothesis_tests.csv"))
-log_msg("  Updated hypothesis tests CSV with H4 moderation results")
+log_msg("  Updated hypothesis tests CSV with H3a/H3b moderation results")
+
+# Re-export markdown and PDF now that H3a/H3b moderation rows are populated.
+# The earlier export (Section [14]) was a progress checkpoint with NA for H3;
+# this overwrites both artifacts with the complete, final table.
+p_hyp_grob_final <- gridExtra::tableGrob(hyp_results,
+    rows = NULL,
+    theme = gridExtra::ttheme_minimal(base_size = 9)
+)
+p_hyp_final <- ggplot2::ggplot() +
+    ggplot2::annotation_custom(p_hyp_grob_final) +
+    ggplot2::theme_void()
+save_tbl(p_hyp_final, "mlm_04_hypothesis_tests.pdf", width = 18, height = 10)
+save_md(hyp_results, file.path(FIGS_DIR, "mlm_04_hypothesis_tests.md"))
+log_msg("  Regenerated hypothesis markdown and PDF with moderation results")
 
 # Assumption diagnostics for M7a/M7b
-check_assumptions(m7a_reml, "Model 7a")
-check_assumptions(m7b_reml, "Model 7b")
+check_assumptions(m7a_reml, "Model 7a", FIGS_DIR)
+check_assumptions(m7b_reml, "Model 7b", FIGS_DIR)
 save_vif_plot(check_vif(m7a_reml, "Model 7a"), "Model 7a", figs_dir = FIGS_DIR)
 save_vif_plot(check_vif(m7b_reml, "Model 7b"), "Model 7b", figs_dir = FIGS_DIR)
 
@@ -1938,13 +1711,18 @@ log_msg("SVG files generated: ", length(svg_files))
 log_msg("PDF files generated: ", length(pdf_files))
 log_msg("")
 log_msg("Random effects decision: ", re_note)
-log_msg("Hypotheses tested: H1a-b (WP facets), H2a-b (BP facet means), H3a-c (L2 vars), H4a-b (meetings)")
+log_msg("Hypotheses tested (manuscript numbering):")
+log_msg("  H1a/H1b: WP/BP need frustration facets -> TI (M3/M4)")
+log_msg("  H2a/H2b: WP/BP burnout facets -> TI (M3/M4)")
+log_msg("  H3a/H3b: Meeting load x NF/burnout composites (M7a/M7b)")
+log_msg("  H4a/H4b: PC breach/violation -> TI (M5)")
+log_msg("  H5: Job satisfaction -> TI (M5)")
 log_msg("Phases 1-2 (M0-M2): variance partitioning and time trend baselines")
-log_msg("Phase 2 (M3): WP facet effects (H1a, H1b, H4a-b main)")
-log_msg("Phase 3 (M4): BP facet mean effects (H2a, H2b)")
-log_msg("Phase 4 (M5): L2 study variables (H3a-c)")
+log_msg("Phase 2 (M3): WP facet effects (H2a, H1a, meeting mains)")
+log_msg("Phase 3 (M4): BP facet mean effects (H2b, H1b)")
+log_msg("Phase 4 (M5): L2 study variables (H4a, H4b, H5)")
 log_msg("Phase 5 (M6): demographic sensitivity — data-driven covariate selection")
-log_msg("Phase 6 (M7a-b): L1xL1 moderation with composites (H4a-b)")
+log_msg("Phase 6 (M7a-b): L1xL1 moderation with composites (H3a, H3b)")
 log_msg("Phase 7: rho_beta for 8 predictors (6 facets + 2 composites)")
 log_msg("")
 log_msg("=== MULTILEVEL MODEL BUILDING COMPLETE ===")

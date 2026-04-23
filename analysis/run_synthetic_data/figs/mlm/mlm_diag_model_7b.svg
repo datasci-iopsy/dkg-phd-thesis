@@ -2423,7 +2423,7 @@
 <text x='335.17' y='307.63' text-anchor='middle' style='font-size: 9.60px;fill: #4D4D4D; font-family: "Times";' textLength='4.80px' lengthAdjust='spacingAndGlyphs'>2</text>
 <text x='243.83' y='320.66' text-anchor='middle' style='font-size: 12.00px; font-family: "Times";' textLength='54.62px' lengthAdjust='spacingAndGlyphs'>Theoretical</text>
 <text transform='translate(37.83,174.47) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-family: "Times";' textLength='35.98px' lengthAdjust='spacingAndGlyphs'>Sample</text>
-<text x='67.00' y='47.21' style='font-size: 13.00px; font-weight: bold; font-family: "Times";' textLength='115.92px' lengthAdjust='spacingAndGlyphs'>L1 Residual QQ Plot</text>
+<text x='67.00' y='47.21' style='font-size: 13.00px; font-weight: bold; font-family: "Times";' textLength='94.62px' lengthAdjust='spacingAndGlyphs'>L1 Residual Q-Q</text>
 </g>
 <defs>
   <clipPath id='cpNDgwLjQ2fDgzNC4xMXw1Ni4wM3wyOTIuOTE='>
@@ -5629,7 +5629,7 @@
 <text x='341.19' y='612.42' text-anchor='middle' style='font-size: 9.60px;fill: #4D4D4D; font-family: "Times";' textLength='4.80px' lengthAdjust='spacingAndGlyphs'>2</text>
 <text x='242.18' y='625.45' text-anchor='middle' style='font-size: 12.00px; font-family: "Times";' textLength='54.62px' lengthAdjust='spacingAndGlyphs'>Theoretical</text>
 <text transform='translate(37.83,479.26) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-family: "Times";' textLength='35.98px' lengthAdjust='spacingAndGlyphs'>Sample</text>
-<text x='67.00' y='352.00' style='font-size: 13.00px; font-weight: bold; font-family: "Times";' textLength='151.05px' lengthAdjust='spacingAndGlyphs'>Random Intercept QQ Plot</text>
+<text x='67.00' y='352.00' style='font-size: 13.00px; font-weight: bold; font-family: "Times";' textLength='129.75px' lengthAdjust='spacingAndGlyphs'>Random Intercept Q-Q</text>
 </g>
 <defs>
   <clipPath id='cpNDgzLjc2fDgzNC4xMXwzNjAuODJ8NTk3Ljcw'>
