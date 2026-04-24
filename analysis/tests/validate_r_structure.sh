@@ -43,16 +43,16 @@ echo ""
 echo "1. Project root checks"
 echo "----------------------------------------------------------------------"
 
-if [ -f "renv.lock" ]; then
-	pass "renv.lock found at project root"
+if [ -f "uvr.toml" ]; then
+	pass "uvr.toml found at project root"
 else
-	fail "renv.lock NOT found -- are you running from the project root?"
+	fail "uvr.toml NOT found -- are you running from the project root?"
 fi
 
 if [ -f ".Rprofile" ]; then
 	pass ".Rprofile found at project root"
 else
-	warn ".Rprofile NOT found -- renv may not auto-activate"
+	warn ".Rprofile NOT found"
 fi
 
 if [ -f "pyproject.toml" ]; then
@@ -250,7 +250,7 @@ if command -v Rscript &>/dev/null; then
 
 	for f in "${r_files[@]}"; do
 		if [ -f "${f}" ]; then
-			# parse() checks syntax without executing
+			# parse() checks syntax without executing — plain Rscript, no project library needed
 			if Rscript -e "tryCatch(parse(file='${f}'), error=function(e) quit(status=1))" 2>/dev/null; then
 				pass "R syntax valid: ${f}"
 			else
@@ -260,7 +260,7 @@ if command -v Rscript &>/dev/null; then
 	done
 else
 	warn "Rscript not found -- skipping syntax checks"
-	warn "Install R to enable syntax validation"
+	warn "Install R or run: make uvr_sync"
 fi
 
 echo ""
