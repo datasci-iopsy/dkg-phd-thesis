@@ -55,7 +55,7 @@ class ServiceAccountConfig(BaseModel):
 
 class FunctionConfig(BaseModel):
     source_dir: str
-    poetry_group: str
+    dependency_group: str
     entry_point: str
     trigger: str
     trigger_topic: str | None = None
@@ -244,23 +244,23 @@ def delete_service_account(
 
 # -- Deploy steps ---------------------------------------------------
 def export_requirements(
-    poetry_group: str,
+    dependency_group: str,
     output_path: Path,
 ) -> None:
-    """Generate requirements.txt from Poetry for a given group."""
+    """Generate requirements.txt from uv for a given dependency group."""
     run(
         [
-            "poetry",
+            "uv",
             "export",
-            "--only",
-            f"main,{poetry_group}",
-            "--without-hashes",
-            "-f",
-            "requirements.txt",
+            "--no-dev",
+            "--group",
+            dependency_group,
+            "--no-hashes",
+            "--frozen",
             "-o",
             str(output_path),
         ],
-        description="Generating requirements.txt from Poetry",
+        description="Generating requirements.txt from uv",
     )
 
 
@@ -427,7 +427,7 @@ def cleanup_artifact_registry(name: str, g: GlobalConfig) -> None:
 
 
 def cleanup_generated_requirements(function_dir: Path) -> None:
-    """Clear the Poetry-generated requirements.txt contents."""
+    """Clear the uv-exported requirements.txt contents."""
     reqs = function_dir / "requirements.txt"
     print("\n=== Cleaning up generated requirements ===")
     if reqs.exists():
@@ -476,7 +476,7 @@ def handle_dev(args: argparse.Namespace) -> None:
         copy_shared_utils(function_dir)
 
         cmd = [
-            "poetry",
+            "uv",
             "run",
             "functions-framework",
             f"--target={fn.entry_point}",
@@ -522,7 +522,7 @@ def handle_deploy(args: argparse.Namespace) -> None:
 
     try:
         export_requirements(
-            fn.poetry_group,
+            fn.dependency_group,
             function_dir / "requirements.txt",
         )
         copy_shared_utils(function_dir)
@@ -572,7 +572,7 @@ def handle_list(args: argparse.Namespace) -> None:
         print(f"  {name}")
         print(f"    source:       {fn.source_dir}")
         print(f"    entry_point:  {fn.entry_point}")
-        print(f"    poetry_group: {fn.poetry_group}")
+        print(f"    dependency_group: {fn.dependency_group}")
         print(f"    trigger:      {fn.trigger}")
         if fn.trigger_topic:
             print(f"    topic:        {fn.trigger_topic}")
