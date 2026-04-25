@@ -88,7 +88,7 @@ help:
 	@echo "SETUP (run once on a new machine)"
 	@echo "   make setup              Full setup: R env + Python deps"
 	@echo "   make setup_r            R / uvr only (uvr sync)"
-	@echo "   make setup_python       Python / Poetry only"
+	@echo "   make setup_python       Python / uv only"
 	@echo ""
 	@echo "PRE-FLIGHT"
 	@echo "   make validate           Static structure check (no packages needed)"
@@ -196,20 +196,19 @@ setup_r: _check_uvr_env
 	@echo "R environment ready."
 
 setup_python:
-	@command -v poetry >/dev/null 2>&1 || { \
-		echo "Poetry not found."; \
-		echo "   Install: https://python-poetry.org/docs/#installation"; \
+	@command -v uv >/dev/null 2>&1 || { \
+		echo "uv not found."; \
+		echo "   Install: https://docs.astral.sh/uv/getting-started/installation/"; \
 		exit 1; \
 	}
-	@cd "$(ROOT)" && poetry check --lock || { \
-		echo "poetry.lock is out of sync with pyproject.toml."; \
-		echo "   Run: poetry lock --no-update"; \
+	@cd "$(ROOT)" && uv lock --check || { \
+		echo "uv.lock is out of sync with pyproject.toml."; \
+		echo "   Run: uv lock"; \
 		exit 1; \
 	}
 	@echo "Installing Python dependencies..."
-	@cd "$(ROOT)" && poetry install \
-		--with fn-qualtrics-scheduling,fn-intake-confirmation,fn-followup-scheduling,fn-followup-response,dev || { \
-		echo "poetry install failed"; \
+	@cd "$(ROOT)" && uv sync --all-groups || { \
+		echo "uv sync failed"; \
 		exit 1; \
 	}
 	@echo "Python environment ready."
@@ -399,23 +398,23 @@ synthetic_tables: _check_uvr_env _check_synthetic_inputs
 
 py_lint:
 	@echo "Running ruff check..."
-	@cd "$(ROOT)" && poetry run ruff check . && echo "ruff check passed"
+	@cd "$(ROOT)" && uv run ruff check . && echo "ruff check passed"
 	@echo ""
 	@echo "Checking ruff format..."
-	@cd "$(ROOT)" && poetry run ruff format --check . && echo "ruff format check passed"
+	@cd "$(ROOT)" && uv run ruff format --check . && echo "ruff format check passed"
 
 py_format:
 	@echo "Auto-formatting with ruff..."
-	@cd "$(ROOT)" && poetry run ruff check --fix . && poetry run ruff format .
+	@cd "$(ROOT)" && uv run ruff check --fix . && uv run ruff format .
 	@echo "Formatting complete."
 
 py_sqlfmt:
 	@echo "Running sqlfmt check..."
-	@cd "$(ROOT)" && poetry run sqlfmt --check . && echo "sqlfmt passed"
+	@cd "$(ROOT)" && uv run sqlfmt --check . && echo "sqlfmt passed"
 
 py_test:
 	@echo "Running Python tests..."
-	@cd "$(ROOT)" && poetry run pytest gcp/tests/ -v
+	@cd "$(ROOT)" && uv run pytest gcp/tests/ -v
 
 # ---------------------------------------------------------------------------
 # GCP
@@ -529,10 +528,10 @@ status:
 	else \
 		echo "   uvr.lock     absent (run: make uvr_sync)"; \
 	fi
-	@if [ -f "$(ROOT)/poetry.lock" ]; then \
-		echo "   poetry.lock  ok"; \
+	@if [ -f "$(ROOT)/uv.lock" ]; then \
+		echo "   uv.lock      ok  ($$(wc -l < "$(ROOT)/uv.lock" | tr -d ' ') lines)"; \
 	else \
-		echo "   poetry.lock  MISSING"; \
+		echo "   uv.lock      MISSING"; \
 	fi
 	@echo ""
 	@echo "Git:"
@@ -564,7 +563,7 @@ else
 	@echo "   analysis/run_synthetic_data/    Synthetic ESM data analysis (R)"
 	@echo "   gcp/                            Cloud Run data collection pipeline (Python)"
 	@echo "   uvr.toml                        R package manifest"
-	@echo "   pyproject.toml                  Python Poetry config"
+	@echo "   pyproject.toml                  Python uv config"
 	@echo ""
 	@echo "Quick start for replicators:"
 	@echo "   make setup                      Set up R + Python environments"
