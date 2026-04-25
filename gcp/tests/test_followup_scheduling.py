@@ -6,7 +6,7 @@ construction, timezone conversion, and the scheduling handler.
 All GCP and Twilio calls are mocked -- no credentials needed.
 
 Usage from project root:
-    poetry run pytest gcp/tests/test_followup_scheduling.py -v
+    uv run pytest gcp/tests/test_followup_scheduling.py -v
 """
 
 import base64

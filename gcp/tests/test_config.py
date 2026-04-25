@@ -2,9 +2,9 @@
 Tests for config loading and Pydantic validation.
 
 Usage from project root:
-    poetry run pytest gcp/tests/test_config.py
+    uv run pytest gcp/tests/test_config.py
 Usage from gcp/tests/:
-    poetry run pytest test_config.py
+    uv run pytest test_config.py
 """
 
 from pathlib import Path

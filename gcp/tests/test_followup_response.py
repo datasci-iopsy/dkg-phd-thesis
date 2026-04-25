@@ -12,7 +12,7 @@ Verifies:
 All BQ calls are mocked -- no credentials or network access needed.
 
 Usage from project root:
-    poetry run pytest gcp/tests/test_followup_response.py -v
+    uv run pytest gcp/tests/test_followup_response.py -v
 """
 
 import importlib.util

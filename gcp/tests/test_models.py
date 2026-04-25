@@ -10,7 +10,7 @@ Uses fixture files to verify that:
   - The full extraction pipeline works end-to-end
 
 Usage from project root:
-    poetry run pytest gcp/tests/test_models.py -v
+    uv run pytest gcp/tests/test_models.py -v
 """
 
 import json
