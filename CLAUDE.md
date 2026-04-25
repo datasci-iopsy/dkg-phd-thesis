@@ -2,7 +2,7 @@
 
 PhD dissertation: within-person fluctuation in burnout, need frustration, and turnover intentions.
 Three pillars: `gcp/` (Python GCP pipeline), `analysis/run_power_analysis/` (R simulations), `analysis/run_synthetic_data/` (test data).
-Python >=3.12,<3.13 (Poetry 2.2.1; requires `poetry-plugin-sort`, `poetry-plugin-export`) and R >= 4.4 (renv) managed separately. `.python-version` pins `3.12.11` for pyenv.
+Python >=3.12,<3.13 (uv) and R >= 4.4 (uvr) managed separately. `.python-version` pins `3.12.11` for pyenv.
 See `gcp/CLAUDE.md` and `analysis/CLAUDE.md` for domain specifics.
 
 ## Makefile
@@ -17,13 +17,13 @@ See `gcp/CLAUDE.md` and `analysis/CLAUDE.md` for domain specifics.
 make setup
 
 # Python
-poetry install --with fn-qualtrics-scheduling,fn-intake-confirmation,fn-followup-scheduling,fn-followup-response,dev
-poetry run ruff check . && poetry run ruff format .
-poetry run sqlfmt .
-poetry run pytest gcp/tests/ -v
+uv sync --all-groups
+uv run ruff check . && uv run ruff format .
+uv run sqlfmt .
+uv run pytest gcp/tests/ -v
 
 # R
-Rscript -e "renv::restore()"
+uvr sync
 bash analysis/run_power_analysis/main.sh dev            # seconds
 bash analysis/run_power_analysis/main.sh prod           # full local grid (hours)
 bash analysis/run_power_analysis/main.sh benchmark_gcp  # GCP timing probe
@@ -51,18 +51,17 @@ Power analysis: `main.sh` → `run_power_analysis.R` → parallel `simr` simulat
 ## Dependency freeze
 
 Both lock files are frozen against accidental changes. Guardrails in place:
-- `poetry.toml`: `installer.re-resolve = false` — `poetry install` uses the lock file exactly
-- `.envrc`: `poetry check --lock` runs before every install; shell entry fails fast on drift
+- `.envrc`: `uv lock --check` runs before every install; shell entry fails fast on drift
 - `.Rprofile`: interactive `renv::snapshot()` and `renv::update()` require env var opt-in
-- `scripts/hooks/pre-commit`: blocks commits staging `poetry.lock` or `renv.lock`
+- `scripts/hooks/pre-commit`: blocks commits staging `uv.lock` or `uvr.lock`
 
-**Python update:** `poetry lock` → install → `ALLOW_LOCK_COMMIT=1 git commit` | **R update:** `make renv_snapshot` → `ALLOW_LOCK_COMMIT=1 git commit` | **Hook:** `make setup_hooks` (auto via `make setup`).
+**Python update:** `uv lock` → `uv sync --all-groups` → `ALLOW_LOCK_COMMIT=1 git commit` | **R update:** `uvr lock` → `ALLOW_LOCK_COMMIT=1 git commit` | **Hook:** `make setup_hooks` (auto via `make setup`).
 
-**Pre-change check:** Before any dependency modification, verify the active environment (`poetry env info --path`, `which python`) to avoid cross-environment contamination.
+**Pre-change check:** Before any dependency modification, verify the active environment (`which python`, `uv venv --python`) to avoid cross-environment contamination.
 
 ## Verification
 
-After Python changes: `poetry check --lock` → `poetry run pytest gcp/tests/ -v` → `ruff check . && ruff format --check .` → `sqlfmt --check .`
+After Python changes: `uv lock --check` → `uv run pytest gcp/tests/ -v` → `uv run ruff check . && uv run ruff format --check .` → `uv run sqlfmt --check .`
 After R changes: `bash analysis/tests/validate_r_structure.sh`
 Schema changes (intake): `models/qualtrics.py` → `bq_schemas.py` → `web_service_payload.json` → `test_models.py` → `manage_infra.py teardown/setup`
 Schema changes (followup): `models/followup.py` → `bq_schemas.py` → `followup_web_service_payload.json` → `test_followup_response.py` → `manage_infra.py teardown/setup`

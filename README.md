@@ -28,9 +28,7 @@ Install these tools before cloning. None are included in the repository.
 | make           | Task runner                                                     | Xcode CLT                                                                                                   | `apt install build-essential`                               |
 | pyenv          | Python version manager — reads `.python-version` (pins 3.12.11) | `brew install pyenv` + [shell init](https://github.com/pyenv/pyenv#set-up-your-shell-environment-for-pyenv) | [pyenv-installer](https://github.com/pyenv/pyenv-installer) |
 | direnv         | Auto-loads `.envrc` on `cd`                                     | `brew install direnv` + [shell hook](https://direnv.net/docs/hook.html)                                     | `apt install direnv` + shell hook                           |
-| pipx           | Isolated Python app installer                                   | `brew install pipx && pipx ensurepath`                                                                      | `apt install pipx`                                          |
-| Poetry ≥ 2.2.1 | Python dependency manager                                       | `pipx install poetry`                                                                                       | `pipx install poetry`                                       |
-| Poetry plugins | Required by `pyproject.toml`                                    | `poetry self add poetry-plugin-sort poetry-plugin-export`                                                   | same                                                        |
+| uv             | Python dependency manager + virtualenv                          | `brew install uv` or `curl -LsSf https://astral.sh/uv/install.sh \| sh`                                    | `curl -LsSf https://astral.sh/uv/install.sh \| sh`         |
 | R ≥ 4.4        | Statistical analysis                                            | [CRAN macOS binary](https://cran.r-project.org/)                                                            | [CRAN PPA](https://cloud.r-project.org/bin/linux/ubuntu/)   |
 
 ## Quick Start
@@ -59,10 +57,10 @@ direnv allow
 
 This triggers `.envrc`, which:
 - Installs Python 3.12.11 via pyenv (if not already present)
-- Validates `poetry.lock` against `pyproject.toml` (`poetry check --lock`)
-- Runs `poetry install` with all dependency groups into `.venv/`
+- Validates `uv.lock` against `pyproject.toml` (`uv lock --check`)
+- Runs `uv sync --all-groups` into `.venv/`
 - Loads `.env` variables into the shell
-- Activates the Poetry virtualenv
+- Activates the virtualenv
 
 The message `direnv: error .envrc is blocked` on first entry is normal — just run `direnv allow`.
 
@@ -83,8 +81,8 @@ make setup
 ```
 
 This runs three targets in sequence:
-- `setup_r` — installs renv (if missing), restores all R packages from `renv.lock`
-- `setup_python` — re-validates the lock file and runs `poetry install` (idempotent after step 3)
+- `setup_r` — installs R packages from `uvr.toml` via `uvr sync`
+- `setup_python` — re-validates `uv.lock` and runs `uv sync --all-groups` (idempotent after step 3)
 - `setup_hooks` — symlinks `scripts/hooks/pre-commit` into `.git/hooks/`
 
 > **Note on pre-commit linting:** the repo's pre-commit hook delegates R (lintr) and Python (ruff) lint checks to `~/.claude/hooks/repo-pre-commit.sh`, which is part of the [author's dotfiles](https://github.com/datasci-iopsy/.dotfiles). Without that dispatcher in place, staged-file linting is skipped silently (each script exits gracefully if its tool or dispatcher is absent). The lock file guard runs regardless. Collaborators without the dotfiles will not see linting blocked at commit time and should run `make py_lint` and `lintr::lint_dir()` manually before pushing.
@@ -191,20 +189,19 @@ See `analysis/run_power_analysis/README.md` for benchmarks and troubleshooting.
 
 ## Dependency Management
 
-Both `poetry.lock` and `renv.lock` are frozen against accidental changes:
+Both `uv.lock` and `uvr.lock` are frozen against accidental changes:
 - A pre-commit hook blocks commits that stage either lock file
 - Bypass for intentional updates: `ALLOW_LOCK_COMMIT=1 git commit ...`
-- Python update path: `poetry lock` → install → commit with bypass
-- R update path: `make renv_snapshot` → commit with bypass
+- Python update path: `uv lock` → `uv sync --all-groups` → commit with bypass
+- R update path: `uvr lock` → commit with bypass
 
 ## Troubleshooting
 
 | Symptom                                | Fix                                                                                 |
 | -------------------------------------- | ----------------------------------------------------------------------------------- |
 | `direnv: error .envrc is blocked`      | Run `direnv allow`                                                                  |
-| `poetry.lock is out of sync`           | Run `poetry lock --no-update`                                                       |
-| `renv::restore()` fails                | Try `make renv_repair`                                                              |
-| Broken renv symlinks after macOS eviction | From project root: add `RENV_PATHS_CACHE=~/.renv/cache` to `~/.Renviron`, then `find -L renv/library -type l -print0 \| xargs -0 rm && Rscript -e "renv::restore()"` |
+| `uv.lock is out of sync`               | Run `uv lock`                                                                       |
+| `uvr sync` fails                       | Run `uvr doctor` to diagnose; check `uvr.toml` for invalid specs                   |
 | Tests fail with import errors          | Confirm `direnv allow` completed; check `which python` points to `.venv/bin/python` |
 | `Rscript not found` or R version < 4.4 | Install R ≥ 4.4 from CRAN; verify with `Rscript --version`                          |
 | `make validate` fails with path error  | Confirm you are running from the project root                                       |
