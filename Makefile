@@ -8,8 +8,8 @@ AUTHOR       := Demetrius K. Green, ABD
 # Absolute project root — prevents cd-induced relative path bugs
 ROOT := $(CURDIR)
 
-# R invocation — routes all Rscript calls through uvr for isolated library
-RSCRIPT := uvr run Rscript
+# R invocation — all R execution routed through uvr
+RSCRIPT := uvr run
 
 # Default GCP function; override: make gcp_dev FN=run_intake_confirmation
 FN ?= run_qualtrics_scheduling
@@ -53,7 +53,7 @@ _check_uvr_env:
 		echo "   Expected: $(ROOT)/uvr.toml"; \
 		exit 1; \
 	}
-	@uvr_r_ver=$$(uvr run Rscript --version 2>&1 | grep -oE '[0-9]+\.[0-9]+' | head -1); \
+	@uvr_r_ver=$$(grep 'r_version' "$(ROOT)/uvr.toml" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1); \
 	echo "R version (uvr): $$uvr_r_ver"
 
 _check_synthetic_inputs:
