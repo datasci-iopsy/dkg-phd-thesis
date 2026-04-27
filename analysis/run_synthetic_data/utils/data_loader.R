@@ -12,39 +12,20 @@
 # ---------------------------------------------------------------------------
 
 
-#' Load the most-recent cleaned panel export CSV
-#'
-#' Prefers the careless-screened file produced by data_quality.R
-#' (pattern: cleaned_YYYYMMDD). Falls back to the raw export
-#' (pattern: YYYYMMDD) with a warning when no cleaned file exists.
+#' Load the cleaned panel export CSV produced by data_quality.R
 #'
 #' @param show_col_types Logical; passed to readr::read_csv (default FALSE).
 #' @return A data frame with one row per participant-timepoint observation.
 #'
 load_cleaned_data <- function(show_col_types = FALSE) {
-    export_dir <- here::here("analysis", "run_synthetic_data", "data", "export")
+    export_dir  <- here::here("analysis", "run_synthetic_data", "data", "export")
+    export_path <- file.path(export_dir, "syn_qualtrics_fct_panel_responses_cleaned.csv")
 
-    export_files <- list.files(
-        export_dir,
-        pattern  = "^syn_qualtrics_fct_panel_responses_cleaned_.*\\.csv$",
-        full.names = TRUE
-    )
-
-    if (length(export_files) == 0) {
-        log_msg("WARNING: No cleaned data file found. Run make synthetic_data_quality first.")
-        export_files <- list.files(
-            export_dir,
-            pattern  = "^syn_qualtrics_fct_panel_responses_\\d{8}\\.csv$",
-            full.names = TRUE
-        )
-        if (length(export_files) == 0) {
-            stop("No export CSV found in data/export/. Run make synthetic_data_quality.")
-        }
+    if (!file.exists(export_path)) {
+        stop("Cleaned export not found: ", export_path, ". Run make synthetic_data_quality first.")
     }
 
-    export_path <- sort(export_files, decreasing = TRUE)[1]
     log_msg("Loading: ", basename(export_path))
-
     df <- readr::read_csv(export_path, show_col_types = show_col_types)
     log_msg("Loaded: ", nrow(df), " rows x ", ncol(df), " columns")
 
