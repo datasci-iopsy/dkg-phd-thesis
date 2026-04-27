@@ -68,10 +68,10 @@ _check_synthetic_inputs:
 
 _check_synthetic_export:
 	@export_dir="$(ROOT)/analysis/run_synthetic_data/data/export"; \
-	n=$$(find "$$export_dir" -name "syn_qualtrics_fct_panel_responses_[0-9]*.csv" 2>/dev/null | wc -l | tr -d ' '); \
+	n=$$(find "$$export_dir" -name "syn_qualtrics_fct_panel_responses.csv" 2>/dev/null | wc -l | tr -d ' '); \
 	if [ "$$n" -eq 0 ]; then \
 		echo "No raw panel CSV found in analysis/run_synthetic_data/data/export/"; \
-		echo "   Expected: syn_qualtrics_fct_panel_responses_YYYYMMDD.csv"; \
+		echo "   Expected: syn_qualtrics_fct_panel_responses.csv"; \
 		exit 1; \
 	fi; \
 	echo "Found raw panel export CSV in data/export/"

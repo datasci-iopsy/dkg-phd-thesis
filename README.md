@@ -58,21 +58,15 @@ direnv allow
 This triggers `.envrc`, which:
 - Installs Python 3.12.11 via pyenv (if not already present)
 - Validates `uv.lock` against `pyproject.toml` (`uv lock --check`)
-- Runs `uv sync --all-groups` into `.venv/`
+- Runs `uv sync --frozen --all-groups` into `.venv/`
 - Loads `.env` variables into the shell
 - Activates the virtualenv
 
 The message `direnv: error .envrc is blocked` on first entry is normal — just run `direnv allow`.
 
-**3a. (iCloud users) Pin the renv cache outside iCloud**
+**3a. (iCloud users) R package cache**
 
-If your home directory or Documents folder is synced via iCloud, macOS can evict `~/Library/Caches/` (renv's default cache location) under storage pressure, breaking package symlinks. Add one line to `~/.Renviron` before running setup:
-
-```bash
-echo 'RENV_PATHS_CACHE=~/.renv/cache' >> ~/.Renviron
-```
-
-This moves the cache to a stable, non-purgeable path. The `>>` operator will create `~/.Renviron` if it does not already exist. Skip this step if you are not using iCloud Drive.
+uvr's global cache lives at `~/.uvr/` (local disk, never on iCloud). The project library at `.uvr/library/` is on iCloud if the project is in iCloud Drive, but if evicted, `uvr sync` restores it from the local cache in seconds. No user action is required.
 
 **4. Run full setup (R environment + git hooks)**
 

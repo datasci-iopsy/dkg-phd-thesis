@@ -52,7 +52,7 @@ Power analysis: `main.sh` → `run_power_analysis.R` → parallel `simr` simulat
 
 Both lock files are frozen against accidental changes. Guardrails in place:
 - `.envrc`: `uv lock --check` runs before every install; shell entry fails fast on drift
-- `.Rprofile`: interactive `renv::snapshot()` and `renv::update()` require env var opt-in
+- `.Rprofile`: sets `.libPaths()` to `.uvr/library` on session start; links uvr package library
 - `scripts/hooks/pre-commit`: blocks commits staging `uv.lock` or `uvr.lock`
 
 **Python update:** `uv lock` → `uv sync --all-groups` → `ALLOW_LOCK_COMMIT=1 git commit` | **R update:** `uvr lock` → `ALLOW_LOCK_COMMIT=1 git commit` | **Hook:** `make setup_hooks` (auto via `make setup`).

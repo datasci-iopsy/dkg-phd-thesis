@@ -3,7 +3,7 @@
 # setup_gcp_vm.sh - Bootstrap R environment on a fresh GCP Ubuntu VM
 #
 # Installs R >= 4.4 via CRAN PPA, system libraries for compiling R packages,
-# and delegates to `make setup_r` for renv::restore().
+# and delegates to `make setup_r` for uvr sync.
 #
 # Usage: bash gcp/deploy/setup_gcp_vm.sh   (from the project root)
 # ---------------------------------------------------------------------------
@@ -90,7 +90,7 @@ echo "  R version: ${r_ver} (OK)"
 
 # ---- Delegate to make setup_r --------------------------------------------
 
-echo "Restoring R packages via renv..."
+echo "Restoring R packages via uvr sync..."
 make setup_r
 
 echo ""

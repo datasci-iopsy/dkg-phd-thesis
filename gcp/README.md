@@ -157,7 +157,7 @@ python gcp/deploy/manage_compute.py teardown
 python gcp/deploy/manage_compute.py teardown --force
 ```
 
-`manage_compute.py` manages a single high-CPU VM for running R power analysis simulations (see [`analysis/run_power_analysis/`](../analysis/run_power_analysis/)). The VM runs Ubuntu 22.04 LTS and is bootstrapped with [`setup_gcp_vm.sh`](deploy/setup_gcp_vm.sh), which installs R >= 4.4, system libraries, and restores the `renv` environment. No GCP service account or API credentials are needed — the VM only runs R.
+`manage_compute.py` manages a single high-CPU VM for running R power analysis simulations (see [`analysis/run_power_analysis/`](../analysis/run_power_analysis/)). The VM runs Ubuntu 22.04 LTS and is bootstrapped with [`setup_gcp_vm.sh`](deploy/setup_gcp_vm.sh), which installs R >= 4.4, system libraries, and installs R packages via `uvr sync`. No GCP service account or API credentials are needed — the VM only runs R.
 
 Machine type, zone, and disk size are configured in [`compute.yaml`](deploy/compute.yaml). The default `c3-highcpu-176` provides 176 vCPUs (174 workers after reserving 2 for OS overhead).
 
