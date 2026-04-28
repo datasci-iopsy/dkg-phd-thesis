@@ -2,9 +2,9 @@
 Quick sanity check -- run directly to see loaded config output.
 
 Usage from project root:
-    poetry run python gcp/tests/run_config.py
+    uv run python gcp/tests/run_config.py
 Usage from gcp/tests/:
-    poetry run python run_config.py
+    uv run python run_config.py
 """
 
 import sys

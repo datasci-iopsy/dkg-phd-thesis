@@ -36,7 +36,7 @@ echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting run_power_analysis (version: ${ver
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Log file: ${log_file}"
 
 # hand off to R -- all orchestration logic lives there
-Rscript "${script_dir}/scripts/run_power_analysis.R" --version "${version}" 2>&1
+uvr run Rscript "${script_dir}/scripts/run_power_analysis.R" --version "${version}" 2>&1
 
 exit_code=$?
 

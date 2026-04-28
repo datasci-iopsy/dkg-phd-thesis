@@ -29,8 +29,8 @@ Correlation references: Sonnentag (2018); Schuler et al. (2019); Vahle-Hinz et a
 
 Usage
 -----
-    poetry run python analysis/run_synthetic_data/scripts/generate_synthetic_data.py
-    poetry run python analysis/run_synthetic_data/scripts/generate_synthetic_data.py --load-bq
+    uv run python analysis/run_synthetic_data/scripts/generate_synthetic_data.py
+    uv run python analysis/run_synthetic_data/scripts/generate_synthetic_data.py --load-bq
 
 Outputs (overwrites existing import files):
     analysis/run_synthetic_data/data/import/claude_gen_syn_intake_responses_20260223.csv
@@ -523,7 +523,7 @@ def load_to_bigquery(
     except ImportError:
         sys.exit(
             "ERROR: google-cloud-bigquery is not installed. "
-            "Run: poetry install --with fn-qualtrics-scheduling"
+            "Run: uv sync --all-groups"
         )
 
     client = bigquery.Client(project=project)

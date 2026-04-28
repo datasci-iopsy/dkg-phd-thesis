@@ -14,8 +14,7 @@ TABLE="fct_panel_responses"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SQL_FILE="${SCRIPT_DIR}/sql/fct_panel_responses.sql"
 EXPORT_DIR="$(cd "${SCRIPT_DIR}/../data/export" && pwd)"
-DATE_TAG="$(date +%Y%m%d)"
-OUT_FILE="${EXPORT_DIR}/${DATASET}_${TABLE}_${DATE_TAG}.csv"
+OUT_FILE="${EXPORT_DIR}/${DATASET}_${TABLE}.csv"
 
 echo "Rebuilding ${TABLE} from ${SQL_FILE}"
 bq query \

@@ -1,15 +1,15 @@
 # gcp/CLAUDE.md
 
-Python (`>=3.12,<3.13, Poetry`) Cloud Run pipeline. Four Cloud Run functions: three chained via Pub/Sub (scheduling pipeline) plus one terminal HTTP inbound function (`run_followup_response`).
+Python (`>=3.12,<3.13, uv`) Cloud Run pipeline. Four Cloud Run functions: three chained via Pub/Sub (scheduling pipeline) plus one terminal HTTP inbound function (`run_followup_response`).
 All tests mock GCP/Twilio — no credentials or network access needed for local work.
 
 ## Commands
 
 ```bash
 # From project root
-poetry run ruff check gcp/ && poetry run ruff format gcp/
-poetry run sqlfmt gcp/
-poetry run pytest gcp/tests/ -v
+uv run ruff check gcp/ && uv run ruff format gcp/
+uv run sqlfmt gcp/
+uv run pytest gcp/tests/ -v
 
 # Deploy (never from a worktree)
 python gcp/deploy/manage_functions.py dev <fn>      # local dev on :8080
@@ -49,7 +49,7 @@ python gcp/deploy/manage_compute.py teardown         # delete VM (warns if resul
 - **Participant identifier**: `connect_id` throughout all models, BQ schema, and test fixtures — never `prolific_id`
 - **Config loading**: each function's `configs/` YAMLs merged alphabetically → validated against `AppConfig` in `shared/utils/config_models.py`
 - **Idempotency**: fn2 checks `_processed` flag in BQ; fn3 checks `scheduled_followups` table before writing
-- **Dependency groups**: deploy exports `main` + function-specific group to `requirements.txt`
+- **Dependency groups**: deploy exports project deps + function-specific group to `requirements.txt` via `uv export`
 - **Deploy YAMLs**: `functions.yaml` (functions, SAs, IAM, secrets, triggers), `gateway.yaml`, `pubsub.yaml`, `compute.yaml` — each is the source of truth for its subsystem
 - **`send_immediately` test flag**: carried on `IntakeProcessedMessage` / `FollowupSchedulingMessage` (`bool = False`). When `True`, fn3 schedules at now+16/32/48 min instead of fixed study times. Set via `manage_gateway.py test --now`; read from POST body by fn1 (not stored in BQ).
 

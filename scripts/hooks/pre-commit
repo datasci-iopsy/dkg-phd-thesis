@@ -9,7 +9,7 @@ bash "$HOME/.claude/hooks/repo-pre-commit.sh"
 
 # --- Lock file guard ---
 LOCK_FILES=()
-for f in poetry.lock renv.lock; do
+for f in uv.lock uvr.lock; do
     if git diff --cached --name-only | grep -qx "$f"; then
         LOCK_FILES+=("$f")
     fi

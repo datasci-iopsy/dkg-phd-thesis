@@ -1,6 +1,6 @@
 # analysis/CLAUDE.md
 
-R (4.4, renv) analysis pipeline. Two pillars:
+R (4.4, uvr) analysis pipeline. Two pillars:
 - `run_power_analysis/` — multilevel sensitivity analysis (Arend & Schafer 2019); see `run_power_analysis/README.md`
 - `run_synthetic_data/` — synthetic ESM data generation (Python + R + SQL + bash); analysis pipeline runs in 6 steps starting with `data_quality.R` (careless responding screening)
 
@@ -15,13 +15,13 @@ Shared utilities in `analysis/shared/utils/`:
 Run from project root:
 
 ```bash
-Rscript -e "renv::restore()"                                           # restore from renv.lock
-make renv_snapshot                                                      # update renv.lock (sanctioned)
+uvr sync                                                                # restore packages from uvr.lock
+uvr lock && ALLOW_LOCK_COMMIT=1 git commit                             # update uvr.lock (sanctioned)
 bash analysis/run_power_analysis/main.sh dev                           # dev grid (seconds)
 bash analysis/run_power_analysis/main.sh prod                          # full local grid (hours)
 bash analysis/run_power_analysis/main.sh benchmark_gcp                 # GCP timing probe (prod ~= benchmark x 100)
 bash analysis/run_power_analysis/main.sh prod_gcp                      # GCP full grid (3,645 cells)
-Rscript analysis/run_power_analysis/scripts/visualize_power_analysis.R # SVG figures from latest results
+uvr run analysis/run_power_analysis/scripts/visualize_power_analysis.R # SVG figures from latest results
 bash analysis/tests/validate_r_structure.sh                            # pre-flight static validation
 make synthetic_analysis                                                 # steps 1–5; run make synthetic_tables separately for publication output
 make synthetic_data_quality                                             # Step 1 only: careless responding screening
@@ -46,7 +46,7 @@ make synthetic_data_quality                                             # Step 1
 - **Config**: load via `load_config()` from `common_utils.r`; values at `config$params$*`
 - **Logging**: `log_msg()` only — never bare `print()` or `cat()` in scripts
 - **Parallel**: `furrr::future_map_dfr()` with `tryCatch()` wrappers in the mapping function
-- **Output**: timestamp filenames; write `.rds` + `.csv` pairs; figures as SVG (never PDF)
+- **Output**: timestamp filenames for pipeline results; export CSVs use static names (overwrite on rerun); write `.rds` + `.csv` pairs; figures as SVG (never PDF)
 
 ## Variable naming
 
@@ -54,11 +54,10 @@ make synthetic_data_quality                                             # Step 1
 - L2 time-invariant (grand-mean centered): `VAR.BP` — e.g. `PSYK.BR`
 - Never mix centering levels in a single model term
 
-## renv freeze
+## uvr
 
-`renv.lock` is frozen. In interactive R sessions, `renv::snapshot()` and `renv::update()` error unless opted in. `renv::restore()` is unaffected.
+`uvr.lock` is frozen. Pre-commit hook blocks commits staging the lock file.
 
-- **Sanctioned path**: `make renv_snapshot` (sets `RENV_ALLOW_SNAPSHOT=1`)
-- **Manual opt-in**: `Sys.setenv(RENV_ALLOW_SNAPSHOT = "1"); renv::snapshot()`
-- **Commit**: `ALLOW_LOCK_COMMIT=1 git commit`
-- **Worktrees**: run `renv::restore()` once per checkout; `data/` output is gitignored per worktree
+- **Install/restore**: `uvr sync` — installs packages from `uvr.lock` into `.uvr/library/`
+- **Update lock**: `uvr lock` to regenerate, then `ALLOW_LOCK_COMMIT=1 git commit` to commit
+- **Worktrees**: run `uvr sync` once per checkout; `data/` output is gitignored per worktree

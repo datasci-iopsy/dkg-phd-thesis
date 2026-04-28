@@ -6,7 +6,7 @@ and handles missing credentials and Twilio errors correctly.
 All Twilio calls are mocked -- no credentials needed.
 
 Usage from project root:
-    poetry run pytest gcp/tests/test_intake_confirmation.py -v
+    uv run pytest gcp/tests/test_intake_confirmation.py -v
 
 Note on module loading: both run_intake_confirmation and
 run_followup_scheduling expose a `main` module. To avoid Python's

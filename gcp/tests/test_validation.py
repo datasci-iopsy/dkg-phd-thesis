@@ -6,7 +6,7 @@ task POSTs and the web_service_payload.json fixture for participant
 extraction.
 
 Usage from project root:
-    poetry run pytest gcp/tests/test_validation.py -v
+    uv run pytest gcp/tests/test_validation.py -v
 """
 
 import json

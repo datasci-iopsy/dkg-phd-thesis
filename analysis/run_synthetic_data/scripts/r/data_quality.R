@@ -22,8 +22,8 @@
 # Person-level exclusion: flagged by >= 2 criteria (any criterion is TRUE if
 # it triggered on any survey). Per-survey detail is preserved in the output.
 #
-# Input:  data/export/syn_qualtrics_fct_panel_responses_YYYYMMDD.csv
-# Output: data/export/syn_qualtrics_fct_panel_responses_cleaned_YYYYMMDD.csv
+# Input:  data/export/syn_qualtrics_fct_panel_responses.csv
+# Output: data/export/syn_qualtrics_fct_panel_responses_cleaned.csv
 #         figs/data_quality/ — diagnostic SVGs + CSV screening tables
 #
 # References:
@@ -55,7 +55,6 @@ ensure_dir(FIGS_DIR)
 
 EXPORT_DIR <- here::here("analysis", "run_synthetic_data", "data", "export")
 
-today <- format(Sys.Date(), "%Y%m%d")
 
 theme_set(theme_apa)
 
@@ -99,18 +98,13 @@ log_msg("  Exclusion rule: >= ", MIN_FLAGS_TO_EXCLUDE, " criteria flagged at per
 # =============================================================================
 log_msg("=== [1] Loading data ===")
 
-raw_files <- list.files(
-    EXPORT_DIR,
-    pattern = "^syn_qualtrics_fct_panel_responses_\\d{8}\\.csv$",
-    full.names = TRUE
-)
-if (length(raw_files) == 0) {
+input_path <- file.path(EXPORT_DIR, "syn_qualtrics_fct_panel_responses.csv")
+if (!file.exists(input_path)) {
     stop(
         "No raw panel CSV found in data/export/. ",
-        "Expected: syn_qualtrics_fct_panel_responses_YYYYMMDD.csv"
+        "Expected: syn_qualtrics_fct_panel_responses.csv"
     )
 }
-input_path <- sort(raw_files, decreasing = TRUE)[1]
 log_msg("Loading: ", basename(input_path))
 
 df_raw <- readr::read_csv(input_path, show_col_types = FALSE)
@@ -708,11 +702,10 @@ retained_ids <- person_summary |>
 df_cleaned <- df_raw |>
     dplyr::filter(response_id %in% retained_ids)
 
-cleaned_path <- file.path(
-    EXPORT_DIR,
-    paste0("syn_qualtrics_fct_panel_responses_cleaned_", today, ".csv")
-)
+cleaned_path <- file.path(EXPORT_DIR, "syn_qualtrics_fct_panel_responses_cleaned.csv")
 readr::write_csv(df_cleaned, cleaned_path)
+rds_path <- file.path(EXPORT_DIR, "syn_qualtrics_fct_panel_responses_cleaned.rds")
+saveRDS(df_cleaned, rds_path)
 
 log_msg("Cleaned dataset: ", basename(cleaned_path))
 log_msg("  Original: ", nrow(df_raw), " rows, ", n_participants, " participants")

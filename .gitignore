@@ -7,6 +7,7 @@
 .venv/
 .Renviron
 .keys/
+.uvr/
 
 # python
 .python-version
@@ -38,3 +39,4 @@ logs/
 # exceptions
 !analysis/run_synthetic_data/data/import/*.csv
 !analysis/run_synthetic_data/data/export/*.csv
+/.uvr/library/

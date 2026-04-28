@@ -64,14 +64,16 @@ The simulation engine ([`power_analysis_utils.r`](utils/power_analysis_utils.r))
 
 ### R packages
 
-All R package dependencies are managed by `renv`. The [`renv.lock`](../../renv.lock) file at the project root pins exact package versions. After cloning the repo, restore the environment with:
+All R package dependencies are managed by `uvr`. The [`uvr.lock`](../../uvr.lock) file at the project root pins exact package versions. After cloning, restore the environment with:
 
 ```bash
 cd /path/to/dkg-phd-thesis
-Rscript -e "renv::restore()"
+uvr sync
 ```
 
-Key R packages (installed automatically via `renv`):
+Or via the Makefile: `make setup_r`
+
+Key R packages (installed automatically via `uvr`):
 
 - `simr`: Monte Carlo power simulations for mixed models
 - `lme4`: Linear mixed-effects model fitting

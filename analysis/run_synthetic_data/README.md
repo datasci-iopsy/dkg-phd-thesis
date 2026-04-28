@@ -53,9 +53,9 @@ make synthetic_mlm             # Step 5: Multilevel models
 make synthetic_tables          # Step 6: Word .docx tables
 ```
 
-Steps 2–5 load the cleaned dataset written by Step 1. If the cleaned file is absent (e.g., running a step individually before Step 1 has run), the script falls back to the raw export and logs a warning.
+Steps 2–5 load the cleaned dataset written by Step 1. If the cleaned file is absent, the script stops with an error. Run Step 1 first.
 
-**Prerequisites:** Complete Quick Start steps 1–4 in the root `README.md` (R + renv packages required).
+**Prerequisites:** Complete Quick Start steps 1–4 in the root `README.md` (R packages managed by uvr required).
 
 ## Data Quality Screening
 
@@ -115,7 +115,7 @@ Yentes, R. D., & Wilhelm, F. (2018). The careless R package: Bad data before bad
 ## Output
 
 - `figs/data_quality/` — careless responding diagnostic SVGs (6 figures); CSVs regenerated locally on each run
-- `data/export/syn_qualtrics_fct_panel_responses_cleaned_YYYYMMDD.csv` — panel dataset after careless responding exclusions
+- `data/export/syn_qualtrics_fct_panel_responses_cleaned.csv` — panel dataset after careless responding exclusions
 - `figs/eda/` — SVG figures and select CSVs/MD tables (descriptive statistics, ICC table, correlation comparison, ~38 outputs)
 - `figs/corr/` — SVG correlation matrices and CSV data (L1 Pearson, L2 Pearson, MLM-based, rmcorr within-person)
 - `figs/cfa/` — CSV + MD tables for fit indices, factor loadings, and omega reliability (no figures; all outputs are tabular)
@@ -132,7 +132,7 @@ Yentes, R. D., & Wilhelm, F. (2018). The careless R package: Bad data before bad
 
 ## Data Pipeline (Optional — Data Already Exported)
 
-The `data/export/` directory contains the wide-format panel dataset (`syn_qualtrics_fct_panel_responses_YYYYMMDD.csv`) merged from intake and follow-up CSVs via the BigQuery SQL pipeline. This is pre-built and committed; you do not need to re-run the pipeline unless changing the data or schema.
+The `data/export/` directory contains the wide-format panel dataset (`syn_qualtrics_fct_panel_responses.csv`) merged from intake and follow-up CSVs via the BigQuery SQL pipeline. This is pre-built and committed; you do not need to re-run the pipeline unless changing the data or schema.
 
 ### Scripts
 
@@ -143,7 +143,7 @@ The `data/export/` directory contains the wide-format panel dataset (`syn_qualtr
 2. `int_followup_responses_scored.sql` — transforms raw follow-up responses into a scored intermediate table
 3. `fct_panel_responses.sql` — joins the two intermediate tables into the wide-format fact table, applying eligibility filters
 
-**`scripts/export_syn_fct_panel_responses_csv.sh`** — queries `fct_panel_responses` from BigQuery and writes a dated CSV to `data/export/`. Requires `gcloud` auth and the `dkg-phd-thesis` project.
+**`scripts/export_syn_fct_panel_responses_csv.sh`** — queries `fct_panel_responses` from BigQuery and writes `syn_qualtrics_fct_panel_responses.csv` to `data/export/`. Requires `gcloud` auth and the `dkg-phd-thesis` project.
 
 ### Full regeneration sequence
 

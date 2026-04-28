@@ -16,7 +16,7 @@ from the model by construction. Instead, we test:
   - The insert function writes exactly the columns in the schema
 
 Usage from project root:
-    poetry run pytest gcp/tests/test_bq_schemas.py -v
+    uv run pytest gcp/tests/test_bq_schemas.py -v
 """
 
 import json

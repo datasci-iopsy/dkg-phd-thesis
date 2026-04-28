@@ -62,11 +62,11 @@ python gcp/deploy/manage_functions.py list
 
 The `dev` command copies `shared/` into the function directory, starts a local server, and cleans up on exit. It also prints any secrets the function expects so you can set them as environment variables (via `.envrc` / direnv).
 
-The `deploy` command exports a `requirements.txt` from Poetry (using the function's dependency group), copies `shared/`, deploys via `gcloud functions deploy`, and cleans up local artifacts. If the function declares a `service_account` in [`functions.yaml`](deploy/functions.yaml), deploy creates the service account (if it does not exist), grants the declared IAM roles, and passes it to gcloud via `--service-account`.
+The `deploy` command exports a `requirements.txt` via `uv export` (using the function's dependency group), copies `shared/`, deploys via `gcloud functions deploy`, and cleans up local artifacts. If the function declares a `service_account` in [`functions.yaml`](deploy/functions.yaml), deploy creates the service account (if it does not exist), grants the declared IAM roles, and passes it to gcloud via `--service-account`.
 
 The `teardown` command deletes the Cloud Run function, removes leftover Artifact Registry container images, clears the generated `requirements.txt`, and deletes the function's dedicated service account.
 
-All function configuration lives in [`functions.yaml`](deploy/functions.yaml). Each entry defines `source_dir`, `poetry_group`, `entry_point`, `trigger`, `allow_unauthenticated`, and optionally `secrets` and `service_account` (with `name`, `display_name`, and `roles`). The `trigger` field supports `http` (generates `--trigger-http`) and `topic` (generates `--trigger-topic=TOPIC_ID`, requires `trigger_topic` field).
+All function configuration lives in [`functions.yaml`](deploy/functions.yaml). Each entry defines `source_dir`, `dependency_group`, `entry_point`, `trigger`, `allow_unauthenticated`, and optionally `secrets` and `service_account` (with `name`, `display_name`, and `roles`). The `trigger` field supports `http` (generates `--trigger-http`) and `topic` (generates `--trigger-topic=TOPIC_ID`, requires `trigger_topic` field).
 
 ### manage_gateway.py: API Gateway lifecycle
 
@@ -157,7 +157,7 @@ python gcp/deploy/manage_compute.py teardown
 python gcp/deploy/manage_compute.py teardown --force
 ```
 
-`manage_compute.py` manages a single high-CPU VM for running R power analysis simulations (see [`analysis/run_power_analysis/`](../analysis/run_power_analysis/)). The VM runs Ubuntu 22.04 LTS and is bootstrapped with [`setup_gcp_vm.sh`](deploy/setup_gcp_vm.sh), which installs R >= 4.4, system libraries, and restores the `renv` environment. No GCP service account or API credentials are needed — the VM only runs R.
+`manage_compute.py` manages a single high-CPU VM for running R power analysis simulations (see [`analysis/run_power_analysis/`](../analysis/run_power_analysis/)). The VM runs Ubuntu 22.04 LTS and is bootstrapped with [`setup_gcp_vm.sh`](deploy/setup_gcp_vm.sh), which installs R >= 4.4, system libraries, and installs R packages via `uvr sync`. No GCP service account or API credentials are needed — the VM only runs R.
 
 Machine type, zone, and disk size are configured in [`compute.yaml`](deploy/compute.yaml). The default `c3-highcpu-176` provides 176 vCPUs (174 workers after reserving 2 for OS overhead).
 
@@ -252,7 +252,7 @@ When a survey question changes or a new field is added, four files need updating
 After making changes, run the test suite to confirm everything is consistent:
 
 ```bash
-poetry run pytest gcp/tests/ -v
+uv run pytest gcp/tests/ -v
 ```
 
 Key things the tests catch after a schema change: QID_MAP names that do not match `WebServicePayload` fields, insert row keys that do not match the generated schema, non-serializable values, duplicate column names, and missing partition/cluster fields.
@@ -284,12 +284,12 @@ A successful response returns `{"status": "success", ...}` with a 200. Validatio
 
 ```bash
 # All tests
-poetry run pytest gcp/tests/ -v
+uv run pytest gcp/tests/ -v
 ```
 
 ```bash
 # All tests with coverage
-poetry run pytest gcp/tests/ -v \
+uv run pytest gcp/tests/ -v \
   --cov=gcp/cloud_run_functions/run_qualtrics_scheduling \
   --cov=gcp/shared/utils \
   --cov-report=term-missing
@@ -297,34 +297,34 @@ poetry run pytest gcp/tests/ -v \
 
 ```bash
 # Individual test files
-poetry run pytest gcp/tests/test_models.py -v
-poetry run pytest gcp/tests/test_bq_schemas.py -v
-poetry run pytest gcp/tests/test_config.py -v
-poetry run pytest gcp/tests/test_validation.py -v
-poetry run pytest gcp/tests/test_intake_confirmation.py -v
-poetry run pytest gcp/tests/test_followup_scheduling.py -v
-poetry run pytest gcp/tests/test_followup_response.py -v
+uv run pytest gcp/tests/test_models.py -v
+uv run pytest gcp/tests/test_bq_schemas.py -v
+uv run pytest gcp/tests/test_config.py -v
+uv run pytest gcp/tests/test_validation.py -v
+uv run pytest gcp/tests/test_intake_confirmation.py -v
+uv run pytest gcp/tests/test_followup_scheduling.py -v
+uv run pytest gcp/tests/test_followup_response.py -v
 ```
 
 Tests mock BigQuery calls and use Flask test request contexts, so no GCP credentials or network access are needed.
 
 ## Dependencies
 
-Dependencies are managed by Poetry with dependency groups:
+Dependencies are managed by uv with `[dependency-groups]` in `pyproject.toml`:
 
-- `main`: Shared dependencies used by all functions (pydantic, PyYAML, requests).
+- base (`[project.dependencies]`): Shared dependencies used by all functions (pydantic, PyYAML).
 - `fn-qualtrics-scheduling`: Intake webhook (Flask, functions-framework, google-cloud-bigquery, google-cloud-pubsub).
 - `fn-intake-confirmation`: SMS confirmation (functions-framework, google-cloud-bigquery, twilio, cloudevents).
 - `fn-followup-scheduling`: Follow-up SMS scheduling (functions-framework, google-cloud-bigquery, twilio, cloudevents).
 - `fn-followup-response`: Followup response ingestion (functions-framework, google-cloud-bigquery). No Twilio or Pub/Sub.
 - `dev`: Development tools (pytest, pytest-cov, ruff, radian).
 
-At deploy time, `manage_functions.py` exports `main` + the function's group into a `requirements.txt` that Cloud Run uses to build the container. New functions get their own Poetry group and an entry in [`functions.yaml`](deploy/functions.yaml).
+At deploy time, `manage_functions.py` runs `uv export --no-dev --group <group>` to produce a `requirements.txt` that Cloud Run uses to build the container. New functions get their own dependency group in `pyproject.toml` and an entry in [`functions.yaml`](deploy/functions.yaml).
 
 ## Adding a new function
 
 1. Create a new directory under `cloud_run_functions/` with `main.py`, `configs/`, and any `models/` or `utils/` modules.
-2. Add a Poetry dependency group in `pyproject.toml` for the function's unique dependencies.
-3. Add an entry in [`functions.yaml`](deploy/functions.yaml) with `source_dir`, `poetry_group`, `entry_point`, `trigger`, and a `service_account` block with the roles the function needs.
+2. Add a `[dependency-groups]` entry in `pyproject.toml` for the function's unique dependencies.
+3. Add an entry in [`functions.yaml`](deploy/functions.yaml) with `source_dir`, `dependency_group`, `entry_point`, `trigger`, and a `service_account` block with the roles the function needs.
 4. Add the function directory to `sys.path` in [`conftest.py`](tests/conftest.py) so test imports resolve.
 5. Write tests under `gcp/tests/`.
