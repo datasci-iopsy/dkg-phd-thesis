@@ -36,6 +36,10 @@ logs/
 *.DS_Store
 *tempCodeRunnerFile*
 
+# iCloud conflict copies
+* 2.lock
+* 2.toml
+
 # exceptions
 !analysis/run_synthetic_data/data/import/*.csv
 !analysis/run_synthetic_data/data/export/*.csv
