@@ -704,6 +704,8 @@ df_cleaned <- df_raw |>
 
 cleaned_path <- file.path(EXPORT_DIR, "syn_qualtrics_fct_panel_responses_cleaned.csv")
 readr::write_csv(df_cleaned, cleaned_path)
+rds_path <- file.path(EXPORT_DIR, "syn_qualtrics_fct_panel_responses_cleaned.rds")
+saveRDS(df_cleaned, rds_path)
 
 log_msg("Cleaned dataset: ", basename(cleaned_path))
 log_msg("  Original: ", nrow(df_raw), " rows, ", n_participants, " participants")

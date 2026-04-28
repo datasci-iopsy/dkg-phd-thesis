@@ -523,7 +523,7 @@ def load_to_bigquery(
     except ImportError:
         sys.exit(
             "ERROR: google-cloud-bigquery is not installed. "
-            "Run: uv sync --group fn-qualtrics-scheduling"
+            "Run: uv sync --all-groups"
         )
 
     client = bigquery.Client(project=project)
