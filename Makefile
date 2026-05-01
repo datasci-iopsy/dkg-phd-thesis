@@ -424,7 +424,7 @@ gcp_dev:
 	@echo "Starting local dev server for: $(FN)"
 	@echo "   (Override with: make gcp_dev FN=run_intake_confirmation)"
 	@echo ""
-	@cd "$(ROOT)" && python gcp/deploy/manage_functions.py dev $(FN)
+	@cd "$(ROOT)" && uv run gcp/deploy/manage_functions.py dev $(FN)
 
 gcp_deploy:
 	@echo "Deploying $(FN) to GCP..."
@@ -432,73 +432,73 @@ gcp_deploy:
 	@echo "Current branch: $$(git -C "$(ROOT)" rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown')"
 	@echo "   Deploy from main only -- never from a worktree."
 	@echo ""
-	@cd "$(ROOT)" && python gcp/deploy/manage_functions.py deploy $(FN)
+	@cd "$(ROOT)" && uv run gcp/deploy/manage_functions.py deploy $(FN)
 
 gcp_infra_up:
 	@echo "Setting up BigQuery tables..."
-	@cd "$(ROOT)" && python gcp/deploy/manage_infra.py setup
+	@cd "$(ROOT)" && uv run gcp/deploy/manage_infra.py setup
 
 gcp_infra_status:
 	@echo "BigQuery table state..."
-	@cd "$(ROOT)" && python gcp/deploy/manage_infra.py status
+	@cd "$(ROOT)" && uv run gcp/deploy/manage_infra.py status
 
 gcp_infra_down:
 	@echo "Tearing down BigQuery tables..."
-	@cd "$(ROOT)" && python gcp/deploy/manage_infra.py teardown
+	@cd "$(ROOT)" && uv run gcp/deploy/manage_infra.py teardown
 
 gcp_gateway_up:
 	@echo "Setting up API Gateway..."
-	@cd "$(ROOT)" && python gcp/deploy/manage_gateway.py setup
+	@cd "$(ROOT)" && uv run gcp/deploy/manage_gateway.py setup
 
 gcp_gateway_status:
 	@echo "API Gateway resource state..."
-	@cd "$(ROOT)" && python gcp/deploy/manage_gateway.py status
+	@cd "$(ROOT)" && uv run gcp/deploy/manage_gateway.py status
 
 gcp_gateway_test:
 	@echo "Running end-to-end gateway test..."
 	@if [ "$(NOW)" = "1" ]; then \
 		echo "   Mode: now+16/32/48 min (--now)"; \
-		cd "$(ROOT)" && python gcp/deploy/manage_gateway.py test --now; \
+		cd "$(ROOT)" && uv run gcp/deploy/manage_gateway.py test --now; \
 	else \
 		echo "   Mode: fixed survey times  (use NOW=1 for rapid scheduling)"; \
-		cd "$(ROOT)" && python gcp/deploy/manage_gateway.py test; \
+		cd "$(ROOT)" && uv run gcp/deploy/manage_gateway.py test; \
 	fi
 
 gcp_gateway_down:
 	@echo "Tearing down API Gateway..."
-	@cd "$(ROOT)" && python gcp/deploy/manage_gateway.py teardown
+	@cd "$(ROOT)" && uv run gcp/deploy/manage_gateway.py teardown
 
 gcp_pubsub_up:
 	@echo "Setting up Pub/Sub topics..."
-	@cd "$(ROOT)" && python gcp/deploy/manage_pubsub.py setup
+	@cd "$(ROOT)" && uv run gcp/deploy/manage_pubsub.py setup
 
 gcp_pubsub_status:
 	@echo "Pub/Sub topic state..."
-	@cd "$(ROOT)" && python gcp/deploy/manage_pubsub.py status
+	@cd "$(ROOT)" && uv run gcp/deploy/manage_pubsub.py status
 
 gcp_pubsub_down:
 	@echo "Tearing down Pub/Sub topics..."
-	@cd "$(ROOT)" && python gcp/deploy/manage_pubsub.py teardown
+	@cd "$(ROOT)" && uv run gcp/deploy/manage_pubsub.py teardown
 
 gcp_compute_up:
 	@echo "Creating power-analysis VM..."
-	@cd "$(ROOT)" && python gcp/deploy/manage_compute.py setup
+	@cd "$(ROOT)" && uv run gcp/deploy/manage_compute.py setup
 
 gcp_compute_status:
 	@echo "Checking VM status..."
-	@cd "$(ROOT)" && python gcp/deploy/manage_compute.py status
+	@cd "$(ROOT)" && uv run gcp/deploy/manage_compute.py status
 
 gcp_compute_ssh:
 	@echo "SSH into power-analysis VM..."
-	@cd "$(ROOT)" && python gcp/deploy/manage_compute.py ssh
+	@cd "$(ROOT)" && uv run gcp/deploy/manage_compute.py ssh
 
 gcp_compute_scp:
 	@echo "Downloading results from VM..."
-	@cd "$(ROOT)" && python gcp/deploy/manage_compute.py scp
+	@cd "$(ROOT)" && uv run gcp/deploy/manage_compute.py scp
 
 gcp_compute_down:
 	@echo "Deleting power-analysis VM..."
-	@cd "$(ROOT)" && python gcp/deploy/manage_compute.py teardown
+	@cd "$(ROOT)" && uv run gcp/deploy/manage_compute.py teardown
 
 # ---------------------------------------------------------------------------
 # Utilities

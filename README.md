@@ -154,8 +154,8 @@ See `make help_gcp` for the full GCP command reference.
 Requires Track B + `gcloud` CLI. The VM is Linux-only and is used solely for R simulations.
 
 ```bash
-python gcp/deploy/manage_compute.py setup   # Create VM (c3-highcpu-176)
-python gcp/deploy/manage_compute.py ssh     # SSH in
+uv run gcp/deploy/manage_compute.py setup   # Create VM (c3-highcpu-176)
+uv run gcp/deploy/manage_compute.py ssh     # SSH in
 ```
 
 On the VM (run once after first SSH):
@@ -175,8 +175,8 @@ nohup make power_analysis_gcp_prod &       # Full grid in background (3,645 cell
 After completion:
 
 ```bash
-python gcp/deploy/manage_compute.py scp      # Download results to local machine
-python gcp/deploy/manage_compute.py teardown # Delete VM to stop billing
+uv run gcp/deploy/manage_compute.py scp      # Download results to local machine
+uv run gcp/deploy/manage_compute.py teardown # Delete VM to stop billing
 ```
 
 See `analysis/run_power_analysis/README.md` for benchmarks and troubleshooting.

@@ -42,22 +42,22 @@ Five scripts live in `gcp/deploy/` and are run from the project root. All use ar
 
 ```bash
 # Local development (starts functions-framework on port 8080)
-python gcp/deploy/manage_functions.py dev run-qualtrics-scheduling
+uv run gcp/deploy/manage_functions.py dev run-qualtrics-scheduling
 
 # Local development on a custom port
-python gcp/deploy/manage_functions.py dev run-qualtrics-scheduling --port 9090
+uv run gcp/deploy/manage_functions.py dev run-qualtrics-scheduling --port 9090
 
 # Deploy to GCP
-python gcp/deploy/manage_functions.py deploy run-qualtrics-scheduling
+uv run gcp/deploy/manage_functions.py deploy run-qualtrics-scheduling
 
 # Tear down (interactive confirmation)
-python gcp/deploy/manage_functions.py teardown run-qualtrics-scheduling
+uv run gcp/deploy/manage_functions.py teardown run-qualtrics-scheduling
 
 # Tear down (skip confirmation)
-python gcp/deploy/manage_functions.py teardown run-qualtrics-scheduling --force
+uv run gcp/deploy/manage_functions.py teardown run-qualtrics-scheduling --force
 
 # List all configured functions
-python gcp/deploy/manage_functions.py list
+uv run gcp/deploy/manage_functions.py list
 ```
 
 The `dev` command copies `shared/` into the function directory, starts a local server, and cleans up on exit. It also prints any secrets the function expects so you can set them as environment variables (via `.envrc` / direnv).
@@ -72,19 +72,19 @@ All function configuration lives in [`functions.yaml`](deploy/functions.yaml). E
 
 ```bash
 # Provision gateway, service account, and API key
-python gcp/deploy/manage_gateway.py setup
+uv run gcp/deploy/manage_gateway.py setup
 
 # Show current state of all gateway resources
-python gcp/deploy/manage_gateway.py status
+uv run gcp/deploy/manage_gateway.py status
 
 # Send the test fixture payload through the live gateway
-python gcp/deploy/manage_gateway.py test
+uv run gcp/deploy/manage_gateway.py test
 
 # Tear down all gateway resources (interactive confirmation)
-python gcp/deploy/manage_gateway.py teardown
+uv run gcp/deploy/manage_gateway.py teardown
 
 # Tear down (skip confirmation)
-python gcp/deploy/manage_gateway.py teardown --force
+uv run gcp/deploy/manage_gateway.py teardown --force
 ```
 
 The `setup` command enables required GCP APIs (`apigateway`, `servicemanagement`, `servicecontrol`, `apikeys`), creates a dedicated service account (`dkg-api-gateway`) with the Cloud Run Invoker role, resolves the target Cloud Run function URL from [`functions.yaml`](deploy/functions.yaml), generates an OpenAPI 2.0 spec, deploys the API config and gateway, and creates a GCP API key restricted to the gateway's managed service. The resulting gateway URL and API key are what you configure in the Qualtrics Workflow Web Service task.
@@ -99,16 +99,16 @@ All gateway configuration lives in [`gateway.yaml`](deploy/gateway.yaml), which 
 
 ```bash
 # Create the Pub/Sub topic
-python gcp/deploy/manage_pubsub.py setup
+uv run gcp/deploy/manage_pubsub.py setup
 
 # Show topic state and any attached subscriptions
-python gcp/deploy/manage_pubsub.py status
+uv run gcp/deploy/manage_pubsub.py status
 
 # Delete the topic (interactive confirmation)
-python gcp/deploy/manage_pubsub.py teardown
+uv run gcp/deploy/manage_pubsub.py teardown
 
 # Delete the topic (skip confirmation)
-python gcp/deploy/manage_pubsub.py teardown --force
+uv run gcp/deploy/manage_pubsub.py teardown --force
 ```
 
 `manage_pubsub.py` manages the two Pub/Sub topics that chain the three functions: `dkg-intake-processed` (fn1 → fn2) and `dkg-followup-scheduling` (fn2 → fn3). The script only manages topics themselves. Eventarc push subscriptions are created automatically when each consuming function is deployed with a `topic` trigger via `manage_functions.py`.
@@ -119,16 +119,16 @@ All topic configuration lives in [`pubsub.yaml`](deploy/pubsub.yaml). Project an
 
 ```bash
 # Check current state of dataset and tables
-python gcp/deploy/manage_infra.py status
+uv run gcp/deploy/manage_infra.py status
 
 # Create dataset and all tables with defined schemas (idempotent)
-python gcp/deploy/manage_infra.py setup
+uv run gcp/deploy/manage_infra.py setup
 
 # Delete tables (preserves dataset, interactive confirmation)
-python gcp/deploy/manage_infra.py teardown
+uv run gcp/deploy/manage_infra.py teardown
 
 # Delete tables (skip confirmation)
-python gcp/deploy/manage_infra.py teardown --force
+uv run gcp/deploy/manage_infra.py teardown --force
 ```
 
 `manage_infra.py` reads dataset and table names from [`gcp_config.yaml`](cloud_run_functions/run_qualtrics_scheduling/configs/gcp_config.yaml) (the same file the function uses at runtime), so there is no drift between what the script provisions and what the function writes to. Only tables with schemas registered in `TABLE_REGISTRY` (inside the script) are created by `setup`; unregistered tables appear in `status` as "no schema defined yet" and are skipped.
@@ -139,22 +139,22 @@ The config defines five tables: `intake_raw` and `intake_clean` for the enrollme
 
 ```bash
 # Create VM and print bootstrap instructions
-python gcp/deploy/manage_compute.py setup
+uv run gcp/deploy/manage_compute.py setup
 
 # Show VM state and external IP
-python gcp/deploy/manage_compute.py status
+uv run gcp/deploy/manage_compute.py status
 
 # SSH into the VM
-python gcp/deploy/manage_compute.py ssh
+uv run gcp/deploy/manage_compute.py ssh
 
 # Download results from the VM
-python gcp/deploy/manage_compute.py scp
+uv run gcp/deploy/manage_compute.py scp
 
 # Delete VM (interactive confirmation)
-python gcp/deploy/manage_compute.py teardown
+uv run gcp/deploy/manage_compute.py teardown
 
 # Delete VM (skip confirmation)
-python gcp/deploy/manage_compute.py teardown --force
+uv run gcp/deploy/manage_compute.py teardown --force
 ```
 
 `manage_compute.py` manages a single high-CPU VM for running R power analysis simulations (see [`analysis/run_power_analysis/`](../analysis/run_power_analysis/)). The VM runs Ubuntu 22.04 LTS and is bootstrapped with [`setup_gcp_vm.sh`](deploy/setup_gcp_vm.sh), which installs R >= 4.4, system libraries, and installs R packages via `uvr sync`. No GCP service account or API credentials are needed — the VM only runs R.
@@ -260,8 +260,8 @@ Key things the tests catch after a schema change: QID_MAP names that do not matc
 **BigQuery caveat:** The streaming API does not support in-place schema changes on existing tables. If you modify the schema, you need to tear down and recreate the table:
 
 ```bash
-python gcp/deploy/manage_infra.py teardown --force
-python gcp/deploy/manage_infra.py setup
+uv run gcp/deploy/manage_infra.py teardown --force
+uv run gcp/deploy/manage_infra.py setup
 ```
 
 ## Testing locally with cURL
@@ -270,7 +270,7 @@ Start the local dev server and send the fixture payload:
 
 ```bash
 # Terminal 1: start the server
-python gcp/deploy/manage_functions.py dev run-qualtrics-scheduling
+uv run gcp/deploy/manage_functions.py dev run-qualtrics-scheduling
 
 # Terminal 2: send a test payload
 curl -X POST http://localhost:8080 \

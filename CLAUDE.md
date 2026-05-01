@@ -34,12 +34,12 @@ bash analysis/tests/validate_r_structure.sh             # pre-flight; run from p
 bash gcp/deploy/setup_gcp_vm.sh
 
 # Deploy (from project root, never from a worktree)
-python gcp/deploy/manage_functions.py dev <function-name>      # local dev server on :8080
-python gcp/deploy/manage_functions.py deploy <function-name>   # deploy to GCP
-python gcp/deploy/manage_infra.py setup|teardown               # BigQuery tables
-python gcp/deploy/manage_gateway.py setup|test|teardown        # API Gateway
-python gcp/deploy/manage_pubsub.py setup|teardown              # Pub/Sub topics
-python gcp/deploy/manage_compute.py setup|status|ssh|scp|teardown  # Compute Engine VM
+uv run gcp/deploy/manage_functions.py dev <function-name>      # local dev server on :8080
+uv run gcp/deploy/manage_functions.py deploy <function-name>   # deploy to GCP
+uv run gcp/deploy/manage_infra.py setup|teardown               # BigQuery tables
+uv run gcp/deploy/manage_gateway.py setup|test|teardown        # API Gateway
+uv run gcp/deploy/manage_pubsub.py setup|teardown              # Pub/Sub topics
+uv run gcp/deploy/manage_compute.py setup|status|ssh|scp|teardown  # Compute Engine VM
 ```
 
 ## Architecture overview
