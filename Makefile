@@ -207,7 +207,7 @@ setup_python:
 		exit 1; \
 	}
 	@echo "Installing Python dependencies..."
-	@cd "$(ROOT)" && uv sync --all-groups || { \
+	@cd "$(ROOT)" && uv sync || { \
 		echo "uv sync failed"; \
 		exit 1; \
 	}

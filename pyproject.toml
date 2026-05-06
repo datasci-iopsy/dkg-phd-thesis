@@ -16,6 +16,7 @@ dependencies = [
 
 [tool.uv]
 package = false
+default-groups = "all"
 
 [dependency-groups]
 fn-qualtrics-scheduling = [

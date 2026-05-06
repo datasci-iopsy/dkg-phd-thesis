@@ -17,7 +17,7 @@ See `gcp/CLAUDE.md` and `analysis/CLAUDE.md` for domain specifics.
 make setup
 
 # Python
-uv sync --all-groups
+uv sync
 uv run ruff check . && uv run ruff format .
 uv run sqlfmt .
 uv run pytest gcp/tests/ -v
@@ -55,7 +55,7 @@ Both lock files are frozen against accidental changes. Guardrails in place:
 - `.Rprofile`: sets `.libPaths()` to `.uvr/library` on session start; links uvr package library
 - `scripts/hooks/pre-commit`: blocks commits staging `uv.lock` or `uvr.lock`
 
-**Python update:** `uv lock` → `uv sync --all-groups` → `ALLOW_LOCK_COMMIT=1 git commit` | **R update:** `uvr lock` → `ALLOW_LOCK_COMMIT=1 git commit` | **Hook:** `make setup_hooks` (auto via `make setup`).
+**Python update:** `uv lock` → `uv sync` → `ALLOW_LOCK_COMMIT=1 git commit` | **R update:** `uvr lock` → `ALLOW_LOCK_COMMIT=1 git commit` | **Hook:** `make setup_hooks` (auto via `make setup`).
 
 **Pre-change check:** Before any dependency modification, verify the active environment (`which python`, `uv venv --python`) to avoid cross-environment contamination.
 

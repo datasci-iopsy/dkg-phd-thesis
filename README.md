@@ -58,7 +58,7 @@ direnv allow
 This triggers `.envrc`, which:
 - Installs Python 3.12.11 via pyenv (if not already present)
 - Validates `uv.lock` against `pyproject.toml` (`uv lock --check`)
-- Runs `uv sync --frozen --all-groups` into `.venv/`
+- Runs `uv sync --frozen` into `.venv/`
 - Loads `.env` variables into the shell
 - Activates the virtualenv
 
@@ -76,7 +76,7 @@ make setup
 
 This runs three targets in sequence:
 - `setup_r` — installs R packages from `uvr.toml` via `uvr sync`
-- `setup_python` — re-validates `uv.lock` and runs `uv sync --all-groups` (idempotent after step 3)
+- `setup_python` — re-validates `uv.lock` and runs `uv sync` (idempotent after step 3)
 - `setup_hooks` — symlinks `scripts/hooks/pre-commit` into `.git/hooks/`
 
 > **Note on pre-commit linting:** the repo's pre-commit hook delegates R (lintr) and Python (ruff) lint checks to `~/.claude/hooks/repo-pre-commit.sh`, which is part of the [author's dotfiles](https://github.com/datasci-iopsy/.dotfiles). Without that dispatcher in place, staged-file linting is skipped silently (each script exits gracefully if its tool or dispatcher is absent). The lock file guard runs regardless. Collaborators without the dotfiles will not see linting blocked at commit time and should run `make py_lint` and `lintr::lint_dir()` manually before pushing.
@@ -186,7 +186,7 @@ See `analysis/run_power_analysis/README.md` for benchmarks and troubleshooting.
 Both `uv.lock` and `uvr.lock` are frozen against accidental changes:
 - A pre-commit hook blocks commits that stage either lock file
 - Bypass for intentional updates: `ALLOW_LOCK_COMMIT=1 git commit ...`
-- Python update path: `uv lock` → `uv sync --all-groups` → commit with bypass
+- Python update path: `uv lock` → `uv sync` → commit with bypass
 - R update path: `uvr lock` → commit with bypass
 
 ## Troubleshooting
