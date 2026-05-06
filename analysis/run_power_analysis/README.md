@@ -28,7 +28,7 @@ Rather than solving a closed-form equation, it uses Monte Carlo simulation to em
 
 The program builds a full factorial grid from configuration parameters, distributes the grid across parallel workers via `furrr`, and saves timestamped results. It is designed to run from the command line, eliminating the need for IDEs (e.g., RStudio, VS Code).
 
-The architecture follows a thin-wrapper pattern: [`main.sh`](main.sh) handles process lifecycle (log file creation, wall-clock timing), while [`run_power_analysis.r`](scripts/run_power_analysis.r) owns all application logic (path resolution, configuration, renv activation, parallel execution, and output).
+The architecture follows a thin-wrapper pattern: [`main.sh`](main.sh) handles process lifecycle (log file creation, wall-clock timing), while [`run_power_analysis.r`](scripts/run_power_analysis.r) owns all application logic (path resolution, configuration, uvr activation, parallel execution, and output).
 
 Key entry points: [`main.sh`](main.sh) (bash wrapper), [`scripts/run_power_analysis.r`](scripts/run_power_analysis.r) (orchestrator), and [`scripts/visualize_power_analysis.R`](scripts/visualize_power_analysis.R) (visualization). The visualizer auto-detects the most recent results file, produces SVG power curve figures saved to `figs/`, and scales from dev to prod grids without changes. The simulation engine lives in [`utils/power_analysis_utils.r`](utils/power_analysis_utils.r). Runtime directories (`data/`, `logs/`, `figs/`) are created automatically and gitignored.
 
@@ -144,7 +144,7 @@ nohup bash analysis/run_power_analysis/main.sh prod_gcp &
 
 1. `main.sh` creates a timestamped log file in `logs/` and starts the wall-clock timer.
 2. `main.sh` hands off to `Rscript run_power_analysis.r --version <dev|prod|benchmark_gcp|prod_gcp>`.
-3. The R script activates `renv` via the project-root [`.Rprofile`](../../.Rprofile), resolves all paths from its own filesystem location, and loads the version-specific configuration.
+3. The R script activates the `uvr` library via the project-root [`.Rprofile`](../../.Rprofile), resolves all paths from its own filesystem location, and loads the version-specific configuration.
 4. A full factorial parameter grid is built via `tidyr::expand_grid()` and its size is logged.
 5. System information (OS, cores, memory) is logged.
 6. The grid is distributed across parallel workers via `furrr::future_map_dfr()`. Each combination runs the simulation engine with per-run error handling and timing.
@@ -223,17 +223,17 @@ Messages like `boundary (singular) fit: see help('isSingular')` are normal. They
 </details>
 
 <details>
-<summary>renv not activating</summary>
+<summary>uvr not activating</summary>
 
-The `renv` environment activates automatically via the [`.Rprofile`](../../.Rprofile) at the project root. If packages are missing:
+The `uvr` package library activates automatically via the [`.Rprofile`](../../.Rprofile) at the project root. If packages are missing:
 
 ```bash
 cd /path/to/dkg-phd-thesis
-Rscript -e "renv::status()"   # Check for out-of-sync packages
-Rscript -e "renv::restore()"  # Install missing packages from lockfile
+uvr sync       # Install packages from uvr.lock into .uvr/library/
+uvr doctor     # Diagnose environment issues
 ```
 
-If `renv` itself is not installed, R will attempt to bootstrap it from the `renv/activate.R` script on first run.
+If `uvr` is not installed, see the project setup instructions in the root `README.md`.
 </details>
 
 <details>

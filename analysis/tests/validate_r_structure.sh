@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # validate_structure.sh - Phase 1 static validation for run_power_analysis
 #
-# Run from the project root directory (where renv.lock lives).
+# Run from the project root directory (where uvr.lock lives).
 # Checks directory structure, file presence, path resolution logic,
 # and R syntax without requiring any R packages to be installed.
 #
@@ -56,7 +56,7 @@ else
 fi
 
 if [ -f "pyproject.toml" ]; then
-	pass "pyproject.toml found (Poetry coexistence confirmed)"
+	pass "pyproject.toml found (uv configuration confirmed)"
 else
 	warn "pyproject.toml NOT found at project root"
 fi

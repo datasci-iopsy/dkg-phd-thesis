@@ -118,8 +118,8 @@ make py_test       # Run test suite
 make py_lint       # Ruff check + format check
 make py_format     # Auto-fix formatting
 make py_sqlfmt     # SQL formatting check
-make gcp_dev       # Local dev server on :8080 (default: run_qualtrics_scheduling)
-make gcp_dev FN=run_intake_confirmation   # Override function
+make gcp_dev       # Local dev server on :8080 (default: run-qualtrics-scheduling)
+make gcp_dev FN=run-intake-confirmation   # Override function
 ```
 
 See `gcp/README.md` for architecture details, schema change workflow, and cURL testing.
@@ -133,10 +133,10 @@ Deploy in this order (resources depend on each other):
 ```bash
 make gcp_infra_up                          # BigQuery tables
 make gcp_pubsub_up                         # Pub/Sub topics
-make gcp_deploy FN=run_qualtrics_scheduling
-make gcp_deploy FN=run_intake_confirmation
-make gcp_deploy FN=run_followup_scheduling
-make gcp_deploy FN=run_followup_response
+make gcp_deploy FN=run-qualtrics-scheduling
+make gcp_deploy FN=run-intake-confirmation
+make gcp_deploy FN=run-followup-scheduling
+make gcp_deploy FN=run-followup-response
 make gcp_gateway_up                        # API Gateway (last — needs functions deployed)
 ```
 
@@ -162,7 +162,7 @@ On the VM (run once after first SSH):
 
 ```bash
 cd dkg-phd-thesis
-bash gcp/deploy/setup_gcp_vm.sh            # Install R, system libs, renv packages
+bash gcp/deploy/setup_gcp_vm.sh            # Install R, system libs, uvr packages
 ```
 
 Run the analysis:

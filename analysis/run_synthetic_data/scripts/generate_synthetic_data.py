@@ -521,10 +521,7 @@ def load_to_bigquery(
         from google.api_core.exceptions import NotFound
         from google.cloud import bigquery
     except ImportError:
-        sys.exit(
-            "ERROR: google-cloud-bigquery is not installed. "
-            "Run: uv sync --all-groups"
-        )
+        sys.exit("ERROR: google-cloud-bigquery is not installed. Run: uv sync")
 
     client = bigquery.Client(project=project)
 

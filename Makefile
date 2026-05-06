@@ -11,8 +11,8 @@ ROOT := $(CURDIR)
 # R invocation — all R execution routed through uvr
 RSCRIPT := uvr run
 
-# Default GCP function; override: make gcp_dev FN=run_intake_confirmation
-FN ?= run_qualtrics_scheduling
+# Default GCP function; override: make gcp_dev FN=run-intake-confirmation
+FN ?= run-qualtrics-scheduling
 
 .DEFAULT_GOAL := help
 
@@ -144,13 +144,13 @@ help_gcp:
 	@echo "   Override the function name with FN=<name>  (default: $(FN))"
 	@echo ""
 	@echo "   Functions:"
-	@echo "     run_qualtrics_scheduling   HTTP trigger, fronted by API Gateway"
-	@echo "     run_intake_confirmation    Pub/Sub trigger"
-	@echo "     run_followup_scheduling    Pub/Sub trigger"
-	@echo "     run_followup_response      HTTP trigger, terminal inbound (/followup path)"
+	@echo "     run-qualtrics-scheduling   HTTP trigger, fronted by API Gateway"
+	@echo "     run-intake-confirmation    Pub/Sub trigger"
+	@echo "     run-followup-scheduling    Pub/Sub trigger"
+	@echo "     run-followup-response      HTTP trigger, terminal inbound (/followup path)"
 	@echo ""
-	@echo "   Dev server:    make gcp_dev FN=run_qualtrics_scheduling"
-	@echo "   Deploy:        make gcp_deploy FN=run_qualtrics_scheduling"
+	@echo "   Dev server:    make gcp_dev FN=run-qualtrics-scheduling"
+	@echo "   Deploy:        make gcp_deploy FN=run-qualtrics-scheduling"
 	@echo ""
 	@echo "   Infrastructure:"
 	@echo "     make gcp_infra_up          Create BigQuery tables"

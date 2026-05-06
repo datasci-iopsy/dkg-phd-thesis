@@ -3,7 +3,7 @@
 # main.sh - Thin wrapper for run_power_analysis
 #
 # Handles process lifecycle (log redirection, backgrounding, wall-clock time).
-# All application logic (path resolution, config, renv, etc.) lives in R.
+# All application logic (path resolution, config, uvr, etc.) lives in R.
 #
 # Usage:
 #   bash main.sh <version>
