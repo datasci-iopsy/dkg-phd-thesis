@@ -18,7 +18,8 @@ from datetime import date, datetime
 from pathlib import Path
 
 import pytest
-from models.participant import ParticipantData, normalize_phone_number
+from models.participant import ParticipantData
+from shared.utils.phone_utils import normalize_phone_number
 from models.qualtrics import (
     CONSENT_AGREE_VALUE,
     ELIGIBILITY_YES_VALUE,
@@ -314,7 +315,7 @@ class TestParticipantData:
 
     def test_phone_masked(self, valid_kwargs):
         p = ParticipantData(**valid_kwargs)
-        assert p.phone_masked == "+1***4236"
+        assert p.phone_masked == "[encrypted]"
 
     def test_followup_times(self, valid_kwargs):
         p = ParticipantData(**valid_kwargs)
@@ -325,10 +326,13 @@ class TestParticipantData:
         with pytest.raises(Exception, match="[Cc]onnect|blank"):
             ParticipantData(**valid_kwargs)
 
-    def test_rejects_bad_phone_format(self, valid_kwargs):
-        valid_kwargs["phone"] = "8777804236"
-        with pytest.raises(Exception, match="E.164"):
-            ParticipantData(**valid_kwargs)
+    def test_phone_accepts_any_string(self, valid_kwargs):
+        """Model accepts any string -- E.164 enforcement is at
+        validation_utils.extract_participant_data, not the model.
+        """
+        valid_kwargs["phone"] = "gAAAAA-fake-fernet-token="
+        p = ParticipantData(**valid_kwargs)
+        assert p.phone == "gAAAAA-fake-fernet-token="
 
     def test_rejects_no_consent(self, valid_kwargs):
         valid_kwargs["consent_given"] = False
@@ -372,6 +376,8 @@ class TestExtractionPipeline:
 
         assert participant.response_id == "R_2LObbbYBNZqyuhX"
         assert participant.connect_id == "dkgdkgdkgdkgdkgdkgdkgdkg"
+        # Phone is passed through directly here (model layer test only).
+        # In production, validation_utils encrypts before constructing.
         assert participant.phone == "+18777804236"
         assert participant.selected_date == date(
             2026, 2, 24

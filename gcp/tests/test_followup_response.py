@@ -379,3 +379,22 @@ class TestFollowupResponseHandler:
             response, status = followup_response_handler(request)
 
         assert status == 400
+
+    def test_bad_phone_returns_400(self, raw_followup_json):
+        """Unnormalizable phone raises ValueError, which becomes a 400."""
+        raw_followup_json["PHONE_NUMBER"] = "abc"
+        with patch.object(
+            _fn4_module, "insert_survey_response", return_value=True
+        ) as mock_insert:
+            with _app.test_request_context(
+                "/followup",
+                method="POST",
+                content_type="application/json",
+                data=json.dumps(raw_followup_json),
+            ):
+                from flask import request
+
+                response, status = followup_response_handler(request)
+
+        assert status == 400
+        mock_insert.assert_not_called()

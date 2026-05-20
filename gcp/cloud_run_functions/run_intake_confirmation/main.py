@@ -35,6 +35,7 @@ import functions_framework
 from cloudevents.http import CloudEvent
 from google.cloud import bigquery
 from shared.utils.config_loader import load_config
+from shared.utils.crypto_utils import decrypt_phone
 from shared.utils.pubsub_utils import (
     FollowupSchedulingMessage,
     IntakeProcessedMessage,
@@ -336,10 +337,8 @@ def intake_confirmation_handler(cloud_event: CloudEvent) -> None:
         return
 
     logger.info(
-        "Processing confirmation for response %s (phone: %s***%s)",
+        "Processing confirmation for response %s",
         message.response_id,
-        message.phone[:2],
-        message.phone[-4:],
     )
 
     # Step 2: Idempotency check
@@ -356,7 +355,7 @@ def intake_confirmation_handler(cloud_event: CloudEvent) -> None:
     selected_date = date.fromisoformat(message.selected_date)
     body = format_sms_body(selected_date, message.timezone)
 
-    sms_sent = send_sms(message.phone, body)
+    sms_sent = send_sms(decrypt_phone(message.phone), body)
     if not sms_sent:
         # Raise to trigger Pub/Sub retry
         raise RuntimeError(

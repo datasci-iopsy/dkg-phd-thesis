@@ -15,10 +15,14 @@ from datetime import date, datetime, time, timezone
 from unittest.mock import MagicMock, patch
 
 import pytest
+from shared.utils.crypto_utils import encrypt_phone
 from shared.utils.pubsub_utils import (
     FollowupSchedulingMessage,
     IntakeProcessedMessage,
 )
+
+# Pre-encrypted phone for handler tests -- mirrors what fn1 writes to Pub/Sub.
+_ENCRYPTED_PHONE = encrypt_phone("+18777804236")
 
 
 # -- FollowupSchedulingMessage model tests ---------------------------
@@ -102,7 +106,7 @@ class TestIntakeProcessedMessageConnectId:
         """Messages without connect_id (old format) still parse."""
         raw = {
             "response_id": "R_abc123",
-            "phone": "+18777804236",
+            "phone": _ENCRYPTED_PHONE,
             "selected_date": "2099-02-24",
             "timezone": "US/Central",
         }
@@ -380,7 +384,7 @@ class TestFollowupSchedulingHandler:
             {
                 "response_id": "R_test",
                 "connect_id": "pid_123",
-                "phone": "+18777804236",
+                "phone": _ENCRYPTED_PHONE,
                 "selected_date": "2099-02-24",
                 "timezone": "US/Central",
             }
@@ -392,6 +396,10 @@ class TestFollowupSchedulingHandler:
 
         assert mock_schedule.call_count == 3
         mock_write.assert_called_once()
+
+        # Twilio must receive plaintext E.164, not the ciphertext.
+        for call in mock_schedule.call_args_list:
+            assert call.args[0] == "+18777804236"
 
         # Verify the write call includes all 3 records
         write_args = mock_write.call_args
@@ -430,7 +438,7 @@ class TestFollowupSchedulingHandler:
         event = self._make_cloud_event(
             {
                 "response_id": "R_test",
-                "phone": "+18777804236",
+                "phone": _ENCRYPTED_PHONE,
                 "selected_date": "2099-02-24",
                 "timezone": "US/Central",
             }
@@ -457,7 +465,7 @@ class TestFollowupSchedulingHandler:
         event = self._make_cloud_event(
             {
                 "response_id": "R_test",
-                "phone": "+18777804236",
+                "phone": _ENCRYPTED_PHONE,
                 "selected_date": "2099-02-24",
                 "timezone": "US/Central",
             }
@@ -510,7 +518,7 @@ class TestFollowupSchedulingHandler:
         event = self._make_cloud_event(
             {
                 "response_id": "R_test",
-                "phone": "+18777804236",
+                "phone": _ENCRYPTED_PHONE,
                 "selected_date": "2099-02-24",
                 "timezone": "US/Central",
                 # connect_id intentionally omitted
@@ -551,7 +559,7 @@ class TestPastTimeSkipping:
     def _make_event(self, **overrides) -> MagicMock:
         data = {
             "response_id": "R_past_test",
-            "phone": "+18777804236",
+            "phone": _ENCRYPTED_PHONE,
             "selected_date": self._SELECTED_DATE,
             "timezone": self._TIMEZONE,
         }
@@ -741,7 +749,7 @@ class TestSendImmediately:
     def _make_event(self, **overrides) -> MagicMock:
         data = {
             "response_id": "R_now_test",
-            "phone": "+18777804236",
+            "phone": _ENCRYPTED_PHONE,
             "selected_date": self._SELECTED_DATE,
             "timezone": self._TIMEZONE,
             "send_immediately": True,
