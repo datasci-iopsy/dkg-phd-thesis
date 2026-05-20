@@ -309,6 +309,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "cryptography" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "pytest" },
@@ -321,12 +322,14 @@ dev = [
     { name = "shandy-sqlfmt", extra = ["jinjafmt"] },
 ]
 fn-followup-response = [
+    { name = "cryptography" },
     { name = "functions-framework" },
     { name = "google-cloud-bigquery" },
     { name = "google-cloud-bigquery-storage" },
 ]
 fn-followup-scheduling = [
     { name = "cloudevents" },
+    { name = "cryptography" },
     { name = "functions-framework" },
     { name = "google-cloud-bigquery" },
     { name = "google-cloud-pubsub" },
@@ -334,6 +337,7 @@ fn-followup-scheduling = [
 ]
 fn-intake-confirmation = [
     { name = "cloudevents" },
+    { name = "cryptography" },
     { name = "functions-framework" },
     { name = "google-cloud-bigquery" },
     { name = "google-cloud-bigquery-storage" },
@@ -342,6 +346,7 @@ fn-intake-confirmation = [
 ]
 fn-qualtrics-scheduling = [
     { name = "cloudevents" },
+    { name = "cryptography" },
     { name = "flask" },
     { name = "functions-framework" },
     { name = "google-auth" },
@@ -361,6 +366,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "cryptography", specifier = ">=43" },
     { name = "numpy", specifier = "==2.2.5" },
     { name = "pandas", specifier = "==2.2.3" },
     { name = "pytest", specifier = ">=9.0.2" },
@@ -373,12 +379,14 @@ dev = [
     { name = "shandy-sqlfmt", extras = ["jinjafmt"], specifier = ">=0.29.0" },
 ]
 fn-followup-response = [
+    { name = "cryptography", specifier = ">=43" },
     { name = "functions-framework", specifier = ">=3.10.0" },
     { name = "google-cloud-bigquery", specifier = "==3.39.0" },
     { name = "google-cloud-bigquery-storage", specifier = ">=2.36.0" },
 ]
 fn-followup-scheduling = [
     { name = "cloudevents", specifier = ">=1.12.0" },
+    { name = "cryptography", specifier = ">=43" },
     { name = "functions-framework", specifier = ">=3.10.0" },
     { name = "google-cloud-bigquery", specifier = "==3.39.0" },
     { name = "google-cloud-pubsub", specifier = ">=2.35.0" },
@@ -386,6 +394,7 @@ fn-followup-scheduling = [
 ]
 fn-intake-confirmation = [
     { name = "cloudevents", specifier = ">=1.12.0" },
+    { name = "cryptography", specifier = ">=43" },
     { name = "functions-framework", specifier = ">=3.10.0" },
     { name = "google-cloud-bigquery", specifier = "==3.39.0" },
     { name = "google-cloud-bigquery-storage", specifier = ">=2.36.0" },
@@ -394,6 +403,7 @@ fn-intake-confirmation = [
 ]
 fn-qualtrics-scheduling = [
     { name = "cloudevents", specifier = ">=1.12.0" },
+    { name = "cryptography", specifier = ">=43" },
     { name = "flask", specifier = ">=3.1.2" },
     { name = "functions-framework", specifier = ">=3.10.0" },
     { name = "google-auth", specifier = ">=2.48.0" },

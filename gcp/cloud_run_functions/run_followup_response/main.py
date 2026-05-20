@@ -20,7 +20,9 @@ from flask import Request, Response, jsonify
 from models.followup import FollowupWebServicePayload
 from shared.utils.bq_schemas import FOLLOWUP_RESPONSES_SCHEMA
 from shared.utils.config_loader import load_config
+from shared.utils.crypto_utils import encrypt_phone
 from shared.utils.gcp_utils import insert_survey_response
+from shared.utils.phone_utils import normalize_phone_number
 
 # -- Logging ---------------------------------------------------------
 logging.basicConfig(
@@ -107,9 +109,19 @@ def _extract_followup_payload(
         raw_body: Parsed JSON dict from the request body.
 
     Returns:
-        Validated FollowupWebServicePayload.
+        Validated FollowupWebServicePayload with phone_number encrypted.
 
     Raises:
         pydantic.ValidationError: If the payload fails validation.
     """
-    return FollowupWebServicePayload.model_validate(raw_body)
+    payload = FollowupWebServicePayload.model_validate(raw_body)
+    if payload.phone_number:
+        normalized = normalize_phone_number(payload.phone_number)
+        if not normalized:
+            raise ValueError(
+                f"Could not normalize phone for response {payload.response_id}"
+            )
+        payload = payload.model_copy(
+            update={"phone_number": encrypt_phone(normalized)}
+        )
+    return payload

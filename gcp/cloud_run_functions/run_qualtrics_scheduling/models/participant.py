@@ -6,46 +6,14 @@ If any field is invalid, model_validate() raises ValidationError
 with a clear message -- no separate validation step needed.
 
 Phone normalization (raw digits -> E.164) is handled by
-normalize_phone_number() before constructing the model. The
-model's validator enforces the E.164 format constraint; it does
-not attempt to guess at normalization.
+normalize_phone_number() in shared.utils.phone_utils before
+constructing the model. The phone field stores the Fernet-encrypted
+E.164 value after encryption in validation_utils.
 """
 
-import re
 from datetime import UTC, date, datetime, time
 
 from pydantic import BaseModel, Field, field_validator
-
-
-def normalize_phone_number(raw_phone: str) -> str | None:
-    """Normalize a raw phone string to E.164 format (+1XXXXXXXXXX).
-
-    Handles common US formats: 10 digits, 11 digits with leading 1,
-    or already-prefixed with +. Returns None if the input cannot
-    be normalized.
-
-    This is a pre-processing step -- call it before constructing
-    ParticipantData, which validates the final format.
-
-    Args:
-        raw_phone: Raw phone string from the survey response.
-
-    Returns:
-        E.164 formatted string, or None if unrecognizable.
-    """
-    if not raw_phone or not raw_phone.strip():
-        return None
-
-    digits = "".join(c for c in raw_phone if c.isdigit())
-
-    if len(digits) == 10:
-        return f"+1{digits}"
-    if len(digits) == 11 and digits[0] == "1":
-        return f"+{digits}"
-    if raw_phone.startswith("+") and len(digits) >= 10:
-        return f"+{digits}"
-
-    return None
 
 
 class ParticipantData(BaseModel):
@@ -58,7 +26,7 @@ class ParticipantData(BaseModel):
     Attributes:
         response_id: Qualtrics response identifier (e.g., R_1KNaaa...).
         connect_id: Connect participant identifier from free-text field.
-        phone: E.164 formatted phone number (validated).
+        phone: Fernet-encrypted E.164 phone number.
         selected_date: Date chosen for follow-up scheduling.
         timezone: IANA-style timezone string (e.g., "US/Central").
         consent_given: Must be True -- non-consenting responses are
@@ -83,16 +51,6 @@ class ParticipantData(BaseModel):
             raise ValueError("Connect ID cannot be blank")
         return stripped
 
-    @field_validator("phone")
-    @classmethod
-    def validate_e164_phone(cls, v: str) -> str:
-        """Enforce E.164 phone format (+[country][number])."""
-        if not re.match(r"^\+[1-9]\d{1,14}$", v):
-            raise ValueError(
-                f"Phone must be E.164 format (e.g., +18777804236), got: {v}"
-            )
-        return v
-
     @field_validator("consent_given")
     @classmethod
     def require_consent(cls, v: bool) -> bool:
@@ -103,10 +61,8 @@ class ParticipantData(BaseModel):
 
     @property
     def phone_masked(self) -> str:
-        """Masked phone for safe logging (e.g., +1***7878)."""
-        if len(self.phone) > 4:
-            return f"{self.phone[:2]}***{self.phone[-4:]}"
-        return "***"
+        """Safe log token -- phone is encrypted at rest."""
+        return "[encrypted]"
 
     @property
     def followup_times(self) -> list[time]:

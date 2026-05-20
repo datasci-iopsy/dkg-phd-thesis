@@ -46,7 +46,7 @@ class IntakeProcessedMessage(BaseModel):
         description="Connect participant ID (nullable -- used for "
         "paid participant tracking but not always populated)",
     )
-    phone: str = Field(..., description="E.164 formatted phone number")
+    phone: str = Field(..., description="Fernet-encrypted E.164 phone number")
     selected_date: str = Field(
         ..., description="Participant's chosen date (ISO format, YYYY-MM-DD)"
     )
@@ -81,7 +81,7 @@ class FollowupSchedulingMessage(BaseModel):
         default=None,
         description="Connect participant ID (nullable)",
     )
-    phone: str = Field(..., description="E.164 formatted phone number")
+    phone: str = Field(..., description="Fernet-encrypted E.164 phone number")
     selected_date: str = Field(
         ..., description="Participant's chosen date (ISO format, YYYY-MM-DD)"
     )

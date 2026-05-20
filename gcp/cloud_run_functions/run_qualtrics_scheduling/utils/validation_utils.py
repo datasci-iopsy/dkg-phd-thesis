@@ -17,9 +17,11 @@ import logging
 from datetime import date
 
 from flask import Request
-from models.participant import ParticipantData, normalize_phone_number
+from models.participant import ParticipantData
 from models.qualtrics import CONSENT_AGREE_VALUE, WebServicePayload
 from pydantic import ValidationError
+from shared.utils.crypto_utils import encrypt_phone
+from shared.utils.phone_utils import normalize_phone_number
 
 logger = logging.getLogger(__name__)
 
@@ -126,15 +128,16 @@ def extract_participant_data(
             )
             return None
 
-        # -- Normalize phone -----------------------------------------
+        # -- Normalize and encrypt phone -----------------------------
         phone = normalize_phone_number(payload.phone)
         if not phone:
             logger.error(
-                "Could not normalize phone for response %s: '%s'",
+                "Could not normalize phone for response %s (length: %d)",
                 payload.response_id,
-                payload.phone,
+                len(payload.phone) if payload.phone else 0,
             )
             return None
+        phone = encrypt_phone(phone)
 
         # -- Parse selected date (YYYY-MM-DD from Qualtrics) ---------
         # date.fromisoformat() is stdlib, no dependencies, and natively

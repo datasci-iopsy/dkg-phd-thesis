@@ -37,6 +37,7 @@ import functions_framework
 from cloudevents.http import CloudEvent
 from google.cloud import bigquery
 from shared.utils.config_loader import load_config
+from shared.utils.crypto_utils import decrypt_phone
 from shared.utils.pubsub_utils import FollowupSchedulingMessage
 
 # -- Logging ---------------------------------------------------------
@@ -393,10 +394,8 @@ def followup_scheduling_handler(cloud_event: CloudEvent) -> None:
         return
 
     logger.info(
-        "Processing follow-up scheduling for response %s (phone: %s***%s)",
+        "Processing follow-up scheduling for response %s",
         message.response_id,
-        message.phone[:2],
-        message.phone[-4:],
     )
 
     # Step 2: Idempotency check
@@ -474,7 +473,7 @@ def followup_scheduling_handler(cloud_event: CloudEvent) -> None:
         time_label = format_time_label(survey_time)
         body = sms_template.format(time=time_label, url=url)
 
-        twilio_sid = schedule_sms(message.phone, body, send_at)
+        twilio_sid = schedule_sms(decrypt_phone(message.phone), body, send_at)
         if twilio_sid is None:
             raise RuntimeError(
                 f"Twilio scheduling failed for response "

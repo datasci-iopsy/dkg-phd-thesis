@@ -18,6 +18,8 @@ functions:
     entry_point: qualtrics_webhook_handler
     trigger: http
     allow_unauthenticated: false
+    secrets:
+      - PHONE_ENCRYPTION_KEY=dkg-phone-encryption-key:latest
     service_account:
       name: dkg-fn-qualtrics
       display_name: "Cloud Run -- Qualtrics Scheduling Function"
@@ -25,10 +27,7 @@ functions:
         - roles/bigquery.dataEditor
         - roles/bigquery.jobUser
         - roles/pubsub.publisher
-        # - roles/secretmanager.secretAccessor
-    # secrets:
-    #   - QUALTRICS_API_KEY=dkg-qualtrics-api-key:latest
-    #   - QUALTRICS_WEBHOOK_SECRET=dkg-qualtrics-webhook-secret:latest
+        - roles/secretmanager.secretAccessor
 
   run-intake-confirmation:
     source_dir: run_intake_confirmation
@@ -39,6 +38,7 @@ functions:
     allow_unauthenticated: false
     secrets:
       - TWILIO_CONFIG=dkg-twilio-config:latest
+      - PHONE_ENCRYPTION_KEY=dkg-phone-encryption-key:latest
     service_account:
       name: dkg-fn-intake-confirm
       display_name: "Cloud Run -- Intake Confirmation Function"
@@ -58,6 +58,7 @@ functions:
     allow_unauthenticated: false
     secrets:
       - TWILIO_CONFIG=dkg-twilio-config:latest
+      - PHONE_ENCRYPTION_KEY=dkg-phone-encryption-key:latest
     service_account:
       name: dkg-fn-followup-sched
       display_name: "Cloud Run -- Follow-up Scheduling Function"
@@ -73,12 +74,15 @@ functions:
     entry_point: followup_response_handler
     trigger: http
     allow_unauthenticated: false
+    secrets:
+      - PHONE_ENCRYPTION_KEY=dkg-phone-encryption-key:latest
     service_account:
       name: dkg-fn-followup-resp
       display_name: "Cloud Run -- Follow-up Response Function"
       roles:
         - roles/bigquery.dataEditor
         - roles/bigquery.jobUser
+        - roles/secretmanager.secretAccessor
 
   # -- Future functions ----------------------------------------------
   # run-twilio-handler:

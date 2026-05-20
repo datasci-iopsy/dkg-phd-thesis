@@ -21,6 +21,7 @@ default-groups = "all"
 [dependency-groups]
 fn-qualtrics-scheduling = [
     "cloudevents>=1.12.0",
+    "cryptography>=43",
     "Flask>=3.1.2",
     "requests>=2.33.1",
     "functions-framework>=3.10.0",
@@ -32,6 +33,7 @@ fn-qualtrics-scheduling = [
 ]
 fn-intake-confirmation = [
     "cloudevents>=1.12.0",
+    "cryptography>=43",
     "functions-framework>=3.10.0",
     "google-cloud-bigquery==3.39.0",
     "google-cloud-bigquery-storage>=2.36.0",
@@ -40,17 +42,20 @@ fn-intake-confirmation = [
 ]
 fn-followup-scheduling = [
     "cloudevents>=1.12.0",
+    "cryptography>=43",
     "functions-framework>=3.10.0",
     "google-cloud-bigquery==3.39.0",
     "google-cloud-pubsub>=2.35.0",
     "twilio>=9.10.0",
 ]
 fn-followup-response = [
+    "cryptography>=43",
     "functions-framework>=3.10.0",
     "google-cloud-bigquery==3.39.0",
     "google-cloud-bigquery-storage>=2.36.0",
 ]
 dev = [
+    "cryptography>=43",
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
     "pytest-env>=1.3.2",
@@ -80,4 +85,7 @@ line_length = 120
 check = true
 
 [tool.pytest.ini_options]
-env = ["GOOGLE_CLOUD_PROJECT=test-project"]
+env = [
+    "GOOGLE_CLOUD_PROJECT=test-project",
+    "PHONE_ENCRYPTION_KEY=jjB_yvtwkj6H3LtwTaKLEZ_KTwq3bU431vJXqMZaIGc=",
+]

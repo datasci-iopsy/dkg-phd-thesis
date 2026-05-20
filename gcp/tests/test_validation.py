@@ -16,6 +16,7 @@ from pathlib import Path
 import pytest
 from flask import Flask
 from models.qualtrics import WebServicePayload
+from shared.utils.crypto_utils import decrypt_phone
 from utils.validation_utils import (
     extract_participant_data,
     extract_web_service_payload,
@@ -145,7 +146,7 @@ class TestExtractParticipantData:
         assert participant is not None
         assert participant.response_id == "R_2LObbbYBNZqyuhX"
         assert participant.connect_id == "dkgdkgdkgdkgdkgdkgdkgdkg"
-        assert participant.phone == "+18777804236"
+        assert decrypt_phone(participant.phone) == "+18777804236"
         assert participant.selected_date == date(
             2026, 2, 24
         )  # was date(2025, 12, 26)
