@@ -87,5 +87,4 @@ check = true
 [tool.pytest.ini_options]
 env = [
     "GOOGLE_CLOUD_PROJECT=test-project",
-    "PHONE_ENCRYPTION_KEY=jjB_yvtwkj6H3LtwTaKLEZ_KTwq3bU431vJXqMZaIGc=",
 ]

@@ -59,6 +59,20 @@ class ParticipantData(BaseModel):
             raise ValueError("Consent not given -- cannot process response")
         return v
 
+    @field_validator("phone")
+    @classmethod
+    def require_encrypted_phone(cls, v: str) -> str:
+        """Reject plaintext phone numbers (E.164 max 16 chars).
+
+        Fernet tokens are always 100+ chars. A threshold of 50
+        reliably distinguishes encrypted values from plaintext.
+        """
+        if len(v) < 50:
+            raise ValueError(
+                "phone must be a Fernet-encrypted string, not plaintext"
+            )
+        return v
+
     @property
     def phone_masked(self) -> str:
         """Safe log token -- phone is encrypted at rest."""

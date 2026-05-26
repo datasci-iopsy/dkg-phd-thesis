@@ -19,6 +19,7 @@ from pathlib import Path
 
 import pytest
 from models.participant import ParticipantData
+from shared.utils.crypto_utils import decrypt_phone, encrypt_phone
 from shared.utils.phone_utils import normalize_phone_number
 from models.qualtrics import (
     CONSENT_AGREE_VALUE,
@@ -295,7 +296,7 @@ class TestParticipantData:
         return {
             "response_id": "R_test123",
             "connect_id": "60a7c1b2e3f4a5b6c7d8e9f0",
-            "phone": "+18777804236",
+            "phone": encrypt_phone("+18777804236"),
             "selected_date": date(2025, 12, 26),
             "timezone": "US/Central",
             "consent_given": True,
@@ -304,7 +305,7 @@ class TestParticipantData:
     def test_valid_construction(self, valid_kwargs):
         p = ParticipantData(**valid_kwargs)
         assert p.connect_id == "60a7c1b2e3f4a5b6c7d8e9f0"
-        assert p.phone == "+18777804236"
+        assert decrypt_phone(p.phone) == "+18777804236"
         assert p.consent_given is True
         assert isinstance(p.created_at, datetime)
 
@@ -326,13 +327,17 @@ class TestParticipantData:
         with pytest.raises(Exception, match="[Cc]onnect|blank"):
             ParticipantData(**valid_kwargs)
 
-    def test_phone_accepts_any_string(self, valid_kwargs):
-        """Model accepts any string -- E.164 enforcement is at
-        validation_utils.extract_participant_data, not the model.
-        """
-        valid_kwargs["phone"] = "gAAAAA-fake-fernet-token="
+    def test_phone_accepts_fernet_tokens(self, valid_kwargs):
+        """Model requires Fernet-length phone strings."""
+        # valid_kwargs already has an encrypted phone -- construction succeeds
         p = ParticipantData(**valid_kwargs)
-        assert p.phone == "gAAAAA-fake-fernet-token="
+        assert len(p.phone) > 50
+
+    def test_phone_rejects_plaintext(self, valid_kwargs):
+        """Plaintext phone (< 50 chars) is rejected by the model."""
+        valid_kwargs["phone"] = "+18777804236"
+        with pytest.raises(Exception, match="Fernet-encrypted"):
+            ParticipantData(**valid_kwargs)
 
     def test_rejects_no_consent(self, valid_kwargs):
         valid_kwargs["consent_given"] = False
@@ -358,6 +363,7 @@ class TestExtractionPipeline:
     ):
         phone = normalize_phone_number(web_service_payload.phone)
         assert phone is not None
+        phone = encrypt_phone(phone)
 
         consent = web_service_payload.consent == CONSENT_AGREE_VALUE
 
@@ -376,9 +382,7 @@ class TestExtractionPipeline:
 
         assert participant.response_id == "R_2LObbbYBNZqyuhX"
         assert participant.connect_id == "dkgdkgdkgdkgdkgdkgdkgdkg"
-        # Phone is passed through directly here (model layer test only).
-        # In production, validation_utils encrypts before constructing.
-        assert participant.phone == "+18777804236"
+        assert decrypt_phone(participant.phone) == "+18777804236"
         assert participant.selected_date == date(
             2026, 2, 24
         )  # was date(2025, 12, 26)
@@ -396,7 +400,7 @@ class TestExtractionPipeline:
             ParticipantData(
                 response_id=payload.response_id,
                 connect_id="test_pid",
-                phone="+18777804236",
+                phone=encrypt_phone("+18777804236"),
                 selected_date=date(2025, 12, 26),
                 timezone="US/Central",
                 consent_given=consent,

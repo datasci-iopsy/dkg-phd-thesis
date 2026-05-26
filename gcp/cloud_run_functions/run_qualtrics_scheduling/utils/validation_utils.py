@@ -177,11 +177,3 @@ def extract_participant_data(
             e,
         )
         return None
-    except Exception as e:
-        logger.error(
-            "Error extracting participant data for %s: %s",
-            payload.response_id,
-            e,
-            exc_info=True,
-        )
-        return None

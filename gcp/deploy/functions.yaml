@@ -19,7 +19,7 @@ functions:
     trigger: http
     allow_unauthenticated: false
     secrets:
-      - PHONE_ENCRYPTION_KEY=dkg-phone-encryption-key:latest
+      - PHONE_ENCRYPTION_KEY=dkg-phone-encryption-key:1
     service_account:
       name: dkg-fn-qualtrics
       display_name: "Cloud Run -- Qualtrics Scheduling Function"
@@ -38,7 +38,7 @@ functions:
     allow_unauthenticated: false
     secrets:
       - TWILIO_CONFIG=dkg-twilio-config:latest
-      - PHONE_ENCRYPTION_KEY=dkg-phone-encryption-key:latest
+      - PHONE_ENCRYPTION_KEY=dkg-phone-encryption-key:1
     service_account:
       name: dkg-fn-intake-confirm
       display_name: "Cloud Run -- Intake Confirmation Function"
@@ -58,7 +58,7 @@ functions:
     allow_unauthenticated: false
     secrets:
       - TWILIO_CONFIG=dkg-twilio-config:latest
-      - PHONE_ENCRYPTION_KEY=dkg-phone-encryption-key:latest
+      - PHONE_ENCRYPTION_KEY=dkg-phone-encryption-key:1
     service_account:
       name: dkg-fn-followup-sched
       display_name: "Cloud Run -- Follow-up Scheduling Function"
@@ -75,7 +75,7 @@ functions:
     trigger: http
     allow_unauthenticated: false
     secrets:
-      - PHONE_ENCRYPTION_KEY=dkg-phone-encryption-key:latest
+      - PHONE_ENCRYPTION_KEY=dkg-phone-encryption-key:1
     service_account:
       name: dkg-fn-followup-resp
       display_name: "Cloud Run -- Follow-up Response Function"

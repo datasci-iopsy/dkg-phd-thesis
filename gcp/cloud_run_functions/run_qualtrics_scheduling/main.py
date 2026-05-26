@@ -25,6 +25,7 @@ from flask import Request, jsonify
 from shared.utils.bq_schemas import SURVEY_RESPONSES_SCHEMA
 from shared.utils.config_loader import load_config
 from shared.utils.crypto_utils import encrypt_phone
+from shared.utils.phone_utils import normalize_phone_number
 from shared.utils.gcp_utils import insert_survey_response
 from shared.utils.pubsub_utils import (
     IntakeProcessedMessage,
@@ -80,9 +81,11 @@ def qualtrics_webhook_handler(request: Request):
         )
 
         # Step 2: Write survey response to BigQuery (phone encrypted)
+        _raw_phone = payload.phone
+        _norm_phone = normalize_phone_number(_raw_phone) if _raw_phone else None
         bq_payload = payload.model_copy(
             update={
-                "phone": encrypt_phone(payload.phone) if payload.phone else None
+                "phone": encrypt_phone(_norm_phone) if _norm_phone else None
             }
         )
         write_success = insert_survey_response(
