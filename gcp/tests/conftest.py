@@ -15,6 +15,17 @@ sys.path automatically. We replicate that here for pytest.
 import sys
 from pathlib import Path
 
+
+def pytest_configure(config):
+    import os
+
+    from cryptography.fernet import Fernet
+
+    os.environ.setdefault(
+        "PHONE_ENCRYPTION_KEY", Fernet.generate_key().decode()
+    )
+
+
 _tests_dir = Path(__file__).resolve().parent
 
 # gcp/ is one level up from gcp/tests/

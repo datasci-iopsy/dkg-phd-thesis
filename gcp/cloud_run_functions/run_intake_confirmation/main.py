@@ -35,6 +35,7 @@ import functions_framework
 from cloudevents.http import CloudEvent
 from google.cloud import bigquery
 from shared.utils.config_loader import load_config
+from cryptography.fernet import InvalidToken
 from shared.utils.crypto_utils import decrypt_phone
 from shared.utils.pubsub_utils import (
     FollowupSchedulingMessage,
@@ -351,11 +352,21 @@ def intake_confirmation_handler(cloud_event: CloudEvent) -> None:
         )
         return
 
+    try:
+        phone = decrypt_phone(message.phone)
+    except InvalidToken:
+        logger.error(
+            "Phone decryption failed for %s -- "
+            "acknowledging to prevent retry loop",
+            message.response_id,
+        )
+        return
+
     # Step 3: Send confirmation SMS
     selected_date = date.fromisoformat(message.selected_date)
     body = format_sms_body(selected_date, message.timezone)
 
-    sms_sent = send_sms(decrypt_phone(message.phone), body)
+    sms_sent = send_sms(phone, body)
     if not sms_sent:
         # Raise to trigger Pub/Sub retry
         raise RuntimeError(

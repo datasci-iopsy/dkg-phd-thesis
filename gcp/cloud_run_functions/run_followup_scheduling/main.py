@@ -37,6 +37,7 @@ import functions_framework
 from cloudevents.http import CloudEvent
 from google.cloud import bigquery
 from shared.utils.config_loader import load_config
+from cryptography.fernet import InvalidToken
 from shared.utils.crypto_utils import decrypt_phone
 from shared.utils.pubsub_utils import FollowupSchedulingMessage
 
@@ -393,6 +394,16 @@ def followup_scheduling_handler(cloud_event: CloudEvent) -> None:
         logger.error("Message validation failed: %s (data: %s)", e, raw)
         return
 
+    try:
+        phone = decrypt_phone(message.phone)
+    except InvalidToken:
+        logger.error(
+            "Phone decryption failed for %s -- "
+            "acknowledging to prevent retry loop",
+            message.response_id,
+        )
+        return
+
     logger.info(
         "Processing follow-up scheduling for response %s",
         message.response_id,
@@ -473,7 +484,7 @@ def followup_scheduling_handler(cloud_event: CloudEvent) -> None:
         time_label = format_time_label(survey_time)
         body = sms_template.format(time=time_label, url=url)
 
-        twilio_sid = schedule_sms(decrypt_phone(message.phone), body, send_at)
+        twilio_sid = schedule_sms(phone, body, send_at)
         if twilio_sid is None:
             raise RuntimeError(
                 f"Twilio scheduling failed for response "
