@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 
-def pytest_configure(config):
+def pytest_configure(config: object) -> None:
     import os
 
     from cryptography.fernet import Fernet
