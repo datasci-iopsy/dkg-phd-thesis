@@ -42,6 +42,7 @@ QID_MAP: dict[str, str] = {
     "fte_flag": "QID41",
     "location_flag": "QID43",
     "language_flag": "QID45",
+    "work_hours_flag": "QID92",
     # -- Scheduling --------------------------------------------------
     "phone": "QID42_TEXT",
     "timezone": "QID30",
@@ -78,6 +79,13 @@ QID_MAP: dict[str, str] = {
     "VIO4": "QID73",
     # -- Job Satisfaction --------------------------------------------
     "JS1": "QID91",
+    # -- Job Insecurity Scale (JIS) ----------------------------------
+    "JIS1": "QID97",
+    # -- Desirability of Movement (DES) ------------------------------
+    "DES1": "QID95",
+    "DES2": "QID96",
+    # -- Turnover Intention ------------------------------------------
+    "turnover_intention": "QID98",
 }
 
 # -- Label constants -------------------------------------------------
@@ -90,7 +98,7 @@ ELIGIBILITY_YES_VALUE: str = "Yes"
 
 # -- Scale field names -----------------------------------------------
 # Tuple of all psychometric scale field names for iteration.
-# PA(5) + NA(5) + BR(5) + VIO(4) + JS(1) = 20 items.
+# PA(5) + NA(5) + BR(5) + VIO(4) + JS(1) + JIS(1) + DES(2) + TI(1) = 24 items.
 SCALE_FIELDS: tuple[str, ...] = (
     "PA1",
     "PA2",
@@ -112,6 +120,10 @@ SCALE_FIELDS: tuple[str, ...] = (
     "VIO3",
     "VIO4",
     "JS1",
+    "JIS1",
+    "DES1",
+    "DES2",
+    "turnover_intention",
 )
 
 
@@ -191,6 +203,10 @@ class WebServicePayload(BaseModel):
         default=None,
         description="Language eligibility label; 'Yes' = meets criteria",
     )
+    work_hours_flag: str | None = Field(
+        default=None,
+        description="Works weekdays 8AM-6PM label; 'Yes' = meets criteria",
+    )
     # -- Scheduling --------------------------------------------------
     phone: str | None = Field(
         default=None, description="Raw phone digits from survey text entry"
@@ -255,6 +271,27 @@ class WebServicePayload(BaseModel):
     # -- Job Satisfaction --------------------------------------------
     JS1: str | None = Field(
         default=None, description="Job satisfaction item 1 (label)"
+    )
+    # -- Job Insecurity Scale (JIS) ----------------------------------
+    JIS1: str | None = Field(
+        default=None,
+        description="I think I might lose my job in the near future. (label)",
+    )
+    # -- Desirability of Movement (DES) ------------------------------
+    DES1: str | None = Field(
+        default=None,
+        description=(
+            "If I looked for a job, I would wind up with a better job (label)"
+        ),
+    )
+    DES2: str | None = Field(
+        default=None,
+        description="Jobs I could get are superior to current job (label)",
+    )
+    # -- Turnover Intention ------------------------------------------
+    turnover_intention: str | None = Field(
+        default=None,
+        description="How often felt desire to leave current employer (label)",
     )
 
 

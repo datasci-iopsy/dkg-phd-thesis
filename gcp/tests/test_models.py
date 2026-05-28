@@ -68,6 +68,7 @@ class TestWebServicePayload:
         assert web_service_payload.fte_flag == ELIGIBILITY_YES_VALUE
         assert web_service_payload.location_flag == ELIGIBILITY_YES_VALUE
         assert web_service_payload.language_flag == ELIGIBILITY_YES_VALUE
+        assert web_service_payload.work_hours_flag == ELIGIBILITY_YES_VALUE
 
     def test_demographic_labels(self, web_service_payload):
         assert web_service_payload.ethnicity == "Asian"
@@ -92,8 +93,8 @@ class TestWebServicePayload:
 
     def test_scale_item_count(self):
         """Verify SCALE_FIELDS has the expected count."""
-        # PA(5) + NA(5) + BR(5) + VIO(4) + JS(1) = 20
-        assert len(SCALE_FIELDS) == 20
+        # PA(5) + NA(5) + BR(5) + VIO(4) + JS(1) + JIS(1) + DES(2) + TI(1) = 24
+        assert len(SCALE_FIELDS) == 24
 
     def test_positive_affect_labels(self, web_service_payload):
         """PA items use the PANAS frequency scale."""
@@ -124,6 +125,35 @@ class TestWebServicePayload:
             assert value in valid_na_labels, (
                 f"{field} = '{value}' not in valid NA labels"
             )
+
+    def test_jis_des_labels(self, web_service_payload):
+        """JIS and DES items use the Likert agreement scale."""
+        valid_likert_labels = {
+            "Strongly disagree",
+            "Somewhat disagree",
+            "Neither agree nor disagree",
+            "Somewhat agree",
+            "Strongly agree",
+        }
+        for field in ("JIS1", "DES1", "DES2"):
+            value = getattr(web_service_payload, field)
+            assert value in valid_likert_labels, (
+                f"{field} = '{value}' not in valid Likert labels"
+            )
+
+    def test_turnover_intention_labels(self, web_service_payload):
+        """Turnover intention uses the frequency scale."""
+        valid_labels = {
+            "Never",
+            "Once",
+            "Twice",
+            "Three times",
+            "More than three times",
+        }
+        value = web_service_payload.turnover_intention
+        assert value in valid_labels, (
+            f"turnover_intention = '{value}' not in valid labels"
+        )
 
     def test_breach_violation_labels(self, web_service_payload):
         """BR and VIO items use the Likert agreement scale."""

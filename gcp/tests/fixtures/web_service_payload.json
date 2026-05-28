@@ -36,5 +36,10 @@
     "VIO2": "Strongly agree",
     "VIO3": "Neither agree nor disagree",
     "VIO4": "Disagree",
-    "JS1": "Disagree"
+    "JS1": "Disagree",
+    "WORK_HOURS_FLAG": "Yes",
+    "JIS1": "Somewhat disagree",
+    "DES1": "Somewhat agree",
+    "DES2": "Somewhat agree",
+    "TURNOVER_INTENTION": "Once"
 }
