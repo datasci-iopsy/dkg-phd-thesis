@@ -38,7 +38,7 @@
     "ATCB7": "${q://QID44/ChoiceGroup/SelectedChoices}",
     "ATTENTION_CHECK": "${q://QID46/ChoiceGroup/SelectedChoices}",
     "MEETINGS_NUM": "${q://QID45/ChoiceTextEntryValue}",
-    "MEETINGS_TIME": "${q://QID48/ChoiceTextEntryValue}",
+    "MEETINGS_TIME": "${q://QID48/ChoiceTextEntryValue/1}",
     "TURNOVER_INTENTION": "${q://QID5/ChoiceGroup/SelectedChoices}",
     "JS1": "${q://QID1721263569/ChoiceGroup/SelectedChoices}"
 }
