@@ -80,12 +80,15 @@ QID_MAP: dict[str, str] = {
     "meetings_time": "QID48_1",
     # -- Turnover intention ------------------------------------------
     "turnover_intention": "QID5",
+    # -- Job Satisfaction (JS) ---------------------------------------
+    # QID varies by survey: p1=QID52, p2=QID1721263568, p3=QID1721263569
+    "js1": "QID52",
 }
 
 # -- Scale field names -----------------------------------------------
 # All psychometric scale field names for iteration.
 # PF(6) + CW(5) + EE(3) + COMP(4) + AUTO(4) + RELT(4) + ATCB(4) = 30 items
-# Plus turnover_intention = 31 items
+# Plus turnover_intention + js1 = 32 items
 FOLLOWUP_SCALE_FIELDS: tuple[str, ...] = (
     "pf1",
     "pf2",
@@ -118,6 +121,7 @@ FOLLOWUP_SCALE_FIELDS: tuple[str, ...] = (
     "atcb6",
     "atcb7",
     "turnover_intention",
+    "js1",
 )
 
 
@@ -357,4 +361,9 @@ class FollowupWebServicePayload(BaseModel):
     turnover_intention: str | None = Field(
         default=None,
         description=("How often felt desire to leave current employer (label)"),
+    )
+    # -- Job Satisfaction --------------------------------------------
+    js1: str | None = Field(
+        default=None,
+        description="Job satisfaction item; stem varies by timepoint (label)",
     )

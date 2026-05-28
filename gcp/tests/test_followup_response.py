@@ -171,7 +171,7 @@ class TestQIDMapAlignment:
             )
 
     def test_qid_map_count_matches_model_fields(self):
-        """QID_MAP should cover all 41 model fields."""
+        """QID_MAP should cover all 42 model fields."""
         assert len(QID_MAP) == len(FollowupWebServicePayload.model_fields)
 
 
@@ -183,7 +183,7 @@ class TestFollowupResponsesSchema:
         assert len(FOLLOWUP_RESPONSES_SCHEMA) > 0
 
     def test_column_count(self):
-        """41 model fields + 1 system field (_created_at) = 42 columns."""
+        """42 model fields + 1 system field (_created_at) = 43 columns."""
         expected = len(FollowupWebServicePayload.model_fields) + len(
             FOLLOWUP_SYSTEM_FIELDS
         )

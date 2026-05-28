@@ -39,5 +39,6 @@
     "ATTENTION_CHECK": "Once",
     "MEETINGS_NUM": 3,
     "MEETINGS_TIME": 90,
-    "TURNOVER_INTENTION": "Three times"
+    "TURNOVER_INTENTION": "Three times",
+    "JS1": "Somewhat agree"
 }
