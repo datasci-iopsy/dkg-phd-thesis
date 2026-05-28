@@ -163,8 +163,12 @@ help_gcp:
 	@echo "   API Gateway:"
 	@echo "     make gcp_gateway_up        Set up API Gateway"
 	@echo "     make gcp_gateway_status    Show current gateway resource state"
-	@echo "     make gcp_gateway_test      End-to-end test (fixed survey times)"
-	@echo "     make gcp_gateway_test NOW=1  E2E test (schedule at now+16/32/48 min)"
+	@echo "     make gcp_gateway_test               End-to-end test (fixed survey times)"
+	@echo "     make gcp_gateway_test NOW=1         E2E test (schedule at now+16/32/48 min)"
+	@echo "     make gcp_gateway_test FOLLOWUP=1    Smoke test POST /followup (default fixture)"
+	@echo "     make gcp_gateway_test FOLLOWUP=1 TP=1  Smoke test p1/9AM fixture"
+	@echo "     make gcp_gateway_test FOLLOWUP=1 TP=2  Smoke test p2/1PM fixture"
+	@echo "     make gcp_gateway_test FOLLOWUP=1 TP=3  Smoke test p3/5PM fixture"
 	@echo "     make gcp_gateway_down      Tear down API Gateway"
 	@echo ""
 	@echo "   Schema change workflow:"
@@ -455,8 +459,14 @@ gcp_gateway_status:
 	@cd "$(ROOT)" && uv run gcp/deploy/manage_gateway.py status
 
 gcp_gateway_test:
-	@echo "Running end-to-end gateway test..."
-	@if [ "$(NOW)" = "1" ]; then \
+	@echo "Running gateway test..."
+	@if [ "$(FOLLOWUP)" = "1" ] && [ -n "$(TP)" ]; then \
+		echo "   Mode: followup smoke test (timepoint $(TP))"; \
+		cd "$(ROOT)" && uv run gcp/deploy/manage_gateway.py test --followup --timepoint $(TP); \
+	elif [ "$(FOLLOWUP)" = "1" ]; then \
+		echo "   Mode: followup smoke test (default fixture)"; \
+		cd "$(ROOT)" && uv run gcp/deploy/manage_gateway.py test --followup; \
+	elif [ "$(NOW)" = "1" ]; then \
 		echo "   Mode: now+16/32/48 min (--now)"; \
 		cd "$(ROOT)" && uv run gcp/deploy/manage_gateway.py test --now; \
 	else \

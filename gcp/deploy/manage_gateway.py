@@ -973,6 +973,14 @@ def handle_test(args: argparse.Namespace) -> None:
     from datetime import timedelta as _timedelta
 
     followup_mode = args.followup
+    timepoint = getattr(args, "timepoint", None)
+
+    if not followup_mode and timepoint is not None:
+        print(
+            "\n-> --timepoint requires --followup.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     if followup_mode:
         if args.now or args.selected_date or args.now_with_me:
@@ -1024,15 +1032,20 @@ def handle_test(args: argparse.Namespace) -> None:
 
     if followup_mode:
         # POST /followup -- no date manipulation, terminal endpoint
-        fixture = FIXTURES_DIR / "followup_web_service_payload.json"
+        if timepoint is not None:
+            fixture_name = f"followup_p{timepoint}_test_payload.json"
+        else:
+            fixture_name = "followup_web_service_payload.json"
+        fixture = FIXTURES_DIR / fixture_name
         if not fixture.exists():
             print(f"\n-> Fixture not found: {fixture}", file=sys.stderr)
             sys.exit(1)
         payload = json.loads(fixture.read_text())
         target_url = f"{gateway_url}/followup"
         payload_json = json.dumps(payload)
+        tp_label = f" (timepoint {timepoint})" if timepoint else ""
         print(f"\n  Gateway:  {target_url}")
-        print(f"  Fixture:  {fixture.name}")
+        print(f"  Fixture:  {fixture.name}{tp_label}")
         print(f"  API key:  {masked_key}")
         print(
             "\n  Sending POST /followup (no IAM token -- just the API key)..."
@@ -1351,6 +1364,18 @@ def build_parser() -> argparse.ArgumentParser:
             "the intake fixture to POST /. Tests the "
             "run-followup-response path end-to-end. Mutually exclusive "
             "with --now, --now-with-me, and --selected-date."
+        ),
+    )
+    test_parser.add_argument(
+        "--timepoint",
+        type=int,
+        choices=[1, 2, 3],
+        help=(
+            "Select a timepoint-specific fixture when using --followup. "
+            "1=9AM (SV_5nV942MJGubDmqq), 2=1PM (SV_eRKl4lgMZDAurT8), "
+            "3=5PM (SV_6J3svun1r97AAHc). "
+            "Loads followup_p{N}_test_payload.json. "
+            "Omit to use the default followup_web_service_payload.json."
         ),
     )
     test_parser.set_defaults(handler=handle_test)
