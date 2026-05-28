@@ -1070,9 +1070,9 @@ def handle_test(args: argparse.Namespace) -> None:
             payload["PHONE"] = args.now_with_me.lstrip("+")
             # Generate a unique response_id per invocation so the fn2/fn3
             # idempotency guards don't block repeated runs with any phone
-            # number. Format: R_TEST_{last4digits}_{6-char hex}.
+            # number. Format: R_TEST_{last4digits}_{16-char hex}.
             _last4 = payload["PHONE"][-4:]
-            _suffix = secrets.token_hex(3)
+            _suffix = secrets.token_hex(8)
             payload["RESPONSE_ID"] = f"R_TEST_{_last4}_{_suffix}"
             payload["CONNECT_ID"] = f"test_{_last4}_{_suffix}"
         elif args.selected_date:
