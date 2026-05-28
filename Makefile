@@ -164,6 +164,7 @@ help_gcp:
 	@echo "     make gcp_gateway_up        Set up API Gateway"
 	@echo "     make gcp_gateway_status    Show current gateway resource state"
 	@echo "     make gcp_gateway_test               End-to-end test (fixed survey times)"
+	@echo "     make gcp_gateway_test PHONE=16xxxxxxxx  E2E test, real SMS to your phone"
 	@echo "     make gcp_gateway_test NOW=1         E2E test (schedule at now+16/32/48 min)"
 	@echo "     make gcp_gateway_test FOLLOWUP=1    Smoke test POST /followup (default fixture)"
 	@echo "     make gcp_gateway_test FOLLOWUP=1 TP=1  Smoke test p1/9AM fixture"
@@ -466,6 +467,9 @@ gcp_gateway_test:
 	elif [ "$(FOLLOWUP)" = "1" ]; then \
 		echo "   Mode: followup smoke test (default fixture)"; \
 		cd "$(ROOT)" && uv run gcp/deploy/manage_gateway.py test --followup; \
+	elif [ -n "$(PHONE)" ]; then \
+		echo "   Mode: now-with-me (real SMS to $(PHONE))"; \
+		cd "$(ROOT)" && uv run gcp/deploy/manage_gateway.py test --now-with-me $(PHONE); \
 	elif [ "$(NOW)" = "1" ]; then \
 		echo "   Mode: now+16/32/48 min (--now)"; \
 		cd "$(ROOT)" && uv run gcp/deploy/manage_gateway.py test --now; \
