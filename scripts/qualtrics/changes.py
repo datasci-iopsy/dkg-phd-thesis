@@ -53,13 +53,13 @@ CHANGES: list[QuestionChange] = [
     # --- Emotional Exhaustion ---
     *_shared(
         "QID20",
-        "I have been unable to respond sensitively to the needs of coworkers or customers.",
-        "EE1: remove leading I feel",
+        "I have been unable to respond sensitively to coworkers or customers.",
+        "EE1: trim 'the needs of'",
     ),
     *_shared(
         "QID21",
-        "I feel I have been incapable of investing emotionally in coworkers or customers.",
-        "EE2: add missing I",
+        "I have been incapable of investing emotionally in coworkers or customers.",
+        "EE2: trim 'I feel'",
     ),
     *_shared(
         "QID22",
