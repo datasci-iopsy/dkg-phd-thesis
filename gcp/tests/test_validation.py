@@ -219,18 +219,19 @@ class TestExtractParticipantData:
         participant = extract_participant_data(payload)
         assert participant is None
 
-    def test_rejects_none_connect_id(self):
-        """Missing connect_id (None) should be rejected."""
+    def test_none_connect_id_schedules_with_none(self):
+        """None connect_id (snowball participant) should not block scheduling."""
         payload = WebServicePayload(
             response_id="R_test",
             survey_id="SV_test",
             consent="Yes",
             phone="8777804236",
             timezone="US/Central",
-            selected_date="12/26/2025",
+            selected_date="2026-06-01",
         )
         participant = extract_participant_data(payload)
-        assert participant is None
+        assert participant is not None
+        assert participant.connect_id is None
 
     def test_rejects_empty_timezone(self, raw_web_service_json):
         raw_web_service_json["TIMEZONE"] = ""
@@ -239,9 +240,10 @@ class TestExtractParticipantData:
         participant = extract_participant_data(payload)
         assert participant is None
 
-    def test_rejects_blank_connect_id(self, raw_web_service_json):
+    def test_blank_connect_id_schedules_with_none(self, raw_web_service_json):
         raw_web_service_json["CONNECT_ID"] = "   "
         payload = WebServicePayload.model_validate(raw_web_service_json)
 
         participant = extract_participant_data(payload)
-        assert participant is None
+        assert participant is not None
+        assert participant.connect_id is None

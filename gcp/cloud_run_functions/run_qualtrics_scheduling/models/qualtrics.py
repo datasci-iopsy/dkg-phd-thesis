@@ -23,7 +23,13 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import AliasGenerator, BaseModel, ConfigDict, Field
+from pydantic import (
+    AliasGenerator,
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+)
 
 # -- QID field mapping -----------------------------------------------
 # Maps semantic names -> Qualtrics question IDs.
@@ -186,6 +192,14 @@ class WebServicePayload(BaseModel):
     connect_id: str | None = Field(
         default=None, description="Connect participant identifier (free text)"
     )
+
+    @field_validator("connect_id", mode="before")
+    @classmethod
+    def coerce_empty_connect_id(cls, v: object) -> object:
+        if v == "":
+            return None
+        return v
+
     # -- Eligibility flags (label: 'Yes' or 'No') -------------------
     age_flag: str | None = Field(
         default=None,

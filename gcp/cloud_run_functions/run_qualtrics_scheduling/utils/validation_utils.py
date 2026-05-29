@@ -71,9 +71,10 @@ def extract_participant_data(
 ) -> ParticipantData | None:
     """Extract and validate participant data from a Web Service payload.
 
-    Reads scheduling-relevant fields (Connect ID, phone, date,
-    timezone, consent) directly from the payload's semantic fields,
-    normalizes them, and constructs a validated ParticipantData.
+    Reads scheduling-relevant fields (phone, date, timezone, consent)
+    directly from the payload's semantic fields, normalizes them, and
+    constructs a validated ParticipantData. connect_id is optional and
+    passed through as-is (None for snowball-sample participants).
 
     Returns None if any required scheduling field is missing
     (None). This happens when Qualtrics survey logic routes a
@@ -117,13 +118,6 @@ def extract_participant_data(
         if not payload.timezone:
             logger.error(
                 "Missing timezone for response %s",
-                payload.response_id,
-            )
-            return None
-
-        if not payload.connect_id:
-            logger.error(
-                "Missing connect_id for response %s",
                 payload.response_id,
             )
             return None

@@ -35,21 +35,21 @@ class ParticipantData(BaseModel):
     """
 
     response_id: str
-    connect_id: str = Field(..., min_length=1)
+    connect_id: str | None = Field(default=None)
     phone: str
     selected_date: date
     timezone: str = Field(..., min_length=1)
     consent_given: bool
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    @field_validator("connect_id")
+    @field_validator("connect_id", mode="before")
     @classmethod
-    def strip_and_validate_connect_id(cls, v: str) -> str:
-        """Strip whitespace and reject blank Connect IDs."""
-        stripped = v.strip()
-        if not stripped:
-            raise ValueError("Connect ID cannot be blank")
-        return stripped
+    def strip_connect_id(cls, v: object) -> object:
+        """Strip whitespace; coerce blank strings to None."""
+        if isinstance(v, str):
+            stripped = v.strip()
+            return stripped if stripped else None
+        return v
 
     @field_validator("consent_given")
     @classmethod

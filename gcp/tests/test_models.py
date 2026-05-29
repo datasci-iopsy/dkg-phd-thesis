@@ -352,10 +352,10 @@ class TestParticipantData:
         p = ParticipantData(**valid_kwargs)
         assert len(p.followup_times) == 3
 
-    def test_rejects_blank_pid(self, valid_kwargs):
+    def test_blank_connect_id_coerces_to_none(self, valid_kwargs):
         valid_kwargs["connect_id"] = "   "
-        with pytest.raises(Exception, match="[Cc]onnect|blank"):
-            ParticipantData(**valid_kwargs)
+        p = ParticipantData(**valid_kwargs)
+        assert p.connect_id is None
 
     def test_phone_accepts_fernet_tokens(self, valid_kwargs):
         """Model requires Fernet-length phone strings."""
