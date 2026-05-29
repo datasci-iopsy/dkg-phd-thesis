@@ -173,6 +173,8 @@ Runtime configuration for each function lives in YAML files under its `configs/`
 
 **[`run_followup_scheduling/configs/gcp_utils.yaml`](cloud_run_functions/run_followup_scheduling/configs/gcp_utils.yaml)**: GCP project ID, compute region, BigQuery references (including `scheduled_followups` table), and follow-up survey configuration (Qualtrics survey base URL and three survey IDs corresponding to the 9 AM, 1 PM, and 5 PM time slots).
 
+**[`run_followup_response/configs/gcp_utils.yaml`](cloud_run_functions/run_followup_response/configs/gcp_utils.yaml)**: GCP project ID, compute region, and BigQuery references (dataset, intake and followup raw and scored tables, scheduled followups). Used by the terminal inbound HTTP function that validates and writes completed ESM survey responses.
+
 Secrets (`QUALTRICS_API_KEY`, `QUALTRICS_WEBHOOK_SECRET`) are currently commented out of the scheduling function's deployment configuration. The API Gateway handles inbound authentication, and the Web Service task sends complete payloads, eliminating the need for outbound Qualtrics API calls in the active pipeline. The `SecretManagerConfig` model and `qualtrics_utils.fetch_single_response()` function are retained for manual lookups if needed. To re-enable secrets, uncomment the `secrets` block in [`functions.yaml`](deploy/functions.yaml) and add the `secret_manager` key back to `gcp_config.yaml`.
 
 For local development, any needed environment variables can be set via `.envrc` / direnv or exported manually.
@@ -300,6 +302,7 @@ uv run pytest gcp/tests/ -v \
 uv run pytest gcp/tests/test_models.py -v
 uv run pytest gcp/tests/test_bq_schemas.py -v
 uv run pytest gcp/tests/test_config.py -v
+uv run pytest gcp/tests/test_crypto_utils.py -v
 uv run pytest gcp/tests/test_validation.py -v
 uv run pytest gcp/tests/test_intake_confirmation.py -v
 uv run pytest gcp/tests/test_followup_scheduling.py -v

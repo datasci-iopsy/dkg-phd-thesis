@@ -24,10 +24,6 @@ uv run pytest gcp/tests/ -v
 
 # R
 uvr sync
-bash analysis/run_power_analysis/main.sh dev            # seconds
-bash analysis/run_power_analysis/main.sh prod           # full local grid (hours)
-bash analysis/run_power_analysis/main.sh benchmark_gcp  # GCP timing probe
-bash analysis/run_power_analysis/main.sh prod_gcp       # GCP full grid (3,645 cells)
 bash analysis/tests/validate_r_structure.sh             # pre-flight; run from project root
 
 # GCP VM bootstrap (run once on a fresh VM after manage_compute.py setup)

@@ -16,7 +16,9 @@ uv run gcp/deploy/manage_functions.py dev <fn>      # local dev on :8080
 uv run gcp/deploy/manage_functions.py deploy <fn>   # deploy to GCP
 uv run gcp/deploy/manage_infra.py setup|teardown    # BQ tables
 uv run gcp/deploy/manage_gateway.py setup|teardown  # API Gateway
-uv run gcp/deploy/manage_gateway.py test [--now]    # end-to-end test; --now schedules SMS at now+16/32/48 min
+uv run gcp/deploy/manage_gateway.py test            # end-to-end test at fixed survey times
+uv run gcp/deploy/manage_gateway.py test --now      # schedule SMS at now+16/32/48 min
+uv run gcp/deploy/manage_gateway.py test --followup # smoke test POST /followup
 uv run gcp/deploy/manage_pubsub.py setup|teardown   # Pub/Sub topics
 
 # Compute Engine VM (power analysis)

@@ -25,6 +25,7 @@ uvr run analysis/run_power_analysis/scripts/visualize_power_analysis.R # SVG fig
 bash analysis/tests/validate_r_structure.sh                            # pre-flight static validation
 make synthetic_analysis                                                 # steps 1–5; run make synthetic_tables separately for publication output
 make synthetic_data_quality                                             # Step 1 only: careless responding screening
+make synthetic_tables                                                   # Step 6: publication-ready Word .docx tables
 ```
 
 ## Synthetic data quality screening

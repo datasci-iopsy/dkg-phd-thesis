@@ -293,10 +293,10 @@ The `manage_compute.py` script automates VM lifecycle. Typical workflow:
 
 ```bash
 # 1. Create VM and bootstrap R environment
-python gcp/deploy/manage_compute.py setup
+uv run gcp/deploy/manage_compute.py setup
 
 # 2. SSH into the VM
-python gcp/deploy/manage_compute.py ssh
+uv run gcp/deploy/manage_compute.py ssh
 
 # 3. On the VM: run benchmark first, then prod
 cd dkg-phd-thesis
@@ -304,10 +304,10 @@ make power_analysis_gcp_benchmark    # timing probe (~minutes)
 nohup make power_analysis_gcp_prod & # full grid in background
 
 # 4. When done, download results
-python gcp/deploy/manage_compute.py scp
+uv run gcp/deploy/manage_compute.py scp
 
 # 5. Delete the VM to stop billing
-python gcp/deploy/manage_compute.py teardown
+uv run gcp/deploy/manage_compute.py teardown
 ```
 
 Machine type, zone, and disk size are configured in `gcp/deploy/compute.yaml`. The `c3-highcpu-176` instance provides 176 vCPUs (174 workers after reserving 2 for OS overhead). If capacity is unavailable in one zone, edit `compute.yaml` to try another from the `available_zones` list.

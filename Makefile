@@ -37,7 +37,8 @@ FN ?= run-qualtrics-scheduling
         gcp_compute_up gcp_compute_status gcp_compute_ssh \
         gcp_compute_scp gcp_compute_down \
         setup_hooks \
-        _check_uvr_env _check_synthetic_inputs _check_synthetic_export
+        _check_uvr_env _check_synthetic_inputs _check_synthetic_export \
+        _check_synthetic_cleaned_export
 
 # ---------------------------------------------------------------------------
 # Internal guards (not shown in help)
@@ -75,6 +76,17 @@ _check_synthetic_export:
 		exit 1; \
 	fi; \
 	echo "Found raw panel export CSV in data/export/"
+
+_check_synthetic_cleaned_export:
+	@export_dir="$(ROOT)/analysis/run_synthetic_data/data/export"; \
+	n=$$(find "$$export_dir" -name "syn_qualtrics_fct_panel_responses_cleaned.csv" 2>/dev/null | wc -l | tr -d ' '); \
+	if [ "$$n" -eq 0 ]; then \
+		echo "Cleaned panel CSV not found in analysis/run_synthetic_data/data/export/"; \
+		echo "   Expected: syn_qualtrics_fct_panel_responses_cleaned.csv"; \
+		echo "   Run: make synthetic_data_quality"; \
+		exit 1; \
+	fi; \
+	echo "Found cleaned panel export CSV in data/export/"
 
 # ---------------------------------------------------------------------------
 # Help
@@ -353,7 +365,7 @@ synthetic_data_quality: _check_uvr_env _check_synthetic_export
 	@echo "Data quality complete. Cleaned CSV -> analysis/run_synthetic_data/data/export/"
 	@echo "   Diagnostics  -> analysis/run_synthetic_data/figs/data_quality/"
 
-synthetic_eda: _check_uvr_env _check_synthetic_inputs
+synthetic_eda: _check_uvr_env _check_synthetic_cleaned_export
 	@echo "Running EDA script..."
 	@$(RSCRIPT) "$(ROOT)/analysis/run_synthetic_data/scripts/r/eda.R" || { \
 		echo "eda.R failed"; \
@@ -361,7 +373,7 @@ synthetic_eda: _check_uvr_env _check_synthetic_inputs
 	}
 	@echo "EDA complete. Figures -> analysis/run_synthetic_data/figs/eda/"
 
-synthetic_measurement: _check_uvr_env _check_synthetic_inputs
+synthetic_measurement: _check_uvr_env _check_synthetic_cleaned_export
 	@echo "Running measurement model..."
 	@$(RSCRIPT) "$(ROOT)/analysis/run_synthetic_data/scripts/r/measurement_model.R" || { \
 		echo "measurement_model.R failed"; \
@@ -369,7 +381,7 @@ synthetic_measurement: _check_uvr_env _check_synthetic_inputs
 	}
 	@echo "Measurement model complete."
 
-synthetic_mlm: _check_uvr_env _check_synthetic_inputs
+synthetic_mlm: _check_uvr_env _check_synthetic_cleaned_export
 	@echo "Running multilevel model (main analysis)..."
 	@$(RSCRIPT) "$(ROOT)/analysis/run_synthetic_data/scripts/r/multilevel_model.R" || { \
 		echo "multilevel_model.R failed"; \
@@ -377,7 +389,7 @@ synthetic_mlm: _check_uvr_env _check_synthetic_inputs
 	}
 	@echo "MLM complete. Figures -> analysis/run_synthetic_data/figs/mlm/"
 
-synthetic_correlation: _check_uvr_env _check_synthetic_inputs
+synthetic_correlation: _check_uvr_env _check_synthetic_cleaned_export
 	@echo "Running correlation analysis..."
 	@$(RSCRIPT) "$(ROOT)/analysis/run_synthetic_data/scripts/r/correlation.R" || { \
 		echo "correlation.R failed"; \
@@ -389,7 +401,7 @@ synthetic_analysis: synthetic_data_quality synthetic_eda synthetic_correlation s
 	@echo ""
 	@echo "All synthetic data analyses complete."
 
-synthetic_tables: _check_uvr_env _check_synthetic_inputs
+synthetic_tables: _check_uvr_env _check_synthetic_cleaned_export
 	@echo "Generating publication tables..."
 	@$(RSCRIPT) "$(ROOT)/analysis/run_synthetic_data/scripts/r/publication_tables.R" || { \
 		echo "publication_tables.R failed"; \

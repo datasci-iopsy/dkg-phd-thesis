@@ -224,7 +224,7 @@ For a full command reference: `make help` (all commands) or `make help_gcp` (GCP
     - [Shirom-Melamed Burnout Measure (*SMBM; Shirom \& Melamed, 2006*)](#shirom-melamed-burnout-measure-smbm-shirom--melamed-2006)
     - [Basic Psychological Needs Thwarting Scale (*PNTS; Bartholomew et al., 2011*)](#basic-psychological-needs-thwarting-scale-pnts-bartholomew-et-al-2011)
     - [Attitude Toward the Color Blue (*ATCB; Miller et al., 2024*; *Miller \& Simmering, 2023*)](#attitude-toward-the-color-blue-atcb-miller-et-al-2024-miller--simmering-2023)
-    - [Meeting Load](#meeting-characteristics)
+    - [Meeting Load](#meeting-load)
     - [Turnover Intentions (*Spector et al., 1988*)](#turnover-intentions-spector-et-al-1988)
   - [Level 2 Variables (L2)](#level-2-variables-l2)
     - [Psychological Contract (*Robinson \& Morrison, 2000*)](#psychological-contract-robinson--morrison-2000)
