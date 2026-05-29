@@ -95,14 +95,14 @@ CHANGES: list[QuestionChange] = [
     ),
     *_shared(
         "QID32",
-        "I have felt under pressure to agree with the work regimen I have been provided.",
-        "AUTO4: tense fix",
+        "I have felt under pressure to agree with the work demands imposed on me.",
+        "AUTO4: work regimen to work demands imposed on me",
     ),
     # --- Relatedness ---
     *_shared(
         "QID37",
-        "I have felt as though some of my coworkers became jealous when I completed my tasks.",
-        "RELT4: got to became, remove work",
+        "I have felt as though some of my coworkers became envious when I did well at work.",
+        "RELT4: jealous to envious, completed tasks to did well at work",
     ),
     # --- P1-specific ---
     QuestionChange(
