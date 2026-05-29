@@ -74,11 +74,22 @@ COLUMN_MAP: dict[str, str] = {
 
 
 def get_api_key() -> str:
-    from google.cloud import api_keys_v2
+    import subprocess
 
-    client = api_keys_v2.ApiKeysClient()
-    key_string = client.get_key_string(name=API_KEY_NAME)
-    return key_string.key_string
+    result = subprocess.run(
+        [
+            "gcloud",
+            "services",
+            "api-keys",
+            "get-key-string",
+            API_KEY_NAME,
+            "--format=value(keyString)",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return result.stdout.strip()
 
 
 def get_existing_response_ids() -> set[str]:
@@ -102,7 +113,14 @@ def read_csv_responses(csv_path: Path) -> list[dict[str, str]]:
 
     responses = []
     for row in data_rows:
-        record = dict(zip(headers, row))
+        # Keep the first occurrence of any duplicate column name.
+        # The Qualtrics export repeats CONNECT_ID and Finished; the first
+        # occurrence is the real survey response value; later ones are
+        # embedded-data echoes that may be empty.
+        record: dict[str, str] = {}
+        for col, val in zip(headers, row):
+            if col not in record:
+                record[col] = val
         # Only complete responses with a real ResponseId
         response_id = record.get("ResponseId", "")
         if not response_id.startswith("R_"):
