@@ -19,6 +19,7 @@ import argparse
 import json
 import sys
 import time
+from datetime import date
 
 from google.cloud import bigquery, pubsub_v1
 
@@ -27,8 +28,13 @@ BQ_TABLE = "dkg-phd-thesis.qualtrics.stg_intake_responses"
 TOPIC_ID = "dkg-intake-processed"
 
 
-def get_unscheduled() -> list[dict]:
+def get_unscheduled(skip_today: bool = True) -> list[dict]:
     client = bigquery.Client(project=GCP_PROJECT)
+    today_filter = (
+        f"AND selected_date != '{date.today().isoformat()}'"
+        if skip_today
+        else ""
+    )
     query = f"""
         SELECT
             response_id,
@@ -38,6 +44,7 @@ def get_unscheduled() -> list[dict]:
             timezone
         FROM `{BQ_TABLE}`
         WHERE _processed = FALSE
+        {today_filter}
         ORDER BY _created_at
     """
     rows = list(client.query(query).result())
@@ -60,9 +67,14 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    print("Querying BigQuery for unscheduled participants...")
-    rows = get_unscheduled()
-    print(f"  {len(rows)} rows with _processed=FALSE\n")
+    today = date.today().isoformat()
+    print(
+        f"Querying BigQuery for unscheduled participants (skipping {today})..."
+    )
+    rows = get_unscheduled(skip_today=True)
+    print(
+        f"  {len(rows)} rows with _processed=FALSE and selected_date > today\n"
+    )
 
     if not rows:
         print("Nothing to do.")
