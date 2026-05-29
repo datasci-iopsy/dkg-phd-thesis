@@ -69,7 +69,7 @@ Schema changes (followup): `models/followup.py` → `bq_schemas.py` → `followu
 ## Workflow
 
 - Use Plan mode for complex or multi-file tasks; break large changes into reviewable chunks
-- **Task branches**: for Claude-driven work, create a short-lived branch off the current branch (e.g., `main--claude-<topic>`), commit there, and let the user review the diff before merging
+- **Task branches**: for Claude-driven work, create a `claude/<topic>` branch off the current branch, commit there, and let the user review the diff before merging
 - Deploy commands (`manage_functions.py deploy`, `manage_infra.py`, `manage_gateway.py`, `manage_pubsub.py`, `manage_compute.py`) require explicit user confirmation — never run autonomously
 - **Worktrees**: still valid when Claude needs to work in parallel while the user is actively editing; never run deploy commands from a worktree
 
