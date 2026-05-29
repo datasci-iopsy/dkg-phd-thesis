@@ -4,7 +4,7 @@ Formats SurveyDefinition objects for human review. No I/O side effects;
 callers decide where output goes.
 """
 
-from .client import SurveyDefinition
+from client import SurveyDefinition
 
 SEPARATOR = "-" * 72
 
