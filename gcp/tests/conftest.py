@@ -61,3 +61,9 @@ if _fn_followup_response_dir not in sys.path:
     # run_followup_scheduling/main.py (same filename, different dir).
     # Unique modules like models.followup are still found at the end.
     sys.path.append(_fn_followup_response_dir)
+
+_fn_dashboard_export_dir = str(
+    _tests_dir.parent / "cloud_run_functions" / "run_dashboard_export"
+)
+if _fn_dashboard_export_dir not in sys.path:
+    sys.path.append(_fn_dashboard_export_dir)
