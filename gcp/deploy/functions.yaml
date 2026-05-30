@@ -98,6 +98,12 @@ functions:
       roles:
         - roles/bigquery.dataViewer
         - roles/bigquery.jobUser
+    # Note: dkg-fn-dashboard-export also requires secret-level access to
+    # dkg-netlify-api-key. This is granted via secret IAM binding, not a
+    # project role. If redeploying from scratch, run:
+    #   gcloud secrets add-iam-policy-binding dkg-netlify-api-key \
+    #     --member=serviceAccount:dkg-fn-dashboard-export@dkg-phd-thesis.iam.gserviceaccount.com \
+    #     --role=roles/secretmanager.secretAccessor --project=dkg-phd-thesis
 
   # -- Future functions ----------------------------------------------
   # run-twilio-handler:

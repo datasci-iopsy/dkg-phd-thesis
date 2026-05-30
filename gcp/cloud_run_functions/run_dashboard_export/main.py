@@ -166,7 +166,8 @@ def _deploy_to_netlify(data: dict) -> None:
         KeyError: If NETLIFY_API_KEY env var is not set.
     """
     token = os.environ["NETLIFY_API_KEY"]
-    assert config.netlify is not None
+    if config.netlify is None:
+        raise RuntimeError("netlify config section missing from gcp_utils.yaml")
     site_id = config.netlify.site_id
 
     headers_auth = {"Authorization": f"Bearer {token}"}
