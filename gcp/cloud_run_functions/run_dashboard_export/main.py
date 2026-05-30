@@ -165,7 +165,7 @@ def _deploy_to_netlify(data: dict) -> None:
         requests.HTTPError: If any Netlify API call fails.
         KeyError: If NETLIFY_API_KEY env var is not set.
     """
-    token = os.environ["NETLIFY_API_KEY"]
+    token = os.environ["NETLIFY_API_KEY"].strip()
     if config.netlify is None:
         raise RuntimeError("netlify config section missing from gcp_utils.yaml")
     site_id = config.netlify.site_id
