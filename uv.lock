@@ -321,6 +321,12 @@ dev = [
     { name = "scipy" },
     { name = "shandy-sqlfmt", extra = ["jinjafmt"] },
 ]
+fn-dashboard-export = [
+    { name = "functions-framework" },
+    { name = "google-cloud-bigquery" },
+    { name = "google-cloud-bigquery-storage" },
+    { name = "google-cloud-storage" },
+]
 fn-followup-response = [
     { name = "cryptography" },
     { name = "functions-framework" },
@@ -377,6 +383,12 @@ dev = [
     { name = "ruff", specifier = "==0.15.0" },
     { name = "scipy", specifier = "==1.15.3" },
     { name = "shandy-sqlfmt", extras = ["jinjafmt"], specifier = ">=0.29.0" },
+]
+fn-dashboard-export = [
+    { name = "functions-framework", specifier = ">=3.10.0" },
+    { name = "google-cloud-bigquery", specifier = "==3.39.0" },
+    { name = "google-cloud-bigquery-storage", specifier = ">=2.36.0" },
+    { name = "google-cloud-storage", specifier = ">=2.19.0" },
 ]
 fn-followup-response = [
     { name = "cryptography", specifier = ">=43" },
@@ -576,6 +588,23 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/50/89/558c48382d6875335ea6cd7f6409acfbf256b9f7fbc2ad1c19976aabdb1f/google_cloud_pubsub-2.37.0.tar.gz", hash = "sha256:7c5ba9beb5236e2b83c091dd6171423dc7d6d0e989391bd09f60dbd242b29f10", size = 403391, upload-time = "2026-04-10T00:41:17.799Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/64/f1/bb7162ec50971b1d252e6837d05f64f185d5cfe4e08de8f706e363c305d9/google_cloud_pubsub-2.37.0-py3-none-any.whl", hash = "sha256:dd912422cf66e4ffb423b0d5391ca81bdfa408eb0f21f57adecdb6fb3b1e0bb1", size = 325136, upload-time = "2026-04-10T00:41:01.391Z" },
+]
+
+[[package]]
+name = "google-cloud-storage"
+version = "3.10.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "google-api-core" },
+    { name = "google-auth" },
+    { name = "google-cloud-core" },
+    { name = "google-crc32c" },
+    { name = "google-resumable-media" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/4c/47/205eb8e9a1739b5345843e5a425775cbdc472cc38e7eda082ba5b8d02450/google_cloud_storage-3.10.1.tar.gz", hash = "sha256:97db9aa4460727982040edd2bd13ff3d5e2260b5331ad22895802da1fc2a5286", size = 17309950, upload-time = "2026-03-23T09:35:23.409Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ad/ff/ca9ab2417fa913d75aae38bf40bf856bb2749a604b2e0f701b37cfcd23cc/google_cloud_storage-3.10.1-py3-none-any.whl", hash = "sha256:a72f656759b7b99bda700f901adcb3425a828d4a29f911bc26b3ea79c5b1217f", size = 324453, upload-time = "2026-03-23T09:35:21.368Z" },
 ]
 
 [[package]]

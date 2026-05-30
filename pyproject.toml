@@ -54,6 +54,12 @@ fn-followup-response = [
     "google-cloud-bigquery==3.39.0",
     "google-cloud-bigquery-storage>=2.36.0",
 ]
+fn-dashboard-export = [
+    "functions-framework>=3.10.0",
+    "google-cloud-bigquery==3.39.0",
+    "google-cloud-bigquery-storage>=2.36.0",
+    "google-cloud-storage>=2.19.0",
+]
 dev = [
     "cryptography>=43",
     "pytest>=9.0.2",
