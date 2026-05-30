@@ -1,10 +1,11 @@
 # ================================================================
-# GCP, BigQuery, and Storage settings for the dashboard export
+# GCP, BigQuery, and Netlify settings for the dashboard export
 # function (run-dashboard-export)
 # ================================================================
 # Triggered by Cloud Scheduler (hourly). Queries intake enrollment
-# and per-wave follow-up response rates, then writes data.json to
-# a public Cloud Storage bucket for the Netlify dashboard to fetch.
+# and per-wave follow-up response rates, then deploys data.json to
+# the Netlify site via the Netlify Deploy API.
+# Auth token is injected via NETLIFY_API_KEY env var (Secret Manager).
 # ================================================================
 
 gcp:
@@ -21,6 +22,5 @@ bq:
     followup_clean: "int_followup_responses_scored"
     scheduled_followups: "scheduled_followups"
 
-storage:
-  bucket: "dkg-thesis-dashboard"
-  object_name: "data.json"
+netlify:
+  site_id: "de1a02c0-802a-4da9-97a0-00131aff6b02"

@@ -58,7 +58,7 @@ fn-dashboard-export = [
     "functions-framework>=3.10.0",
     "google-cloud-bigquery==3.39.0",
     "google-cloud-bigquery-storage>=2.36.0",
-    "google-cloud-storage>=2.19.0",
+    "requests>=2.33.1",
 ]
 dev = [
     "cryptography>=43",
