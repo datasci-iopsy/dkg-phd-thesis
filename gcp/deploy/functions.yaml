@@ -90,13 +90,14 @@ functions:
     entry_point: dashboard_export_handler
     trigger: http
     allow_unauthenticated: false
+    secrets:
+      - NETLIFY_API_KEY=dkg-netlify-api-key:latest
     service_account:
       name: dkg-fn-dashboard-export
       display_name: "Cloud Run -- Dashboard Export Function"
       roles:
         - roles/bigquery.dataViewer
         - roles/bigquery.jobUser
-        - roles/storage.objectAdmin
 
   # -- Future functions ----------------------------------------------
   # run-twilio-handler:

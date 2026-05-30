@@ -1,20 +1,28 @@
 """Cloud Function entry point for dashboard data export.
 
 Queries BigQuery for current study metrics (enrollment count and
-per-wave follow-up response rates) and writes a JSON snapshot to
-Cloud Storage for the public Netlify dashboard to consume.
+per-wave follow-up response rates) and deploys a fresh data.json to
+the Netlify site via the Netlify Deploy API.
+
+The site/ subdirectory is bundled with this function and contains
+the static assets (index.html, netlify.toml). On each invocation,
+a full Netlify deploy is created; only data.json changes each run --
+the static files are served from Netlify's CDN cache by SHA1.
 
 Trigger: HTTP (called by Cloud Scheduler, hourly).
 """
 
+import hashlib
 import json
 import logging
+import os
 from datetime import UTC, datetime
 from pathlib import Path
 
 import functions_framework
+import requests
 from flask import Request, Response, jsonify
-from google.cloud import bigquery, storage
+from google.cloud import bigquery
 from shared.utils.config_loader import load_config
 
 logging.basicConfig(
@@ -25,6 +33,9 @@ logger = logging.getLogger(__name__)
 
 _config_path = Path(__file__).resolve().parent / "configs"
 config = load_config(_config_path)
+
+_SITE_DIR = Path(__file__).resolve().parent / "site"
+_NETLIFY_API = "https://api.netlify.com/api/v1"
 
 _WAVE_LABELS: dict[int, str] = {
     1: "Morning (9 AM)",
@@ -64,7 +75,7 @@ ORDER BY s.wave
 
 @functions_framework.http
 def dashboard_export_handler(request: Request) -> tuple[Response, int]:
-    """Export aggregate study metrics to Cloud Storage.
+    """Export aggregate study metrics to the Netlify dashboard site.
 
     Args:
         request: Flask request object from Cloud Scheduler.
@@ -74,9 +85,9 @@ def dashboard_export_handler(request: Request) -> tuple[Response, int]:
     """
     try:
         data = _build_export_data()
-        _write_to_gcs(data)
+        _deploy_to_netlify(data)
         logger.info(
-            "Dashboard export complete: %d enrolled, %d wave(s) exported",
+            "Dashboard export complete: %d enrolled, %d wave(s) deployed",
             data["enrollment"]["total"],
             len(data["response_rates"]),
         )
@@ -140,23 +151,76 @@ def _build_export_data() -> dict:
     }
 
 
-def _write_to_gcs(data: dict) -> None:
-    """Write the export payload as JSON to Cloud Storage.
+def _deploy_to_netlify(data: dict) -> None:
+    """Deploy updated data.json to the Netlify site via the Deploy API.
+
+    Builds a full deploy manifest from site/ static assets plus the
+    freshly generated data.json. Netlify serves static files from its
+    CDN by SHA1; only data.json is uploaded on each invocation.
 
     Args:
-        data: Dashboard payload dict to serialize and upload.
+        data: Dashboard payload dict to serialize as data.json.
+
+    Raises:
+        requests.HTTPError: If any Netlify API call fails.
+        KeyError: If NETLIFY_API_KEY env var is not set.
     """
-    assert config.storage is not None
-    gcs = storage.Client(project=config.gcp.project_id)
-    bucket = gcs.bucket(config.storage.bucket)
-    blob = bucket.blob(config.storage.object_name)
-    blob.cache_control = "no-cache, max-age=0"
-    blob.upload_from_string(
-        json.dumps(data, indent=2),
-        content_type="application/json",
+    token = os.environ["NETLIFY_API_KEY"]
+    assert config.netlify is not None
+    site_id = config.netlify.site_id
+
+    headers_auth = {"Authorization": f"Bearer {token}"}
+
+    # Build file manifest: static assets + data.json
+    file_contents: dict[str, bytes] = {}
+    for static_file in _SITE_DIR.iterdir():
+        if static_file.is_file():
+            file_contents[f"/{static_file.name}"] = static_file.read_bytes()
+
+    data_bytes = json.dumps(data, indent=2).encode()
+    file_contents["/data.json"] = data_bytes
+
+    manifest = {
+        path: hashlib.sha1(content).hexdigest()
+        for path, content in file_contents.items()
+    }
+
+    # Create deploy
+    resp = requests.post(
+        f"{_NETLIFY_API}/sites/{site_id}/deploys",
+        headers={**headers_auth, "Content-Type": "application/json"},
+        json={"files": manifest},
+        timeout=30,
     )
+    resp.raise_for_status()
+    deploy = resp.json()
+    deploy_id = deploy["id"]
+    required = set(deploy.get("required", []))
+
     logger.info(
-        "Wrote dashboard data to gs://%s/%s",
-        config.storage.bucket,
-        config.storage.object_name,
+        "Netlify deploy %s created; %d file(s) to upload",
+        deploy_id,
+        len(required),
     )
+
+    # Upload only the files Netlify doesn't already have cached
+    for file_path in required:
+        norm = file_path if file_path.startswith("/") else f"/{file_path}"
+        content = file_contents.get(norm)
+        if content is None:
+            raise KeyError(
+                f"Netlify requested file not in manifest: {file_path}"
+            )
+        upload = requests.put(
+            f"{_NETLIFY_API}/deploys/{deploy_id}/files{norm}",
+            headers={
+                **headers_auth,
+                "Content-Type": "application/octet-stream",
+            },
+            data=content,
+            timeout=30,
+        )
+        upload.raise_for_status()
+        logger.info("Uploaded %s to deploy %s", norm, deploy_id)
+
+    logger.info("Netlify deploy %s complete for site %s", deploy_id, site_id)

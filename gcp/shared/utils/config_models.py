@@ -164,14 +164,10 @@ class FollowupSurveysConfig(BaseModel):
     )
 
 
-class StorageConfig(BaseModel):
-    """Cloud Storage settings for dashboard data export."""
+class NetlifyConfig(BaseModel):
+    """Netlify site settings for dashboard deploy."""
 
-    bucket: str = Field(..., description="GCS bucket name for dashboard JSON")
-    object_name: str = Field(
-        default="data.json",
-        description="Object name within the bucket",
-    )
+    site_id: str = Field(..., description="Netlify site ID")
 
 
 class AppConfig(BaseModel):
@@ -190,7 +186,7 @@ class AppConfig(BaseModel):
         config.qualtrics.base_url   # only if qualtrics config present
         config.pubsub.topic_id      # only if pubsub config present
         config.followup_surveys     # only if followup config present
-        config.storage.bucket       # only if storage config present
+        config.netlify.site_id      # only if netlify config present
     """
 
     gcp: GCPConfig
@@ -199,4 +195,4 @@ class AppConfig(BaseModel):
     qualtrics: QualtricsConfig | None = None
     pubsub: PubSubConfig | None = None
     followup_surveys: FollowupSurveysConfig | None = None
-    storage: StorageConfig | None = None
+    netlify: NetlifyConfig | None = None

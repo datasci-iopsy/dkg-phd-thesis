@@ -21,6 +21,5 @@ bq:
     followup_clean: "int_followup_responses_scored"
     scheduled_followups: "scheduled_followups"
 
-storage:
-  bucket: "dkg-thesis-dashboard"
-  object_name: "data.json"
+netlify:
+  site_id: "de1a02c0-802a-4da9-97a0-00131aff6b02"

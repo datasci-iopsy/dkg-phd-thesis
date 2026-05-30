@@ -50,7 +50,6 @@ google-api-core==2.30.3
     #   google-cloud-bigquery-storage
     #   google-cloud-core
     #   google-cloud-pubsub
-    #   google-cloud-storage
 google-auth==2.49.2
     # via
     #   google-api-core
@@ -58,23 +57,15 @@ google-auth==2.49.2
     #   google-cloud-bigquery-storage
     #   google-cloud-core
     #   google-cloud-pubsub
-    #   google-cloud-storage
 google-cloud-bigquery==3.39.0
 google-cloud-bigquery-storage==2.37.0
 google-cloud-core==2.5.1
-    # via
-    #   google-cloud-bigquery
-    #   google-cloud-storage
+    # via google-cloud-bigquery
 google-cloud-pubsub==2.37.0
-google-cloud-storage==3.10.1
 google-crc32c==1.8.0
-    # via
-    #   google-cloud-storage
-    #   google-resumable-media
+    # via google-resumable-media
 google-resumable-media==2.8.2
-    # via
-    #   google-cloud-bigquery
-    #   google-cloud-storage
+    # via google-cloud-bigquery
 googleapis-common-protos==1.74.0
     # via
     #   google-api-core
@@ -178,7 +169,6 @@ requests==2.33.1
     # via
     #   google-api-core
     #   google-cloud-bigquery
-    #   google-cloud-storage
     #   twilio
 six==1.17.0
     # via python-dateutil
