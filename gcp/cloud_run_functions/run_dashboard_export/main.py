@@ -204,24 +204,24 @@ def _deploy_to_netlify(data: dict) -> None:
         len(required),
     )
 
+    # Netlify returns required as SHA1 hashes; build reverse map to look up path
+    hash_to_path = {sha: path for path, sha in manifest.items()}
+
     # Upload only the files Netlify doesn't already have cached
-    for file_path in required:
-        norm = file_path if file_path.startswith("/") else f"/{file_path}"
-        content = file_contents.get(norm)
-        if content is None:
-            raise KeyError(
-                f"Netlify requested file not in manifest: {file_path}"
-            )
+    for sha in required:
+        path = hash_to_path.get(sha)
+        if path is None:
+            raise KeyError(f"Netlify requested file not in manifest: {sha}")
         upload = requests.put(
-            f"{_NETLIFY_API}/deploys/{deploy_id}/files{norm}",
+            f"{_NETLIFY_API}/deploys/{deploy_id}/files{path}",
             headers={
                 **headers_auth,
                 "Content-Type": "application/octet-stream",
             },
-            data=content,
+            data=file_contents[path],
             timeout=30,
         )
         upload.raise_for_status()
-        logger.info("Uploaded %s to deploy %s", norm, deploy_id)
+        logger.info("Uploaded %s to deploy %s", path, deploy_id)
 
     logger.info("Netlify deploy %s complete for site %s", deploy_id, site_id)
