@@ -20,6 +20,7 @@ Usage from project root:
     uv run pytest gcp/tests/test_dashboard_export.py -v
 """
 
+import hashlib
 import importlib.util
 import json
 import os
@@ -219,7 +220,11 @@ class TestDeployToNetlify:
         assert "/netlify.toml" in manifest
 
     def test_uploads_only_required_files(self):
-        mock_requests = _make_netlify_mock(required=["/data.json"])
+        # Netlify required array contains SHA1 hashes, not paths
+        data_sha = hashlib.sha1(
+            json.dumps(self._payload, indent=2).encode()
+        ).hexdigest()
+        mock_requests = _make_netlify_mock(required=[data_sha])
         with patch.dict(os.environ, {"NETLIFY_API_KEY": _TOKEN}):
             with patch("requests.post", mock_requests.post):
                 with patch("requests.put", mock_requests.put):
@@ -239,7 +244,8 @@ class TestDeployToNetlify:
         mock_requests.put.assert_not_called()
 
     def test_raises_on_unknown_required_file(self):
-        mock_requests = _make_netlify_mock(required=["/unknown.txt"])
+        # A hash that won't match any file in the manifest
+        mock_requests = _make_netlify_mock(required=["a" * 40])
         with patch.dict(os.environ, {"NETLIFY_API_KEY": _TOKEN}):
             with patch("requests.post", mock_requests.post):
                 with patch("requests.put", mock_requests.put):
@@ -247,8 +253,11 @@ class TestDeployToNetlify:
                         _deploy_to_netlify(self._payload)
 
     def test_data_json_upload_is_valid_json(self):
-        mock_requests = _make_netlify_mock(required=["/data.json"])
         payload = {"enrollment": {"total": 42}, "response_rates": []}
+        data_sha = hashlib.sha1(
+            json.dumps(payload, indent=2).encode()
+        ).hexdigest()
+        mock_requests = _make_netlify_mock(required=[data_sha])
         with patch.dict(os.environ, {"NETLIFY_API_KEY": _TOKEN}):
             with patch("requests.post", mock_requests.post):
                 with patch("requests.put", mock_requests.put):
