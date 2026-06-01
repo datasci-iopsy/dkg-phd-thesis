@@ -59,6 +59,10 @@ class IntakeProcessedMessage(BaseModel):
             "Set by manage_gateway.py test --now for rapid end-to-end testing."
         ),
     )
+    work_shift: str | None = Field(
+        default=None,
+        description="Selected work shift label; routes fn3 scheduling times.",
+    )
 
 
 class FollowupSchedulingMessage(BaseModel):
@@ -93,6 +97,10 @@ class FollowupSchedulingMessage(BaseModel):
             "now+16/32/48 min instead of fixed study times. Forwarded "
             "from IntakeProcessedMessage."
         ),
+    )
+    work_shift: str | None = Field(
+        default=None,
+        description="Selected work shift label; routes fn3 scheduling times.",
     )
 
 

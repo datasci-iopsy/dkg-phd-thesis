@@ -114,6 +114,7 @@ def qualtrics_webhook_handler(request: Request):
             selected_date=participant.selected_date.isoformat(),
             timezone=participant.timezone,
             send_immediately=send_immediately,
+            work_shift=participant.work_shift,
         )
 
         message_id = publish_intake_processed(message, config)
