@@ -456,7 +456,7 @@ def followup_scheduling_handler(cloud_event: CloudEvent) -> None:
     try:
         followup_times = get_followup_times(message.work_shift)
     except KeyError:
-        logger.error(
+        logger.exception(
             "Unknown work_shift '%s' for response %s -- "
             "acknowledging to prevent infinite retry",
             message.work_shift,
