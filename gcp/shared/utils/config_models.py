@@ -197,7 +197,7 @@ class ShiftTimesConfig(BaseModel):
                 except ValueError:
                     raise ValueError(
                         f"shift '{key}' time '{t}' is not a valid HH:MM time"
-                    )
+                    ) from None
         return v
 
     @model_validator(mode="after")
