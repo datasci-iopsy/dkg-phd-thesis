@@ -282,7 +282,7 @@ INSERT INTO `{BQ_PROJECT}.{BQ_DATASET}.scheduled_followups`
    twilio_message_sid, send_at_utc, survey_url, _scheduled, _created_at)
 VALUES
   ('{rid}', NULL, '{phone_enc}', '{participant["selected_date"]}',
-   '{participant["timezone"]}', '{slot}', '{new_sid}',
+   '{participant["timezone"]}', {slot}, '{new_sid}',
    '{send_at_str}', '{url}',
    TRUE, CURRENT_TIMESTAMP())
 """
