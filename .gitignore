@@ -1,6 +1,7 @@
 # config files and directories
 .vscode/
 .claude/
+tasks/
 
 # environment files and directories
 .env

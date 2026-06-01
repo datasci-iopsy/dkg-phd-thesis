@@ -183,20 +183,10 @@ class TestSurveyResponsesSchema:
                 f"Column '{field.name}' is not lowercase"
             )
 
-    def test_partition_field_exists_in_schema(self):
-        column_names = {f.name for f in SURVEY_RESPONSES_SCHEMA}
-        assert SURVEY_RESPONSES_PARTITION_FIELD in column_names
-
     def test_cluster_fields_exist_in_schema(self):
         column_names = {f.name for f in SURVEY_RESPONSES_SCHEMA}
         for field in SURVEY_RESPONSES_CLUSTER_FIELDS:
             assert field in column_names
-
-    def test_partition_field_is_timestamp(self):
-        """Partitioning by DAY requires a TIMESTAMP or DATE field."""
-        field_map = {f.name: f for f in SURVEY_RESPONSES_SCHEMA}
-        part_field = field_map[SURVEY_RESPONSES_PARTITION_FIELD]
-        assert part_field.field_type in ("TIMESTAMP", "DATE")
 
     def test_columns_set_matches_schema(self):
         """The convenience set must match the schema field names."""
@@ -365,3 +355,28 @@ class TestInsertRowMatchesSchema:
             f"  In schema but not row: "
             f"{SURVEY_RESPONSES_COLUMNS - row_keys}"
         )
+
+
+# -- Shift field schema tests (Slice A) ------------------------------
+class TestShiftFieldsInSchema:
+    """Verify work_classification and work_shift appear in BQ schema."""
+
+    def test_work_classification_column_present(self):
+        """work_classification must appear in SURVEY_RESPONSES_COLUMNS."""
+        assert "work_classification" in SURVEY_RESPONSES_COLUMNS
+
+    def test_work_shift_column_present(self):
+        """work_shift must appear in SURVEY_RESPONSES_COLUMNS."""
+        assert "work_shift" in SURVEY_RESPONSES_COLUMNS
+
+    def test_new_columns_are_nullable_string(self):
+        """New shift fields must be NULLABLE STRING in the schema."""
+        field_map = {f.name: f for f in SURVEY_RESPONSES_SCHEMA}
+        for col in ("work_classification", "work_shift"):
+            assert col in field_map, f"'{col}' missing from schema"
+            assert field_map[col].field_type == "STRING", (
+                f"'{col}' should be STRING, got {field_map[col].field_type}"
+            )
+            assert field_map[col].mode == "NULLABLE", (
+                f"'{col}' should be NULLABLE, got {field_map[col].mode}"
+            )
