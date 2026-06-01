@@ -7,7 +7,7 @@ Each model maps 1:1 to a top-level key in the merged config.
 
 from __future__ import annotations
 
-import re
+from datetime import time
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -186,21 +186,22 @@ class ShiftTimesConfig(BaseModel):
     @field_validator("shifts")
     @classmethod
     def validate_shifts(cls, v: dict[str, list[str]]) -> dict[str, list[str]]:
-        hhmm = re.compile(r"^\d{2}:\d{2}$")
         for key, times in v.items():
             if len(times) != 3:
                 raise ValueError(
                     f"shift '{key}' must have exactly 3 times, got {len(times)}"
                 )
             for t in times:
-                if not hhmm.match(t):
+                try:
+                    time.fromisoformat(t)
+                except ValueError:
                     raise ValueError(
-                        f"shift '{key}' time '{t}' must match HH:MM"
+                        f"shift '{key}' time '{t}' is not a valid HH:MM time"
                     )
         return v
 
     @model_validator(mode="after")
-    def default_shift_in_shifts(self) -> "ShiftTimesConfig":
+    def default_shift_in_shifts(self) -> ShiftTimesConfig:
         if self.default_shift not in self.shifts:
             raise ValueError(
                 f"default_shift '{self.default_shift}' not in shifts keys"

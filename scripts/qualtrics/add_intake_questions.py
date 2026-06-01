@@ -1,7 +1,7 @@
 """Add work classification and work shift questions to the intake survey draft.
 
-Run once to create the questions and print their QIDs. Update
-QID_PLACEHOLDER_WC and QID_PLACEHOLDER_WS in
+Run once to create the questions and print their server-assigned QIDs. Update
+the corresponding entries in QID_MAP in
 gcp/cloud_run_functions/run_qualtrics_scheduling/models/qualtrics.py
 with the values printed below.
 
@@ -35,8 +35,8 @@ logger = logging.getLogger(__name__)
 def main() -> None:
     try:
         cfg = ScriptConfig()
-    except Exception as e:
-        logger.error("Configuration error: %s", e)
+    except Exception:
+        logger.exception("Configuration error")
         sys.exit(1)
 
     logger.info("Adding %d questions to intake survey", len(INTAKE_ADDITIONS))
@@ -57,9 +57,9 @@ def main() -> None:
                 qid,
                 addition.description,
             )
-        except Exception as e:
-            logger.error(
-                "FAILED %s/%s: %s", addition.survey_id, addition.field_name, e
+        except Exception:
+            logger.exception(
+                "FAILED %s/%s", addition.survey_id, addition.field_name
             )
             sys.exit(1)
 

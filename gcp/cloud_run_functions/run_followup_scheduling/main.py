@@ -93,8 +93,8 @@ def get_followup_times(work_shift: str | None) -> list[time]:
 
     Raises:
         RuntimeError: If shift_times is absent from the fn3 config.
-        KeyError: If work_shift is not in config.shift_times.shifts.
-            Pub/Sub will retry -- no SMS is scheduled for bad shift data.
+        KeyError: If work_shift is not in config.shift_times.shifts;
+            callers should catch this and acknowledge to prevent retry loops.
     """
     if config.shift_times is None:
         raise RuntimeError("shift_times missing from fn3 config")
@@ -453,7 +453,16 @@ def followup_scheduling_handler(cloud_event: CloudEvent) -> None:
     survey_ids = config.followup_surveys.survey_ids
     sms_template = config.followup_surveys.sms_template
 
-    followup_times = get_followup_times(message.work_shift)
+    try:
+        followup_times = get_followup_times(message.work_shift)
+    except KeyError:
+        logger.error(
+            "Unknown work_shift '%s' for response %s -- "
+            "acknowledging to prevent infinite retry",
+            message.work_shift,
+            message.response_id,
+        )
+        return
     scheduled_records: list[dict] = []
     for i, (survey_time, survey_id) in enumerate(
         zip(followup_times, survey_ids, strict=True)
