@@ -40,6 +40,7 @@ class ParticipantData(BaseModel):
     selected_date: date
     timezone: str = Field(..., min_length=1)
     consent_given: bool
+    work_shift: str | None = Field(default=None)
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     @field_validator("connect_id", mode="before")

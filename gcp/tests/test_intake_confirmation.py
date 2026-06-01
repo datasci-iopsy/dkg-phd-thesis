@@ -14,7 +14,9 @@ module cache returning the wrong one, we load intake's main.py
 explicitly via importlib under the alias `intake_main`.
 """
 
+import base64
 import importlib.util
+import json
 import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -91,3 +93,142 @@ class TestSendSms:
             result = intake_main.send_sms("+18777804236", "Test body")
 
             assert result is False
+
+
+# -- format_sms_body tests (Slice B) ---------------------------------
+class TestFormatSmsBody:
+    """Verify format_sms_body uses generic shift language with no
+    hardcoded survey times.
+    """
+
+    def test_none_work_shift_uses_generic_language(self):
+        """work_shift=None -> 'your work day' phrasing."""
+        from datetime import date
+
+        body = intake_main.format_sms_body(date(2026, 6, 1), "US/Central", None)
+        assert "your work day" in body
+
+    def test_none_work_shift_has_no_hardcoded_times(self):
+        """Legacy path must not expose hardcoded time strings."""
+        from datetime import date
+
+        body = intake_main.format_sms_body(date(2026, 6, 1), "US/Central", None)
+        assert "9:00" not in body
+        assert "1:00" not in body
+        assert "5:00" not in body
+
+    def test_first_shift_label_in_body(self):
+        """work_shift='first_shift' -> 'First Shift' in body."""
+        from datetime import date
+
+        body = intake_main.format_sms_body(
+            date(2026, 6, 1), "US/Central", "first_shift"
+        )
+        assert "First Shift" in body
+
+    def test_body_includes_selected_date(self):
+        """Participant's selected date must appear in the confirmation."""
+        from datetime import date
+
+        body = intake_main.format_sms_body(
+            date(2026, 6, 1), "US/Central", "first_shift"
+        )
+        assert "June 01, 2026" in body
+
+
+# -- Work shift forwarding tests (Slice A) ---------------------------
+_FAR_FUTURE_DATE = "2099-06-01"
+
+
+class TestWorkShiftForwarding:
+    """work_shift from IntakeProcessedMessage must arrive unchanged in
+    the FollowupSchedulingMessage published by fn2's handler.
+    """
+
+    def _make_cloud_event(self, message_data: dict) -> MagicMock:
+        encoded = base64.b64encode(json.dumps(message_data).encode()).decode()
+        event = MagicMock()
+        event.data = {"message": {"data": encoded}}
+        return event
+
+    @patch("intake_main.publish_followup_scheduling", return_value="msg_123")
+    @patch("intake_main.update_processed_flag", return_value=True)
+    @patch("intake_main.send_sms", return_value=True)
+    @patch("intake_main.is_already_processed", return_value=False)
+    @patch("intake_main.decrypt_phone", return_value="+18777804236")
+    @patch("intake_main.bigquery.Client")
+    @patch("intake_main.config")
+    def test_work_shift_forwarded_to_followup_message(
+        self,
+        mock_config,
+        mock_bq,
+        mock_decrypt,
+        mock_processed,
+        mock_sms,
+        mock_update,
+        mock_publish,
+    ):
+        """work_shift='first_shift' from intake message appears in
+        the FollowupSchedulingMessage passed to publish_followup_scheduling.
+        """
+        from shared.utils.pubsub_utils import FollowupSchedulingMessage
+        from shared.utils.crypto_utils import encrypt_phone
+
+        encrypted = encrypt_phone("+18777804236")
+        event = self._make_cloud_event(
+            {
+                "response_id": "R_shift_fwd_test",
+                "phone": encrypted,
+                "selected_date": _FAR_FUTURE_DATE,
+                "timezone": "US/Central",
+                "work_shift": "first_shift",
+            }
+        )
+
+        intake_main.intake_confirmation_handler(event)
+
+        mock_publish.assert_called_once()
+        published_msg = mock_publish.call_args[0][0]
+        assert isinstance(published_msg, FollowupSchedulingMessage)
+        assert published_msg.work_shift == "first_shift"
+
+    @patch("intake_main.publish_followup_scheduling", return_value="msg_456")
+    @patch("intake_main.update_processed_flag", return_value=True)
+    @patch("intake_main.send_sms", return_value=True)
+    @patch("intake_main.is_already_processed", return_value=False)
+    @patch("intake_main.decrypt_phone", return_value="+18777804236")
+    @patch("intake_main.bigquery.Client")
+    @patch("intake_main.config")
+    def test_work_shift_none_forwarded(
+        self,
+        mock_config,
+        mock_bq,
+        mock_decrypt,
+        mock_processed,
+        mock_sms,
+        mock_update,
+        mock_publish,
+    ):
+        """None work_shift (existing participant path) also forwards
+        without error.
+        """
+        from shared.utils.pubsub_utils import FollowupSchedulingMessage
+        from shared.utils.crypto_utils import encrypt_phone
+
+        encrypted = encrypt_phone("+18777804236")
+        event = self._make_cloud_event(
+            {
+                "response_id": "R_none_shift_test",
+                "phone": encrypted,
+                "selected_date": _FAR_FUTURE_DATE,
+                "timezone": "US/Central",
+                # work_shift intentionally absent -> None
+            }
+        )
+
+        intake_main.intake_confirmation_handler(event)
+
+        mock_publish.assert_called_once()
+        published_msg = mock_publish.call_args[0][0]
+        assert isinstance(published_msg, FollowupSchedulingMessage)
+        assert published_msg.work_shift is None

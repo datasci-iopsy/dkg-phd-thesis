@@ -155,6 +155,7 @@ def extract_participant_data(
             selected_date=selected_date,
             timezone=payload.timezone,
             consent_given=True,
+            work_shift=payload.work_shift,
         )
 
         logger.info(

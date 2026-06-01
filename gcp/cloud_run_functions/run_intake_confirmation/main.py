@@ -28,7 +28,7 @@ import base64
 import json
 import logging
 import os
-from datetime import date, time
+from datetime import date
 from pathlib import Path
 
 import functions_framework
@@ -80,12 +80,6 @@ TWILIO_AUTH_TOKEN: str = _twilio_config.get("auth_token", "")
 TWILIO_MESSAGING_SERVICE_SID: str = _twilio_config.get(
     "messaging_service_sid", ""
 )
-
-# -- Follow-up schedule constants ------------------------------------
-# Fixed daily survey times matching ParticipantData.followup_times
-# in the scheduling function. Defined here to keep the confirmation
-# function self-contained without cross-function imports.
-FOLLOWUP_TIMES: list[time] = [time(9, 0), time(13, 0), time(17, 0)]
 
 
 # -- Helpers ---------------------------------------------------------
@@ -219,36 +213,27 @@ def update_processed_flag(client: bigquery.Client, response_id: str) -> bool:
         return False
 
 
-def format_sms_body(selected_date: date, timezone: str) -> str:
+def format_sms_body(
+    selected_date: date, timezone: str, work_shift: str | None
+) -> str:
     """Build the confirmation SMS message body.
-
-    Formats the participant's follow-up schedule into a concise
-    text message with their selected date and survey times.
 
     Args:
         selected_date: Participant's chosen follow-up date.
         timezone: IANA timezone label (e.g., US/Central).
+        work_shift: Selected shift label, or None for legacy participants.
 
     Returns:
         Formatted SMS body string.
     """
     date_str = selected_date.strftime("%B %d, %Y")
-
-    time_parts = []
-    for t in FOLLOWUP_TIMES:
-        hour = t.hour
-        period = "AM" if hour < 12 else "PM"
-        display_hour = hour if hour <= 12 else hour - 12
-        if display_hour == 0:
-            display_hour = 12
-        time_parts.append(f"{display_hour}:{t.minute:02d} {period}")
-
-    times_str = ", ".join(time_parts[:-1]) + f", and {time_parts[-1]}"
-
+    shift_label = (
+        work_shift.replace("_", " ").title() if work_shift else "your work day"
+    )
     return (
         f"Thank you for participating in our study! "
         f"We received your selected follow-up date: {date_str}. "
-        f"You will receive surveys at {times_str} ({timezone})."
+        f"You will receive three surveys during {shift_label} ({timezone})."
     )
 
 
@@ -364,7 +349,7 @@ def intake_confirmation_handler(cloud_event: CloudEvent) -> None:
 
     # Step 3: Send confirmation SMS
     selected_date = date.fromisoformat(message.selected_date)
-    body = format_sms_body(selected_date, message.timezone)
+    body = format_sms_body(selected_date, message.timezone, message.work_shift)
 
     sms_sent = send_sms(phone, body)
     if not sms_sent:
@@ -387,6 +372,7 @@ def intake_confirmation_handler(cloud_event: CloudEvent) -> None:
         selected_date=message.selected_date,
         timezone=message.timezone,
         send_immediately=message.send_immediately,
+        work_shift=message.work_shift,
     )
 
     followup_msg_id = publish_followup_scheduling(followup_message, config)

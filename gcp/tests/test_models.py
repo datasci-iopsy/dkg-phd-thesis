@@ -435,3 +435,71 @@ class TestExtractionPipeline:
                 timezone="US/Central",
                 consent_given=consent,
             )
+
+
+# -- Shift field plumbing tests (Slice A) ----------------------------
+class TestWorkShiftFields:
+    """Verify work_classification and work_shift flow through models."""
+
+    def test_web_service_payload_work_classification_defaults_to_none(self):
+        """Absent from legacy payloads -> None; backward compatible."""
+        payload = WebServicePayload(
+            response_id="R_legacy_001",
+            survey_id="SV_test",
+        )
+        assert payload.work_classification is None
+
+    def test_web_service_payload_work_shift_defaults_to_none(self):
+        """Absent from legacy payloads -> None; backward compatible."""
+        payload = WebServicePayload(
+            response_id="R_legacy_001",
+            survey_id="SV_test",
+        )
+        assert payload.work_shift is None
+
+    def test_web_service_payload_new_fields_populated_when_present(self):
+        """work_classification and work_shift populate when present."""
+        payload = WebServicePayload(
+            response_id="R_shift_001",
+            survey_id="SV_test",
+            work_classification="Employee - Full-Time",
+            work_shift="first_shift",
+        )
+        assert payload.work_classification == "Employee - Full-Time"
+        assert payload.work_shift == "first_shift"
+
+    def test_web_service_payload_new_fields_accept_uppercase_alias(self):
+        """WORK_SHIFT (Qualtrics uppercase key) is accepted via alias."""
+        payload = WebServicePayload.model_validate(
+            {
+                "RESPONSE_ID": "R_alias_test",
+                "SURVEY_ID": "SV_test",
+                "WORK_CLASSIFICATION": "Employee - Part-Time",
+                "WORK_SHIFT": "second_shift",
+            }
+        )
+        assert payload.work_classification == "Employee - Part-Time"
+        assert payload.work_shift == "second_shift"
+
+    def test_participant_data_work_shift_defaults_to_none(self):
+        """Existing participants have no shift -> defaults to None."""
+        p = ParticipantData(
+            response_id="R_existing",
+            phone=encrypt_phone("+18777804236"),
+            selected_date=date(2026, 6, 1),
+            timezone="US/Central",
+            consent_given=True,
+        )
+        assert p.work_shift is None
+
+    def test_participant_data_work_shift_set_for_new_participant(self):
+        """New participants with a selected shift carry it through."""
+        p = ParticipantData(
+            response_id="R_new_shift",
+            phone=encrypt_phone("+18777804236"),
+            selected_date=date(2026, 6, 1),
+            timezone="US/Central",
+            consent_given=True,
+            work_shift="first_shift",
+        )
+        assert p.work_shift == "first_shift"

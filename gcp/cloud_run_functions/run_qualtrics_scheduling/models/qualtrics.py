@@ -53,6 +53,9 @@ QID_MAP: dict[str, str] = {
     "phone": "QID42_TEXT",
     "timezone": "QID30",
     "selected_date": "QID29_TEXT",
+    # -- Worker classification & shift --------------------------------
+    "work_classification": "QID99",
+    "work_shift": "QID100",
     # -- Demographics ------------------------------------------------
     "age": "QID35_TEXT",
     "ethnicity": "QID36",
@@ -231,6 +234,14 @@ class WebServicePayload(BaseModel):
     selected_date: str | None = Field(
         default=None,
         description="Scheduling date as MM/DD/YYYY from Qualtrics",
+    )
+    work_classification: str | None = Field(
+        default=None,
+        description="DOL employment classification label from survey",
+    )
+    work_shift: str | None = Field(
+        default=None,
+        description="Selected work shift label (routes fn3 scheduling times)",
     )
     # -- Demographics ------------------------------------------------
     age: int | None = Field(
