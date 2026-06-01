@@ -76,14 +76,31 @@ TWILIO_MESSAGING_SERVICE_SID: str = _twilio_config.get(
     "messaging_service_sid", ""
 )
 
-# -- Follow-up schedule constants ------------------------------------
-# Fixed daily survey times matching ParticipantData.followup_times
-# in the scheduling function. Order must match config survey_ids.
-FOLLOWUP_TIMES: list[time] = [time(9, 0), time(13, 0), time(17, 0)]
-
 # Twilio requires send_at to be 15–35 days in the future.
 # Use 16 min as a buffer so we never hit the boundary.
 MIN_SCHEDULE_LEAD = timedelta(minutes=16)
+
+
+def get_followup_times(work_shift: str | None) -> list[time]:
+    """Return the three delivery times for a participant's work shift.
+
+    Args:
+        work_shift: Shift label from the intake survey (e.g. 'first_shift'),
+            or None for existing participants who predate the shift question.
+
+    Returns:
+        List of three time objects in the participant's local timezone.
+
+    Raises:
+        RuntimeError: If shift_times is absent from the fn3 config.
+        KeyError: If work_shift is not in config.shift_times.shifts.
+            Pub/Sub will retry -- no SMS is scheduled for bad shift data.
+    """
+    if config.shift_times is None:
+        raise RuntimeError("shift_times missing from fn3 config")
+    shift_key = work_shift or config.shift_times.default_shift
+    raw = config.shift_times.shifts[shift_key]
+    return [time.fromisoformat(t) for t in raw]
 
 
 # -- Helpers ---------------------------------------------------------
@@ -436,9 +453,10 @@ def followup_scheduling_handler(cloud_event: CloudEvent) -> None:
     survey_ids = config.followup_surveys.survey_ids
     sms_template = config.followup_surveys.sms_template
 
+    followup_times = get_followup_times(message.work_shift)
     scheduled_records: list[dict] = []
     for i, (survey_time, survey_id) in enumerate(
-        zip(FOLLOWUP_TIMES, survey_ids)
+        zip(followup_times, survey_ids, strict=True)
     ):
         slot_number = i + 1
 
