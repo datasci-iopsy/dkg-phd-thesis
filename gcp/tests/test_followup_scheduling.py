@@ -114,6 +114,151 @@ class TestIntakeProcessedMessageConnectId:
         assert msg.connect_id is None
 
 
+# -- Shift field Pub/Sub message tests (Slice A) ---------------------
+class TestWorkShiftOnPubSubMessages:
+    """Verify work_shift flows through both Pub/Sub message models."""
+
+    def test_followup_scheduling_message_work_shift_defaults_to_none(self):
+        """Absent field -> None; backward compat for in-flight messages."""
+        msg = FollowupSchedulingMessage(
+            response_id="R_abc123",
+            phone="+18777804236",
+            selected_date="2026-02-24",
+            timezone="US/Central",
+        )
+        assert msg.work_shift is None
+
+    def test_followup_scheduling_message_work_shift_populated(self):
+        """work_shift carries the selected shift label."""
+        msg = FollowupSchedulingMessage(
+            response_id="R_abc123",
+            phone="+18777804236",
+            selected_date="2026-02-24",
+            timezone="US/Central",
+            work_shift="first_shift",
+        )
+        assert msg.work_shift == "first_shift"
+
+    def test_followup_scheduling_message_backward_compat_deserialization(self):
+        """Old messages serialized without work_shift still parse."""
+        raw = {
+            "response_id": "R_abc123",
+            "phone": _ENCRYPTED_PHONE,
+            "selected_date": "2099-02-24",
+            "timezone": "US/Central",
+        }
+        msg = FollowupSchedulingMessage.model_validate(raw)
+        assert msg.work_shift is None
+
+    def test_followup_scheduling_message_work_shift_round_trips(self):
+        """work_shift survives model_dump -> model_validate."""
+        msg = FollowupSchedulingMessage(
+            response_id="R_abc123",
+            phone="+18777804236",
+            selected_date="2026-02-24",
+            timezone="US/Central",
+            work_shift="second_shift",
+        )
+        restored = FollowupSchedulingMessage.model_validate(msg.model_dump())
+        assert restored.work_shift == "second_shift"
+
+    def test_intake_processed_message_work_shift_defaults_to_none(self):
+        """IntakeProcessedMessage.work_shift defaults to None."""
+        msg = IntakeProcessedMessage(
+            response_id="R_abc123",
+            phone="+18777804236",
+            selected_date="2026-02-24",
+            timezone="US/Central",
+        )
+        assert msg.work_shift is None
+
+    def test_intake_processed_message_work_shift_populated(self):
+        """IntakeProcessedMessage.work_shift carries selected shift."""
+        msg = IntakeProcessedMessage(
+            response_id="R_abc123",
+            phone="+18777804236",
+            selected_date="2026-02-24",
+            timezone="US/Central",
+            work_shift="first_shift",
+        )
+        assert msg.work_shift == "first_shift"
+
+    def test_intake_processed_message_backward_compat_deserialization(self):
+        """Messages from before work_shift was added still parse."""
+        raw = {
+            "response_id": "R_abc123",
+            "phone": _ENCRYPTED_PHONE,
+            "selected_date": "2099-02-24",
+            "timezone": "US/Central",
+        }
+        msg = IntakeProcessedMessage.model_validate(raw)
+        assert msg.work_shift is None
+
+
+# -- Shift-based time lookup tests (Slice B) -------------------------
+class TestGetFollowupTimes:
+    """Verify get_followup_times() routes by work_shift with None fallback."""
+
+    @patch("main.config")
+    def test_none_work_shift_returns_default_shift_times(self, mock_config):
+        """None work_shift (existing participant) -> default_shift times."""
+        mock_config.shift_times.default_shift = "first_shift"
+        mock_config.shift_times.shifts = {
+            "first_shift": ["09:00", "13:00", "17:00"],
+        }
+        from main import get_followup_times
+
+        times = get_followup_times(None)
+        assert times == [time(9, 0), time(13, 0), time(17, 0)]
+
+    @patch("main.config")
+    def test_explicit_shift_returns_configured_times(self, mock_config):
+        """Explicit shift key returns the configured times for that shift."""
+        mock_config.shift_times.default_shift = "first_shift"
+        mock_config.shift_times.shifts = {
+            "first_shift": ["09:00", "13:00", "17:00"],
+            "second_shift": ["15:00", "19:00", "23:00"],
+        }
+        from main import get_followup_times
+
+        times = get_followup_times("second_shift")
+        assert times == [time(15, 0), time(19, 0), time(23, 0)]
+
+    @patch("main.config")
+    def test_unknown_shift_raises_key_error(self, mock_config):
+        """Unknown shift key raises KeyError -- no SMS, Pub/Sub retries."""
+        mock_config.shift_times.default_shift = "first_shift"
+        mock_config.shift_times.shifts = {
+            "first_shift": ["09:00", "13:00", "17:00"],
+        }
+        from main import get_followup_times
+
+        with pytest.raises(KeyError):
+            get_followup_times("nonexistent_shift")
+
+    @patch("main.config")
+    def test_none_shift_times_config_raises_runtime_error(self, mock_config):
+        """Missing shift_times config raises RuntimeError, not AttributeError."""
+        mock_config.shift_times = None
+        from main import get_followup_times
+
+        with pytest.raises(RuntimeError, match="shift_times missing"):
+            get_followup_times("first_shift")
+
+    @patch("main.config")
+    def test_third_shift_overnight_times(self, mock_config):
+        """third_shift resolves to overnight delivery times through fromisoformat."""
+        mock_config.shift_times.default_shift = "first_shift"
+        mock_config.shift_times.shifts = {
+            "first_shift": ["09:00", "13:00", "17:00"],
+            "third_shift": ["01:00", "04:00", "07:00"],
+        }
+        from main import get_followup_times
+
+        times = get_followup_times("third_shift")
+        assert times == [time(1, 0), time(4, 0), time(7, 0)]
+
+
 # -- Survey URL building tests ---------------------------------------
 class TestBuildSurveyUrl:
     """Verify follow-up survey URL construction with query params."""
@@ -373,6 +518,10 @@ class TestFollowupSchedulingHandler:
             "SV_3",
         ]
         mock_config.followup_surveys.sms_template = "Survey at {time}: {url}"
+        mock_config.shift_times.default_shift = "first_shift"
+        mock_config.shift_times.shifts = {
+            "first_shift": ["09:00", "13:00", "17:00"],
+        }
 
         mock_schedule.side_effect = [
             "SM_sid_1",
@@ -431,6 +580,10 @@ class TestFollowupSchedulingHandler:
             "SV_3",
         ]
         mock_config.followup_surveys.sms_template = "Survey at {time}: {url}"
+        mock_config.shift_times.default_shift = "first_shift"
+        mock_config.shift_times.shifts = {
+            "first_shift": ["09:00", "13:00", "17:00"],
+        }
 
         # Second scheduling call fails
         mock_schedule.side_effect = ["SM_sid_1", None]
@@ -508,6 +661,10 @@ class TestFollowupSchedulingHandler:
             "SV_3",
         ]
         mock_config.followup_surveys.sms_template = "Survey at {time}: {url}"
+        mock_config.shift_times.default_shift = "first_shift"
+        mock_config.shift_times.shifts = {
+            "first_shift": ["09:00", "13:00", "17:00"],
+        }
 
         mock_schedule.side_effect = [
             "SM_sid_1",
@@ -573,6 +730,10 @@ class TestPastTimeSkipping:
         )
         mock_config.followup_surveys.survey_ids = ["SV_1", "SV_2", "SV_3"]
         mock_config.followup_surveys.sms_template = "Survey at {time}: {url}"
+        mock_config.shift_times.default_shift = "first_shift"
+        mock_config.shift_times.shifts = {
+            "first_shift": ["09:00", "13:00", "17:00"],
+        }
 
     @patch("main.schedule_sms")
     @patch("main.is_already_scheduled", return_value=False)
@@ -764,6 +925,10 @@ class TestSendImmediately:
         )
         mock_config.followup_surveys.survey_ids = ["SV_1", "SV_2", "SV_3"]
         mock_config.followup_surveys.sms_template = "Survey at {time}: {url}"
+        mock_config.shift_times.default_shift = "first_shift"
+        mock_config.shift_times.shifts = {
+            "first_shift": ["09:00", "13:00", "17:00"],
+        }
 
     @patch("main.write_scheduling_records", return_value=True)
     @patch("main.schedule_sms")

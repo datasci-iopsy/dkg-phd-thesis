@@ -75,3 +75,72 @@ def test_missing_required_field_raises(tmp_path):
 
     with pytest.raises(Exception, match="bq"):
         load_config(tmp_path)
+
+
+# -- ShiftTimesConfig model tests (Slice B) --------------------------
+_FN3_CONFIGS_DIR = (
+    Path(__file__).resolve().parent.parent
+    / "cloud_run_functions"
+    / "run_followup_scheduling"
+    / "configs"
+)
+
+
+class TestShiftTimesConfig:
+    """Verify ShiftTimesConfig validates and loads from fn3 YAML."""
+
+    def test_valid_shift_times_config(self):
+        """A fully populated ShiftTimesConfig constructs successfully."""
+        from shared.utils.config_models import ShiftTimesConfig
+
+        cfg = ShiftTimesConfig(
+            default_shift="first_shift",
+            shifts={"first_shift": ["09:00", "13:00", "17:00"]},
+        )
+        assert cfg.default_shift == "first_shift"
+        assert cfg.shifts["first_shift"] == ["09:00", "13:00", "17:00"]
+
+    def test_shift_times_config_missing_default_shift_raises(self):
+        """Missing default_shift is rejected by Pydantic."""
+        from pydantic import ValidationError
+
+        from shared.utils.config_models import ShiftTimesConfig
+
+        with pytest.raises(ValidationError):
+            ShiftTimesConfig(
+                shifts={"first_shift": ["09:00", "13:00", "17:00"]}
+            )
+
+    def test_shift_times_config_missing_shifts_raises(self):
+        """Missing shifts dict is rejected by Pydantic."""
+        from pydantic import ValidationError
+
+        from shared.utils.config_models import ShiftTimesConfig
+
+        with pytest.raises(ValidationError):
+            ShiftTimesConfig(default_shift="first_shift")
+
+    def test_fn3_config_loads_shift_times(self):
+        """fn3 config YAML includes all 4 canonical bins with no placeholders."""
+        config = load_config(_FN3_CONFIGS_DIR)
+        assert config.shift_times is not None
+        assert config.shift_times.default_shift == "first_shift"
+
+        shifts = config.shift_times.shifts
+        assert set(shifts.keys()) == {
+            "early_shift",
+            "first_shift",
+            "second_shift",
+            "third_shift",
+        }
+        assert shifts["early_shift"] == ["06:00", "08:45", "11:30"]
+        assert shifts["first_shift"] == ["09:00", "13:00", "17:00"]
+        assert shifts["second_shift"] == ["16:00", "19:00", "22:00"]
+        assert shifts["third_shift"] == ["01:00", "04:00", "07:00"]
+
+        # Guard against re-introduction of placeholder bins
+        for key in shifts:
+            assert not key.startswith("part_time"), f"stale bin: {key}"
+        for times in shifts.values():
+            for t in times:
+                assert t != "PLACEHOLDER", f"PLACEHOLDER found in {times}"

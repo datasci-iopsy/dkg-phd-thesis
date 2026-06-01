@@ -33,3 +33,20 @@ followup_surveys:
     - "SV_5nV942MJGubDmqq"   # 9:00 AM survey
     - "SV_eRKl4lgMZDAurT8"   # 1:00 PM survey
     - "SV_6J3svun1r97AAHc"   # 5:00 PM survey
+
+# -- Shift delivery times ---------------------------------------------
+# Maps each work_shift label (as sent by Qualtrics) to three HH:MM
+# delivery times: beginning, middle, and end of that shift window.
+# Times are participant-local; fn3 converts to UTC for Twilio.
+# first_shift times match the legacy hardcoded values (backward compat).
+#
+# Windows (approximate start range):
+#   early_shift  05:30-12:00  |  first_shift  08:00-17:00
+#   second_shift 15:00-23:00  |  third_shift  overnight
+shift_times:
+  default_shift: "first_shift"
+  shifts:
+    early_shift:   ["06:00", "08:45", "11:30"]
+    first_shift:   ["09:00", "13:00", "17:00"]
+    second_shift:  ["16:00", "19:00", "22:00"]
+    third_shift:   ["01:00", "04:00", "07:00"]

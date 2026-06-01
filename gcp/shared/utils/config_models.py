@@ -7,7 +7,9 @@ Each model maps 1:1 to a top-level key in the merged config.
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+import re
+
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class GCPConfig(BaseModel):
@@ -164,6 +166,48 @@ class FollowupSurveysConfig(BaseModel):
     )
 
 
+class ShiftTimesConfig(BaseModel):
+    """Shift label -> three HH:MM delivery times for fn3 scheduling.
+
+    default_shift: key used when work_shift is None (existing participants)
+    shifts: map of shift label -> [HH:MM, HH:MM, HH:MM]
+
+    Shift key strings must match exactly what Qualtrics sends as the
+    work_shift label value.
+    """
+
+    default_shift: str = Field(
+        ..., description="Shift key used when work_shift is None"
+    )
+    shifts: dict[str, list[str]] = Field(
+        ..., description="shift_label -> [HH:MM, HH:MM, HH:MM]"
+    )
+
+    @field_validator("shifts")
+    @classmethod
+    def validate_shifts(cls, v: dict[str, list[str]]) -> dict[str, list[str]]:
+        hhmm = re.compile(r"^\d{2}:\d{2}$")
+        for key, times in v.items():
+            if len(times) != 3:
+                raise ValueError(
+                    f"shift '{key}' must have exactly 3 times, got {len(times)}"
+                )
+            for t in times:
+                if not hhmm.match(t):
+                    raise ValueError(
+                        f"shift '{key}' time '{t}' must match HH:MM"
+                    )
+        return v
+
+    @model_validator(mode="after")
+    def default_shift_in_shifts(self) -> "ShiftTimesConfig":
+        if self.default_shift not in self.shifts:
+            raise ValueError(
+                f"default_shift '{self.default_shift}' not in shifts keys"
+            )
+        return self
+
+
 class NetlifyConfig(BaseModel):
     """Netlify site settings for dashboard deploy."""
 
@@ -195,4 +239,5 @@ class AppConfig(BaseModel):
     qualtrics: QualtricsConfig | None = None
     pubsub: PubSubConfig | None = None
     followup_surveys: FollowupSurveysConfig | None = None
+    shift_times: ShiftTimesConfig | None = None
     netlify: NetlifyConfig | None = None
