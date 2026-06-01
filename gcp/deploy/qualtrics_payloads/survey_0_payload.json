@@ -12,6 +12,8 @@
     "PHONE": "${q://QID42/ChoiceTextEntryValue}",
     "TIMEZONE": "${q://QID30/ChoiceGroup/SelectedChoices}",
     "SELECTED_DATE": "${q://QID29/ChoiceTextEntryValue}",
+    "WORK_CLASSIFICATION": "${q://QID99/ChoiceGroup/SelectedChoices}",
+    "WORK_SHIFT": "${q://QID100/ChoiceGroup/SelectedChoices}",
     "AGE": "${q://QID35/ChoiceTextEntryValue}",
     "ETHNICITY": "${q://QID36/ChoiceGroup/SelectedChoices}",
     "GENDER_IDENTITY": "${q://QID37/ChoiceGroup/SelectedChoices}",

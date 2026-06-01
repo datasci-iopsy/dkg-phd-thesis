@@ -18,6 +18,31 @@ def _headers(api_key: str) -> dict:
     return {"X-API-TOKEN": api_key, "Content-Type": "application/json"}
 
 
+def add_question(
+    survey_id: str, question_body: dict, base_url: str, api_key: str
+) -> str:
+    """Create a new question in a survey draft and return its QID.
+
+    Args:
+        survey_id: Target survey ID.
+        question_body: Full question definition dict (QuestionText, QuestionType, etc.).
+        base_url: Qualtrics API base URL.
+        api_key: Qualtrics API key.
+
+    Returns:
+        The assigned QuestionID string (e.g., "QID123").
+    """
+    url = f"{base_url}/survey-definitions/{survey_id}/questions"
+    response = requests.post(
+        url,
+        headers=_headers(api_key),
+        json=question_body,
+        timeout=TIMEOUT_SECONDS,
+    )
+    response.raise_for_status()
+    return response.json()["result"]["QuestionID"]
+
+
 def fetch_question(
     survey_id: str, question_id: str, base_url: str, api_key: str
 ) -> dict:
