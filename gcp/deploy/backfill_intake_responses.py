@@ -46,6 +46,8 @@ COLUMN_MAP: dict[str, str] = {
     "JOB_TENURE": "JOB_TENURE",
     "EDU_LEVEL": "EDUCATION_LEVEL",
     "REMOTE_FLAG": "REMOTE_FLAG",
+    "WORK_CLASSIFICATION": "WORK_CLASSIFICATION",
+    "WORK_SHIFT": "WORK_SHIFT",
     "PA1": "PA1",
     "PA2": "PA2",
     "PA3": "PA3",
@@ -167,6 +169,11 @@ def main() -> None:
         action="store_true",
         help="Print payloads without sending",
     )
+    parser.add_argument(
+        "--all-responses",
+        action="store_true",
+        help="Process all CSV rows, skipping the BigQuery dedup check",
+    )
     args = parser.parse_args()
 
     if not args.csv_path.exists():
@@ -177,12 +184,15 @@ def main() -> None:
     responses = read_csv_responses(args.csv_path)
     print(f"  {len(responses)} completed responses in CSV")
 
-    print("Querying BigQuery for existing response IDs...")
-    existing = get_existing_response_ids()
-    print(f"  {len(existing)} already in {BQ_TABLE}")
-
-    missing = [r for r in responses if r["ResponseId"] not in existing]
-    print(f"  {len(missing)} need backfill\n")
+    if args.all_responses:
+        missing = responses
+        print(f"  --all-responses: processing all {len(missing)} rows\n")
+    else:
+        print("Querying BigQuery for existing response IDs...")
+        existing = get_existing_response_ids()
+        print(f"  {len(existing)} already in {BQ_TABLE}")
+        missing = [r for r in responses if r["ResponseId"] not in existing]
+        print(f"  {len(missing)} need backfill\n")
 
     if not missing:
         print("Nothing to do.")
