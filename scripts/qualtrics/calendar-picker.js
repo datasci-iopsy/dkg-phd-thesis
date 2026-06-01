@@ -13,8 +13,10 @@ Qualtrics.SurveyEngine.addOnload(function () {
     }
 
     var today = new Date();
-    var tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-    var maxDay   = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 9);
+    var tomorrow    = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+    var windowEnd   = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 9);
+    var surveyClose = new Date(2026, 5, 12); // June 12 hard cutoff
+    var maxDay = windowEnd < surveyClose ? windowEnd : surveyClose;
 
     input.setAttribute("min", localDateStr(tomorrow));
     input.setAttribute("max", localDateStr(maxDay));
@@ -58,7 +60,6 @@ Qualtrics.SurveyEngine.addOnload(function () {
         }
 
         var selected = new Date(this.value + "T00:00:00");
-        var day = selected.getDay();
 
         if (selected < tomorrow) {
             showError("Please select a future date. Today and past dates are not available.");
@@ -68,14 +69,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
         }
 
         if (selected > maxDay) {
-            showError("Please select a date within one week from today (up to " + maxDay.toLocaleDateString() + ").");
-            setTimeout(function () { self.value = ""; }, 0);
-            validating = false;
-            return;
-        }
-
-        if (day === 0 || day === 6) {
-            showError("Please select a weekday (Monday\u2013Friday). Weekends are not available.");
+            showError("Please select a date up to " + maxDay.toLocaleDateString() + ".");
             setTimeout(function () { self.value = ""; }, 0);
             validating = false;
             return;

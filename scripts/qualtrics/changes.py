@@ -10,6 +10,19 @@ from dataclasses import dataclass, field
 P1 = "SV_5nV942MJGubDmqq"
 P2 = "SV_eRKl4lgMZDAurT8"
 P3 = "SV_6J3svun1r97AAHc"
+INTAKE = "SV_86vMYNR8SdVDfEi"
+
+# QID for the work_shift question added in Slice C; referenced by the
+# update runner to PUT the finalized 4-bin choices.
+WORK_SHIFT_QID = "QID100"
+
+
+@dataclass(frozen=True)
+class QuestionAdd:
+    survey_id: str
+    question_body: dict
+    field_name: str
+    description: str = field(default="")
 
 
 @dataclass(frozen=True)
@@ -162,5 +175,60 @@ CHANGES: list[QuestionChange] = [
         find_text="I can say that I am satisfied my job.",
         replace_text="I am satisfied with my job.",
         description="JS1: remove I can say that, fix satisfied with",
+    ),
+]
+
+# -- Intake survey additions (Slice C) ----------------------------------
+# These two questions are added to the intake survey draft.
+# DO NOT publish the survey -- the user does that manually.
+#
+# work_shift choice labels use snake_case to match gcp_utils.yaml keys
+# exactly. The web service payload will carry these strings as-is into
+# the `work_shift` field, which routes fn3 delivery times.
+# Update choice display text to human-readable labels before publishing.
+INTAKE_ADDITIONS: list[QuestionAdd] = [
+    QuestionAdd(
+        survey_id=INTAKE,
+        field_name="work_classification",
+        description="DOL employment classification (stored for analysis)",
+        question_body={
+            "QuestionText": (
+                "Which best describes your current employment classification?"
+            ),
+            "QuestionType": "MC",
+            "Selector": "SAVR",
+            "SubSelector": "TX",
+            "Choices": {
+                "1": {"Display": "Employee - Full-Time (40+ hrs/week)"},
+                "2": {"Display": "Employee - Part-Time (<40 hrs/week)"},
+                "3": {"Display": "Independent Contractor or Freelancer (1099)"},
+                "4": {"Display": "Other"},
+            },
+            "ChoiceOrder": [1, 2, 3, 4],
+        },
+    ),
+    QuestionAdd(
+        survey_id=INTAKE,
+        field_name="work_shift",
+        description="Shift classification routes fn3 ESM delivery times",
+        question_body={
+            "QuestionText": (
+                "Which best describes your typical work schedule "
+                "on the day you selected?"
+            ),
+            "QuestionType": "MC",
+            "Selector": "SAVR",
+            "SubSelector": "TX",
+            # Display values must stay snake_case: Qualtrics sends the Display
+            # string verbatim in the Web Service payload, and get_followup_times
+            # uses it as a direct key into config.shift_times.shifts.
+            "Choices": {
+                "1": {"Display": "early_shift"},
+                "2": {"Display": "first_shift"},
+                "3": {"Display": "second_shift"},
+                "4": {"Display": "third_shift"},
+            },
+            "ChoiceOrder": [1, 2, 3, 4],
+        },
     ),
 ]
