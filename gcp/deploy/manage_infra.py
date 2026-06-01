@@ -103,13 +103,12 @@ _fn_followup_response_dir = str(FUNCTIONS_BASE / "run_followup_response")
 if _fn_followup_response_dir not in sys.path:
     sys.path.insert(0, _fn_followup_response_dir)
 
-from shared.utils.bq_schemas import (
+from shared.utils.bq_schemas import (  # noqa: E402
     FOLLOWUP_RESPONSES_CLUSTER_FIELDS,
     FOLLOWUP_RESPONSES_SCHEMA,
     SCHEDULED_FOLLOWUPS_CLUSTER_FIELDS,
     SCHEDULED_FOLLOWUPS_SCHEMA,
     SURVEY_RESPONSES_CLUSTER_FIELDS,
-    # SURVEY_RESPONSES_PARTITION_FIELD,
     SURVEY_RESPONSES_SCHEMA,
 )
 
@@ -207,6 +206,20 @@ def create_dataset(client: bigquery.Client) -> None:
         print(f"  Dataset '{DATASET_ID}' already exists -- skipping.")
 
 
+# -- View registry ---------------------------------------------------
+# survey_responses_classified: stg_intake_responses with COALESCE defaults
+# so existing participants (NULL work_shift) route to first_shift without
+# a data backfill. work_classification defaults to full-time employee.
+_CLASSIFIED_VIEW_NAME = "survey_responses_classified"
+_CLASSIFIED_VIEW_SQL = """\
+SELECT
+    * EXCEPT (work_classification, work_shift),
+    COALESCE(work_classification, 'Employee - Full-Time') AS work_classification,
+    COALESCE(work_shift, 'first_shift') AS work_shift
+FROM `{project}.{dataset}.{intake_table}`
+"""
+
+
 # -- Table operations ------------------------------------------------
 def table_exists(client: bigquery.Client, table_id: str) -> bool:
     """Check whether a specific table exists in the dataset."""
@@ -265,6 +278,42 @@ def create_table(
         print(f"  Created table '{table_id}'{detail}.")
     except Conflict:
         print(f"  Table '{table_id}' already exists -- skipping.")
+
+
+# -- View operations -------------------------------------------------
+def create_classified_view(client: bigquery.Client) -> None:
+    """Create or replace the survey_responses_classified view.
+
+    Wraps stg_intake_responses with COALESCE defaults so rows from
+    participants who predated the work_shift question still route
+    correctly to first_shift delivery times.
+    """
+    intake_table = TABLES.get("intake_raw", "stg_intake_responses")
+    sql = _CLASSIFIED_VIEW_SQL.format(
+        project=PROJECT_ID,
+        dataset=DATASET_ID,
+        intake_table=intake_table,
+    )
+    view_id = f"{PROJECT_ID}.{DATASET_ID}.{_CLASSIFIED_VIEW_NAME}"
+    view = bigquery.Table(view_id)
+    view.view_query = sql
+
+    try:
+        client.create_table(view)
+        print(f"  Created view '{_CLASSIFIED_VIEW_NAME}'.")
+    except Conflict:
+        client.update_table(view, ["view_query"])
+        print(f"  Updated view '{_CLASSIFIED_VIEW_NAME}' (already existed).")
+
+
+def drop_classified_view(client: bigquery.Client) -> None:
+    """Delete the survey_responses_classified view if it exists."""
+    view_id = f"{PROJECT_ID}.{DATASET_ID}.{_CLASSIFIED_VIEW_NAME}"
+    try:
+        client.delete_table(view_id)
+        print(f"  Deleted view '{_CLASSIFIED_VIEW_NAME}'.")
+    except NotFound:
+        print(f"  View '{_CLASSIFIED_VIEW_NAME}' not found -- skipping.")
 
 
 # -- Status ----------------------------------------------------------
@@ -336,6 +385,9 @@ def handle_setup(args: argparse.Namespace) -> None:
             description=registry.get("description", ""),
         )
 
+    print("\n  --- Views ---")
+    create_classified_view(client)
+
     print("\n  Setup complete.\n")
 
 
@@ -377,6 +429,9 @@ def handle_teardown(args: argparse.Namespace) -> None:
         full_id = f"{PROJECT_ID}.{DATASET_ID}.{name}"
         client.delete_table(full_id)
         print(f"  Deleted table '{name}' ({key}).")
+
+    print("\n  --- Views ---")
+    drop_classified_view(client)
 
     print(f"\n  Teardown complete. Dataset '{DATASET_ID}' preserved.\n")
 
