@@ -182,10 +182,10 @@ CHANGES: list[QuestionChange] = [
 # These two questions are added to the intake survey draft.
 # DO NOT publish the survey -- the user does that manually.
 #
-# work_shift choice labels use snake_case to match gcp_utils.yaml keys
-# exactly. The web service payload will carry these strings as-is into
-# the `work_shift` field, which routes fn3 delivery times.
-# Update choice display text to human-readable labels before publishing.
+# work_shift choice labels MUST stay snake_case to match gcp_utils.yaml keys.
+# The web service payload carries these strings verbatim into work_shift,
+# which get_followup_times() uses as a direct key into shift_times.shifts.
+# work_classification display text may be made human-readable; work_shift must not.
 INTAKE_ADDITIONS: list[QuestionAdd] = [
     QuestionAdd(
         survey_id=INTAKE,

@@ -63,8 +63,8 @@ def main() -> None:
             cfg.qualtrics_base_url,
             cfg.qualtrics_api_key,
         )
-    except Exception as e:
-        logger.error("Failed to fetch %s/%s: %s", INTAKE, WORK_SHIFT_QID, e)
+    except Exception:
+        logger.exception("Failed to fetch %s/%s", INTAKE, WORK_SHIFT_QID)
         sys.exit(1)
 
     # Merge desired fields onto the fetched body so we preserve any
@@ -85,8 +85,8 @@ def main() -> None:
             cfg.qualtrics_base_url,
             cfg.qualtrics_api_key,
         )
-    except Exception as e:
-        logger.error("PUT failed for %s/%s: %s", INTAKE, WORK_SHIFT_QID, e)
+    except Exception:
+        logger.exception("PUT failed for %s/%s", INTAKE, WORK_SHIFT_QID)
         sys.exit(1)
 
     logger.info("PUT succeeded. Verifying...")
@@ -98,8 +98,8 @@ def main() -> None:
             cfg.qualtrics_base_url,
             cfg.qualtrics_api_key,
         )
-    except Exception as e:
-        logger.error("Verification fetch failed: %s", e)
+    except Exception:
+        logger.exception("Verification fetch failed")
         sys.exit(1)
 
     actual_keys = {c["Display"] for c in result.get("Choices", {}).values()}
