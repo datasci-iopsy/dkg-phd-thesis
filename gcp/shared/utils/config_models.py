@@ -132,6 +132,11 @@ class PubSubConfig(BaseModel):
         description="Pub/Sub topic ID for follow-up scheduling "
         "(e.g., 'dkg-followup-scheduling')",
     )
+    connect_topic_id: str | None = Field(
+        default=None,
+        description="Pub/Sub topic ID for Connect participant scheduling "
+        "(e.g., 'dkg-connect-scheduling')",
+    )
 
 
 class FollowupSurveysConfig(BaseModel):
@@ -209,6 +214,50 @@ class ShiftTimesConfig(BaseModel):
         return self
 
 
+class ConnectConfig(BaseModel):
+    """CloudResearch Connect API configuration.
+
+    Used by run-connect-scheduling to send notifications and
+    schedule follow-up survey messages via the Connect API.
+    All participants are identified by connect_id (32-hex string).
+
+    Each survey_id corresponds to a fixed time slot:
+        survey_ids[0] -> slot 1 (e.g., 9:00 AM)
+        survey_ids[1] -> slot 2 (e.g., 1:00 PM)
+        survey_ids[2] -> slot 3 (e.g., 5:00 PM)
+    """
+
+    base_url: str = Field(
+        ...,
+        description="Connect API base URL "
+        "(e.g., https://connect-api.cloudresearch.com)",
+    )
+    cloudresearch_project_id: str = Field(
+        ..., description="CloudResearch project UUID"
+    )
+    survey_base_url: str = Field(
+        ..., description="Qualtrics survey URL base for follow-up links"
+    )
+    survey_ids: list[str] = Field(
+        ...,
+        min_length=3,
+        max_length=3,
+        description="Three Qualtrics survey IDs, one per time slot",
+    )
+    min_lead_seconds: int = Field(
+        default=1800,
+        description="Minimum seconds before slot time to schedule (default 30 min)",
+    )
+    notification_template: str = Field(
+        ...,
+        description="Notification message body template with {date} placeholder",
+    )
+    survey_message_template: str = Field(
+        ...,
+        description="Survey message body with {time} and {url} placeholders",
+    )
+
+
 class NetlifyConfig(BaseModel):
     """Netlify site settings for dashboard deploy."""
 
@@ -241,4 +290,5 @@ class AppConfig(BaseModel):
     pubsub: PubSubConfig | None = None
     followup_surveys: FollowupSurveysConfig | None = None
     shift_times: ShiftTimesConfig | None = None
+    connect: ConnectConfig | None = None
     netlify: NetlifyConfig | None = None
