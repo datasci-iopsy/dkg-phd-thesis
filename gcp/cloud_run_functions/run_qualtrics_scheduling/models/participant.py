@@ -83,3 +83,29 @@ class ParticipantData(BaseModel):
     def followup_times(self) -> list[time]:
         """Fixed daily times for follow-up survey delivery."""
         return [time(9, 0), time(13, 0), time(17, 0)]
+
+
+class ConnectParticipantData(BaseModel):
+    """Validated Connect participant extracted from a Qualtrics survey response.
+
+    Connect participants have no usable phone number -- they receive
+    messages via the CloudResearch Connect platform. This model is
+    separate from ParticipantData so the phone field is never required
+    or set for the Connect path.
+    """
+
+    response_id: str
+    connect_id: str
+    selected_date: date
+    timezone: str = Field(..., min_length=1)
+    consent_given: bool
+    work_shift: str | None = Field(default=None)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+    @field_validator("consent_given")
+    @classmethod
+    def require_consent(cls, v: bool) -> bool:
+        """Reject participants who have not given consent."""
+        if not v:
+            raise ValueError("Consent not given -- cannot process response")
+        return v
