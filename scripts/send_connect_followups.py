@@ -564,6 +564,22 @@ def phase_schedule(
                 continue
 
             try:
+                sid_value = f"connect:{idempotency}"
+                already_row = list(
+                    bq.query(
+                        f"select 1 from `{BQ_PROJECT}.{BQ_DATASET}.scheduled_followups`"
+                        f" where twilio_message_sid = '{sid_value}' limit 1"
+                    ).result()
+                )
+                if already_row:
+                    print(
+                        f"  SKIP {rid} slot {slot}: BQ record exists, "
+                        f"Connect send already recorded"
+                    )
+                    scheduled_slots.append(slot)
+                    total_success += 1
+                    continue
+
                 _connect_request(
                     "POST",
                     "/api/v1/conversations/send-bulk-message",
@@ -591,11 +607,11 @@ def phase_schedule(
                     values (
                         '{rid}',
                         '{connect_id}',
-                        null,
+                        'connect',
                         '{selected_date_str}',
                         '{r["timezone"]}',
                         {slot},
-                        'connect:{idempotency}',
+                        '{sid_value}',
                         '{send_at_bq}',
                         '{url}',
                         true,
