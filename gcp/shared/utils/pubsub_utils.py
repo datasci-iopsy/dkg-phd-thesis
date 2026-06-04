@@ -104,6 +104,43 @@ class FollowupSchedulingMessage(BaseModel):
     )
 
 
+class ConnectSchedulingMessage(BaseModel):
+    """Pub/Sub message payload for CloudResearch Connect participant scheduling.
+
+    Published by run-qualtrics-scheduling when a Connect participant
+    (32-hex connect_id) is detected. Consumed by run-connect-scheduling
+    to send a notification and schedule three follow-up survey messages
+    via the Connect API.
+
+    No phone field -- Connect participants have no usable phone number.
+    The Connect API uses connect_id (participantId/recipientId) for
+    message delivery.
+    """
+
+    response_id: str = Field(
+        ..., description="Qualtrics response ID (idempotency key)"
+    )
+    connect_id: str = Field(
+        ..., description="32-hex CloudResearch Connect participant ID"
+    )
+    selected_date: str = Field(
+        ..., description="Participant's chosen date (ISO format, YYYY-MM-DD)"
+    )
+    timezone: str = Field(..., description="IANA timezone (e.g., US/Central)")
+    send_immediately: bool = Field(
+        default=False,
+        description=(
+            "When True, schedule messages at now+lead*slot instead of "
+            "fixed study times. Set by manage_gateway.py test --connect "
+            "for rapid end-to-end testing."
+        ),
+    )
+    work_shift: str | None = Field(
+        default=None,
+        description="Selected work shift label; routes scheduling times.",
+    )
+
+
 # -- Publishing ----------------------------------------------------
 
 
@@ -229,6 +266,67 @@ def publish_followup_scheduling(
     except Exception as e:
         logger.error(
             "Failed to publish followup message for %s: %s",
+            message.response_id,
+            e,
+            exc_info=True,
+        )
+        return None
+
+
+def publish_connect_scheduling(
+    message: ConnectSchedulingMessage,
+    config: AppConfig,
+) -> str | None:
+    """Publish a connect-scheduling message to Pub/Sub.
+
+    Serializes the message as JSON and publishes it to the
+    topic configured in config.pubsub.connect_topic_id.
+    Returns the published message ID on success, or None
+    on failure.
+
+    Args:
+        message: Validated Connect participant payload.
+        config: Application config with Pub/Sub topic reference.
+
+    Returns:
+        Pub/Sub message ID string, or None if publishing failed.
+    """
+    if not config.pubsub:
+        logger.error(
+            "Pub/Sub config not found -- cannot publish connect "
+            "message for response %s",
+            message.response_id,
+        )
+        return None
+
+    if not config.pubsub.connect_topic_id:
+        logger.error(
+            "Pub/Sub connect_topic_id not configured -- "
+            "cannot publish for response %s",
+            message.response_id,
+        )
+        return None
+
+    try:
+        client = get_publisher_client()
+        topic_path = client.topic_path(
+            config.gcp.project_id, config.pubsub.connect_topic_id
+        )
+        data = json.dumps(message.model_dump()).encode("utf-8")
+        future = client.publish(topic_path, data=data)
+        message_id = future.result()
+        logger.info(
+            "Published connect-scheduling message for %s "
+            "(message_id: %s, topic: %s)",
+            message.response_id,
+            message_id,
+            config.pubsub.connect_topic_id,
+        )
+        return message_id
+
+    except Exception as e:
+        logger.error(
+            "Failed to publish connect message for %s: %s",
             message.response_id,
             e,
             exc_info=True,
