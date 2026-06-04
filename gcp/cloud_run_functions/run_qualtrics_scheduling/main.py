@@ -18,6 +18,7 @@ visibility into unconfirmed responses.
 """
 
 import logging
+import re
 from pathlib import Path
 
 import functions_framework
@@ -25,13 +26,25 @@ from flask import Request, jsonify
 from shared.utils.bq_schemas import SURVEY_RESPONSES_SCHEMA
 from shared.utils.config_loader import load_config
 from shared.utils.crypto_utils import encrypt_phone
-from shared.utils.phone_utils import normalize_phone_number
 from shared.utils.gcp_utils import insert_survey_response
+from shared.utils.phone_utils import normalize_phone_number
 from shared.utils.pubsub_utils import (
+    ConnectSchedulingMessage,
     IntakeProcessedMessage,
+    publish_connect_scheduling,
     publish_intake_processed,
 )
 from utils import validation_utils
+
+_CONNECT_ID_RE = re.compile(r"^[0-9A-Fa-f]{32}$")
+
+
+def _is_connect_participant(connect_id: str | None) -> bool:
+    """Return True if connect_id is a 32-hex CloudResearch Connect ID."""
+    if not connect_id:
+        return False
+    return bool(_CONNECT_ID_RE.match(connect_id))
+
 
 # -- Logging ---------------------------------------------------------
 logging.basicConfig(
@@ -98,6 +111,59 @@ def qualtrics_webhook_handler(request: Request):
         if not write_success:
             logger.error("BigQuery insert failed for %s", payload.response_id)
             return jsonify({"error": "Database write failed"}), 500
+
+        # Step 3a: Route Connect participants to the Connect pipeline.
+        # fn2 and fn3 are bypassed entirely -- Connect participants have
+        # no usable phone and receive messages via the Connect platform.
+        if _is_connect_participant(payload.connect_id):
+            connect_participant = (
+                validation_utils.extract_connect_participant_data(payload)
+            )
+            if not connect_participant:
+                logger.error(
+                    "Invalid Connect participant data for %s",
+                    payload.response_id,
+                )
+                return (
+                    jsonify(
+                        {"error": "Invalid Connect participant information"}
+                    ),
+                    400,
+                )
+            connect_message = ConnectSchedulingMessage(
+                response_id=connect_participant.response_id,
+                connect_id=connect_participant.connect_id,
+                selected_date=connect_participant.selected_date.isoformat(),
+                timezone=connect_participant.timezone,
+                send_immediately=send_immediately,
+                work_shift=connect_participant.work_shift,
+            )
+            connect_message_id = publish_connect_scheduling(
+                connect_message, config
+            )
+            if not connect_message_id:
+                logger.warning(
+                    "Connect Pub/Sub publish failed for %s -- "
+                    "BQ write succeeded, _processed remains FALSE",
+                    payload.response_id,
+                )
+            logger.info(
+                "Routed Connect participant %s (connect_id: %s, published: %s)",
+                payload.response_id,
+                connect_participant.connect_id,
+                bool(connect_message_id),
+            )
+            return (
+                jsonify(
+                    {
+                        "status": "success",
+                        "response_id": payload.response_id,
+                        "path": "connect",
+                        "published": bool(connect_message_id),
+                    }
+                ),
+                200,
+            )
 
         # Step 3: Extract and validate participant scheduling data
         participant = validation_utils.extract_participant_data(payload)

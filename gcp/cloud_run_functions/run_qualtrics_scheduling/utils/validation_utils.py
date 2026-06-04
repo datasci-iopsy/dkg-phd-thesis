@@ -17,7 +17,7 @@ import logging
 from datetime import date
 
 from flask import Request
-from models.participant import ParticipantData
+from models.participant import ConnectParticipantData, ParticipantData
 from models.qualtrics import CONSENT_AGREE_VALUE, WebServicePayload
 from pydantic import ValidationError
 from shared.utils.crypto_utils import encrypt_phone
@@ -168,6 +168,81 @@ def extract_participant_data(
     except ValidationError as e:
         logger.error(
             "Participant validation failed for %s: %s",
+            payload.response_id,
+            e,
+        )
+        return None
+
+
+def extract_connect_participant_data(
+    payload: WebServicePayload,
+) -> ConnectParticipantData | None:
+    """Extract and validate Connect participant data from a Web Service payload.
+
+    Connect participants have no usable phone number -- this function
+    mirrors extract_participant_data but skips the phone check. Only
+    called after _is_connect_participant confirms a 32-hex connect_id.
+
+    Args:
+        payload: Validated WebServicePayload from the Qualtrics
+            Web Service task.
+
+    Returns:
+        Validated ConnectParticipantData, or None if consent, date,
+        or timezone fields are missing or invalid.
+    """
+    try:
+        if payload.consent != CONSENT_AGREE_VALUE:
+            logger.error(
+                "Consent not given for Connect response %s (value: %s)",
+                payload.response_id,
+                payload.consent,
+            )
+            return None
+
+        if not payload.selected_date:
+            logger.error(
+                "Missing selected_date for Connect response %s",
+                payload.response_id,
+            )
+            return None
+
+        if not payload.timezone:
+            logger.error(
+                "Missing timezone for Connect response %s",
+                payload.response_id,
+            )
+            return None
+
+        try:
+            selected_date = date.fromisoformat(payload.selected_date)
+        except (ValueError, AttributeError):
+            logger.error(
+                "Invalid date format for Connect response %s: '%s'",
+                payload.response_id,
+                payload.selected_date,
+            )
+            return None
+
+        participant = ConnectParticipantData(
+            response_id=payload.response_id,
+            connect_id=payload.connect_id,
+            selected_date=selected_date,
+            timezone=payload.timezone,
+            consent_given=True,
+            work_shift=payload.work_shift,
+        )
+
+        logger.info(
+            "Extracted Connect participant for response %s (connect_id: %s)",
+            payload.response_id,
+            participant.connect_id,
+        )
+        return participant
+
+    except ValidationError as e:
+        logger.error(
+            "Connect participant validation failed for %s: %s",
             payload.response_id,
             e,
         )
