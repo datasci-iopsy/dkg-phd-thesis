@@ -39,7 +39,9 @@ from urllib.parse import urlencode
 import functions_framework
 from cloudevents.http import CloudEvent
 from google.cloud import bigquery
+from shared.utils.bq_schemas import SCHEDULED_FOLLOWUPS_SCHEMA
 from shared.utils.config_loader import load_config
+from shared.utils.gcp_utils import insert_rows_committed
 from shared.utils.pubsub_utils import ConnectSchedulingMessage
 
 # -- Logging ---------------------------------------------------------
@@ -365,7 +367,6 @@ def slot_already_scheduled(
 
 
 def insert_scheduling_record(
-    client: bigquery.Client,
     response_id: str,
     connect_id: str,
     selected_date_str: str,
@@ -377,12 +378,12 @@ def insert_scheduling_record(
 ) -> bool:
     """Insert one scheduling record into scheduled_followups.
 
-    Uses phone='connect' and twilio_message_sid='connect:<token>' as
-    sentinels to distinguish Connect rows from Twilio rows. This matches
-    the backfill convention in scripts/send_connect_followups.py.
+    Uses Storage Write API COMMITTED mode (no streaming buffer) so rows
+    are immediately available for DML. Uses phone='connect' and
+    twilio_message_sid='connect:<token>' sentinels to distinguish Connect
+    rows from Twilio rows.
 
     Args:
-        client: BigQuery client.
         response_id: Qualtrics response ID.
         connect_id: Connect participant ID.
         selected_date_str: ISO date string.
@@ -395,10 +396,6 @@ def insert_scheduling_record(
     Returns:
         True if the insert succeeded, False otherwise.
     """
-    full_table_id = (
-        f"{config.gcp.project_id}.{config.bq.dataset_id}"
-        f".{config.bq.tables.scheduled_followups}"
-    )
     row = {
         "response_id": response_id,
         "connect_id": connect_id,
@@ -412,13 +409,18 @@ def insert_scheduling_record(
         "_scheduled": True,
         "_created_at": datetime.now(UTC).isoformat(),
     }
-    errors = client.insert_rows_json(full_table_id, [row])
-    if errors:
+    ok = insert_rows_committed(
+        rows=[row],
+        table_name=config.bq.tables.scheduled_followups,
+        schema=SCHEDULED_FOLLOWUPS_SCHEMA,
+        config=config,
+        message_name="ScheduledFollowupRow",
+    )
+    if not ok:
         logger.error(
-            "BigQuery insert error for %s slot %d: %s",
+            "BigQuery insert failed for %s slot %d",
             response_id,
             survey_time_slot,
-            errors,
         )
         return False
     logger.info(
@@ -624,7 +626,6 @@ def connect_scheduling_handler(cloud_event: CloudEvent) -> None:
 
         # BQ insert (warn on failure; don't raise -- send already happened)
         ok = insert_scheduling_record(
-            bq_client,
             response_id=message.response_id,
             connect_id=message.connect_id,
             selected_date_str=message.selected_date,
