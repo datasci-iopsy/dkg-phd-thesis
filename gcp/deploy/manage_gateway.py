@@ -815,12 +815,13 @@ def handle_setup(args: argparse.Namespace) -> None:
     print(f"+{'=' * 55}+")
     print(f"\n  Gateway URL: {gateway_url or '(pending...)'}")
     if api_key:
-        print(f"  API key:     {api_key}")
+        masked_setup_key = f"{api_key[:8]}...{api_key[-4:]}"
+        print(f"  API key:     {masked_setup_key}")
     print()
     print("  Qualtrics Web Service task configuration:")
     print("    Method:  POST")
     print(f"    URL:     {gateway_url or ''}")
-    print(f"    Header:  x-api-key = {api_key or ''}")
+    print(f"    Header:  x-api-key = {masked_setup_key if api_key else ''}")
     print("    Header:  Content-Type = application/json")
     print("    Body:    JSON payload (see README)")
     print()

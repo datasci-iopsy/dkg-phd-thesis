@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import os
 import sys
 import time
 from pathlib import Path
@@ -21,7 +22,8 @@ from google.cloud import bigquery
 
 GATEWAY_URL = "https://dkg-qualtrics-gateway-3zpc0p6y.uk.gateway.dev/"
 API_KEY_NAME = "projects/312811716490/locations/global/keys/c834a3a1-3575-4ed5-a410-c24626065409"
-BQ_TABLE = "dkg-phd-thesis.qualtrics.stg_intake_responses"
+_GCP_PROJECT = os.environ.get("GCP_PROJECT", "dkg-phd-thesis")
+BQ_TABLE = f"{_GCP_PROJECT}.qualtrics.stg_intake_responses"
 
 # CSV column name -> payload key sent to the intake endpoint.
 # Keys match what the Qualtrics web service task sends (UPPERCASE field names
@@ -95,7 +97,7 @@ def get_api_key() -> str:
 
 
 def get_existing_response_ids() -> set[str]:
-    client = bigquery.Client(project="dkg-phd-thesis")
+    client = bigquery.Client(project=_GCP_PROJECT)
     query = f"SELECT DISTINCT response_id FROM `{BQ_TABLE}`"
     return {row.response_id for row in client.query(query).result()}
 

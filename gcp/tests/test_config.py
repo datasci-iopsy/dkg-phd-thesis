@@ -158,7 +158,7 @@ class TestConnectConfig:
 
         cfg = ConnectConfig(
             base_url="https://connect-api.cloudresearch.com",
-            cloudresearch_project_id="ee2a7726-0745-4952-8646-00ba758d57a9",
+            cloudresearch_project_id="00000000-0000-0000-0000-000000000001",
             survey_base_url="https://ncsu.qualtrics.com/jfe/form",
             survey_ids=["SV_a", "SV_b", "SV_c"],
             notification_template="Hello {date}",
