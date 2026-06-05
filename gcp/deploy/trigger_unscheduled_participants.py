@@ -18,14 +18,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from datetime import date
 
 from google.cloud import bigquery, pubsub_v1
 
-GCP_PROJECT = "dkg-phd-thesis"
-BQ_TABLE = "dkg-phd-thesis.qualtrics.stg_intake_responses"
+GCP_PROJECT = os.environ.get("GCP_PROJECT", "dkg-phd-thesis")
+BQ_TABLE = f"{GCP_PROJECT}.qualtrics.stg_intake_responses"
 TOPIC_ID = "dkg-intake-processed"
 
 
@@ -36,7 +37,7 @@ def get_unscheduled(
     client = bigquery.Client(project=GCP_PROJECT)
 
     if response_ids:
-        query = """
+        query = f"""
             SELECT
                 response_id,
                 connect_id,
@@ -44,7 +45,7 @@ def get_unscheduled(
                 selected_date,
                 timezone,
                 work_shift
-            FROM `dkg-phd-thesis.qualtrics.stg_intake_responses`
+            FROM `{BQ_TABLE}`
             WHERE _processed = FALSE
               AND response_id IN UNNEST(@ids)
             ORDER BY _created_at

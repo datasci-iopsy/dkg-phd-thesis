@@ -48,3 +48,6 @@ logs/
 
 # Local Netlify folder
 .netlify
+
+# Dashboard export generated data (contains participant-level aggregates)
+gcp/cloud_run_functions/run_dashboard_export/site/data.json
