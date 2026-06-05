@@ -188,10 +188,17 @@ class TestConnectConfig:
         assert config.connect is None
 
     def test_pubsub_connect_topic_id_defaults_to_none(self):
-        """PubSubConfig.connect_topic_id is optional and defaults to None."""
+        """PubSubConfig.connect_topic_id is optional; model default is None."""
+        from shared.utils.config_models import PubSubConfig
+
+        minimal = PubSubConfig(topic_id="dkg-intake-processed")
+        assert minimal.connect_topic_id is None
+
+    def test_fn1_config_has_connect_topic_id(self):
+        """fn1 gcp_config.yaml sets connect_topic_id for Connect routing."""
         config = load_config(CONFIGS_DIR)
         assert config.pubsub is not None
-        assert config.pubsub.connect_topic_id is None
+        assert config.pubsub.connect_topic_id == "dkg-connect-scheduling"
 
 
 # -- ConnectSchedulingMessage model tests -----------------------------

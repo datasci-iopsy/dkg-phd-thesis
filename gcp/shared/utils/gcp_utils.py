@@ -257,3 +257,133 @@ def insert_survey_response(
             "Unexpected error writing to BigQuery: %s", e, exc_info=True
         )
         return False
+
+
+def insert_rows_committed(
+    rows: list[dict],
+    table_name: str,
+    schema: list[bigquery.SchemaField],
+    config: AppConfig,
+    message_name: str = "GenericRow",
+) -> bool:
+    """Insert pre-built row dicts into BigQuery via Storage Write API COMMITTED mode.
+
+    Bypasses the streaming buffer so rows are immediately available for
+    DML (UPDATE/DELETE). Use instead of insert_rows_json for any table
+    where rows may need immediate cleanup or where convention requires it.
+
+    Args:
+        rows: List of dicts mapping column names to values.
+        table_name: Target table name (no project/dataset prefix).
+        schema: BigQuery schema for the target table.
+        config: Validated application configuration.
+        message_name: Proto message name -- must be unique per schema shape
+            within a single process invocation to avoid pool collisions.
+
+    Returns:
+        True if all rows inserted successfully, False otherwise.
+    """
+    from google.cloud.bigquery_storage_v1 import BigQueryWriteClient
+    from google.cloud.bigquery_storage_v1.types import (
+        AppendRowsRequest,
+        ProtoRows,
+        ProtoSchema,
+        WriteStream,
+    )
+    from google.protobuf import descriptor_pb2, descriptor_pool
+    from google.protobuf.message_factory import GetMessageClass
+
+    try:
+        project = config.gcp.project_id
+        dataset = config.bq.dataset_id
+
+        BQ_TO_PROTO = {
+            "STRING": descriptor_pb2.FieldDescriptorProto.TYPE_STRING,
+            "INTEGER": descriptor_pb2.FieldDescriptorProto.TYPE_INT64,
+            "INT64": descriptor_pb2.FieldDescriptorProto.TYPE_INT64,
+            "FLOAT": descriptor_pb2.FieldDescriptorProto.TYPE_DOUBLE,
+            "FLOAT64": descriptor_pb2.FieldDescriptorProto.TYPE_DOUBLE,
+            "BOOLEAN": descriptor_pb2.FieldDescriptorProto.TYPE_BOOL,
+            "BOOL": descriptor_pb2.FieldDescriptorProto.TYPE_BOOL,
+            "TIMESTAMP": descriptor_pb2.FieldDescriptorProto.TYPE_STRING,
+        }
+
+        descriptor_proto = descriptor_pb2.DescriptorProto()
+        descriptor_proto.name = message_name
+        for i, field in enumerate(schema, start=1):
+            proto_type = BQ_TO_PROTO.get(field.field_type)
+            if proto_type is None:
+                raise ValueError(
+                    f"No proto type mapping for field '{field.name}' "
+                    f"type '{field.field_type}'."
+                )
+            f = descriptor_proto.field.add()
+            f.name = field.name
+            f.number = i
+            f.label = descriptor_pb2.FieldDescriptorProto.LABEL_OPTIONAL
+            f.type = proto_type
+
+        file_proto = descriptor_pb2.FileDescriptorProto()
+        file_proto.name = f"{message_name.lower()}.proto"
+        file_proto.syntax = "proto2"
+        file_proto.message_type.add().CopyFrom(descriptor_proto)
+
+        pool = descriptor_pool.DescriptorPool()
+        pool.Add(file_proto)
+        msg_class = GetMessageClass(pool.FindMessageTypeByName(message_name))
+
+        serialized = []
+        for row in rows:
+            msg = msg_class()
+            for field in schema:
+                value = row.get(field.name)
+                if value is not None:
+                    try:
+                        setattr(msg, field.name, value)
+                    except (AttributeError, ValueError) as exc:
+                        logger.warning(
+                            "Skipping field '%s': %s", field.name, exc
+                        )
+            serialized.append(msg.SerializeToString())
+
+        proto_rows = ProtoRows(serialized_rows=serialized)
+        write_client = BigQueryWriteClient()
+        parent = write_client.table_path(project, dataset, table_name)
+        write_stream = write_client.create_write_stream(
+            parent=parent,
+            write_stream=WriteStream(type_=WriteStream.Type.COMMITTED),
+        )
+        stream_name = write_stream.name
+
+        append_request = AppendRowsRequest(
+            write_stream=stream_name,
+            proto_rows=AppendRowsRequest.ProtoData(
+                writer_schema=ProtoSchema(proto_descriptor=descriptor_proto),
+                rows=proto_rows,
+            ),
+        )
+        responses = write_client.append_rows(iter([append_request]))
+        for response in responses:
+            if response.error.code != 0:
+                logger.error(
+                    "Storage Write API error (code %d): %s",
+                    response.error.code,
+                    response.error.message,
+                )
+                return False
+
+        write_client.finalize_write_stream(name=stream_name)
+        logger.info(
+            "Committed %d row(s) to %s.%s.%s",
+            len(rows),
+            project,
+            dataset,
+            table_name,
+        )
+        return True
+
+    except Exception as e:
+        logger.error(
+            "Unexpected error in insert_rows_committed: %s", e, exc_info=True
+        )
+        return False
