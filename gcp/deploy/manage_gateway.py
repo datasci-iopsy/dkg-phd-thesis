@@ -973,6 +973,8 @@ def handle_test(args: argparse.Namespace) -> None:
     from datetime import timedelta as _timedelta
 
     followup_mode = args.followup
+    connect_mode = getattr(args, "connect", False)
+    connect_id_arg = getattr(args, "connect_id", None)
     timepoint = getattr(args, "timepoint", None)
 
     if not followup_mode and timepoint is not None:
@@ -982,6 +984,18 @@ def handle_test(args: argparse.Namespace) -> None:
         )
         sys.exit(1)
 
+    if connect_mode:
+        if followup_mode or args.now or args.selected_date or args.now_with_me:
+            print(
+                "\n-> --connect is mutually exclusive with "
+                "--followup, --now, --now-with-me, and --selected-date.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        if not connect_id_arg:
+            print("\n-> --connect requires --connect-id.", file=sys.stderr)
+            sys.exit(1)
+
     if followup_mode:
         if args.now or args.selected_date or args.now_with_me:
             print(
@@ -990,7 +1004,7 @@ def handle_test(args: argparse.Namespace) -> None:
                 file=sys.stderr,
             )
             sys.exit(1)
-    else:
+    elif not connect_mode:
         flags_set = sum(
             [
                 bool(args.now),
@@ -1050,6 +1064,30 @@ def handle_test(args: argparse.Namespace) -> None:
         print(
             "\n  Sending POST /followup (no IAM token -- just the API key)..."
         )
+    elif connect_mode:
+        # POST / -- Connect fixture with real connect_id injected
+        fixture = FIXTURES_DIR / "connect_web_service_payload.json"
+        if not fixture.exists():
+            print(f"\n-> Fixture not found: {fixture}", file=sys.stderr)
+            sys.exit(1)
+        payload = json.loads(fixture.read_text())
+        payload["CONNECT_ID"] = connect_id_arg
+        payload["SELECTED_DATE"] = _date.today().isoformat()
+        payload["send_immediately"] = True
+        _suffix = secrets.token_hex(8)
+        payload["RESPONSE_ID"] = f"R_TEST_CONNECT_{_suffix}"
+        target_url = gateway_url
+        payload_json = json.dumps(payload)
+        print(f"\n  Gateway:       {target_url}")
+        print(f"  Fixture:       {fixture.name}")
+        print(
+            "  Mode:          --connect (Connect path, send_immediately=True)"
+        )
+        print(f"  connect_id:    {connect_id_arg}")
+        print(f"  response_id:   {payload['RESPONSE_ID']}")
+        print(f"  selected_date: {payload['SELECTED_DATE']}")
+        print(f"  API key:       {masked_key}")
+        print("\n  Sending POST (no IAM token -- just the API key)...")
     else:
         # POST / -- intake fixture with optional date overrides
         fixture = FIXTURES_DIR / "web_service_payload.json"
@@ -1376,6 +1414,26 @@ def build_parser() -> argparse.ArgumentParser:
             "3=5PM (SV_6J3svun1r97AAHc). "
             "Loads followup_p{N}_test_payload.json. "
             "Omit to use the default followup_web_service_payload.json."
+        ),
+    )
+    test_parser.add_argument(
+        "--connect",
+        action="store_true",
+        help=(
+            "Send the Connect fixture to POST / via the gateway, routing "
+            "fn1 through the Connect scheduling branch. Requires "
+            "--connect-id. Mutually exclusive with --followup, --now, "
+            "--now-with-me, and --selected-date. Generates a unique "
+            "R_TEST_CONNECT_* response_id each run for easy BQ cleanup."
+        ),
+    )
+    test_parser.add_argument(
+        "--connect-id",
+        metavar="CONNECT_ID",
+        help=(
+            "32-hex CloudResearch Connect participant ID to inject into "
+            "the Connect fixture. Required with --connect. Use your real "
+            "test participant ID to verify sends appear in the Connect UI."
         ),
     )
     test_parser.set_defaults(handler=handle_test)
