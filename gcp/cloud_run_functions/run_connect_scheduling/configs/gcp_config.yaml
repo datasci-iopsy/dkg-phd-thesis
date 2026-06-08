@@ -1,0 +1,26 @@
+# ================================================================
+# GCP & BigQuery settings for the Connect scheduling function
+# ================================================================
+# Triggered by Pub/Sub messages on dkg-connect-scheduling topic.
+# Sends Connect API notifications + schedules 3 follow-up surveys.
+# fn2/fn3 are bypassed for CloudResearch Connect participants.
+# ================================================================
+
+gcp:
+  project_id: "dkg-phd-thesis"
+  location: "US"        # Multi-region for BigQuery datasets
+  region: "us-east4"    # Specific region for Cloud Run functions
+
+bq:
+  dataset_id: "qualtrics"
+  tables:
+    # -- Intake (survey 0): enrollment, demographics, screening ------
+    # Table names must match other functions exactly or manage_infra
+    # _discover_tables raises a conflict error.
+    intake_raw: "stg_intake_responses"
+    intake_clean: "int_intake_responses_scored"
+    # -- Follow-ups (surveys 1-3): repeated measures -----------------
+    followup_raw: "stg_followup_responses"
+    followup_clean: "int_followup_responses_scored"
+    # -- Scheduling records ------------------------------------------
+    scheduled_followups: "scheduled_followups"

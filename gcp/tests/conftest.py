@@ -67,3 +67,11 @@ _fn_dashboard_export_dir = str(
 )
 if _fn_dashboard_export_dir not in sys.path:
     sys.path.append(_fn_dashboard_export_dir)
+
+_fn_connect_scheduling_dir = str(
+    _tests_dir.parent / "cloud_run_functions" / "run_connect_scheduling"
+)
+if _fn_connect_scheduling_dir not in sys.path:
+    # Append rather than insert so that fn5's main.py does not shadow
+    # run_followup_scheduling/main.py (same filename, different dir).
+    sys.path.append(_fn_connect_scheduling_dir)
