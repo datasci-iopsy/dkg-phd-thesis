@@ -1,0 +1,48 @@
+# ================================================================
+# CloudResearch Connect API & follow-up survey settings
+# ================================================================
+
+connect:
+  base_url: "https://connect-api.cloudresearch.com"
+  cloudresearch_project_id: "ee2a7726-0745-4952-8646-00ba758d57a9"
+  survey_base_url: "https://ncsu.qualtrics.com/jfe/form"
+  survey_ids:
+    - "SV_5nV942MJGubDmqq"   # slot 1 survey
+    - "SV_eRKl4lgMZDAurT8"   # slot 2 survey
+    - "SV_6J3svun1r97AAHc"   # slot 3 survey
+  min_lead_seconds: 120      # 2 min minimum before scheduled delivery
+  notification_template: >
+    Hello, this is Demetrius K. Green, the researcher for the work
+    experiences study you recently completed the intake survey for.
+    A quick update on how your follow-up surveys will reach you.
+
+    Your three follow-up survey links will be delivered here in Connect,
+    through this conversation, rather than by text message. We understand
+    that many Connect participants prefer not to share a personal phone
+    number, and that is completely fine. No phone number is needed;
+    everything for this study will come through Connect from now on.
+
+    On {selected_date_long}, you will receive three separate messages here,
+    one for each follow-up survey, at approximately {window_1}, {window_2},
+    and {window_3} ({timezone_label}). Please complete each survey within
+    1 hour of receiving it for your responses to be valid.
+
+    Compensation is unchanged. Thank you for being part of this research;
+    your responses are genuinely valuable. If you have any questions, just
+    reply to this message.
+  survey_message_template: >
+    Hello, this is Demetrius K. Green. It is time for your
+    {time} follow-up survey for the research study. Please
+    complete it within 1 hour for your response to be valid: {url}
+
+# -- Shift delivery times ---------------------------------------------
+# Mirrors run_followup_scheduling shift_times config exactly.
+# Maps each work_shift label to three HH:MM times; Connect scheduling
+# uses participant-local time converted to UTC for scheduledDelivery.
+shift_times:
+  default_shift: "first_shift"
+  shifts:
+    early_shift:   ["06:00", "08:45", "11:30"]
+    first_shift:   ["09:00", "13:00", "17:00"]
+    second_shift:  ["16:00", "19:00", "22:00"]
+    third_shift:   ["01:00", "04:00", "07:00"]
