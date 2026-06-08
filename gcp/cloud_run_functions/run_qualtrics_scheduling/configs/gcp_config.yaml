@@ -23,3 +23,5 @@ pubsub:
   # Topic for asynchronous processing after a successful BQ write.
   # Must match the topic_id in deploy/pubsub.yaml.
   topic_id: "dkg-intake-processed"
+  # Topic for Connect participants (CloudResearch, no phone).
+  connect_topic_id: "dkg-connect-scheduling"

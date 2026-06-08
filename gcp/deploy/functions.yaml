@@ -105,6 +105,24 @@ functions:
     #     --member=serviceAccount:dkg-fn-dashboard-export@dkg-phd-thesis.iam.gserviceaccount.com \
     #     --role=roles/secretmanager.secretAccessor --project=dkg-phd-thesis
 
+  run-connect-scheduling:
+    source_dir: run_connect_scheduling
+    dependency_group: fn-connect-scheduling
+    entry_point: connect_scheduling_handler
+    trigger: topic
+    trigger_topic: dkg-connect-scheduling
+    allow_unauthenticated: false
+    secrets:
+      - CLOUDRESEARCH_CONNECT_API_KEY=dkg-cloudresearch-connect-api-key:latest
+    service_account:
+      name: dkg-fn-connect-sched
+      display_name: "Cloud Run -- Connect Scheduling Function"
+      roles:
+        - roles/bigquery.dataEditor
+        - roles/bigquery.jobUser
+        - roles/run.invoker
+        - roles/secretmanager.secretAccessor
+
   # -- Future functions ----------------------------------------------
   # run-twilio-handler:
   #   source_dir: run_twilio_handler

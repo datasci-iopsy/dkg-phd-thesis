@@ -22,3 +22,4 @@ pubsub:
   topics:
     - dkg-intake-processed
     - dkg-followup-scheduling
+    - dkg-connect-scheduling

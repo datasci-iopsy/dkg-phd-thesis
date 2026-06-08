@@ -321,6 +321,12 @@ dev = [
     { name = "scipy" },
     { name = "shandy-sqlfmt", extra = ["jinjafmt"] },
 ]
+fn-connect-scheduling = [
+    { name = "cloudevents" },
+    { name = "functions-framework" },
+    { name = "google-cloud-bigquery" },
+    { name = "requests" },
+]
 fn-dashboard-export = [
     { name = "functions-framework" },
     { name = "google-cloud-bigquery" },
@@ -383,6 +389,12 @@ dev = [
     { name = "ruff", specifier = "==0.15.0" },
     { name = "scipy", specifier = "==1.15.3" },
     { name = "shandy-sqlfmt", extras = ["jinjafmt"], specifier = ">=0.29.0" },
+]
+fn-connect-scheduling = [
+    { name = "cloudevents", specifier = ">=1.12.0" },
+    { name = "functions-framework", specifier = ">=3.10.0" },
+    { name = "google-cloud-bigquery", specifier = "==3.39.0" },
+    { name = "requests", specifier = ">=2.33.1" },
 ]
 fn-dashboard-export = [
     { name = "functions-framework", specifier = ">=3.10.0" },
