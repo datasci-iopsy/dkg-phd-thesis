@@ -14,7 +14,8 @@ from __future__ import annotations
 import base64
 import importlib.util
 import json
-from datetime import date, datetime, time, timezone
+import zoneinfo
+from datetime import UTC, date, datetime, time
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -103,7 +104,7 @@ class TestFormatTimeLabelConnect:
     """format_time_label formats time objects as 12-hour strings."""
 
     @pytest.mark.parametrize(
-        "t, expected",
+        ("t", "expected"),
         [
             (time(9, 0), "9:00 AM"),
             (time(13, 0), "1:00 PM"),
@@ -131,7 +132,7 @@ class TestParseDateConnect:
         assert parse_date(d) is d
 
     def test_datetime_extracts_date(self):
-        dt = datetime(2026, 6, 10, 9, 0, tzinfo=timezone.utc)
+        dt = datetime(2026, 6, 10, 9, 0, tzinfo=UTC)
         assert parse_date(dt) == date(2026, 6, 10)
 
 
@@ -152,7 +153,7 @@ class TestComputeSendAtUtcConnect:
         assert result.hour == 14
 
     def test_unknown_timezone_raises(self):
-        with pytest.raises(Exception):
+        with pytest.raises(zoneinfo.ZoneInfoNotFoundError):
             compute_send_at_utc(date(2026, 6, 10), time(9, 0), "Bogus/Zone")
 
 

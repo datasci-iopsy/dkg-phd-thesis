@@ -146,7 +146,7 @@ class TestConnectParticipantData:
         assert not hasattr(p, "phone")
 
     def test_consent_false_raises(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValueError):
             ConnectParticipantData(
                 response_id="R_connect_test",
                 connect_id="aabbccdd11223344aabbccdd11223344",
@@ -306,7 +306,7 @@ class TestQualtricWebhookHandlerConnect:
             with _make_request(connect_payload):
                 from flask import request
 
-                response, status = qualtrics_webhook_handler(request)
+                _response, status = qualtrics_webhook_handler(request)
 
         assert status == 400
         mock_connect.assert_not_called()
@@ -347,6 +347,6 @@ class TestQualtricWebhookHandlerConnect:
             with _make_request(normal_payload):
                 from flask import request
 
-                response, status = qualtrics_webhook_handler(request)
+                _response, status = qualtrics_webhook_handler(request)
 
         assert status == 400
