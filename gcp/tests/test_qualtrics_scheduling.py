@@ -24,6 +24,7 @@ from unittest.mock import patch
 import pytest
 from flask import Flask
 from models.participant import ConnectParticipantData
+from pydantic import ValidationError
 from utils import validation_utils
 
 # ---------------------------------------------------------------------------
@@ -146,7 +147,7 @@ class TestConnectParticipantData:
         assert not hasattr(p, "phone")
 
     def test_consent_false_raises(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError, match="Consent not given"):
             ConnectParticipantData(
                 response_id="R_connect_test",
                 connect_id="aabbccdd11223344aabbccdd11223344",
