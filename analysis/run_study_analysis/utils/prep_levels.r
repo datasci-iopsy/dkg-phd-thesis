@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # ---------------------------------------------------------------------------
-# prep_levels.R -- L1/L2 level partitioning
+# prep_levels.r -- L1/L2 level partitioning
 #
 # Provides:
 #   partition_levels(df, defs)
@@ -10,7 +10,7 @@
 #
 # Prerequisites (caller must source before using):
 #   analysis/shared/utils/common_utils.r  -- log_msg()
-#   analysis/run_study_analysis/utils/data_loader.R  -- VARIABLE_DEFS
+#   analysis/run_study_analysis/utils/data_loader.r  -- VARIABLE_DEFS
 # ---------------------------------------------------------------------------
 
 
@@ -26,7 +26,7 @@ partition_levels <- function(df, defs = VARIABLE_DEFS) {
     l2_cols <- c(
         "response_id",
         defs$l2_study_vars,
-        defs$l2_extra_vars,
+        defs$l2_control_vars,
         defs$l2_demo_vars
     )
 

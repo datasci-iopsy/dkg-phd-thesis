@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # =============================================================================
-# analysis/run_study_analysis/scripts/R/correlation.R
+# analysis/run_study_analysis/scripts/R/correlation.r
 #
 # Correlation analysis for the real participant panel dataset.
 # Computes L2 Pearson correlations, L1 standard Pearson correlations, and
@@ -24,8 +24,8 @@ options(tibble.width = Inf)
 
 source(here::here("analysis", "shared", "utils", "common_utils.r"))
 source(here::here("analysis", "shared", "utils", "plot_utils.r"))
-source(here::here("analysis", "run_study_analysis", "utils", "data_loader.R"))
-source(here::here("analysis", "run_study_analysis", "utils", "prep_levels.R"))
+source(here::here("analysis", "run_study_analysis", "utils", "data_loader.r"))
+source(here::here("analysis", "run_study_analysis", "utils", "prep_levels.r"))
 
 FIGS_DIR <- here::here("analysis", "run_study_analysis", "figs", "corr")
 ensure_dir(FIGS_DIR)
@@ -42,7 +42,7 @@ corr_to_matrix <- function(corr_obj) {
     )
     wide <- tidyr::pivot_wider(sym, names_from = Parameter2, values_from = r)
     vars <- wide$Parameter1
-    mat  <- as.matrix(wide[, vars])
+    mat <- as.matrix(wide[, vars])
     rownames(mat) <- vars
     diag(mat) <- 1
     mat
@@ -56,10 +56,10 @@ save_corr_svg <- make_save_base_svg(FIGS_DIR)
 # =============================================================================
 log_msg("=== [1] Loading data ===")
 
-df_raw   <- load_cleaned_data()
-levels   <- partition_levels(df_raw)
-df_l2    <- levels$l2
-df_l1    <- levels$l1
+df_raw <- load_cleaned_data()
+levels <- partition_levels(df_raw)
+df_l2 <- levels$l2
+df_l1 <- levels$l1
 
 
 # =============================================================================
@@ -165,8 +165,8 @@ rmc_corr$matrix[is.nan(rmc_corr$matrix)] <- 0
 
 # Align variable ordering to shared variables
 shared_vars <- intersect(colnames(rmc_corr$matrix), rownames(mlm_mat))
-mlm_sq  <- mlm_mat[shared_vars, shared_vars]
-rmc_sq  <- rmc_corr$matrix[shared_vars, shared_vars]
+mlm_sq <- mlm_mat[shared_vars, shared_vars]
+rmc_sq <- rmc_corr$matrix[shared_vars, shared_vars]
 
 log_msg("  Shared variables for comparison: ", length(shared_vars))
 

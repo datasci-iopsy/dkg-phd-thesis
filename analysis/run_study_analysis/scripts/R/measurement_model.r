@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # =============================================================================
-# analysis/run_study_analysis/scripts/R/measurement_model.R
+# analysis/run_study_analysis/scripts/R/measurement_model.r
 #
 # CFA and Multilevel CFA (MCFA) for the real participant panel dataset.
 # Produces fit indices, standardized loadings, and McDonald's omega saved
@@ -35,8 +35,8 @@ options(tibble.width = Inf)
 
 source(here::here("analysis", "shared", "utils", "common_utils.r"))
 source(here::here("analysis", "shared", "utils", "plot_utils.r"))
-source(here::here("analysis", "run_study_analysis", "utils", "data_loader.R"))
-source(here::here("analysis", "run_study_analysis", "utils", "prep_levels.R"))
+source(here::here("analysis", "run_study_analysis", "utils", "data_loader.r"))
+source(here::here("analysis", "run_study_analysis", "utils", "prep_levels.r"))
 
 FIGS_DIR <- here::here("analysis", "run_study_analysis", "figs", "cfa")
 ensure_dir(FIGS_DIR)
@@ -67,7 +67,8 @@ df_l2_items <- df_raw |>
         pa1, pa2, pa3, pa4, pa5,
         na1, na2, na3, na4, na5,
         br1, br2, br3, br4, br5,
-        vio1, vio2, vio3, vio4
+        vio1, vio2, vio3, vio4,
+        des1, des2
     )
 
 # L1: all rows (time-varying, measured at each timepoint)
@@ -100,6 +101,7 @@ l2_cfa_model <- "
     NEG_AFF =~ na1 + na2 + na3 + na4 + na5
     PCB     =~ br1 + br2 + br3 + br4 + br5
     PCV     =~ vio1 + vio2 + vio3 + vio4
+    DES     =~ des1 + des2
 "
 
 l2_cfa_fit <- lavaan::cfa(
@@ -109,17 +111,22 @@ l2_cfa_fit <- lavaan::cfa(
 )
 
 log_msg("L2 CFA converged: ", lavaan::lavInspect(l2_cfa_fit, "converged"))
-log_msg("L2 CFA summary:\n",
-        paste(capture.output(summary(l2_cfa_fit, fit.measures = TRUE, standardized = TRUE)),
-              collapse = "\n"))
+log_msg(
+    "L2 CFA summary:\n",
+    paste(capture.output(summary(l2_cfa_fit, fit.measures = TRUE, standardized = TRUE)),
+        collapse = "\n"
+    )
+)
 
 # --- Fit indices -------------------------------------------------------------
 l2_fm <- lavaan::fitMeasures(
     l2_cfa_fit,
-    c("chisq.scaled", "df.scaled", "pvalue.scaled",
-      "cfi.robust", "tli.robust",
-      "rmsea.robust", "rmsea.ci.lower.robust", "rmsea.ci.upper.robust",
-      "srmr")
+    c(
+        "chisq.scaled", "df.scaled", "pvalue.scaled",
+        "cfi.robust", "tli.robust",
+        "rmsea.robust", "rmsea.ci.lower.robust", "rmsea.ci.upper.robust",
+        "srmr"
+    )
 )
 
 l2_fit_df <- tibble::tibble(
@@ -151,7 +158,7 @@ l2_loadings <- lavaan::parameterEstimates(l2_cfa_fit, standardized = TRUE) |>
         pvalue = dplyr::case_when(
             is.na(pvalue) ~ NA_character_,
             pvalue < .001 ~ "< .001",
-            TRUE          ~ as.character(round(pvalue, 4))
+            TRUE ~ as.character(round(pvalue, 4))
         )
     )
 
@@ -178,7 +185,7 @@ l2_omega_df <- tibble::tibble(
 # omega_between: reliability of person-mean (trait) scores
 #
 # Omega computed directly from parameterEstimates() rather than
-# semTools::compRelSEM(). See NOTE in synthetic measurement_model.R
+# semTools::compRelSEM(). See NOTE in synthetic measurement_model.r
 # for rationale (semTools 0.5-8 config= deprecation).
 # =============================================================================
 log_msg("=== [4] L1 MCFA (7 factors x 2 levels, MLR) ===")
@@ -212,17 +219,22 @@ mcfa_l1_fit <- lavaan::cfa(
 )
 
 log_msg("L1 MCFA converged: ", lavaan::lavInspect(mcfa_l1_fit, "converged"))
-log_msg("L1 MCFA summary:\n",
-        paste(capture.output(summary(mcfa_l1_fit, fit.measures = TRUE, standardized = TRUE)),
-              collapse = "\n"))
+log_msg(
+    "L1 MCFA summary:\n",
+    paste(capture.output(summary(mcfa_l1_fit, fit.measures = TRUE, standardized = TRUE)),
+        collapse = "\n"
+    )
+)
 
 # --- Fit indices -------------------------------------------------------------
 l1_fm <- lavaan::fitMeasures(
     mcfa_l1_fit,
-    c("chisq.scaled", "df.scaled", "pvalue.scaled",
-      "cfi.robust", "tli.robust",
-      "rmsea.robust", "rmsea.ci.lower.robust", "rmsea.ci.upper.robust",
-      "srmr_within", "srmr_between")
+    c(
+        "chisq.scaled", "df.scaled", "pvalue.scaled",
+        "cfi.robust", "tli.robust",
+        "rmsea.robust", "rmsea.ci.lower.robust", "rmsea.ci.upper.robust",
+        "srmr_within", "srmr_between"
+    )
 )
 
 l1_fit_df <- tibble::tibble(
@@ -257,7 +269,7 @@ l1_loadings_raw <- lavaan::parameterEstimates(mcfa_l1_fit, standardized = TRUE) 
         pvalue = dplyr::case_when(
             is.na(pvalue) ~ NA_character_,
             pvalue < .001 ~ "< .001",
-            TRUE          ~ as.character(round(pvalue, 4))
+            TRUE ~ as.character(round(pvalue, 4))
         )
     ) |>
     dplyr::select(-level_raw)
@@ -280,10 +292,10 @@ compute_omega_lvl <- function(pe, level_num, fnames) {
     rv <- pe[pe$op == "~~" & pe$lhs == pe$rhs & pe$level == level_num & pe$lhs %in% ld$rhs, ]
     fv <- pe[pe$op == "~~" & pe$lhs == pe$rhs & pe$level == level_num & pe$lhs %in% fnames, ]
     vapply(fnames, function(f) {
-        lam   <- ld$est[ld$lhs == f]
+        lam <- ld$est[ld$lhs == f]
         items <- ld$rhs[ld$lhs == f]
-        the   <- pmax(rv$est[rv$lhs %in% items], 0)
-        phi   <- fv$est[fv$lhs == f]
+        the <- pmax(rv$est[rv$lhs %in% items], 0)
+        phi <- fv$est[fv$lhs == f]
         sum(lam)^2 * phi / (sum(lam)^2 * phi + sum(the))
     }, numeric(1))
 }
@@ -292,23 +304,131 @@ mcfa_l1_omega <- rbind(
     omega  = compute_omega_lvl(pe_mcfa, 1L, l1_factors),
     omega2 = compute_omega_lvl(pe_mcfa, 2L, l1_factors)
 )
-log_msg("L1 MCFA omega matrix (rows = type, cols = factor):\n",
-        paste(capture.output(round(mcfa_l1_omega, 3)), collapse = "\n"))
+log_msg(
+    "L1 MCFA omega matrix (rows = type, cols = factor):\n",
+    paste(capture.output(round(mcfa_l1_omega, 3)), collapse = "\n")
+)
 
-omega_matrix       <- as.data.frame(mcfa_l1_omega)
-omega_matrix$type  <- rownames(omega_matrix)
+omega_matrix <- as.data.frame(mcfa_l1_omega)
+omega_matrix$type <- rownames(omega_matrix)
 
 l1_omega_df <- omega_matrix |>
     tidyr::pivot_longer(-type, names_to = "factor", values_to = "omega") |>
     dplyr::mutate(
         level = dplyr::case_when(
-            type == "omega"  ~ "L1_within",
+            type == "omega" ~ "L1_within",
             type == "omega2" ~ "L1_between",
-            TRUE             ~ paste0("L1_", type)
+            TRUE ~ paste0("L1_", type)
         ),
         omega = round(omega, 3)
     ) |>
     dplyr::select(level, factor, omega, type)
+
+
+# =============================================================================
+# [4b] METRIC INVARIANCE TEST (configural vs. metric MCFA)
+# -----------------------------------------------------------------------------
+# The configural model (mcfa_l1_fit, [4]) imposes the same factor structure at
+# L1 and L2 but leaves loadings free to differ across levels. Metric invariance
+# constrains loadings to be equal, which is required to interpret the same
+# construct as meaning the same thing at both the within-person (CWC) and
+# between-person (person-mean) levels in the MLM. Test via Satorra-Bentler
+# scaled chi-square difference (appropriate for MLR).
+# Cite: Hox (2010); Geldhof et al. (2014); Menghini et al. (2024 ESM template)
+# =============================================================================
+log_msg("=== [4b] Metric invariance test ===")
+
+factor_items_map <- list(
+    PF      = c("pf1", "pf2", "pf4", "pf5", "pf6"),
+    CW      = c("cw1", "cw2", "cw3", "cw4", "cw5"),
+    EE      = c("ee1", "ee2", "ee3"),
+    NF_COMP = c("comp1", "comp2", "comp3", "comp4"),
+    NF_AUTO = c("auto1", "auto2", "auto3", "auto4"),
+    NF_REL  = c("relt1", "relt2", "relt3", "relt4"),
+    ATCB    = c("atcb2", "atcb5", "atcb6", "atcb7")
+)
+
+metric_factor_block <- paste(
+    vapply(names(factor_items_map), function(fac) {
+        items <- factor_items_map[[fac]]
+        labeled <- paste0("lam_", tolower(fac), "_", items, "*", items)
+        paste0("    ", fac, " =~ ", paste(labeled, collapse = " + "))
+    }, character(1)),
+    collapse = "\n"
+)
+
+mcfa_metric_model <- paste(
+    "level: 1", metric_factor_block,
+    "level: 2", metric_factor_block,
+    sep = "\n"
+)
+
+mcfa_metric_fit <- tryCatch(
+    lavaan::cfa(
+        model        = mcfa_metric_model,
+        data         = df_l1_items,
+        cluster      = "id",
+        estimator    = "MLR",
+        optim.method = "nlminb"
+    ),
+    error = function(e) {
+        log_msg("  Metric MCFA failed: ", conditionMessage(e))
+        NULL
+    }
+)
+
+metric_invariance_df <- NULL
+if (!is.null(mcfa_metric_fit) && lavaan::lavInspect(mcfa_metric_fit, "converged")) {
+    log_msg("  Metric MCFA converged")
+    metric_lrt <- tryCatch(
+        lavaan::lavTestLRT(mcfa_l1_fit, mcfa_metric_fit,
+            method = "satorra.bentler.2010"
+        ),
+        error = function(e) {
+            log_msg("  LRT failed: ", conditionMessage(e))
+            NULL
+        }
+    )
+    if (!is.null(metric_lrt)) {
+        lrt_df <- as.data.frame(metric_lrt)
+        delta_chi2 <- lrt_df[2, "Chisq diff"]
+        delta_df <- lrt_df[2, "Df diff"]
+        delta_p <- lrt_df[2, "Pr(>Chisq)"]
+        log_msg(
+            "  Configural vs. Metric LRT (SB): delta_chi2 = ", round(delta_chi2, 3),
+            ", delta_df = ", delta_df,
+            ", p = ", format.pval(delta_p, digits = 4)
+        )
+        metric_invariance_df <- tibble::tibble(
+            model = c("Configural", "Metric"),
+            chi2 = round(lrt_df$Chisq, 2),
+            df = lrt_df$Df,
+            delta_chi2 = c(NA_real_, round(delta_chi2, 3)),
+            delta_df = c(NA_integer_, as.integer(delta_df)),
+            p_diff = c(NA_real_, round(delta_p, 4)),
+            result = c(
+                NA_character_,
+                dplyr::case_when(
+                    is.na(delta_p) ~ "inconclusive",
+                    delta_p >= .05 ~ "metric invariance supported",
+                    TRUE ~ "metric non-invariance detected"
+                )
+            )
+        )
+    }
+} else {
+    log_msg("  Metric MCFA did not converge; recording as inconclusive")
+    metric_invariance_df <- tibble::tibble(
+        model = c("Configural", "Metric"),
+        result = c(NA_character_, "metric model did not converge")
+    )
+}
+
+if (!is.null(metric_invariance_df)) {
+    save_md(metric_invariance_df, file.path(FIGS_DIR, "cfa_08_metric_invariance.md"))
+    readr::write_csv(metric_invariance_df, file.path(FIGS_DIR, "cfa_08_metric_invariance.csv"))
+    log_msg("  Saved: cfa_08_metric_invariance")
+}
 
 
 # =============================================================================
@@ -338,8 +458,8 @@ l1_omega_df <- omega_matrix |>
 log_msg("=== [5] CFA Marker Variable Technique (L1 only) ===")
 
 marker_evidence_df <- NULL
-marker_fit_df      <- NULL
-marker_lrt_df      <- NULL
+marker_fit_df <- NULL
+marker_lrt_df <- NULL
 
 # --- [5a] Marker evidence: ATCB within-person rmcorr -------------------------
 log_msg("  [5a] ATCB within-person rmcorr with substantive scale means")
@@ -370,8 +490,10 @@ marker_evidence_df <- tibble::tibble(
 ) |>
     dplyr::mutate(near_zero = abs(rmcorr_r) < 0.10)
 
-log_msg("  ATCB within-person rmcorr with substantive vars:\n",
-        paste(capture.output(print(marker_evidence_df, n = Inf)), collapse = "\n"))
+log_msg(
+    "  ATCB within-person rmcorr with substantive vars:\n",
+    paste(capture.output(print(marker_evidence_df, n = Inf)), collapse = "\n")
+)
 
 # --- [5b] Baseline: mcfa_l1_fit from [4] -------------------------------------
 # mcfa_l1_fit is the Baseline (Model 1); no additional fitting required
@@ -425,56 +547,60 @@ mcfa_method_u_fit <- tryCatch(
 
 method_u_result <- "not_estimated"
 
-if (!is.null(mcfa_method_u_fit) &&
-        isTRUE(lavaan::lavInspect(mcfa_method_u_fit, "converged"))) {
-
+if (!is.null(mcfa_method_u_fit) && isTRUE(lavaan::lavInspect(mcfa_method_u_fit, "converged"))) {
     log_msg("  Method-U converged: TRUE")
 
-    lrt_u   <- lavaan::lavTestLRT(
+    lrt_u <- lavaan::lavTestLRT(
         mcfa_l1_fit, mcfa_method_u_fit,
         method = "satorra.bentler.2010"
     )
     u_chisq <- lrt_u[2, "Chisq diff"]
-    u_df    <- lrt_u[2, "Df diff"]
-    u_p     <- lrt_u[2, "Pr(>Chisq)"]
+    u_df <- lrt_u[2, "Df diff"]
+    u_p <- lrt_u[2, "Pr(>Chisq)"]
     method_u_result <- if (!is.na(u_p) && u_p < 0.05) "significant" else "not_significant"
 
-    log_msg("  SB chi-sq diff: ", round(u_chisq, 3),
-            ", df = ", u_df, ", p = ", round(u_p, 4),
-            "  [", method_u_result, "]")
+    log_msg(
+        "  SB chi-sq diff: ", round(u_chisq, 3),
+        ", df = ", u_df, ", p = ", round(u_p, 4),
+        "  [", method_u_result, "]"
+    )
 
     baseline_fm <- lavaan::fitMeasures(
         mcfa_l1_fit,
-        c("chisq.scaled", "df.scaled", "cfi.robust", "rmsea.robust",
-          "srmr_within", "srmr_between")
+        c(
+            "chisq.scaled", "df.scaled", "cfi.robust", "rmsea.robust",
+            "srmr_within", "srmr_between"
+        )
     )
     method_u_fm <- lavaan::fitMeasures(
         mcfa_method_u_fit,
-        c("chisq.scaled", "df.scaled", "cfi.robust", "rmsea.robust",
-          "srmr_within", "srmr_between")
+        c(
+            "chisq.scaled", "df.scaled", "cfi.robust", "rmsea.robust",
+            "srmr_within", "srmr_between"
+        )
     )
 
     marker_fit_df <- tibble::tibble(
-        model        = c("Baseline (MCFA)", "Method-U (ATCB cross-loadings)"),
-        chi_sq       = round(
+        model = c("Baseline (MCFA)", "Method-U (ATCB cross-loadings)"),
+        chi_sq = round(
             c(baseline_fm["chisq.scaled"], method_u_fm["chisq.scaled"]), 2
         ),
-        df           = c(baseline_fm["df.scaled"], method_u_fm["df.scaled"]),
-        cfi          = round(
+        df = c(baseline_fm["df.scaled"], method_u_fm["df.scaled"]),
+        cfi = round(
             c(baseline_fm["cfi.robust"], method_u_fm["cfi.robust"]), 3
         ),
-        rmsea        = round(
+        rmsea = round(
             c(baseline_fm["rmsea.robust"], method_u_fm["rmsea.robust"]), 3
         ),
-        srmr_within  = round(
+        srmr_within = round(
             c(baseline_fm["srmr_within"], method_u_fm["srmr_within"]), 3
         ),
         srmr_between = round(
             c(baseline_fm["srmr_between"], method_u_fm["srmr_between"]), 3
         ),
-        delta_chisq  = c(NA_real_, round(u_chisq, 2)),
-        delta_df     = c(NA_integer_, as.integer(u_df)),
-        p_diff       = c(NA_real_, round(u_p, 4))
+        delta_chisq = c(NA_real_, round(u_chisq, 2)),
+        delta_df = c(NA_integer_, as.integer(u_df)),
+        p_diff = c(NA_real_, round(u_p, 4))
     )
 
     marker_lrt_df <- tibble::tibble(
@@ -484,7 +610,6 @@ if (!is.null(mcfa_method_u_fit) &&
         p_value        = round(u_p, 4),
         conclusion     = method_u_result
     )
-
 } else {
     log_msg("  Method-U did not converge; marker technique not evaluated")
 }
@@ -495,7 +620,7 @@ method_r_result <- "not_run"
 if (method_u_result == "significant" && !is.null(mcfa_method_u_fit)) {
     log_msg("  [5d] Method-U significant: fitting Method-R (fixed L1 factor covariances)")
 
-    pe_base  <- lavaan::parameterEstimates(mcfa_l1_fit)
+    pe_base <- lavaan::parameterEstimates(mcfa_l1_fit)
     l1_fcovs <- pe_base |>
         dplyr::filter(
             op == "~~", lhs != rhs, level == 1L,
@@ -505,8 +630,10 @@ if (method_u_result == "significant" && !is.null(mcfa_method_u_fit)) {
     fxd_lines <- vapply(
         seq_len(nrow(l1_fcovs)),
         function(i) {
-            sprintf("    %s ~~ %.6f * %s",
-                    l1_fcovs$lhs[i], l1_fcovs$est[i], l1_fcovs$rhs[i])
+            sprintf(
+                "    %s ~~ %.6f * %s",
+                l1_fcovs$lhs[i], l1_fcovs$est[i], l1_fcovs$rhs[i]
+            )
         },
         character(1)
     )
@@ -547,26 +674,28 @@ if (method_u_result == "significant" && !is.null(mcfa_method_u_fit)) {
         }
     )
 
-    if (!is.null(method_r_fit) &&
-            isTRUE(lavaan::lavInspect(method_r_fit, "converged"))) {
-
-        lrt_r   <- lavaan::lavTestLRT(
+    if (!is.null(method_r_fit) && isTRUE(lavaan::lavInspect(method_r_fit, "converged"))) {
+        lrt_r <- lavaan::lavTestLRT(
             method_r_fit, mcfa_method_u_fit,
             method = "satorra.bentler.2010"
         )
-        r_chisq         <- lrt_r[2, "Chisq diff"]
-        r_df            <- lrt_r[2, "Df diff"]
-        r_p             <- lrt_r[2, "Pr(>Chisq)"]
+        r_chisq <- lrt_r[2, "Chisq diff"]
+        r_df <- lrt_r[2, "Df diff"]
+        r_p <- lrt_r[2, "Pr(>Chisq)"]
         method_r_result <- if (!is.na(r_p) && r_p < 0.05) "biased" else "unbiased"
 
-        log_msg("  Method-R SB chi-sq diff: ", round(r_chisq, 3),
-                ", p = ", round(r_p, 4),
-                "  -> relationships: ", method_r_result)
+        log_msg(
+            "  Method-R SB chi-sq diff: ", round(r_chisq, 3),
+            ", p = ", round(r_p, 4),
+            "  -> relationships: ", method_r_result
+        )
 
         method_r_fm <- lavaan::fitMeasures(
             method_r_fit,
-            c("chisq.scaled", "df.scaled", "cfi.robust", "rmsea.robust",
-              "srmr_within", "srmr_between")
+            c(
+                "chisq.scaled", "df.scaled", "cfi.robust", "rmsea.robust",
+                "srmr_within", "srmr_between"
+            )
         )
 
         marker_fit_df <- dplyr::bind_rows(
@@ -596,14 +725,15 @@ if (method_u_result == "significant" && !is.null(mcfa_method_u_fit)) {
             )
         )
     }
-
 } else if (method_u_result == "not_significant") {
     log_msg("  [5d] Method-U not significant; Method-R not needed")
     method_r_result <- "not_needed"
 }
 
-log_msg("  Marker result: Method-U = ", method_u_result,
-        "; Method-R = ", method_r_result)
+log_msg(
+    "  Marker result: Method-U = ", method_u_result,
+    "; Method-R = ", method_r_result
+)
 
 
 # =============================================================================
@@ -652,9 +782,12 @@ if (!is.null(marker_lrt_df)) {
 # [7] SUMMARY
 # =============================================================================
 log_msg("=== [7] Summary ===")
-log_msg("Single-item measures (omega not estimable):")
+log_msg("Single-item measures excluded from CFA (omega not estimable):")
 log_msg("  - Job Satisfaction (js1): 1 item, L2 only (tp1/9AM)")
+log_msg("  - Job Insecurity (jis1): 1 item, L2 only")
 log_msg("  - Turnover Intention (turnover_intention): 1 item, L1")
+log_msg("Two-item L2 factor included in CFA:")
+log_msg("  - Desirability of Movement (DES): des1 + des2; just-identified factor (0 df), omega estimable")
 log_msg("PF: 5-item model (pf3 excluded; absent at tp2/tp3 by survey design)")
 log_msg("Marker technique: Level 1 only (L2 scales collected at separate intake session)")
 log_msg("=== Measurement model complete. Output -> ", FIGS_DIR, " ===")
