@@ -218,7 +218,163 @@ All within-person associations between ATCB and substantive constructs are near 
 
 ---
 
+## Multilevel Model
+
+### Model building sequence (M0 to M7b)
+
+Cross-classified data: N = 322 L2 units (participants) x 3 L1 observations per person (966 total). DV: turnover_intention_mean (single-item, 1-5 scale). Centering: person-mean centering (CWC) for L1 predictors via datawizard::demean(); grand-mean centering for L2 predictors. Following Curran & Bauer (2011) and Enders & Tofighi (2007). ML for LRTs; REML for final parameter tables.
+
+**Model fit summary** (ML estimation):
+
+| Model | AIC | BIC | R2_mar | R2_con | tau_00 | LRT chi2 | df | p |
+|---|---|---|---|---|---|---|---|---|
+| M0: Unconditional means | 2226.8 | 2241.4 | .000 | .800 | .989 | -- | -- | -- |
+| M1: Fixed time | 2224.7 | 2244.2 | .002 | .803 | .990 | 10.12 | 1 | .001 |
+| M2: Random slope | 2207.2 | 2236.5 | .002 | .831 | .872 | 21.43 | 2 | <.001 |
+| M3: L1 within-person (H1a, H2a) | 2166.6 | 2239.7 | .046 | .841 | .890 | 107.40 | 9 | <.001 |
+| M4: L1 within + between (H1b, H2b) | 1969.3 | 2081.4 | .495 | .841 | .376 | 251.27 | 8 | <.001 |
+| M5: L2 study vars (H4a, H4b, H5) | 1924.6 | 2061.1 | .576 | .841 | .290 | 76.67 | 5 | <.001 |
+| M6: Demographic covariates | 1968.5 | 2153.7 | .575 | .843 | .294 | 6.27 | 10 | .792 |
+
+- **ICC (M0)**: R2_conditional = .800, confirming substantial between-person variance in TI (prerequisite met).
+- **M4 drives the explained variance**: R2_marginal jumps from .046 to .495 when between-person means enter; L1 person-mean components carry the bulk of the predictive signal.
+- **M6 non-significant**: LRT p = .792; demographic covariates (gender, is_remote, edu_lvl, ethnicity) add no incremental fit over M5. recruitment_source was entered in M3-M5 per the manuscript's mandatory control specification and was not re-screened.
+
+### Hypothesis tests
+
+**Supported hypotheses (p < .05, correct direction)**:
+
+| Hypothesis | Term | Estimate | p | Model |
+|---|---|---|---|---|
+| H1a:comp | WP competence frustration | +.138 | .003 | M3 |
+| H2a:pf | WP physical fatigue | +.180 | <.001 | M3 |
+| H2a:ee | WP emotional exhaustion | +.218 | <.001 | M3 |
+| H2b:pf | BP physical fatigue mean | +.520 | <.001 | M4 |
+| H2b:ee | BP emotional exhaustion mean | +.544 | <.001 | M4 |
+| H4a | BP PC breach | +.131 | .049 | M5 |
+| H5 | BP job satisfaction | -.178 | <.001 | M5 |
+
+**Not supported**:
+
+| Hypothesis | Term | Estimate | p | Note |
+|---|---|---|---|---|
+| H1a:auto | WP autonomy frustration | -.008 | .806 | Wrong direction |
+| H1a:relt | WP relatedness frustration | +.006 | .900 | ns |
+| H1b (all) | BP NF facet means | .042 to .107 | .262 to .454 | ns |
+| H2a:cw | WP cognitive weariness | +.008 | .834 | ns |
+| H2b:cw | BP cognitive weariness mean | -.227 | .002 | Wrong direction |
+| H3a:count | Count x NF composite | -.075 | .308 | ns |
+| H3a:time | Time x NF composite | -.002 | .399 | ns |
+| H3b:count | Count x burnout composite | +.007 | .920 | ns |
+| H3b:time | Time x burnout composite | +.003 | .179 | ns |
+| H4b | BP PC violation | +.092 | .217 | ns |
+
+### Slope heterogeneity (rho_beta; Aguinis & Culpepper, 2015)
+
+| Predictor | rho_beta | tau11 | Magnitude |
+|---|---|---|---|
+| PF (within) | .053 | .311 | medium |
+| EE (within) | .020 | .189 | small-medium |
+| Comp NF (within) | .036 | .305 | small-medium |
+| Burnout composite (within) | .031 | .333 | small-medium |
+| CW (within) | .012 | .066 | small-medium |
+| NF composite (within) | .012 | .145 | small-medium |
+| Auto NF (within) | .006 | .030 | negligible |
+| Relt NF (within) | .003 | .033 | negligible |
+
+rho_beta quantifies the proportion of within-person variance explained by slope heterogeneity (i.e., individual differences in how strongly each L1 predictor relates to TI). PF has the largest rho_beta (.053), indicating moderate person-level variability in the PF-TI slope. Most other predictors show small-medium or negligible slope heterogeneity.
+
+- Outputs: `figs/mlm/mlm_04_hypothesis_tests.md`, `mlm_08_iccbeta.csv`, model diagnostics at `mlm_diag_model_*.svg`
+- Cite: Curran & Bauer (2011); Enders & Tofighi (2007); Aguinis & Culpepper (2015).
+
+## Post Hoc Power Confirmation
+
+### Analytic strategy
+
+Post hoc power estimates are drawn from the pre-study simulation grid (Arend & Schafer, 2019) run prior to data collection (`analysis/run_power_analysis/`). The GCP production run covered N_Level2 ∈ {100, ..., 1500}, ICC ∈ {0.10, 0.30, 0.50}, and standardized fixed effects ∈ {0.10, 0.30, 0.50} for L1 direct, L2 direct, and cross-level interaction effects (1,000 simulations per cell; Kenward-Roger tests).
+
+Three features of the actual design require explicit handling:
+
+1. **N = 322 falls between grid nodes.** Nodes at N = 300 and N = 400 bracket the actual sample; power values below are interpolated or stated as bounds.
+2. **TI ICC ≈ 0.80 exceeds the grid maximum (0.50).** Grid ICC = 0.50 is used as the nearest reference. For L1 (within-person) effects, higher ICC means less within-person variance available to detect state-level fluctuation, so ICC = 0.50 estimates are **optimistic upper bounds** for L1 power. For L2 (between-person) effects, higher ICC concentrates between-person signal and does not meaningfully degrade L2 power; ICC = 0.50 is **conservative** for L2.
+3. **Observed standardized effects computed post hoc:** L1 effects standardized using WP SD; L2 effects using BP (person-mean) SD.
+
+### Observed standardized effect sizes
+
+Standardized beta = beta_unstd * (SD_pred / SD_TI), computed from actual WP and BP SDs in the analytical sample (N = 322).
+
+**L1 (within-person, WP-centered):**
+
+| Hypothesis | Predictor | beta_unstd | SD_WP_pred | SD_WP_TI | std_beta |
+|---|---|---|---|---|---|
+| H1a:comp | WP Competence Frus. | +.138 | .379 | .406 | ~.13 |
+| H2a:pf | WP Physical Fatigue | +.180 | .460 | .406 | ~.20 |
+| H2a:ee | WP Emotional Exhaustion | +.218 | .366 | .406 | ~.20 |
+
+**L2 (between-person, person-mean):**
+
+| Hypothesis | Predictor | beta_unstd | SD_BP_pred | SD_BP_TI | std_beta |
+|---|---|---|---|---|---|
+| H2b:pf | BP Physical Fatigue | +.520 | .909 | 1.034 | ~.46 |
+| H2b:ee | BP Emotional Exhaustion | +.544 | .592 | 1.034 | ~.31 |
+| H4a | BP PC Breach | +.131 | 1.045 | 1.034 | ~.13 |
+| H5 | BP Job Satisfaction | -.178 | 1.151 | 1.034 | ~.20 |
+
+### Power estimates from simulation grid (ICC = 0.50; N = 300 and N = 400)
+
+**L1 direct effects:**
+
+| std_beta | N = 300 | N = 400 | Approx. N ≈ 322 |
+|---|---|---|---|
+| .10 (small) | .63-.65 | .71-.77 | ~.65 |
+| .20 (interpolated) | ~.87* | ~.93* | ~.89* |
+| .30+ (medium) | 1.00 | 1.00 | 1.00 |
+
+*Linear interpolation between the .10 and .30 grid nodes.
+
+These are upper bounds for L1: actual power at ICC = 0.80 is lower than shown.
+
+**L2 direct effects:**
+
+| std_beta | N = 300 | N = 400 | Approx. N ≈ 322 |
+|---|---|---|---|
+| .10 (small) | .31-.35 | .40-.46 | ~.36 |
+| .20 (interpolated) | ~.65* | ~.72* | ~.67* |
+| .30+ (medium) | .99-1.00 | 1.00 | >=.99 |
+
+*Linear interpolation between the .10 and .30 grid nodes.
+
+These are conservative estimates for L2: actual power at ICC = 0.80 is equal to or greater than shown.
+
+### Verdict by supported hypothesis
+
+| Hypothesis | std_beta | Approx. power | p | Assessment |
+|---|---|---|---|---|
+| H1a:comp | ~.13 | <=.65 (upper bound) | .003 | Low power; finding significant; caution given small effect near detection floor |
+| H2a:pf | ~.20 | <=.89 (upper bound) | <.001 | Moderate-to-adequate power; supported |
+| H2a:ee | ~.20 | <=.89 (upper bound) | <.001 | Moderate-to-adequate power; supported |
+| H2b:pf | ~.46 | >=.99 | <.001 | Well-powered; supported |
+| H2b:ee | ~.31 | >=.99 | <.001 | Well-powered; supported |
+| H4a | ~.13 | ~.36-.67 | .049 | Low power; borderline p; replicate before treating as established |
+| H5 | ~.20 | ~.67 (conservative) | <.001 | Moderate power; strong p consistent with true effect |
+
+### Null findings
+
+**Non-significant L1 effects** (H1a:auto beta=-.008; H1a:relt beta=+.006; H2a:cw beta=+.008): standardized effects all below .01. These are not underpowered null results -- they are essentially zero effects. Power to detect std_beta < .05 would be negligible at any N in the grid.
+
+**Non-significant L2 effects** (H1b NF facet means: std_beta ≈ .04--.09; H4b PCV: p = .217): effects are below the small-effect threshold. At std_beta = .10, L2 power ≈ .36 (N = 322, ICC = 0.50). The simulation cannot distinguish between a true zero and an underpowered small effect at this N for these predictors. Replication at larger N would be needed to confirm absence of NF facet effects on TI.
+
+**Cross-level interactions** (H3a, H3b): all non-significant. The simulation shows cross-level interaction power is consistently below .50 for small effects (std = .10) at N = 300-400 with ICC = 0.50. These null findings are inconclusive; the design was not adequately powered to detect small interaction effects at this N.
+
+### Scope limitation
+
+The simulation grid does not include ICC = 0.80. All L1 power estimates are upper bounds; the true power for L1 effects at ICC = 0.80 is lower. The L2 estimates are conservative. Supplementary simulations at ICC = 0.80 (N = 300-400, n_lvl1 = 3) would tighten these bounds and are noted as a future addition if requested during peer review.
+
+- Cite: Arend & Schafer (2019); Kenward-Roger tests via `simr`.
+- Source data: `analysis/run_power_analysis/data/power_analysis_results_20260316_183228.csv` (GCP prod run, 3,645 cells x 1,000 sims).
+
+---
+
 ## Sections to Add
 
-- [ ] Multilevel model specification (Slice 8)
-- [ ] Hypothesis tests and effect sizes (Slice 8)
+- [ ] Publication-ready tables (Slice 9)
