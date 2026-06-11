@@ -1,0 +1,20 @@
+|level      |factor  | omega|type         |
+|:----------|:-------|-----:|:------------|
+|L2         |POS_AFF | 0.773|single_level |
+|L2         |NEG_AFF | 0.815|single_level |
+|L2         |PCB     | 0.943|single_level |
+|L2         |PCV     | 0.921|single_level |
+|L1_within  |PF      | 0.817|omega        |
+|L1_within  |CW      | 0.852|omega        |
+|L1_within  |EE      | 0.613|omega        |
+|L1_within  |NF_COMP | 0.550|omega        |
+|L1_within  |NF_AUTO | 0.558|omega        |
+|L1_within  |NF_REL  | 0.618|omega        |
+|L1_within  |ATCB    | 0.492|omega        |
+|L1_between |PF      | 0.973|omega2       |
+|L1_between |CW      | 0.985|omega2       |
+|L1_between |EE      | 0.958|omega2       |
+|L1_between |NF_COMP | 0.966|omega2       |
+|L1_between |NF_AUTO | 0.949|omega2       |
+|L1_between |NF_REL  | 0.939|omega2       |
+|L1_between |ATCB    | 0.983|omega2       |
