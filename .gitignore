@@ -44,6 +44,7 @@ logs/
 # exceptions
 !analysis/run_synthetic_data/data/import/*.csv
 !analysis/run_synthetic_data/data/export/*.csv
+!analysis/run_study_analysis/data/export/*.csv
 /.uvr/library/
 
 # Local Netlify folder

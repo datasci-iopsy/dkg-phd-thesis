@@ -79,6 +79,17 @@ expected_dirs=(
 	"analysis/run_synthetic_data/scripts"
 	"analysis/run_synthetic_data/scripts/r"
 	"analysis/run_synthetic_data/utils"
+	"analysis/run_study_analysis"
+	"analysis/run_study_analysis/scripts"
+	"analysis/run_study_analysis/scripts/R"
+	"analysis/run_study_analysis/scripts/sql"
+	"analysis/run_study_analysis/utils"
+	"analysis/run_study_analysis/data/export"
+	"analysis/run_study_analysis/figs/cfa"
+	"analysis/run_study_analysis/figs/corr"
+	"analysis/run_study_analysis/figs/data_quality"
+	"analysis/run_study_analysis/figs/eda"
+	"analysis/run_study_analysis/figs/mlm"
 )
 
 for dir in "${expected_dirs[@]}"; do
@@ -128,6 +139,12 @@ required_files=(
 	"analysis/run_synthetic_data/scripts/r/correlation.R"
 	"analysis/run_synthetic_data/scripts/r/measurement_model.R"
 	"analysis/run_synthetic_data/scripts/r/publication_tables.R"
+	"analysis/run_study_analysis/utils/data_loader.R"
+	"analysis/run_study_analysis/README.md"
+	"analysis/run_study_analysis/scripts/sql/fct_participation_summary.sql"
+	"analysis/run_study_analysis/scripts/sql/fct_panel_responses.sql"
+	"analysis/run_study_analysis/scripts/export_study_participation_summary_csv.sh"
+	"analysis/run_study_analysis/scripts/export_study_fct_panel_responses_csv.sh"
 )
 
 for f in "${required_files[@]}"; do
@@ -246,6 +263,7 @@ if command -v Rscript &>/dev/null; then
 		"analysis/run_synthetic_data/scripts/r/eda.R"
 		"analysis/run_synthetic_data/scripts/r/correlation.R"
 		"analysis/run_synthetic_data/scripts/r/measurement_model.R"
+		"analysis/run_study_analysis/utils/data_loader.R"
 	)
 
 	for f in "${r_files[@]}"; do
