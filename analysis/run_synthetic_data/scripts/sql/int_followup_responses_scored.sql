@@ -3,15 +3,22 @@
 --
 -- Transforms and stores the raw follow-up survey responses.
 -- =============================================================================
-create temp function likert_to_int (val string) as (
-    case
-        when val in ('Strongly disagree', 'Never') then 1
-        when val in ('Disagree', 'Once') then 2
-        when val in ('Neither agree nor disagree', 'Twice') then 3
-        when val in ('Agree', 'Three times') then 4
-        when val in ('Strongly agree', 'More than three times') then 5
-    end
-)
+create temp function likert_to_int(val string)
+as
+    (
+        case
+            when val in ('Strongly disagree', 'Never')
+            then 1
+            when val in ('Disagree', 'Once')
+            then 2
+            when val in ('Neither agree nor disagree', 'Twice')
+            then 3
+            when val in ('Agree', 'Three times')
+            then 4
+            when val in ('Strongly agree', 'More than three times')
+            then 5
+        end
+    )
 ;
 
 create or replace table `dkg-phd-thesis.syn_qualtrics.int_followup_responses_scored` as

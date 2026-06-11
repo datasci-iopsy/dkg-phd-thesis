@@ -94,58 +94,58 @@ with
             survey_id,
             _created_at,
             duration,
-            to_bool(consent) as has_consented,
+            to_bool (consent) as has_consented,
             connect_id,
-            connect_id is not null as has_connect_id,
-            -- recruitment_source: 32-char alphanumeric = CloudResearch; else snowball
+            -- CloudResearch connect_id = exactly 32 alphanumeric chars; snowball respondents entered random text
+            regexp_contains(coalesce(connect_id, ''), r'^[A-Za-z0-9]{32}$') as has_connect_id,
             case
                 when regexp_contains(connect_id, r'^[A-Za-z0-9]{32}$') then 'cloudresearch'
                 else 'snowball'
             end as recruitment_source,
-            to_bool(age_flag) as is_adult,
-            to_bool(location_flag) as is_domestic,
-            to_bool(language_flag) as is_english_proficient,
+            to_bool (age_flag) as is_adult,
+            to_bool (location_flag) as is_domestic,
+            to_bool (language_flag) as is_english_proficient,
             safe_cast(phone as int64) as phone_number,
-            to_iana_tz(timezone) as time_zone,
+            to_iana_tz (timezone) as time_zone,
             date(selected_date) as followup_date,
             age,
             ethnicity,
             gender_identity as gender,
             job_tenure,
             education_level as edu_lvl,
-            to_bool(remote_flag) as is_remote,
+            to_bool (remote_flag) as is_remote,
             work_classification,
             work_shift,
             -- PA items (frequency scale)
-            likert_to_int_freq(pa1) as pa1,
-            likert_to_int_freq(pa2) as pa2,
-            likert_to_int_freq(pa3) as pa3,
-            likert_to_int_freq(pa4) as pa4,
-            likert_to_int_freq(pa5) as pa5,
+            likert_to_int_freq (pa1) as pa1,
+            likert_to_int_freq (pa2) as pa2,
+            likert_to_int_freq (pa3) as pa3,
+            likert_to_int_freq (pa4) as pa4,
+            likert_to_int_freq (pa5) as pa5,
             -- NA items (frequency scale)
-            likert_to_int_freq(na1) as na1,
-            likert_to_int_freq(na2) as na2,
-            likert_to_int_freq(na3) as na3,
-            likert_to_int_freq(na4) as na4,
-            likert_to_int_freq(na5) as na5,
+            likert_to_int_freq (na1) as na1,
+            likert_to_int_freq (na2) as na2,
+            likert_to_int_freq (na3) as na3,
+            likert_to_int_freq (na4) as na4,
+            likert_to_int_freq (na5) as na5,
             -- BR items (agreement scale)
-            likert_to_int_agree(br1) as br1,
-            likert_to_int_agree(br2) as br2,
-            likert_to_int_agree(br3) as br3,
-            likert_to_int_agree(br4) as br4,
-            likert_to_int_agree(br5) as br5,
+            likert_to_int_agree (br1) as br1,
+            likert_to_int_agree (br2) as br2,
+            likert_to_int_agree (br3) as br3,
+            likert_to_int_agree (br4) as br4,
+            likert_to_int_agree (br5) as br5,
             -- VIO items (agreement scale)
-            likert_to_int_agree(vio1) as vio1,
-            likert_to_int_agree(vio2) as vio2,
-            likert_to_int_agree(vio3) as vio3,
-            likert_to_int_agree(vio4) as vio4,
+            likert_to_int_agree (vio1) as vio1,
+            likert_to_int_agree (vio2) as vio2,
+            likert_to_int_agree (vio3) as vio3,
+            likert_to_int_agree (vio4) as vio4,
             -- JS (single item; agreement scale)
-            likert_to_int_agree(js1) as js1,
+            likert_to_int_agree (js1) as js1,
             -- JIS (single item; agreement scale)
-            likert_to_int_agree(jis1) as jis1,
+            likert_to_int_agree (jis1) as jis1,
             -- DES items (agreement scale)
-            likert_to_int_agree(des1) as des1,
-            likert_to_int_agree(des2) as des2
+            likert_to_int_agree (des1) as des1,
+            likert_to_int_agree (des2) as des2
         from
             `dkg-phd-thesis.qualtrics.stg_intake_responses`
     )

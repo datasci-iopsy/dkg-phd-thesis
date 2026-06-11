@@ -16,9 +16,21 @@ with
             countif(timepoint = 1) > 0 as has_completed_tp1,
             countif(timepoint = 2) > 0 as has_completed_tp2,
             countif(timepoint = 3) > 0 as has_completed_tp3,
-            max(case when timepoint = 1 then has_passed_attention_check end) as has_passed_attn_tp1,
-            max(case when timepoint = 2 then has_passed_attention_check end) as has_passed_attn_tp2,
-            max(case when timepoint = 3 then has_passed_attention_check end) as has_passed_attn_tp3,
+            max(
+                case
+                    when timepoint = 1 then has_passed_attention_check
+                end
+            ) as has_passed_attn_tp1,
+            max(
+                case
+                    when timepoint = 2 then has_passed_attention_check
+                end
+            ) as has_passed_attn_tp2,
+            max(
+                case
+                    when timepoint = 3 then has_passed_attention_check
+                end
+            ) as has_passed_attn_tp3,
             count(*) as n_followups,
             min(_created_at) as first_followup_at,
             max(_created_at) as last_followup_at

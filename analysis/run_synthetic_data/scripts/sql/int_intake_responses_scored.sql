@@ -3,31 +3,49 @@
 --
 -- Transforms and stores the raw intake survey responses.
 -- =============================================================================
-create temp function to_bool (val string) as (val = 'Yes')
+create temp function to_bool(val string)
+as (val = 'Yes')
 ;
 
-create temp function to_iana_tz (val string) as (
-    case val
-        when 'US/Eastern' then 'America/New_York'
-        when 'US/Central' then 'America/Chicago'
-        when 'US/Mountain' then 'America/Denver'
-        when 'US/Pacific' then 'America/Los_Angeles'
-        when 'US/Alaska' then 'America/Anchorage'
-        when 'US/Hawaii' then 'Pacific/Honolulu'
-        when 'US/Samoa' then 'Pacific/Pago_Pago'
-    end
-)
+create temp function to_iana_tz(val string)
+as
+    (
+        case
+            val
+            when 'US/Eastern'
+            then 'America/New_York'
+            when 'US/Central'
+            then 'America/Chicago'
+            when 'US/Mountain'
+            then 'America/Denver'
+            when 'US/Pacific'
+            then 'America/Los_Angeles'
+            when 'US/Alaska'
+            then 'America/Anchorage'
+            when 'US/Hawaii'
+            then 'Pacific/Honolulu'
+            when 'US/Samoa'
+            then 'Pacific/Pago_Pago'
+        end
+    )
 ;
 
-create temp function likert_to_int (val string) as (
-    case
-        when val in ('Strongly disagree', 'Never') then 1
-        when val in ('Disagree', 'Rather infrequently') then 2
-        when val in ('Neither agree nor disagree', 'Some of the time') then 3
-        when val in ('Agree', 'Quite often') then 4
-        when val in ('Strongly agree', 'Always') then 5
-    end
-)
+create temp function likert_to_int(val string)
+as
+    (
+        case
+            when val in ('Strongly disagree', 'Never')
+            then 1
+            when val in ('Disagree', 'Rather infrequently')
+            then 2
+            when val in ('Neither agree nor disagree', 'Some of the time')
+            then 3
+            when val in ('Agree', 'Quite often')
+            then 4
+            when val in ('Strongly agree', 'Always')
+            then 5
+        end
+    )
 ;
 
 create or replace table `dkg-phd-thesis.syn_qualtrics.int_intake_responses_scored` as

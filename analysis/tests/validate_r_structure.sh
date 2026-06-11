@@ -143,6 +143,7 @@ required_files=(
 	"analysis/run_study_analysis/utils/prep_levels.R"
 	"analysis/run_study_analysis/utils/prep_mlm.R"
 	"analysis/run_study_analysis/scripts/R/data_quality.R"
+	"analysis/run_study_analysis/scripts/R/eda.R"
 	"analysis/run_study_analysis/README.md"
 	"analysis/run_study_analysis/scripts/sql/fct_participation_summary.sql"
 	"analysis/run_study_analysis/scripts/sql/fct_panel_responses.sql"
@@ -270,6 +271,7 @@ if command -v Rscript &>/dev/null; then
 		"analysis/run_study_analysis/utils/prep_levels.R"
 		"analysis/run_study_analysis/utils/prep_mlm.R"
 		"analysis/run_study_analysis/scripts/R/data_quality.R"
+		"analysis/run_study_analysis/scripts/R/eda.R"
 	)
 
 	for f in "${r_files[@]}"; do
