@@ -8,12 +8,12 @@ Six R scripts run in sequence. Step 1 screens for careless responding and writes
 
 | Step | Script | Output | What it does |
 |------|--------|--------|--------------|
-| 1 | `data_quality.R` | `figs/data_quality/`, `data/export/…cleaned….csv` | Careless responding detection (longstring, IRV, Mahalanobis, duration); excludes flagged participants |
-| 2 | `eda.R` | `figs/eda/` | Descriptive stats, distributions, ICCs, missing data, spaghetti plots, lag-1 autocorrelations |
-| 3 | `correlation.R` | `figs/corr/` | Bivariate correlations, repeated-measures correlations, L1/L2 correlation matrices |
-| 4 | `measurement_model.R` | `figs/cfa/` | CFA factor structure, reliability (omega, alpha), common method variance diagnostics |
-| 5 | `multilevel_model.R` | `figs/mlm/` | Model comparison (null → full), fixed/random effects, hypothesis tests, effect sizes |
-| 6 | `publication_tables.R` | `tables/` | APA-formatted Word tables (demographics, descriptives/correlations, CFA, MLM, hypotheses) |
+| 1 | `data_quality.r` | `figs/data_quality/`, `data/export/…cleaned….csv` | Careless responding detection (longstring, IRV, Mahalanobis, duration); excludes flagged participants |
+| 2 | `eda.r` | `figs/eda/` | Descriptive stats, distributions, ICCs, missing data, spaghetti plots, lag-1 autocorrelations |
+| 3 | `correlation.r` | `figs/corr/` | Bivariate correlations, repeated-measures correlations, L1/L2 correlation matrices |
+| 4 | `measurement_model.r` | `figs/cfa/` | CFA factor structure, reliability (omega, alpha), common method variance diagnostics |
+| 5 | `multilevel_model.r` | `figs/mlm/` | Model comparison (null → full), fixed/random effects, hypothesis tests, effect sizes |
+| 6 | `publication_tables.r` | `tables/` | APA-formatted Word tables (demographics, descriptives/correlations, CFA, MLM, hypotheses) |
 
 Step 6 is a downstream pass: run `make synthetic_analysis` first, then `make synthetic_tables`.
 
@@ -59,7 +59,7 @@ Steps 2–5 load the cleaned dataset written by Step 1. If the cleaned file is a
 
 ## Data Quality Screening
 
-`data_quality.R` (Step 1) implements careless responding detection using the `careless` package (Yentes & Wilhelm, 2018) adapted for a **repeated-measures design**. Each of the three within-day surveys is evaluated independently; a participant is excluded based on their pattern of flagging across all surveys.
+`data_quality.r` (Step 1) implements careless responding detection using the `careless` package (Yentes & Wilhelm, 2018) adapted for a **repeated-measures design**. Each of the three within-day surveys is evaluated independently; a participant is excluded based on their pattern of flagging across all surveys.
 
 ### Why per-survey analysis matters
 
@@ -88,7 +88,7 @@ A participant is flagged on criterion 6 if either distance exceeds its cutoff on
 
 A participant is **excluded** when flagged on **2 or more** of the 6 criteria (Curran, 2016, multi-flag approach). This reduces false positives relative to any-flag exclusion while still catching systematic careless responding.
 
-All thresholds and the minimum flag count are defined at the top of `data_quality.R` and can be adjusted there without changing downstream logic.
+All thresholds and the minimum flag count are defined at the top of `data_quality.r` and can be adjusted there without changing downstream logic.
 
 ### Diagnostic outputs
 
