@@ -71,6 +71,21 @@ url = "https://cran.r-project.org/src/contrib/RColorBrewer_1.1-3.tar.gz"
 checksum = "md5:9b687595bbe02a7e43fc195ba33f065c"
 
 [[package]]
+name = "RLRsim"
+version = "3.1.9"
+source = "cran"
+raw_version = "3.1-9"
+url = "https://cran.r-project.org/src/contrib/RLRsim_3.1-9.tar.gz"
+checksum = "md5:dec92d466ef9641e1d6dc25b5df21208"
+requires = [
+    "Rcpp",
+    "lme4",
+    "mgcv",
+    "nlme",
+    "Rcpp",
+]
+
+[[package]]
 name = "Rcpp"
 version = "1.1.1-4.1"
 source = "cran"
@@ -112,6 +127,14 @@ checksum = "md5:3259eb847df896eff1d6f9aed7cf7497"
 requires = ["rbibutils"]
 
 [[package]]
+name = "RhpcBLASctl"
+version = "0.23.42"
+source = "cran"
+raw_version = "0.23-42"
+url = "https://cran.r-project.org/src/contrib/RhpcBLASctl_0.23-42.tar.gz"
+checksum = "md5:825ec304404cad180a6bfb5aef5204b7"
+
+[[package]]
 name = "S7"
 version = "0.2.2"
 source = "cran"
@@ -148,6 +171,19 @@ source = "cran"
 raw_version = "1.4-8"
 url = "https://cran.r-project.org/src/contrib/abind_1.4-8.tar.gz"
 checksum = "md5:7a440111cd1e24356d558ac55a65dc98"
+
+[[package]]
+name = "argparse"
+version = "2.3.1"
+source = "cran"
+raw_version = "2.3.1"
+url = "https://cran.r-project.org/src/contrib/argparse_2.3.1.tar.gz"
+checksum = "md5:5b410d180316d945aba03f744fccc904"
+requires = [
+    "findpython",
+    "jsonlite",
+    "R6",
+]
 
 [[package]]
 name = "askpass"
@@ -193,6 +229,14 @@ source = "cran"
 raw_version = "0.3.1"
 url = "https://cran.r-project.org/src/contrib/bigD_0.3.1.tar.gz"
 checksum = "md5:6c26ee252cb28371682705cb237a4066"
+
+[[package]]
+name = "binom"
+version = "1.1.1-4.1"
+source = "cran"
+raw_version = "1.1-1.1"
+url = "https://cran.r-project.org/src/contrib/binom_1.1-1.1.tar.gz"
+checksum = "md5:6d9cbf4fa0fe82414417f2286d1007b5"
 
 [[package]]
 name = "bit"
@@ -607,6 +651,14 @@ source = "cran"
 raw_version = "1.2.0"
 url = "https://cran.r-project.org/src/contrib/fastmap_1.2.0.tar.gz"
 checksum = "md5:f53773acd6ba9a86413e8c2dc6441544"
+
+[[package]]
+name = "findpython"
+version = "1.0.9"
+source = "cran"
+raw_version = "1.0.9"
+url = "https://cran.r-project.org/src/contrib/findpython_1.0.9.tar.gz"
+checksum = "md5:80dc3f16f7e55e9de30591abc264f1b1"
 
 [[package]]
 name = "flextable"
@@ -1052,6 +1104,14 @@ requires = [
     "rlang",
     "cpp11",
 ]
+
+[[package]]
+name = "iterators"
+version = "1.0.14"
+source = "cran"
+raw_version = "1.0.14"
+url = "https://cran.r-project.org/src/contrib/iterators_1.0.14.tar.gz"
+checksum = "md5:e1d875f0ddec6834dd33e56c4f04a706"
 
 [[package]]
 name = "jquerylib"
@@ -1509,6 +1569,26 @@ url = "https://cran.r-project.org/src/contrib/pkgconfig_2.0.3.tar.gz"
 checksum = "md5:7b9ca1d45d941238381cb55d13ff4d68"
 
 [[package]]
+name = "plotrix"
+version = "3.8.14"
+source = "cran"
+raw_version = "3.8-14"
+url = "https://cran.r-project.org/src/contrib/plotrix_3.8-14.tar.gz"
+checksum = "md5:2f854b315816ce240d89ad895c57e291"
+
+[[package]]
+name = "plyr"
+version = "1.8.9"
+source = "cran"
+raw_version = "1.8.9"
+url = "https://cran.r-project.org/src/contrib/plyr_1.8.9.tar.gz"
+checksum = "md5:5a8b129534abace172059ecc5c0b5072"
+requires = [
+    "Rcpp",
+    "Rcpp",
+]
+
+[[package]]
 name = "prettyunits"
 version = "1.2.0"
 source = "cran"
@@ -1796,6 +1876,27 @@ requires = [
 ]
 
 [[package]]
+name = "simr"
+version = "1.0.9"
+source = "cran"
+raw_version = "1.0.9"
+url = "https://cran.r-project.org/src/contrib/simr_1.0.9.tar.gz"
+checksum = "md5:ace1eaabdad2928f4986ef5e0b5e5f2b"
+requires = [
+    "lme4",
+    "binom",
+    "car",
+    "iterators",
+    "lmerTest",
+    "pbkrtest",
+    "plotrix",
+    "plyr",
+    "reformulas",
+    "RLRsim",
+    "stringr",
+]
+
+[[package]]
 name = "stringi"
 version = "1.8.7"
 source = "cran"
@@ -1901,6 +2002,14 @@ requires = [
     "rlang",
     "vctrs",
 ]
+
+[[package]]
+name = "tictoc"
+version = "1.2.1"
+source = "cran"
+raw_version = "1.2.1"
+url = "https://cran.r-project.org/src/contrib/tictoc_1.2.1.tar.gz"
+checksum = "md5:0cbeed08aded314a387b93d59420e371"
 
 [[package]]
 name = "tidyr"
