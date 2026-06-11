@@ -341,7 +341,7 @@ person_summary <- survey_detail |>
             dplyr::pick(flag_longstring, flag_mahad),
             na.rm = TRUE
         ),
-        # Diagnostic flag count (all 4 non-exclusion indicators)
+        # Diagnostic flag count (3 non-exclusion indicators: IRV L1, IRV L2, duration)
         n_diag_flags = rowSums(
             dplyr::pick(flag_irv_l1, flag_irv_l2, flag_duration),
             na.rm = TRUE

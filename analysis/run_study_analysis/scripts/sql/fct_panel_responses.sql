@@ -38,7 +38,12 @@ with
         from
             `dkg-phd-thesis.qualtrics.int_followup_responses_scored` as f
         where
-            f.intake_response_id not in (select intake_response_id from failed_attention)
+            f.intake_response_id not in (
+                select
+                    intake_response_id
+                from
+                    failed_attention
+            )
     ),
     complete as (
         -- keep only participants who completed all 3 timepoints
