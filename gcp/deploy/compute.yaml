@@ -10,7 +10,10 @@
 
 compute:
   vm_name: power-analysis-vm
-  machine_type: c3-highcpu-176
+  # c3-highcpu-88 sized for the 2,250-cell posthoc_gcp supplement.
+  # Original a priori prod_gcp (3,645 cells) used c3-highcpu-176; revert to 176
+  # before rerunning the full prod grid.
+  machine_type: c3-highcpu-88
   zone: us-central1-b
   boot_disk_size_gb: 50
   image_family: ubuntu-2204-lts
