@@ -38,12 +38,12 @@
 <polyline points='72.38,245.62 705.06,245.62 ' style='stroke-width: 1.16; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='72.38,109.34 705.06,109.34 ' style='stroke-width: 1.16; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='101.13,463.66 101.13,27.57 ' style='stroke-width: 1.16; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='272.62,463.66 272.62,27.57 ' style='stroke-width: 1.16; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='444.10,463.66 444.10,27.57 ' style='stroke-width: 1.16; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='615.59,463.66 615.59,27.57 ' style='stroke-width: 1.16; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='272.66,463.66 272.66,27.57 ' style='stroke-width: 1.16; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='444.19,463.66 444.19,27.57 ' style='stroke-width: 1.16; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='615.72,463.66 615.72,27.57 ' style='stroke-width: 1.16; stroke: #EBEBEB; stroke-linecap: butt;' />
 <rect x='101.13' y='48.01' width='575.16' height='122.65' style='stroke-width: 1.16; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #440154;' />
-<rect x='101.13' y='184.29' width='521.02' height='122.65' style='stroke-width: 1.16; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #440154;' />
-<rect x='101.13' y='320.57' width='3.55' height='122.65' style='stroke-width: 1.16; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #440154;' />
+<rect x='101.13' y='184.29' width='499.44' height='122.65' style='stroke-width: 1.16; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #440154;' />
+<rect x='101.13' y='320.57' width='3.40' height='122.65' style='stroke-width: 1.16; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #440154;' />
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1MDQuMDA=)'>
 <polyline points='72.38,463.66 72.38,27.57 ' style='stroke-width: 0.85; stroke-linecap: butt;' />
@@ -55,13 +55,13 @@
 <polyline points='69.39,109.34 72.38,109.34 ' style='stroke-width: 0.64; stroke-linecap: butt;' />
 <polyline points='72.38,463.66 705.06,463.66 ' style='stroke-width: 0.85; stroke-linecap: butt;' />
 <polyline points='101.13,466.65 101.13,463.66 ' style='stroke-width: 0.64; stroke-linecap: butt;' />
-<polyline points='272.62,466.65 272.62,463.66 ' style='stroke-width: 0.64; stroke-linecap: butt;' />
-<polyline points='444.10,466.65 444.10,463.66 ' style='stroke-width: 0.64; stroke-linecap: butt;' />
-<polyline points='615.59,466.65 615.59,463.66 ' style='stroke-width: 0.64; stroke-linecap: butt;' />
+<polyline points='272.66,466.65 272.66,463.66 ' style='stroke-width: 0.64; stroke-linecap: butt;' />
+<polyline points='444.19,466.65 444.19,463.66 ' style='stroke-width: 0.64; stroke-linecap: butt;' />
+<polyline points='615.72,466.65 615.72,463.66 ' style='stroke-width: 0.64; stroke-linecap: butt;' />
 <text x='101.13' y='478.38' text-anchor='middle' style='font-size: 9.60px;fill: #4D4D4D; font-family: "Times";' textLength='12.78px' lengthAdjust='spacingAndGlyphs'>0%</text>
-<text x='272.62' y='478.38' text-anchor='middle' style='font-size: 9.60px;fill: #4D4D4D; font-family: "Times";' textLength='17.58px' lengthAdjust='spacingAndGlyphs'>20%</text>
-<text x='444.10' y='478.38' text-anchor='middle' style='font-size: 9.60px;fill: #4D4D4D; font-family: "Times";' textLength='17.58px' lengthAdjust='spacingAndGlyphs'>40%</text>
-<text x='615.59' y='478.38' text-anchor='middle' style='font-size: 9.60px;fill: #4D4D4D; font-family: "Times";' textLength='17.58px' lengthAdjust='spacingAndGlyphs'>60%</text>
+<text x='272.66' y='478.38' text-anchor='middle' style='font-size: 9.60px;fill: #4D4D4D; font-family: "Times";' textLength='17.58px' lengthAdjust='spacingAndGlyphs'>20%</text>
+<text x='444.19' y='478.38' text-anchor='middle' style='font-size: 9.60px;fill: #4D4D4D; font-family: "Times";' textLength='17.58px' lengthAdjust='spacingAndGlyphs'>40%</text>
+<text x='615.72' y='478.38' text-anchor='middle' style='font-size: 9.60px;fill: #4D4D4D; font-family: "Times";' textLength='17.58px' lengthAdjust='spacingAndGlyphs'>60%</text>
 <text x='388.72' y='491.41' text-anchor='middle' style='font-size: 12.00px; font-family: "Times";' textLength='93.00px' lengthAdjust='spacingAndGlyphs'>Proportion Missing</text>
 <text x='72.38' y='18.75' style='font-size: 13.00px; font-weight: bold; font-family: "Times";' textLength='174.80px' lengthAdjust='spacingAndGlyphs'>Missing Data Rates by Variable</text>
 </g>
