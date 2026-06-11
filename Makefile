@@ -29,6 +29,9 @@ FN ?= run-qualtrics-scheduling
         synthetic_analysis synthetic_data_quality \
         synthetic_eda synthetic_measurement \
         synthetic_mlm synthetic_correlation synthetic_tables \
+        study_analysis study_data_quality \
+        study_eda study_measurement \
+        study_mlm study_correlation study_tables \
         py_lint py_format py_sqlfmt py_test \
         gcp_dev gcp_deploy \
         gcp_infra_up gcp_infra_status gcp_infra_down \
@@ -38,7 +41,8 @@ FN ?= run-qualtrics-scheduling
         gcp_compute_scp gcp_compute_down \
         setup_hooks \
         _check_uvr_env _check_synthetic_inputs _check_synthetic_export \
-        _check_synthetic_cleaned_export
+        _check_synthetic_cleaned_export _check_study_export \
+        _check_study_cleaned_export
 
 # ---------------------------------------------------------------------------
 # Internal guards (not shown in help)
@@ -88,6 +92,28 @@ _check_synthetic_cleaned_export:
 	fi; \
 	echo "Found cleaned panel export CSV in data/export/"
 
+_check_study_export:
+	@export_dir="$(ROOT)/analysis/run_study_analysis/data/export"; \
+	n=$$(find "$$export_dir" -name "qualtrics_fct_panel_responses.csv" 2>/dev/null | wc -l | tr -d ' '); \
+	if [ "$$n" -eq 0 ]; then \
+		echo "No raw panel CSV found in analysis/run_study_analysis/data/export/"; \
+		echo "   Expected: qualtrics_fct_panel_responses.csv"; \
+		echo "   Run the export script first: bash analysis/run_study_analysis/scripts/export_study_fct_panel_responses_csv.sh"; \
+		exit 1; \
+	fi; \
+	echo "Found study raw panel CSV in data/export/"
+
+_check_study_cleaned_export:
+	@export_dir="$(ROOT)/analysis/run_study_analysis/data/export"; \
+	n=$$(find "$$export_dir" -name "qualtrics_fct_panel_responses_cleaned.csv" 2>/dev/null | wc -l | tr -d ' '); \
+	if [ "$$n" -eq 0 ]; then \
+		echo "Cleaned study panel CSV not found in analysis/run_study_analysis/data/export/"; \
+		echo "   Expected: qualtrics_fct_panel_responses_cleaned.csv"; \
+		echo "   Run: make study_data_quality"; \
+		exit 1; \
+	fi; \
+	echo "Found study cleaned panel CSV in data/export/"
+
 # ---------------------------------------------------------------------------
 # Help
 # ---------------------------------------------------------------------------
@@ -126,6 +152,15 @@ help:
 	@echo "   make synthetic_measurement     4. Measurement model"
 	@echo "   make synthetic_mlm             5. Multilevel model (main analysis)"
 	@echo "   make synthetic_tables          6. Publication-ready Word tables"
+	@echo ""
+	@echo "STUDY DATA ANALYSIS  (requires data/export/ CSVs from BQ)"
+	@echo "   make study_analysis            Run steps 1-5 (data quality through MLM)"
+	@echo "   make study_data_quality        1. Careless responding screening -> cleaned CSV"
+	@echo "   make study_eda                 2. Exploratory data analysis"
+	@echo "   make study_correlation         3. Correlation analysis"
+	@echo "   make study_measurement         4. Measurement model (CFA)"
+	@echo "   make study_mlm                 5. Multilevel model (main analysis)"
+	@echo "   make study_tables              6. Publication-ready Word tables (.docx)"
 	@echo ""
 	@echo "PYTHON DEV"
 	@echo "   make py_lint            ruff check + format check"
@@ -408,6 +443,63 @@ synthetic_tables: _check_uvr_env _check_synthetic_cleaned_export
 		exit 1; \
 	}
 	@echo "Publication tables -> analysis/run_synthetic_data/tables/"
+
+# ---------------------------------------------------------------------------
+# Study Data Analysis
+# ---------------------------------------------------------------------------
+
+study_data_quality: _check_uvr_env _check_study_export
+	@echo "Running study data quality screening..."
+	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/data_quality.R" || { \
+		echo "data_quality.R failed"; \
+		exit 1; \
+	}
+	@echo "Data quality complete. Cleaned CSV -> analysis/run_study_analysis/data/export/"
+	@echo "   Diagnostics  -> analysis/run_study_analysis/figs/data_quality/"
+
+study_eda: _check_uvr_env _check_study_cleaned_export
+	@echo "Running study EDA..."
+	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/eda.R" || { \
+		echo "eda.R failed"; \
+		exit 1; \
+	}
+	@echo "EDA complete. Figures -> analysis/run_study_analysis/figs/eda/"
+
+study_measurement: _check_uvr_env _check_study_cleaned_export
+	@echo "Running study measurement model..."
+	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/measurement_model.R" || { \
+		echo "measurement_model.R failed"; \
+		exit 1; \
+	}
+	@echo "Measurement model complete. Figures -> analysis/run_study_analysis/figs/cfa/"
+
+study_mlm: _check_uvr_env _check_study_cleaned_export
+	@echo "Running study multilevel model..."
+	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/multilevel_model.R" || { \
+		echo "multilevel_model.R failed"; \
+		exit 1; \
+	}
+	@echo "MLM complete. Figures -> analysis/run_study_analysis/figs/mlm/"
+
+study_correlation: _check_uvr_env _check_study_cleaned_export
+	@echo "Running study correlation analysis..."
+	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/correlation.R" || { \
+		echo "correlation.R failed"; \
+		exit 1; \
+	}
+	@echo "Correlation complete. Figures -> analysis/run_study_analysis/figs/corr/"
+
+study_analysis: study_data_quality study_eda study_correlation study_measurement study_mlm
+	@echo ""
+	@echo "All study data analyses complete."
+
+study_tables: _check_uvr_env _check_study_cleaned_export
+	@echo "Generating study publication tables..."
+	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/publication_tables.R" || { \
+		echo "publication_tables.R failed"; \
+		exit 1; \
+	}
+	@echo "Publication tables -> analysis/run_study_analysis/tables/"
 
 # ---------------------------------------------------------------------------
 # Python Dev

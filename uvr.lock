@@ -80,11 +80,11 @@ checksum = "md5:ad526121c2f2b9b3be8ce1f36aff7888"
 
 [[package]]
 name = "RcppArmadillo"
-version = "15.2.6-4.1"
+version = "15.2.7-4.1"
 source = "cran"
-raw_version = "15.2.6-1"
-url = "https://cran.r-project.org/src/contrib/RcppArmadillo_15.2.6-1.tar.gz"
-checksum = "md5:f163c3ce3f686ae26ead8bb529b28184"
+raw_version = "15.2.7-1"
+url = "https://cran.r-project.org/src/contrib/RcppArmadillo_15.2.7-1.tar.gz"
+checksum = "md5:09ae5667ee5f83a08d320b80e85d6475"
 requires = [
     "Rcpp",
     "Rcpp",
@@ -128,6 +128,20 @@ url = "https://cran.r-project.org/src/contrib/SparseM_1.84-2.tar.gz"
 checksum = "md5:60d64c3f007a57f293abf261e3e6aa58"
 
 [[package]]
+name = "V8"
+version = "8.2.0"
+source = "cran"
+raw_version = "8.2.0"
+url = "https://cran.r-project.org/src/contrib/V8_8.2.0.tar.gz"
+checksum = "md5:c8d926eb2f59ebe63debc864fa6a5096"
+requires = [
+    "Rcpp",
+    "jsonlite",
+    "curl",
+    "Rcpp",
+]
+
+[[package]]
 name = "abind"
 version = "1.4.8"
 source = "cran"
@@ -162,15 +176,23 @@ checksum = "md5:2c4ecc969451a673ee05eb2e725fcbaf"
 
 [[package]]
 name = "bayestestR"
-version = "0.17.0"
+version = "0.18.1"
 source = "cran"
-raw_version = "0.17.0"
-url = "https://cran.r-project.org/src/contrib/bayestestR_0.17.0.tar.gz"
-checksum = "md5:1e06e653e1dbc5d8201ed9f362a735bd"
+raw_version = "0.18.1"
+url = "https://cran.r-project.org/src/contrib/bayestestR_0.18.1.tar.gz"
+checksum = "md5:bb7fe8e99daf6b19ebcdb9887b7c573b"
 requires = [
     "insight",
     "datawizard",
 ]
+
+[[package]]
+name = "bigD"
+version = "0.3.1"
+source = "cran"
+raw_version = "0.3.1"
+url = "https://cran.r-project.org/src/contrib/bigD_0.3.1.tar.gz"
+checksum = "md5:6c26ee252cb28371682705cb237a4066"
 
 [[package]]
 name = "bit"
@@ -182,12 +204,20 @@ checksum = "md5:f36540550af63b0db8c78429d7366998"
 
 [[package]]
 name = "bit64"
-version = "4.8.0"
+version = "4.8.2"
 source = "cran"
-raw_version = "4.8.0"
-url = "https://cran.r-project.org/src/contrib/bit64_4.8.0.tar.gz"
-checksum = "md5:6a670c49e61844556d739b28be073a26"
+raw_version = "4.8.2"
+url = "https://cran.r-project.org/src/contrib/bit64_4.8.2.tar.gz"
+checksum = "md5:12904714853ba84b8d1808266e5ef943"
 requires = ["bit"]
+
+[[package]]
+name = "bitops"
+version = "1.0.9"
+source = "cran"
+raw_version = "1.0-9"
+url = "https://cran.r-project.org/src/contrib/bitops_1.0-9.tar.gz"
+checksum = "md5:2214ea9a069223af2bdc9e7528876025"
 
 [[package]]
 name = "boot"
@@ -199,11 +229,11 @@ checksum = "md5:c883de096f9a6b3afbf461337092a1f3"
 
 [[package]]
 name = "broom"
-version = "1.0.12"
+version = "1.0.13"
 source = "cran"
-raw_version = "1.0.12"
-url = "https://cran.r-project.org/src/contrib/broom_1.0.12.tar.gz"
-checksum = "md5:7de9d0db55cefa98cfe5e3388456b468"
+raw_version = "1.0.13"
+url = "https://cran.r-project.org/src/contrib/broom_1.0.13.tar.gz"
+checksum = "md5:f18019fa804c6a0f47eb5b83c0cc5bb8"
 requires = [
     "backports",
     "cli",
@@ -240,11 +270,11 @@ requires = [
 
 [[package]]
 name = "bslib"
-version = "0.10.0"
+version = "0.11.0"
 source = "cran"
-raw_version = "0.10.0"
-url = "https://cran.r-project.org/src/contrib/bslib_0.10.0.tar.gz"
-checksum = "md5:63fd55ca6856c3c55d65e2fe5ccd2cd2"
+raw_version = "0.11.0"
+url = "https://cran.r-project.org/src/contrib/bslib_0.11.0.tar.gz"
+checksum = "md5:33ff4265fa9789b2b35945be75e61fd0"
 requires = [
     "base64enc",
     "cachem",
@@ -301,6 +331,40 @@ url = "https://cran.r-project.org/src/contrib/carData_3.0-6.tar.gz"
 checksum = "md5:041bf0f955637b1b1b6a44bde20605b5"
 
 [[package]]
+name = "cards"
+version = "0.8.0"
+source = "cran"
+raw_version = "0.8.0"
+url = "https://cran.r-project.org/src/contrib/cards_0.8.0.tar.gz"
+checksum = "md5:47ea5546b7ff5b8078ea2fb76fae67a9"
+requires = [
+    "cli",
+    "dplyr",
+    "glue",
+    "lifecycle",
+    "rlang",
+    "tidyr",
+    "tidyselect",
+]
+
+[[package]]
+name = "cardx"
+version = "0.3.3"
+source = "cran"
+raw_version = "0.3.3"
+url = "https://cran.r-project.org/src/contrib/cardx_0.3.3.tar.gz"
+checksum = "md5:9b9f1245bffa81c7e289d26953c10351"
+requires = [
+    "cards",
+    "cli",
+    "dplyr",
+    "glue",
+    "lifecycle",
+    "rlang",
+    "tidyr",
+]
+
+[[package]]
 name = "careless"
 version = "1.2.2"
 source = "cran"
@@ -319,11 +383,11 @@ checksum = "md5:eedc08ba864ae6cd640b05eff1a607ee"
 
 [[package]]
 name = "clipr"
-version = "0.8.0"
+version = "0.8.1"
 source = "cran"
-raw_version = "0.8.0"
-url = "https://cran.r-project.org/src/contrib/clipr_0.8.0.tar.gz"
-checksum = "md5:558ddf145114bbc0272e6aed05b8e5fe"
+raw_version = "0.8.1"
+url = "https://cran.r-project.org/src/contrib/clipr_0.8.1.tar.gz"
+checksum = "md5:e3618a0611ca2dfbc6475975a163ab6a"
 
 [[package]]
 name = "coda"
@@ -349,6 +413,14 @@ source = "cran"
 raw_version = "2.1-2"
 url = "https://cran.r-project.org/src/contrib/colorspace_2.1-2.tar.gz"
 checksum = "md5:01f2fc58e8c4a7326d1d19393358cd5b"
+
+[[package]]
+name = "commonmark"
+version = "2.0.0"
+source = "cran"
+raw_version = "2.0.0"
+url = "https://cran.r-project.org/src/contrib/commonmark_2.0.0.tar.gz"
+checksum = "md5:ac18da7841af62e8c457dd4872cce1ba"
 
 [[package]]
 name = "correlation"
@@ -388,11 +460,11 @@ requires = [
 
 [[package]]
 name = "cpp11"
-version = "0.5.4"
+version = "0.5.5"
 source = "cran"
-raw_version = "0.5.4"
-url = "https://cran.r-project.org/src/contrib/cpp11_0.5.4.tar.gz"
-checksum = "md5:2397bc2d5d5c1993feb7954660c4a5d2"
+raw_version = "0.5.5"
+url = "https://cran.r-project.org/src/contrib/cpp11_0.5.5.tar.gz"
+checksum = "md5:7c4c3f58ffa7adec25b85d0d99c0d7ed"
 
 [[package]]
 name = "crayon"
@@ -403,12 +475,20 @@ url = "https://cran.r-project.org/src/contrib/crayon_1.5.3.tar.gz"
 checksum = "md5:bb290c70d23b2200006187ac7839116f"
 
 [[package]]
-name = "data.table"
-version = "1.18.2-4.1"
+name = "curl"
+version = "7.1.0"
 source = "cran"
-raw_version = "1.18.2.1"
-url = "https://cran.r-project.org/src/contrib/data.table_1.18.2.1.tar.gz"
-checksum = "md5:c9984d2aaf34f5b285addd7995c61b85"
+raw_version = "7.1.0"
+url = "https://cran.r-project.org/src/contrib/curl_7.1.0.tar.gz"
+checksum = "md5:8af2ccbf5d85dc18866f45f1f26f348d"
+
+[[package]]
+name = "data.table"
+version = "1.18.4"
+source = "cran"
+raw_version = "1.18.4"
+url = "https://cran.r-project.org/src/contrib/data.table_1.18.4.tar.gz"
+checksum = "md5:8802d3e9516d5b38dd4aa1a473e2ac6e"
 
 [[package]]
 name = "datawizard"
@@ -530,11 +610,11 @@ checksum = "md5:f53773acd6ba9a86413e8c2dc6441544"
 
 [[package]]
 name = "flextable"
-version = "0.9.11"
+version = "0.9.12"
 source = "cran"
-raw_version = "0.9.11"
-url = "https://cran.r-project.org/src/contrib/flextable_0.9.11.tar.gz"
-checksum = "md5:112b4d545ca50d1125a47a7b443f2ffd"
+raw_version = "0.9.12"
+url = "https://cran.r-project.org/src/contrib/flextable_0.9.12.tar.gz"
+checksum = "md5:e6cd5aff444ffe94a4f59fa25b2e3915"
 requires = [
     "data.table",
     "gdtools",
@@ -675,11 +755,11 @@ requires = [
 
 [[package]]
 name = "gdtools"
-version = "0.5.0"
+version = "0.5.1"
 source = "cran"
-raw_version = "0.5.0"
-url = "https://cran.r-project.org/src/contrib/gdtools_0.5.0.tar.gz"
-checksum = "md5:2931f5759d750ef103110d3904af7643"
+raw_version = "0.5.1"
+url = "https://cran.r-project.org/src/contrib/gdtools_0.5.1.tar.gz"
+checksum = "md5:eb8b6f792f150c2cbccaac67f7b12fda"
 requires = [
     "fontquiver",
     "htmltools",
@@ -796,6 +876,36 @@ checksum = "md5:01e0ea88610756a0fd3b260e83c9bd43"
 requires = ["gtable"]
 
 [[package]]
+name = "gt"
+version = "1.3.0"
+source = "cran"
+raw_version = "1.3.0"
+url = "https://cran.r-project.org/src/contrib/gt_1.3.0.tar.gz"
+checksum = "md5:81c2eb281461bb8423faaca8dbd1b640"
+requires = [
+    "base64enc",
+    "bigD",
+    "bitops",
+    "cli",
+    "commonmark",
+    "dplyr",
+    "fs",
+    "glue",
+    "htmltools",
+    "htmlwidgets",
+    "juicyjuice",
+    "magrittr",
+    "markdown",
+    "reactable",
+    "rlang",
+    "sass",
+    "scales",
+    "tidyselect",
+    "vctrs",
+    "xml2",
+]
+
+[[package]]
 name = "gtable"
 version = "0.3.6"
 source = "cran"
@@ -807,6 +917,26 @@ requires = [
     "glue",
     "lifecycle",
     "rlang",
+]
+
+[[package]]
+name = "gtsummary"
+version = "2.5.1"
+source = "cran"
+raw_version = "2.5.1"
+url = "https://cran.r-project.org/src/contrib/gtsummary_2.5.1.tar.gz"
+checksum = "md5:747457d083116980d259eba325afd1bd"
+requires = [
+    "cards",
+    "cardx",
+    "cli",
+    "dplyr",
+    "glue",
+    "gt",
+    "lifecycle",
+    "rlang",
+    "tidyr",
+    "vctrs",
 ]
 
 [[package]]
@@ -857,6 +987,21 @@ requires = [
 ]
 
 [[package]]
+name = "htmlwidgets"
+version = "1.6.4"
+source = "cran"
+raw_version = "1.6.4"
+url = "https://cran.r-project.org/src/contrib/htmlwidgets_1.6.4.tar.gz"
+checksum = "md5:e1ea7f9774ad7a79fcf31e52c2074fd1"
+requires = [
+    "htmltools",
+    "jsonlite",
+    "knitr",
+    "rmarkdown",
+    "yaml",
+]
+
+[[package]]
 name = "iccbeta"
 version = "1.2.1"
 source = "cran"
@@ -872,11 +1017,11 @@ requires = [
 
 [[package]]
 name = "insight"
-version = "1.5.0"
+version = "1.5.1"
 source = "cran"
-raw_version = "1.5.0"
-url = "https://cran.r-project.org/src/contrib/insight_1.5.0.tar.gz"
-checksum = "md5:51ab0a4a428fdca829787279e2564b21"
+raw_version = "1.5.1"
+url = "https://cran.r-project.org/src/contrib/insight_1.5.1.tar.gz"
+checksum = "md5:e07b3d3ce79a19dcd5804c162b9e0b95"
 
 [[package]]
 name = "interactions"
@@ -947,6 +1092,15 @@ requires = [
 ]
 
 [[package]]
+name = "juicyjuice"
+version = "0.1.0"
+source = "cran"
+raw_version = "0.1.0"
+url = "https://cran.r-project.org/src/contrib/juicyjuice_0.1.0.tar.gz"
+checksum = "md5:bf3db84d36b3734e9c323eb0e9b0b4a3"
+requires = ["V8"]
+
+[[package]]
 name = "knitr"
 version = "1.51.0"
 source = "cran"
@@ -1012,6 +1166,18 @@ url = "https://cran.r-project.org/src/contrib/listenv_0.10.1.tar.gz"
 checksum = "md5:6b93ad798245ea82a87117986b80aea5"
 
 [[package]]
+name = "litedown"
+version = "0.9.0"
+source = "cran"
+raw_version = "0.9"
+url = "https://cran.r-project.org/src/contrib/litedown_0.9.tar.gz"
+checksum = "md5:66459fa5112e91920a950fa10e3ae188"
+requires = [
+    "commonmark",
+    "xfun",
+]
+
+[[package]]
 name = "lme4"
 version = "2.0.1"
 source = "cran"
@@ -1065,6 +1231,18 @@ source = "cran"
 raw_version = "2.0.5"
 url = "https://cran.r-project.org/src/contrib/magrittr_2.0.5.tar.gz"
 checksum = "md5:4ee23a88bc1589527696d777d7e68dfc"
+
+[[package]]
+name = "markdown"
+version = "2.0.0"
+source = "cran"
+raw_version = "2.0"
+url = "https://cran.r-project.org/src/contrib/markdown_2.0.tar.gz"
+checksum = "md5:c282c06e61ae9df4fe66d484792fe2b7"
+requires = [
+    "xfun",
+    "litedown",
+]
 
 [[package]]
 name = "memoise"
@@ -1128,11 +1306,11 @@ checksum = "md5:66be0f1b9a6bca6e37513fd11364cef9"
 
 [[package]]
 name = "modelbased"
-version = "0.14.0"
+version = "0.15.0"
 source = "cran"
-raw_version = "0.14.0"
-url = "https://cran.r-project.org/src/contrib/modelbased_0.14.0.tar.gz"
-checksum = "md5:c33f52e6337a3a952248b318f7313536"
+raw_version = "0.15.0"
+url = "https://cran.r-project.org/src/contrib/modelbased_0.15.0.tar.gz"
+checksum = "md5:d8ab161cdc43e7cff3d0a78e0b27a9ab"
 requires = [
     "bayestestR",
     "datawizard",
@@ -1193,11 +1371,11 @@ checksum = "md5:f894081f6d73822a362f156e849c9657"
 
 [[package]]
 name = "officer"
-version = "0.7.4"
+version = "0.7.5"
 source = "cran"
-raw_version = "0.7.4"
-url = "https://cran.r-project.org/src/contrib/officer_0.7.4.tar.gz"
-checksum = "md5:d03322284561563d572551553b64d1ae"
+raw_version = "0.7.5"
+url = "https://cran.r-project.org/src/contrib/officer_0.7.5.tar.gz"
+checksum = "md5:eeffece533f64a9f1c92d674df6d06e8"
 requires = [
     "cli",
     "dplyr",
@@ -1212,11 +1390,11 @@ requires = [
 
 [[package]]
 name = "openssl"
-version = "2.4.0"
+version = "2.4.2"
 source = "cran"
-raw_version = "2.4.0"
-url = "https://cran.r-project.org/src/contrib/openssl_2.4.0.tar.gz"
-checksum = "md5:9aec415db7cb5851d8c4f95d20f16805"
+raw_version = "2.4.2"
+url = "https://cran.r-project.org/src/contrib/openssl_2.4.2.tar.gz"
+checksum = "md5:748b0fa601173da477706803783b6943"
 requires = ["askpass"]
 
 [[package]]
@@ -1242,11 +1420,11 @@ checksum = "md5:61797206011527aaf1a0b5a9f02fd8d3"
 
 [[package]]
 name = "parameters"
-version = "0.28.3"
+version = "0.29.1"
 source = "cran"
-raw_version = "0.28.3"
-url = "https://cran.r-project.org/src/contrib/parameters_0.28.3.tar.gz"
-checksum = "md5:ee18bb59bfcfab6b6dd725fda5600e6d"
+raw_version = "0.29.1"
+url = "https://cran.r-project.org/src/contrib/parameters_0.29.1.tar.gz"
+checksum = "md5:a86ef631f60bab72050053ef27d79f61"
 requires = [
     "bayestestR",
     "datawizard",
@@ -1295,11 +1473,11 @@ requires = [
 
 [[package]]
 name = "performance"
-version = "0.16.0"
+version = "0.17.0"
 source = "cran"
-raw_version = "0.16.0"
-url = "https://cran.r-project.org/src/contrib/performance_0.16.0.tar.gz"
-checksum = "md5:7dc4337cdcf068af86dc46eb1113a116"
+raw_version = "0.17.0"
+url = "https://cran.r-project.org/src/contrib/performance_0.17.0.tar.gz"
+checksum = "md5:526328df52b653897b07b77a51e83f2f"
 requires = [
     "bayestestR",
     "insight",
@@ -1354,11 +1532,11 @@ requires = [
 
 [[package]]
 name = "psych"
-version = "2.6.3"
+version = "2.6.5"
 source = "cran"
-raw_version = "2.6.3"
-url = "https://cran.r-project.org/src/contrib/psych_2.6.3.tar.gz"
-checksum = "md5:21b5a90169b4ae83cf898401e519fbc3"
+raw_version = "2.6.5"
+url = "https://cran.r-project.org/src/contrib/psych_2.6.5.tar.gz"
+checksum = "md5:4c3caa7931539c3d343e76932178a05e"
 requires = [
     "mnormt",
     "lattice",
@@ -1434,6 +1612,30 @@ source = "cran"
 raw_version = "2.4.1"
 url = "https://cran.r-project.org/src/contrib/rbibutils_2.4.1.tar.gz"
 checksum = "md5:dad8207e52a80a5a4a11b22339aae112"
+
+[[package]]
+name = "reactR"
+version = "0.6.1"
+source = "cran"
+raw_version = "0.6.1"
+url = "https://cran.r-project.org/src/contrib/reactR_0.6.1.tar.gz"
+checksum = "md5:cdec5a3166bc410e898710b295b26a5e"
+requires = ["htmltools"]
+
+[[package]]
+name = "reactable"
+version = "0.4.5"
+source = "cran"
+raw_version = "0.4.5"
+url = "https://cran.r-project.org/src/contrib/reactable_0.4.5.tar.gz"
+checksum = "md5:5cd4cc9b65f88e5c7cfe3a611c6ad553"
+requires = [
+    "digest",
+    "htmltools",
+    "htmlwidgets",
+    "jsonlite",
+    "reactR",
+]
 
 [[package]]
 name = "readr"
@@ -1563,11 +1765,11 @@ requires = [
 
 [[package]]
 name = "see"
-version = "0.13.0"
+version = "0.14.0"
 source = "cran"
-raw_version = "0.13.0"
-url = "https://cran.r-project.org/src/contrib/see_0.13.0.tar.gz"
-checksum = "md5:192093f5024c6e63b25777c7b09f8da3"
+raw_version = "0.14.0"
+url = "https://cran.r-project.org/src/contrib/see_0.14.0.tar.gz"
+checksum = "md5:5a969aaf83fb8518ad8d1ae4e388fd46"
 requires = [
     "bayestestR",
     "correlation",
@@ -1859,11 +2061,11 @@ checksum = "md5:f2e3780a71f6258d6f9055f138d474f2"
 
 [[package]]
 name = "xfun"
-version = "0.57.0"
+version = "0.58.0"
 source = "cran"
-raw_version = "0.57"
-url = "https://cran.r-project.org/src/contrib/xfun_0.57.tar.gz"
-checksum = "md5:0a2daa4434d22ec6e166dc0d7a36d2f5"
+raw_version = "0.58"
+url = "https://cran.r-project.org/src/contrib/xfun_0.58.tar.gz"
+checksum = "md5:4997eeff0e261ede02c83474f58a01c3"
 
 [[package]]
 name = "xml2"
@@ -1887,11 +2089,12 @@ checksum = "md5:6beea9b09717960f6c79fcbc1e129c41"
 
 [[package]]
 name = "zip"
-version = "2.3.3"
+version = "3.0.0"
 source = "cran"
-raw_version = "2.3.3"
-url = "https://cran.r-project.org/src/contrib/zip_2.3.3.tar.gz"
-checksum = "md5:81352ca51860d1dbd0ce801d0d697bb0"
+raw_version = "3.0.0"
+url = "https://cran.r-project.org/src/contrib/zip_3.0.0.tar.gz"
+checksum = "md5:8a975bcb98d7efc62f6d5b5510873d18"
+requires = ["cli"]
 
 [[package]]
 name = "zoo"
