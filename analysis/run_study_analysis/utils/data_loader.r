@@ -18,12 +18,15 @@
 #' @return A data frame with one row per participant-timepoint observation.
 #'
 load_cleaned_data <- function(show_col_types = FALSE) {
-    export_dir  <- here::here("analysis", "run_study_analysis", "data", "export")
+    export_dir <- here::here("analysis", "run_study_analysis", "data", "export")
+    raw_path <- file.path(export_dir, "qualtrics_fct_panel_responses.csv")
     export_path <- file.path(export_dir, "qualtrics_fct_panel_responses_cleaned.csv")
 
-    if (!file.exists(export_path)) {
-        stop("Cleaned export not found: ", export_path, ". Run make study_data_quality first.")
-    }
+    require_fresh(
+        targets       = export_path,
+        prerequisites = raw_path,
+        remediation   = "make study_data_quality"
+    )
 
     log_msg("Loading: ", basename(export_path))
     df <- readr::read_csv(export_path, show_col_types = show_col_types)
@@ -44,10 +47,10 @@ VARIABLE_DEFS <- list(
     # L1 (within-person, time-varying) predictor scale means.
     # ATCB (marker variable) excluded -- see l1_marker_var below.
     l1_predictor_vars = c(
-        "pf_mean", "cw_mean", "ee_mean",         # burnout facets (SMBM)
-        "comp_mean", "auto_mean", "relt_mean",    # NF facets (PNTS)
-        "meetings_count",   # meeting count (meetings_num, capped at 8)
-        "meetings_time"     # duration in minutes (supplement backfill; NULL where unmatched)
+        "pf_mean", "cw_mean", "ee_mean", # burnout facets (SMBM)
+        "comp_mean", "auto_mean", "relt_mean", # NF facets (PNTS)
+        "meetings_count", # meeting count (meetings_num, capped at 8)
+        "meetings_time" # duration in minutes (supplement backfill; NULL where unmatched)
     ),
 
     # CFA marker variable (CWC-decomposed for completeness but excluded from MLMs)
@@ -55,17 +58,17 @@ VARIABLE_DEFS <- list(
 
     # L2 (between-person, time-invariant) study and affect variables
     l2_study_vars = c(
-        "pa_mean",   # Positive Affect (I-PANAS-SF)
-        "na_mean",   # Negative Affect (I-PANAS-SF)
-        "br_mean",   # PC Breach (Robinson & Morrison)
-        "vio_mean",  # PC Violation (Robinson & Morrison)
-        "js_mean"    # Job Satisfaction (single item)
+        "pa_mean", # Positive Affect (I-PANAS-SF)
+        "na_mean", # Negative Affect (I-PANAS-SF)
+        "br_mean", # PC Breach (Robinson & Morrison)
+        "vio_mean", # PC Violation (Robinson & Morrison)
+        "js_mean" # Job Satisfaction (single item)
     ),
 
     # L2 environmental control variables (mandatory; grand-mean centered via prep_mlm.r)
     l2_control_vars = c(
-        "jis_mean",  # Job Insecurity (JIS; Sverke et al. 2002)
-        "des_mean"   # Desirability of Movement (DES; Griffeth et al. 2000)
+        "jis_mean", # Job Insecurity (JIS; Sverke et al. 2002)
+        "des_mean" # Desirability of Movement (DES; Griffeth et al. 2000)
     ),
 
     # L1 supplementary item: JS captured at tp1 (9AM survey) only.
@@ -76,7 +79,7 @@ VARIABLE_DEFS <- list(
     # L2 demographic covariates
     l2_demo_vars = c(
         "age", "gender", "job_tenure", "is_remote", "edu_lvl", "ethnicity",
-        "recruitment_source"   # CloudResearch vs snowball (derived from connect_id)
+        "recruitment_source" # CloudResearch vs snowball (derived from connect_id)
     ),
 
     # Dependent variable

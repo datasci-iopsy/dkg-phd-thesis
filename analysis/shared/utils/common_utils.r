@@ -77,6 +77,42 @@ get_system_info <- function() {
 }
 
 
+#' Stop loudly if any target is missing or older than its newest prerequisite
+#'
+#' Mirrors make(1) newer-than semantics. Call at the top of each pipeline
+#' stage before reading inputs. Passes silently when all targets are fresh.
+#'
+#' @param targets       character; paths that must exist and be up to date
+#' @param prerequisites character; paths the targets depend on
+#' @param remediation   character; exact command to print on failure
+#' @return NULL (invisible); called for side effect
+#'
+require_fresh <- function(targets, prerequisites, remediation) {
+    for (t in targets) {
+        if (!file.exists(t)) {
+            stop(
+                "Missing required file: ", t,
+                "\nRun: ", remediation
+            )
+        }
+    }
+
+    t_mtime <- min(file.info(targets)$mtime)
+    p_mtime <- max(file.info(prerequisites)$mtime)
+
+    if (t_mtime < p_mtime) {
+        stale <- targets[file.info(targets)$mtime < p_mtime]
+        stop(
+            "Stale outputs detected (older than their inputs):\n",
+            paste0("  ", stale, collapse = "\n"),
+            "\nRun: ", remediation
+        )
+    }
+
+    invisible(NULL)
+}
+
+
 #' Ensure a directory exists, creating it if necessary
 #'
 #' @param path Directory path to create
