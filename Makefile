@@ -654,7 +654,7 @@ status:
 	@echo "   Author  : $(AUTHOR)"
 	@echo ""
 	@echo "File counts:"
-	@echo "   R scripts    : $$(find "$(ROOT)/analysis" -name '*.r' -o -name '*.r' 2>/dev/null | wc -l | tr -d ' ') found"
+	@echo "   R scripts    : $$(find "$(ROOT)/analysis" -name '*.r' 2>/dev/null | wc -l | tr -d ' ') found"
 	@echo "   YAML configs : $$(find "$(ROOT)/analysis" -name '*.yaml' 2>/dev/null | wc -l | tr -d ' ') found"
 	@echo "   CSV data     : $$(find "$(ROOT)/analysis" -name '*.csv' 2>/dev/null | wc -l | tr -d ' ') found"
 	@echo "   Python files : $$(find "$(ROOT)/gcp" -name '*.py' 2>/dev/null | wc -l | tr -d ' ') found"

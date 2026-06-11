@@ -97,6 +97,17 @@ require_fresh <- function(targets, prerequisites, remediation) {
         }
     }
 
+    # A missing prerequisite would make max(mtime) NA and the staleness
+    # comparison NA, silently bypassing the guard
+    for (p in prerequisites) {
+        if (!file.exists(p)) {
+            stop(
+                "Prerequisite file missing: ", p,
+                "\nRun: ", remediation
+            )
+        }
+    }
+
     t_mtime <- min(file.info(targets)$mtime)
     p_mtime <- max(file.info(prerequisites)$mtime)
 
