@@ -35,11 +35,11 @@ source(here::here("analysis", "shared", "utils", "common_utils.r"))
 source(here::here("analysis", "shared", "utils", "plot_utils.r"))
 source(here::here("analysis", "shared", "utils", "table_utils.r"))
 
-TABLES_DIR  <- here::here("analysis", "run_synthetic_data", "tables")
-EDA_DIR     <- here::here("analysis", "run_synthetic_data", "figs", "eda")
-CORR_DIR    <- here::here("analysis", "run_synthetic_data", "figs", "corr")
-CFA_DIR     <- here::here("analysis", "run_synthetic_data", "figs", "cfa")
-MLM_DIR     <- here::here("analysis", "run_synthetic_data", "figs", "mlm")
+TABLES_DIR <- here::here("analysis", "run_synthetic_data", "tables")
+EDA_DIR <- here::here("analysis", "run_synthetic_data", "figs", "eda")
+CORR_DIR <- here::here("analysis", "run_synthetic_data", "figs", "corr")
+CFA_DIR <- here::here("analysis", "run_synthetic_data", "figs", "cfa")
+MLM_DIR <- here::here("analysis", "run_synthetic_data", "figs", "mlm")
 
 ensure_dir(TABLES_DIR)
 
@@ -79,14 +79,18 @@ table2_vars <- c(
 )
 
 # Variables with no reliability (single items or non-scale measures)
-no_omega_vars <- c("meetings_count", "meetings_mins",
-                   "turnover_intention_mean", "js_mean")
+no_omega_vars <- c(
+    "meetings_count", "meetings_mins",
+    "turnover_intention_mean", "js_mean"
+)
 
 # L1 vs L2 classification
-l1_vars <- c("pf_mean", "cw_mean", "ee_mean",
-             "comp_mean", "auto_mean", "relt_mean",
-             "meetings_count", "meetings_mins",
-             "turnover_intention_mean", "atcb_mean")
+l1_vars <- c(
+    "pf_mean", "cw_mean", "ee_mean",
+    "comp_mean", "auto_mean", "relt_mean",
+    "meetings_count", "meetings_mins",
+    "turnover_intention_mean", "atcb_mean"
+)
 l2_vars <- c("pa_mean", "na_mean", "br_mean", "vio_mean", "js_mean")
 
 # CFA factor -> variable mapping (for omega lookup)
@@ -111,14 +115,16 @@ factor_to_var <- c(
 log_msg("=== [1] Table 1: Participant Demographics ===")
 
 cont <- readr::read_csv(file.path(EDA_DIR, "eda_10_table1_continuous.csv"),
-                        show_col_types = FALSE)
+    show_col_types = FALSE
+)
 cat_data <- readr::read_csv(file.path(EDA_DIR, "eda_10_table1_categorical.csv"),
-                            show_col_types = FALSE)
+    show_col_types = FALSE
+)
 
 # Continuous block: M (SD)
 cont_rows <- cont |>
     dplyr::mutate(
-        Variable  = dplyr::recode(variable,
+        Variable = dplyr::recode(variable,
             age       = "Age",
             pa_mean   = "Positive Affect",
             na_mean   = "Negative Affect",
@@ -126,16 +132,18 @@ cont_rows <- cont |>
             vio_mean  = "PC Violation",
             js_mean   = "Job Satisfaction"
         ),
-        `M (SD)`  = paste0(formatC(mean, digits = 2, format = "f"),
-                           " (", formatC(sd, digits = 2, format = "f"), ")"),
-        `n (%)`   = ""
+        `M (SD)` = paste0(
+            formatC(mean, digits = 2, format = "f"),
+            " (", formatC(sd, digits = 2, format = "f"), ")"
+        ),
+        `n (%)` = ""
     ) |>
     dplyr::select(Variable, `M (SD)`, `n (%)`)
 
 # Categorical block: n (%)
 cat_rows <- cat_data |>
     dplyr::mutate(
-        Variable = paste0("  ", level),  # indent
+        Variable = paste0("  ", level), # indent
         `M (SD)` = "",
         `n (%)`  = paste0(n, " (", gsub("%$", "", pct), ")")
     ) |>
@@ -152,13 +160,13 @@ cat_headers <- cat_data |>
             is_remote = "Remote Work"
         ),
         `M (SD)` = "",
-        `n (%)`  = ""
+        `n (%)` = ""
     ) |>
     dplyr::select(variable, Variable, `M (SD)`, `n (%)`)
 
 cat_combined <- dplyr::bind_rows(
     cat_headers |> dplyr::mutate(sort_key = paste0(variable, "_0")),
-    cat_rows    |> dplyr::mutate(sort_key = paste0(variable, "_1", Variable))
+    cat_rows |> dplyr::mutate(sort_key = paste0(variable, "_1", Variable))
 ) |>
     dplyr::arrange(sort_key) |>
     dplyr::select(Variable, `M (SD)`, `n (%)`)
@@ -196,9 +204,9 @@ save_docx_table(
 # =============================================================================
 log_msg("=== [2] Table 2: Descriptives, Reliabilities, Correlations ===")
 
-desc  <- readr::read_csv(file.path(EDA_DIR, "eda_04_descriptive_statistics.csv"), show_col_types = FALSE)
-iccs  <- readr::read_csv(file.path(EDA_DIR, "eda_15_icc_table.csv"), show_col_types = FALSE)
-omega <- readr::read_csv(file.path(CFA_DIR,  "cfa_04_omega.csv"), show_col_types = FALSE)
+desc <- readr::read_csv(file.path(EDA_DIR, "eda_04_descriptive_statistics.csv"), show_col_types = FALSE)
+iccs <- readr::read_csv(file.path(EDA_DIR, "eda_15_icc_table.csv"), show_col_types = FALSE)
+omega <- readr::read_csv(file.path(CFA_DIR, "cfa_04_omega.csv"), show_col_types = FALSE)
 
 # Correlation matrices (with row names in first column after read.csv write.csv)
 #' Read a correlation matrix CSV written by write.csv (row names in first column)
@@ -213,7 +221,9 @@ read_matrix <- function(path) {
     m
 }
 
-bp_mat <- read_matrix(file.path(CORR_DIR, "corr_03_mlm_between_matrix.csv"))
+# Between-person: Pearson on person-level scores (corr_05; L1 vars averaged
+# across timepoints + L2 vars). Within-person: rmcorr (corr_04).
+bp_mat <- read_matrix(file.path(CORR_DIR, "corr_05_between_person_matrix.csv"))
 wp_mat <- read_matrix(file.path(CORR_DIR, "corr_04_rmcorr_within_matrix.csv"))
 l2_mat <- read_matrix(file.path(CORR_DIR, "corr_01_l2_pearson_matrix.csv"))
 
@@ -251,8 +261,10 @@ icc_lookup <- iccs |>
 n_vars <- length(table2_vars)
 
 # Initialize correlation cell matrix (character)
-corr_cells <- matrix("", nrow = n_vars, ncol = n_vars,
-                     dimnames = list(table2_vars, table2_vars))
+corr_cells <- matrix("",
+    nrow = n_vars, ncol = n_vars,
+    dimnames = list(table2_vars, table2_vars)
+)
 
 #' Look up a single cell from a named correlation matrix
 #'
@@ -302,9 +314,9 @@ t2_rows <- purrr::map_dfr(seq_along(table2_vars), function(i) {
     row <- tibble::tibble(
         ` ` = as.character(i),
         Variable = var_labels[v],
-        M        = if (nrow(d) > 0) as.character(d$mean) else "",
-        SD       = if (nrow(d) > 0) as.character(d$sd)   else "",
-        ICC      = if (v %in% l1_vars && length(icc_val) > 0) fmt_r(icc_val) else ""
+        M = if (nrow(d) > 0) as.character(d$mean) else "",
+        SD = if (nrow(d) > 0) as.character(d$sd) else "",
+        ICC = if (v %in% l1_vars && length(icc_val) > 0) fmt_r(icc_val) else ""
     )
 
     # Add numbered correlation columns
@@ -317,8 +329,9 @@ t2_rows <- purrr::map_dfr(seq_along(table2_vars), function(i) {
 ft2 <- apa_flextable(t2_rows) |>
     add_apa_note(paste0(
         "N = 800 participants. L1 variables have 3 timepoints per person. ",
-        "Between-person correlations (above diagonal) are multilevel decomposed ",
-        "(correlation package, multilevel = TRUE). Within-person correlations ",
+        "Between-person correlations (above diagonal) are Pearson r among ",
+        "person-level scores (L1 variables averaged across timepoints; L2 ",
+        "variables time-invariant). Within-person correlations ",
         "(below diagonal, L1 variables only) are repeated-measures correlations ",
         "(rmcorr; Bakdash & Marusich, 2017). Diagonal entries in parentheses are ",
         "McDonald's omega reliability coefficients. ICC = intraclass correlation ",
@@ -339,38 +352,47 @@ save_docx_table(
 # =============================================================================
 log_msg("=== [3] Table 3: CFA Results ===")
 
-fit_idx  <- readr::read_csv(file.path(CFA_DIR, "cfa_01_fit_indices.csv"),
-                            show_col_types = FALSE)
-load_l2  <- readr::read_csv(file.path(CFA_DIR, "cfa_02_loadings_l2.csv"),
-                            show_col_types = FALSE)
-load_l1  <- readr::read_csv(file.path(CFA_DIR, "cfa_03_loadings_l1.csv"),
-                            show_col_types = FALSE)
+fit_idx <- readr::read_csv(file.path(CFA_DIR, "cfa_01_fit_indices.csv"),
+    show_col_types = FALSE
+)
+load_l2 <- readr::read_csv(file.path(CFA_DIR, "cfa_02_loadings_l2.csv"),
+    show_col_types = FALSE
+)
+load_l1 <- readr::read_csv(file.path(CFA_DIR, "cfa_03_loadings_l1.csv"),
+    show_col_types = FALSE
+)
 
 # Panel A: Fit indices
 fit_display <- fit_idx |>
     dplyr::mutate(
-        chi_sq_str   = paste0(formatC(chi_sq, digits = 2, format = "f"),
-                              " (", df, ")"),
-        p_str        = fmt_p(p),
-        rmsea_str    = paste0(formatC(rmsea, digits = 3, format = "f"),
-                              " [", formatC(rmsea_lo, digits = 3, format = "f"),
-                              ", ", formatC(rmsea_hi, digits = 3, format = "f"), "]"),
-        srmr_str     = dplyr::case_when(
-            !is.na(srmr)         ~ formatC(srmr, digits = 3, format = "f"),
-            !is.na(srmr_within)  ~ paste0(formatC(srmr_within, digits = 3, format = "f"),
-                                          " / ",
-                                          formatC(srmr_between, digits = 3, format = "f")),
+        chi_sq_str = paste0(
+            formatC(chi_sq, digits = 2, format = "f"),
+            " (", df, ")"
+        ),
+        p_str = fmt_p(p),
+        rmsea_str = paste0(
+            formatC(rmsea, digits = 3, format = "f"),
+            " [", formatC(rmsea_lo, digits = 3, format = "f"),
+            ", ", formatC(rmsea_hi, digits = 3, format = "f"), "]"
+        ),
+        srmr_str = dplyr::case_when(
+            !is.na(srmr) ~ formatC(srmr, digits = 3, format = "f"),
+            !is.na(srmr_within) ~ paste0(
+                formatC(srmr_within, digits = 3, format = "f"),
+                " / ",
+                formatC(srmr_between, digits = 3, format = "f")
+            ),
             TRUE ~ ""
         )
     ) |>
     dplyr::select(
-        Model       = model,
+        Model = model,
         `chi2 (df)` = chi_sq_str,
-        p           = p_str,
-        CFI         = cfi,
-        TLI         = tli,
+        p = p_str,
+        CFI = cfi,
+        TLI = tli,
         `RMSEA [90% CI]` = rmsea_str,
-        `SRMR (W/B)`     = srmr_str
+        `SRMR (W/B)` = srmr_str
     )
 
 ft3a <- apa_flextable(fit_display) |>
@@ -439,11 +461,15 @@ l1_load_df <- format_loadings(load_within, factor_order_l1)
 l2_load_df <- format_loadings(load_l2, factor_order_l2)
 
 loadings_combined <- dplyr::bind_rows(
-    tibble::tibble(Factor = "L1 (Within-Person) Scale Items",
-                   Item = "", `lambda` = NA, SE = NA, p = ""),
+    tibble::tibble(
+        Factor = "L1 (Within-Person) Scale Items",
+        Item = "", `lambda` = NA, SE = NA, p = ""
+    ),
     l1_load_df,
-    tibble::tibble(Factor = "L2 (Between-Person) Scale Items",
-                   Item = "", `lambda` = NA, SE = NA, p = ""),
+    tibble::tibble(
+        Factor = "L2 (Between-Person) Scale Items",
+        Item = "", `lambda` = NA, SE = NA, p = ""
+    ),
     l2_load_df
 )
 
@@ -479,14 +505,18 @@ log_msg("Saved: ", out3)
 # =============================================================================
 log_msg("=== [4a] Table 4a: Multilevel Model Results (M0-M6) ===")
 
-fe_all   <- readr::read_csv(file.path(MLM_DIR, "mlm_02_fixed_effects.csv"),
-                            show_col_types = FALSE)
-re_all   <- readr::read_csv(file.path(MLM_DIR, "mlm_03_random_effects.csv"),
-                            show_col_types = FALSE)
-mc_all   <- readr::read_csv(file.path(MLM_DIR, "mlm_01_model_comparison.csv"),
-                            show_col_types = FALSE)
-dr2      <- readr::read_csv(file.path(MLM_DIR, "mlm_07_delta_r2.csv"),
-                            show_col_types = FALSE)
+fe_all <- readr::read_csv(file.path(MLM_DIR, "mlm_02_fixed_effects.csv"),
+    show_col_types = FALSE
+)
+re_all <- readr::read_csv(file.path(MLM_DIR, "mlm_03_random_effects.csv"),
+    show_col_types = FALSE
+)
+mc_all <- readr::read_csv(file.path(MLM_DIR, "mlm_01_model_comparison.csv"),
+    show_col_types = FALSE
+)
+dr2 <- readr::read_csv(file.path(MLM_DIR, "mlm_07_delta_r2.csv"),
+    show_col_types = FALSE
+)
 
 # Model labels (short) and full names
 model_names_main <- c(
@@ -546,13 +576,16 @@ term_order <- names(term_labels)
 
 fe_wide <- fe_main |>
     dplyr::filter(term %in% term_order) |>
-    dplyr::mutate(term_label = term_labels[term],
-                  term_label = factor(term_label,
-                                      levels = term_labels[term_order])) |>
+    dplyr::mutate(
+        term_label = term_labels[term],
+        term_label = factor(term_label,
+            levels = term_labels[term_order]
+        )
+    ) |>
     dplyr::arrange(term_label) |>
     tidyr::pivot_wider(
-        id_cols   = term_label,
-        names_from  = model_short,
+        id_cols = term_label,
+        names_from = model_short,
         values_from = cell,
         values_fill = ""
     ) |>
@@ -563,24 +596,29 @@ vc_main <- mc_all |>
     dplyr::filter(Model %in% model_names_main) |>
     dplyr::mutate(
         model_short = model_short[Model],
-        tau_00_str  = formatC(tau_00, digits = 3, format = "f"),
-        tau_11_str  = ifelse(is.na(tau_11), "",
-                             formatC(tau_11, digits = 3, format = "f")),
-        sigma2_str  = formatC(sigma2, digits = 3, format = "f"),
-        R2m_str     = formatC(R2_marginal,    digits = 3, format = "f"),
-        R2c_str     = formatC(R2_conditional, digits = 3, format = "f"),
-        AIC_str     = formatC(AIC, digits = 1, format = "f")
+        tau_00_str = formatC(tau_00, digits = 3, format = "f"),
+        tau_11_str = ifelse(is.na(tau_11), "",
+            formatC(tau_11, digits = 3, format = "f")
+        ),
+        sigma2_str = formatC(sigma2, digits = 3, format = "f"),
+        R2m_str = formatC(R2_marginal, digits = 3, format = "f"),
+        R2c_str = formatC(R2_conditional, digits = 3, format = "f"),
+        AIC_str = formatC(AIC, digits = 1, format = "f")
     )
 
 dr2_main <- dr2 |>
     dplyr::filter(Model %in% model_names_main) |>
     dplyr::mutate(
-        model_short    = model_short[Model],
-        delta_R2m_str  = ifelse(delta_R2_marginal == 0, "",
-                                formatC(delta_R2_marginal, digits = 3, format = "f")),
-        f2_str         = ifelse(f2 == 0, "",
-                                paste0(formatC(f2, digits = 3, format = "f"),
-                                       " (", f2_magnitude, ")"))
+        model_short = model_short[Model],
+        delta_R2m_str = ifelse(delta_R2_marginal == 0, "",
+            formatC(delta_R2_marginal, digits = 3, format = "f")
+        ),
+        f2_str = ifelse(f2 == 0, "",
+            paste0(
+                formatC(f2, digits = 3, format = "f"),
+                " (", f2_magnitude, ")"
+            )
+        )
     )
 
 # Build variance component rows (one row per VC metric)
@@ -608,13 +646,13 @@ short_main <- model_short
 
 vc_block <- dplyr::bind_rows(
     make_vc_row("tau_00 (L2 intercept var.)", "tau_00_str", vc_main, short_main),
-    make_vc_row("tau_11 (L2 slope var.)",     "tau_11_str", vc_main, short_main),
-    make_vc_row("sigma2 (L1 residual var.)",  "sigma2_str", vc_main, short_main),
-    make_vc_row("R2 marginal",                "R2m_str",    vc_main, short_main),
-    make_vc_row("R2 conditional",             "R2c_str",    vc_main, short_main),
-    make_vc_row("AIC",                        "AIC_str",    vc_main, short_main),
-    make_vc_row("Delta-R2 marginal",          "delta_R2m_str", dr2_main, short_main),
-    make_vc_row("Cohen's f2 (delta-R2m)",     "f2_str",        dr2_main, short_main)
+    make_vc_row("tau_11 (L2 slope var.)", "tau_11_str", vc_main, short_main),
+    make_vc_row("sigma2 (L1 residual var.)", "sigma2_str", vc_main, short_main),
+    make_vc_row("R2 marginal", "R2m_str", vc_main, short_main),
+    make_vc_row("R2 conditional", "R2c_str", vc_main, short_main),
+    make_vc_row("AIC", "AIC_str", vc_main, short_main),
+    make_vc_row("Delta-R2 marginal", "delta_R2m_str", dr2_main, short_main),
+    make_vc_row("Cohen's f2 (delta-R2m)", "f2_str", dr2_main, short_main)
 )
 
 # Separator row
@@ -660,37 +698,38 @@ model_short_mod <- c("M7a", "M7b")
 names(model_short_mod) <- model_names_mod
 
 mc_mod <- readr::read_csv(file.path(MLM_DIR, "mlm_01b_phase6_comparison.csv"),
-                          show_col_types = FALSE)
+    show_col_types = FALSE
+)
 
 term_labels_mod <- c(
-    "(Intercept)"                           = "Intercept",
-    "time_c"                                = "Time (centered)",
-    "burnout_mean_within"                   = "Burnout Composite (WP)",
-    "nf_mean_within"                        = "Need Frustration Composite (WP)",
-    "burnout_mean_between"                  = "Burnout Composite (BP)",
-    "nf_mean_between"                       = "Need Frustration Composite (BP)",
-    "meetings_count_within"                 = "Meeting Count (WP)",
-    "meetings_mins_within"                  = "Meeting Minutes (WP)",
-    "meetings_count_between"                = "Meeting Count (BP)",
-    "meetings_mins_between"                 = "Meeting Minutes (BP)",
+    "(Intercept)" = "Intercept",
+    "time_c" = "Time (centered)",
+    "burnout_mean_within" = "Burnout Composite (WP)",
+    "nf_mean_within" = "Need Frustration Composite (WP)",
+    "burnout_mean_between" = "Burnout Composite (BP)",
+    "nf_mean_between" = "Need Frustration Composite (BP)",
+    "meetings_count_within" = "Meeting Count (WP)",
+    "meetings_mins_within" = "Meeting Minutes (WP)",
+    "meetings_count_between" = "Meeting Count (BP)",
+    "meetings_mins_between" = "Meeting Minutes (BP)",
     "burnout_mean_within:meetings_count_within" = "Burnout x Meeting Count (WP)",
-    "nf_mean_within:meetings_count_within"      = "NF x Meeting Count (WP)",
-    "burnout_mean_within:meetings_mins_within"  = "Burnout x Meeting Minutes (WP)",
-    "nf_mean_within:meetings_mins_within"       = "NF x Meeting Minutes (WP)",
-    "br_mean_c"                             = "PC Breach",
-    "vio_mean_c"                            = "PC Violation",
-    "js_mean_c"                             = "Job Satisfaction",
-    "pa_mean_c"                             = "Positive Affect",
-    "na_mean_c"                             = "Negative Affect",
-    "age_c"                                 = "Age",
-    "job_tenure_c"                          = "Job Tenure"
+    "nf_mean_within:meetings_count_within" = "NF x Meeting Count (WP)",
+    "burnout_mean_within:meetings_mins_within" = "Burnout x Meeting Minutes (WP)",
+    "nf_mean_within:meetings_mins_within" = "NF x Meeting Minutes (WP)",
+    "br_mean_c" = "PC Breach",
+    "vio_mean_c" = "PC Violation",
+    "js_mean_c" = "Job Satisfaction",
+    "pa_mean_c" = "Positive Affect",
+    "na_mean_c" = "Negative Affect",
+    "age_c" = "Age",
+    "job_tenure_c" = "Job Tenure"
 )
 
 fe_mod <- fe_all |>
     dplyr::filter(model %in% model_names_mod) |>
     dplyr::select(term, estimate, std.error, p.value, model) |>
     dplyr::mutate(
-        cell        = purrr::pmap_chr(
+        cell = purrr::pmap_chr(
             list(estimate, std.error, p.value),
             function(b, se, p) fmt_est(b, se, p)
         ),
@@ -714,23 +753,25 @@ vc_mod <- mc_mod |>
     dplyr::filter(Model %in% model_names_mod) |>
     dplyr::mutate(
         model_short = model_short_mod[Model],
-        tau_00_str  = formatC(tau_00, digits = 3, format = "f"),
-        sigma2_str  = formatC(sigma2, digits = 3, format = "f"),
-        R2m_str     = formatC(R2_marginal,    digits = 3, format = "f"),
-        R2c_str     = formatC(R2_conditional, digits = 3, format = "f"),
-        AIC_str     = formatC(AIC, digits = 1, format = "f"),
-        LRT_str     = paste0(formatC(LRT_chi2, digits = 2, format = "f"),
-                             " (df=", LRT_df, "), p ", fmt_p(LRT_p))
+        tau_00_str = formatC(tau_00, digits = 3, format = "f"),
+        sigma2_str = formatC(sigma2, digits = 3, format = "f"),
+        R2m_str = formatC(R2_marginal, digits = 3, format = "f"),
+        R2c_str = formatC(R2_conditional, digits = 3, format = "f"),
+        AIC_str = formatC(AIC, digits = 1, format = "f"),
+        LRT_str = paste0(
+            formatC(LRT_chi2, digits = 2, format = "f"),
+            " (df=", LRT_df, "), p ", fmt_p(LRT_p)
+        )
     )
 
 sep_row_mod <- tibble::tibble(Predictor = "Variance Components", M7a = "", M7b = "")
 vc_block_mod <- dplyr::bind_rows(
     make_vc_row("tau_00 (L2 intercept var.)", "tau_00_str", vc_mod, model_short_mod),
-    make_vc_row("sigma2 (L1 residual var.)",  "sigma2_str", vc_mod, model_short_mod),
-    make_vc_row("R2 marginal",                "R2m_str",    vc_mod, model_short_mod),
-    make_vc_row("R2 conditional",             "R2c_str",    vc_mod, model_short_mod),
-    make_vc_row("AIC",                        "AIC_str",    vc_mod, model_short_mod),
-    make_vc_row("LRT vs. base (chi2, df, p)", "LRT_str",    vc_mod, model_short_mod)
+    make_vc_row("sigma2 (L1 residual var.)", "sigma2_str", vc_mod, model_short_mod),
+    make_vc_row("R2 marginal", "R2m_str", vc_mod, model_short_mod),
+    make_vc_row("R2 conditional", "R2c_str", vc_mod, model_short_mod),
+    make_vc_row("AIC", "AIC_str", vc_mod, model_short_mod),
+    make_vc_row("LRT vs. base (chi2, df, p)", "LRT_str", vc_mod, model_short_mod)
 )
 
 t4b_df <- dplyr::bind_rows(fe_mod, sep_row_mod, vc_block_mod)
@@ -762,12 +803,15 @@ save_docx_table(
 # =============================================================================
 log_msg("=== [5] Table 5: Hypothesis Test Summary ===")
 
-hyp    <- readr::read_csv(file.path(MLM_DIR, "mlm_04_hypothesis_tests.csv"),
-                          show_col_types = FALSE)
+hyp <- readr::read_csv(file.path(MLM_DIR, "mlm_04_hypothesis_tests.csv"),
+    show_col_types = FALSE
+)
 std_fx <- readr::read_csv(file.path(MLM_DIR, "mlm_05_standardized_effects.csv"),
-                          show_col_types = FALSE)
-ps_d   <- readr::read_csv(file.path(MLM_DIR, "mlm_06_level_specific_es.csv"),
-                          show_col_types = FALSE)
+    show_col_types = FALSE
+)
+ps_d <- readr::read_csv(file.path(MLM_DIR, "mlm_06_level_specific_es.csv"),
+    show_col_types = FALSE
+)
 
 # Standardized beta lookup: join on model name + lme4 term name.
 # mlm_05 uses 'Parameter' for the term column and 'model' for the model column.
@@ -786,13 +830,14 @@ pd_lookup <- ps_d |>
 # the modularization refactor). Join directly without a secondary lookup map.
 t5 <- hyp |>
     dplyr::left_join(std_lookup, by = c("model_name" = "model", "term" = "term")) |>
-    dplyr::left_join(pd_lookup,  by = c("model_name" = "model", "term" = "term")) |>
+    dplyr::left_join(pd_lookup, by = c("model_name" = "model", "term" = "term")) |>
     dplyr::mutate(
-        B    = ifelse(is.na(Estimate) | hypothesis == "Prereq", "",
-                      formatC(Estimate, digits = 3, format = "f")),
-        p    = ifelse(is.na(p_value), "", fmt_p(p_value)),
+        B = ifelse(is.na(Estimate) | hypothesis == "Prereq", "",
+            formatC(Estimate, digits = 3, format = "f")
+        ),
+        p = ifelse(is.na(p_value), "", fmt_p(p_value)),
         beta = ifelse(is.na(beta), "", as.character(beta)),
-        d    = ifelse(is.na(pseudo_d), "", as.character(pseudo_d))
+        d = ifelse(is.na(pseudo_d), "", as.character(pseudo_d))
     ) |>
     dplyr::select(
         hypothesis,
