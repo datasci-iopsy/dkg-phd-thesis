@@ -95,7 +95,6 @@ line-length = 80
 
 [tool.sqlfmt]
 line_length = 120
-check = true
 
 [tool.pytest.ini_options]
 env = [

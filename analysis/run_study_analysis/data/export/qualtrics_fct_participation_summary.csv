@@ -1,0 +1,711 @@
+response_id,has_connect_id,recruitment_source,followup_date,intake_created_at,has_consented,is_adult,is_domestic,is_english_proficient,is_eligible,has_completed_tp1,has_completed_tp2,has_completed_tp3,has_passed_attn_tp1,has_passed_attn_tp2,has_passed_attn_tp3,n_followups,n_total,completion_rate,first_followup_at,last_followup_at
+R_17Oo2g69nuq7VgZ,true,cloudresearch,2026-06-12,2026-06-09 01:11:54,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1Jq4aV8CrE1jGRa,true,cloudresearch,2026-06-12,2026-06-03 13:18:36,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_31ZTO7dqcZeF7GR,true,snowball,2026-06-12,2026-05-29 17:22:28,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_33x6mQ08XF29Wrw,true,cloudresearch,2026-06-12,2026-06-05 16:05:51,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3EoOGMvlsbtK1NQ,true,cloudresearch,2026-06-12,2026-06-09 01:12:13,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3V46IDNky15cWbM,true,cloudresearch,2026-06-12,2026-06-03 12:45:02,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3pt7rVzxQVFqgxP,true,cloudresearch,2026-06-12,2026-06-09 01:14:25,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3sddbK2v9x42E71,true,cloudresearch,2026-06-12,2026-06-03 12:45:56,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3wsPpJx4OaEalZ7,true,cloudresearch,2026-06-12,2026-06-09 01:18:24,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_57MjMr7SkaJuuXL,true,cloudresearch,2026-06-12,2026-06-09 01:14:29,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_60Td7NvQ7rQKzI1,true,cloudresearch,2026-06-12,2026-06-09 01:24:30,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_65AEsOAkpEVPqF0,true,cloudresearch,2026-06-12,2026-06-09 01:17:21,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6bT8Dg4pipDgl07,true,cloudresearch,2026-06-12,2026-06-03 13:19:48,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6m2xwzC2O2vEvsF,true,cloudresearch,2026-06-12,2026-06-03 12:49:39,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7JCtjHuzRb3tJeW,true,cloudresearch,2026-06-12,2026-06-09 01:12:05,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7c2QHI2KFs6swjT,true,cloudresearch,2026-06-12,2026-06-09 01:30:16,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7gUfA58x5FJ5tTK,true,cloudresearch,2026-06-12,2026-06-03 13:01:16,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7kTzCf7sggDXAD5,true,cloudresearch,2026-06-12,2026-06-03 13:20:08,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7zdWP2RvCzJDpF7,false,snowball,2026-06-12,2026-06-08 01:51:29,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1OJduZ0NDxTKeAr,true,cloudresearch,2026-06-11,2026-06-05 15:50:25,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1dhRGx1JOMA35uv,true,cloudresearch,2026-06-11,2026-06-03 12:58:53,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1g22jcXIpiHv7DD,true,cloudresearch,2026-06-11,2026-06-05 19:42:12,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1tqYZg10UGJKz7w,true,cloudresearch,2026-06-11,2026-06-09 03:00:40,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3VOhmhd9pLlsErn,true,cloudresearch,2026-06-11,2026-06-09 01:12:47,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3lfYIAjuVGt8v7a,true,cloudresearch,2026-06-11,2026-06-09 01:29:33,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3xuznhn9U5kdx5v,true,cloudresearch,2026-06-11,2026-06-09 01:15:42,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_51bU4Hagqvs98j7,true,cloudresearch,2026-06-11,2026-06-03 12:59:42,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5PllORz6ynkD6wh,true,cloudresearch,2026-06-11,2026-06-09 01:13:06,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6XXwlBB9E64V5WV,true,cloudresearch,2026-06-11,2026-06-09 01:40:18,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7AXM0jBwi189Q1i,true,cloudresearch,2026-06-11,2026-06-09 01:12:20,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7REVAQHz690M8Fz,true,cloudresearch,2026-06-11,2026-06-03 13:02:45,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7W2dKuEnVEBQVy1,true,cloudresearch,2026-06-11,2026-06-09 01:14:00,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1EETS8Mcxp5WTSv,false,snowball,2026-06-10,2026-06-01 21:42:06,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1Jyo57zCaEreIqc,false,snowball,2026-06-10,2026-06-09 15:54:40,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1OzLdTQBaqDB6mt,true,cloudresearch,2026-06-10,2026-06-09 01:17:09,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1fwfxWkN8ecqVRD,true,cloudresearch,2026-06-10,2026-06-03 13:01:18,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1ktvKce4mbHumOZ,true,cloudresearch,2026-06-10,2026-06-05 15:49:02,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1r6qIzxQhlIoVKN,true,cloudresearch,2026-06-10,2026-06-09 02:08:35,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3Au1XaMBNksisMh,true,cloudresearch,2026-06-10,2026-06-09 01:18:26,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3C8whvU4kEGxNgx,true,cloudresearch,2026-06-10,2026-06-09 01:13:02,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3CWBM3ikuG9RImN,true,cloudresearch,2026-06-10,2026-06-09 01:17:21,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3E0m3FQtAmytvpB,true,cloudresearch,2026-06-10,2026-06-09 01:15:12,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3Edry4xTXLihbZw,true,cloudresearch,2026-06-10,2026-06-09 01:18:07,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3Ug1bqK8GKMjXqN,true,cloudresearch,2026-06-10,2026-06-09 01:21:15,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3UkTbJnS3tmOf1D,true,cloudresearch,2026-06-10,2026-06-09 01:19:44,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3Yp2ndK2pMpC2sx,false,snowball,2026-06-10,2026-06-08 00:34:06,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3rw63ApxF6JqXNM,true,cloudresearch,2026-06-10,2026-06-09 01:14:15,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_52IFec0nNRELjS9,true,cloudresearch,2026-06-10,2026-06-09 01:12:59,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5FgwvkcoBpkxHvb,true,cloudresearch,2026-06-10,2026-06-09 01:13:24,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5QyeslYHjFCHeCj,true,cloudresearch,2026-06-10,2026-06-09 01:16:18,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5RRqgae1dCcRl8W,true,cloudresearch,2026-06-10,2026-06-03 12:58:06,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5SjDqsaTkZj3Lab,false,snowball,2026-06-10,2026-06-03 09:51:17,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5hZ6sYIBh1wKoL8,false,snowball,2026-06-10,2026-06-07 13:50:20,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5rIloYCrpALHn1v,true,cloudresearch,2026-06-10,2026-06-09 01:14:40,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_63dwBh6iNPAEnwm,false,snowball,2026-06-10,2026-06-09 23:07:43,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6P7uFLJAUc74Pfm,true,cloudresearch,2026-06-10,2026-06-09 01:15:15,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6poubOxr3EYo6x7,true,cloudresearch,2026-06-10,2026-06-09 01:25:38,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7AL02lsFOOyEcuE,true,cloudresearch,2026-06-10,2026-06-05 15:57:27,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7H1u7gWiMSqZHsX,true,cloudresearch,2026-06-10,2026-06-09 01:11:50,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7IcrIw9VRzKpnYR,true,cloudresearch,2026-06-10,2026-06-09 01:12:45,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7PKPrlQKAYMaOy8,true,cloudresearch,2026-06-10,2026-06-09 01:18:58,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7dt2HvCTop1L7ah,true,cloudresearch,2026-06-10,2026-06-09 01:20:04,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7nZsZICsJre0zy9,true,cloudresearch,2026-06-10,2026-06-05 15:52:30,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7pY7S6OFqGIb3mU,true,cloudresearch,2026-06-10,2026-06-09 01:12:54,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_10IyjY1l0WES2w1,true,cloudresearch,2026-06-09,2026-06-03 13:07:05,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 14:04:18,2026-06-09 22:02:36
+R_13cEQvIAybBkSZz,true,cloudresearch,2026-06-09,2026-06-05 15:49:43,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_15zGPSUhuCTrzPY,true,cloudresearch,2026-06-09,2026-06-05 16:14:55,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1RiMZ1y5yXFoJH3,true,cloudresearch,2026-06-09,2026-06-09 01:13:25,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-09 23:04:42,2026-06-09 23:04:42
+R_1cM1dckStPIQEZH,true,cloudresearch,2026-06-09,2026-06-05 15:46:22,true,true,true,true,true,false,false,true,,,true,1,2,0.3333333333333333,2026-06-09 16:47:18,2026-06-09 16:47:18
+R_1dcONz5LSYgZyQo,true,cloudresearch,2026-06-09,2026-06-09 01:14:24,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-09 21:09:50,2026-06-09 21:09:50
+R_1ht2Ut3GZn5eC74,true,cloudresearch,2026-06-09,2026-06-09 01:15:41,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 14:03:08,2026-06-09 22:20:47
+R_1vKgmqrbmfjJY77,true,cloudresearch,2026-06-09,2026-06-09 01:14:25,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-09 14:27:22,2026-06-09 14:27:22
+R_33G19Ude3XBvh6x,true,cloudresearch,2026-06-09,2026-06-09 01:15:12,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-09 14:54:06,2026-06-09 14:54:06
+R_37vgtpSc7V4BWBp,true,cloudresearch,2026-06-09,2026-06-09 01:16:25,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-09 05:50:42,2026-06-09 05:50:42
+R_3F3ZE5nrB6uCaXh,true,cloudresearch,2026-06-09,2026-06-09 01:16:02,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-09 20:36:51,2026-06-09 20:36:51
+R_3F5pKy7YNJuAFJ7,true,cloudresearch,2026-06-09,2026-06-05 15:47:34,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-09 13:09:24,2026-06-09 13:09:24
+R_3HLDsb1nAhd34u9,true,cloudresearch,2026-06-09,2026-06-09 01:13:19,true,true,true,true,true,false,true,false,,true,,1,2,0.3333333333333333,2026-06-09 20:38:19,2026-06-09 20:38:19
+R_3M6XZVan7t0tNUv,true,cloudresearch,2026-06-09,2026-06-09 01:36:57,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-09 20:38:21,2026-06-09 23:06:54
+R_3NRtidQUZAPV0ZJ,true,cloudresearch,2026-06-09,2026-06-03 12:48:21,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3QUBt4o6pdItpQt,true,cloudresearch,2026-06-09,2026-06-09 01:13:07,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-09 23:03:56,2026-06-09 23:03:56
+R_3eL88mEb7Q2E1sB,true,cloudresearch,2026-06-09,2026-06-03 13:17:21,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-09 17:38:31,2026-06-09 20:08:08
+R_3fCEUSTsxRf32mC,true,cloudresearch,2026-06-09,2026-06-09 01:49:41,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 14:05:09,2026-06-09 22:53:48
+R_3fGOyN9Pp9SlRwL,true,cloudresearch,2026-06-09,2026-06-05 15:51:09,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-09 13:26:44,2026-06-09 13:26:44
+R_3gRT88GwIcJec9L,true,cloudresearch,2026-06-09,2026-06-09 01:12:16,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3grNOOWx4A4IZnH,true,cloudresearch,2026-06-09,2026-06-09 01:17:09,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 13:15:33,2026-06-09 21:05:39
+R_3lMPuA9a8W3j10R,true,cloudresearch,2026-06-09,2026-06-09 01:14:08,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-09 21:05:14,2026-06-09 21:05:14
+R_3mPqdeQVAbgcbUi,true,cloudresearch,2026-06-09,2026-06-09 01:20:18,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 08:11:55,2026-06-09 20:38:23
+R_3rPjTcv6YBNnACq,false,snowball,2026-06-09,2026-06-03 20:52:35,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 15:16:07,2026-06-09 23:06:56
+R_3w1xWwBQc7Po3er,true,cloudresearch,2026-06-09,2026-06-09 01:11:43,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3wQutG1JG4Vxedf,true,cloudresearch,2026-06-09,2026-06-09 01:14:21,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 12:47:59,2026-06-09 14:10:32
+R_3y3IbSnrgwqmlwQ,true,cloudresearch,2026-06-09,2026-06-09 01:15:30,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 15:03:47,2026-06-09 22:05:55
+R_51bzGQk96bBq0xS,true,cloudresearch,2026-06-09,2026-06-03 13:55:44,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_51yEW5zanGyEK0A,true,cloudresearch,2026-06-09,2026-06-09 01:16:07,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_52PXBSsRvKLaULs,true,cloudresearch,2026-06-09,2026-06-09 01:17:38,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 13:15:59,2026-06-09 21:06:23
+R_54itt0PQOjJS4vU,true,cloudresearch,2026-06-09,2026-06-09 01:15:01,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-09 20:28:43,2026-06-09 20:28:43
+R_5GTIG8uQ91TQOwp,true,cloudresearch,2026-06-09,2026-06-09 03:14:04,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-09 20:26:41,2026-06-09 23:06:57
+R_5Hk9iB0PrPnftrI,false,snowball,2026-06-09,2026-06-09 02:12:45,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 13:10:27,2026-06-09 22:28:16
+R_5JZIdxHWK22SU8h,true,cloudresearch,2026-06-09,2026-06-05 15:48:19,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5KW6F259WRau5jH,true,cloudresearch,2026-06-09,2026-06-09 01:10:43,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5NEtKGbLJIi6bFH,true,cloudresearch,2026-06-09,2026-06-09 01:17:03,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5PRA0caszUYlsNm,true,cloudresearch,2026-06-09,2026-06-05 15:49:51,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-09 16:15:48,2026-06-09 16:15:48
+R_5PZ6Vmtuv744jFz,true,cloudresearch,2026-06-09,2026-06-05 15:47:31,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-09 21:36:45,2026-06-09 23:05:35
+R_5VHzvwLTM8yaR1L,true,cloudresearch,2026-06-09,2026-06-09 01:16:27,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5YVwP5HfZLC1LKb,true,cloudresearch,2026-06-09,2026-06-09 01:18:40,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-09 23:08:16,2026-06-09 23:08:16
+R_5aLAqkwPrjtiA6V,false,snowball,2026-06-09,2026-06-03 18:09:13,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 13:47:15,2026-06-09 21:47:19
+R_5dt0JmmQIIxLRRU,true,cloudresearch,2026-06-09,2026-06-03 13:09:45,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 15:03:03,2026-06-09 23:02:19
+R_5fffz9vOoOyIE5X,true,cloudresearch,2026-06-09,2026-06-09 01:12:15,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5meMY9C7fhy1djc,true,cloudresearch,2026-06-09,2026-06-05 16:08:48,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 14:17:04,2026-06-09 22:15:59
+R_5sXSVdZfoN42vji,true,cloudresearch,2026-06-09,2026-06-09 01:16:48,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-09 15:21:11,2026-06-09 19:13:55
+R_5xxcOthi1LgGPr7,true,cloudresearch,2026-06-09,2026-06-05 15:52:56,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_61XYfO2uy21eSRh,true,cloudresearch,2026-06-09,2026-06-05 15:50:12,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_63qKci5q7KUSeHc,true,cloudresearch,2026-06-09,2026-06-09 01:14:35,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-09 22:10:46,2026-06-09 22:10:46
+R_6DP7SGgNnwCvDX8,true,cloudresearch,2026-06-09,2026-06-09 01:49:45,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6SeszgyE7LGV7dg,true,cloudresearch,2026-06-09,2026-06-03 13:04:59,true,true,true,true,true,false,true,true,,true,true,2,3,0.6666666666666666,2026-06-09 18:38:42,2026-06-09 22:19:03
+R_6TzqGVBkJ3DT9W8,true,cloudresearch,2026-06-09,2026-06-05 15:51:06,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-09 15:42:41,2026-06-09 17:38:06
+R_6hfM2FZ7MlTPfUd,true,cloudresearch,2026-06-09,2026-06-09 01:27:18,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-09 20:39:52,2026-06-09 23:08:55
+R_6iaLymTa1L5J9FY,true,cloudresearch,2026-06-09,2026-06-09 01:42:00,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6ixMSvn42ij63c8,true,cloudresearch,2026-06-09,2026-06-09 01:15:42,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-09 20:34:32,2026-06-09 23:28:30
+R_6qi8aiUx3cUCUrn,true,cloudresearch,2026-06-09,2026-06-05 15:49:31,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-09 22:25:44,2026-06-09 23:41:14
+R_6rNVaavSHEfFSmI,false,snowball,2026-06-09,2026-06-05 14:49:43,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 13:07:36,2026-06-09 21:35:46
+R_76b6bHekZqCK8TL,true,cloudresearch,2026-06-09,2026-06-05 15:57:25,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 14:04:04,2026-06-09 22:10:25
+R_7OZ83eerbE3DDpE,true,cloudresearch,2026-06-09,2026-06-09 01:12:26,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7PkeGLXrfmSc1vB,true,cloudresearch,2026-06-09,2026-06-09 01:14:00,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 14:07:18,2026-06-09 22:04:05
+R_7SqrbzMqifDQNAT,true,cloudresearch,2026-06-09,2026-06-09 01:13:05,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-09 13:30:27,2026-06-09 17:19:53
+R_7VDYury53aQg2qE,true,cloudresearch,2026-06-09,2026-06-09 01:11:44,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 13:08:29,2026-06-09 21:22:04
+R_7WwifoHyeJKMTLN,true,cloudresearch,2026-06-09,2026-06-09 01:13:24,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7eQEbnkZRtuK9ui,true,cloudresearch,2026-06-09,2026-06-09 01:16:02,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 08:07:47,2026-06-09 14:06:05
+R_7nZOdTL42B2A63e,true,cloudresearch,2026-06-09,2026-06-05 15:51:27,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7owu1ZlXOAoDy5b,true,cloudresearch,2026-06-09,2026-06-09 01:16:22,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-09 23:19:58,2026-06-09 23:26:11
+R_7qaMlPpnp4XlOTj,true,cloudresearch,2026-06-09,2026-06-09 01:12:13,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7rOXj7RDO1r0YIs,true,cloudresearch,2026-06-09,2026-06-09 01:13:30,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-09 20:17:18,2026-06-09 23:53:16
+R_8fjqbjJqEHzG5rl,false,snowball,2026-06-09,2026-06-02 04:06:22,true,true,true,true,true,false,true,true,,true,true,2,3,0.6666666666666666,2026-06-09 17:33:49,2026-06-09 21:05:25
+R_11pcwJ3w1Gk2LJE,true,cloudresearch,2026-06-08,2026-06-05 15:53:33,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:06:01,2026-06-08 21:05:49
+R_12yPe58eyCcKuBW,true,cloudresearch,2026-06-08,2026-06-05 15:48:59,true,true,true,true,true,false,true,false,,true,,1,2,0.3333333333333333,2026-06-08 20:18:32,2026-06-08 20:18:32
+R_17P5ofqe6bePi1c,true,cloudresearch,2026-06-08,2026-06-05 15:48:19,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 14:05:42,2026-06-08 23:09:39
+R_1CUu0xkb8idxDej,true,cloudresearch,2026-06-08,2026-06-03 13:13:13,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:04:12,2026-06-08 21:12:32
+R_1CvybJcov7JArlh,true,cloudresearch,2026-06-08,2026-06-05 15:51:21,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-09 04:42:46,2026-06-09 04:46:06
+R_1G8GB9G7sVsoBBw,true,cloudresearch,2026-06-08,2026-06-03 12:56:56,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1IfLs9XPyUtAaVy,true,cloudresearch,2026-06-08,2026-06-03 13:15:27,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1JFM31m65crnSpX,true,cloudresearch,2026-06-08,2026-06-05 15:52:20,true,true,true,true,true,false,true,true,,true,true,2,3,0.6666666666666666,2026-06-08 19:48:34,2026-06-09 01:21:42
+R_1JLCLFpmO6BHpVE,true,cloudresearch,2026-06-08,2026-06-03 12:44:59,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:12:40,2026-06-08 21:21:46
+R_1MiK1PfLh9FQqzc,true,cloudresearch,2026-06-08,2026-06-05 15:52:57,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-08 20:48:43,2026-06-08 20:48:43
+R_1QPXUIxZoY1RzHP,true,cloudresearch,2026-06-08,2026-06-03 12:45:18,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:40:43,2026-06-08 21:57:46
+R_1TLkIfX9wWG8ZZT,true,cloudresearch,2026-06-08,2026-06-05 15:48:15,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1VraMKT8ecHgoXM,true,cloudresearch,2026-06-08,2026-06-03 13:00:30,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 15:04:13,2026-06-08 22:29:44
+R_1alFnie3KaMxId8,true,cloudresearch,2026-06-08,2026-06-03 13:06:07,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 16:19:47,2026-06-09 00:03:39
+R_1cOb2oQI5w4X5At,true,cloudresearch,2026-06-08,2026-06-03 12:49:48,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:05:33,2026-06-08 21:29:53
+R_1cf9envJ1Ip5uXD,true,cloudresearch,2026-06-08,2026-06-05 15:48:29,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1gG5amkwQyGcIIV,true,cloudresearch,2026-06-08,2026-06-05 15:45:55,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1gYspanEso8k9mt,true,cloudresearch,2026-06-08,2026-06-05 16:41:06,true,true,true,true,true,false,true,true,,true,true,2,3,0.6666666666666666,2026-06-08 17:09:24,2026-06-08 21:37:15
+R_1m1qUiiAkWqVhaB,true,cloudresearch,2026-06-08,2026-06-05 15:49:06,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-08 20:30:59,2026-06-09 02:05:49
+R_1vhV77fyoooJ91J,true,cloudresearch,2026-06-08,2026-06-05 15:46:54,true,true,true,true,true,false,false,true,,,true,1,2,0.3333333333333333,2026-06-08 21:06:37,2026-06-08 21:06:37
+R_33psLdQ2ykKGA2s,true,cloudresearch,2026-06-08,2026-06-05 15:46:59,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 15:25:42,2026-06-08 22:03:09
+R_379I6YRVFfalTtD,true,cloudresearch,2026-06-08,2026-06-05 15:51:16,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_39Uuf7szZSAlMhr,true,cloudresearch,2026-06-08,2026-06-05 15:47:22,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 21:04:13,2026-06-09 03:05:43
+R_3DqJtkW8XJYOAgW,true,cloudresearch,2026-06-08,2026-06-05 15:47:10,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-08 14:00:27,2026-06-08 14:00:27
+R_3EgoEqdHuDXVxxB,true,cloudresearch,2026-06-08,2026-06-03 13:12:47,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-08 14:43:53,2026-06-08 21:42:08
+R_3Ev4TwvYC1cdPDc,true,cloudresearch,2026-06-08,2026-06-03 13:23:25,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3GzqRKW17a2hw65,true,cloudresearch,2026-06-08,2026-06-05 16:00:37,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3J2vXrTOst8V1mm,true,cloudresearch,2026-06-08,2026-06-05 15:48:19,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3MKEDaAgHm3uPSs,true,snowball,2026-06-08,2026-06-03 15:47:08,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-08 13:04:04,2026-06-08 13:04:04
+R_3hg9MVtWD7DTH1f,true,cloudresearch,2026-06-08,2026-06-05 15:46:17,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3lFESy8SXP1DLyA,true,cloudresearch,2026-06-08,2026-06-05 15:48:17,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3nUzb13GqZndURy,true,cloudresearch,2026-06-08,2026-06-05 15:52:20,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3oj6pQg2AXcwRvz,true,cloudresearch,2026-06-08,2026-06-05 15:46:16,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-08 15:17:38,2026-06-08 18:52:37
+R_3pM9tYY0XW3etaj,true,cloudresearch,2026-06-08,2026-06-05 15:47:45,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 15:02:37,2026-06-08 18:38:58
+R_3pfBcPrLaRxYKLe,true,cloudresearch,2026-06-08,2026-06-03 13:11:47,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3rpTbrasUXsP7xf,true,cloudresearch,2026-06-08,2026-06-03 12:54:09,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3szaJ6nAP6WOvgB,true,cloudresearch,2026-06-08,2026-06-05 15:47:37,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3t9ybljIEFWOgXn,true,cloudresearch,2026-06-08,2026-06-05 15:49:25,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3v8B0rqWFdwnplL,true,cloudresearch,2026-06-08,2026-06-05 15:49:31,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3vXbCgXNCkFjUC5,true,cloudresearch,2026-06-08,2026-06-05 15:52:36,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3vl1O5xLqUckykh,true,cloudresearch,2026-06-08,2026-06-05 15:47:21,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-08 20:05:59,2026-06-08 23:33:45
+R_51tvowT1fYOANoZ,true,cloudresearch,2026-06-08,2026-06-05 15:47:56,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-08 14:59:37,2026-06-08 14:59:37
+R_54H31s061i2B0LA,true,cloudresearch,2026-06-08,2026-06-05 15:48:39,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 16:04:15,2026-06-08 21:21:35
+R_54MCGzUyW4OpPPj,true,cloudresearch,2026-06-08,2026-06-05 15:55:04,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-08 14:28:32,2026-06-08 22:14:50
+R_56IpEEDTgneCIvf,true,cloudresearch,2026-06-08,2026-06-03 13:00:07,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:25:53,2026-06-08 21:35:21
+R_579w0O5qzDZ78tX,true,cloudresearch,2026-06-08,2026-06-03 12:52:08,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-08 13:06:58,2026-06-08 13:06:58
+R_5CdmZXvOV5hWXbw,true,cloudresearch,2026-06-08,2026-06-05 15:54:52,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-08 21:00:21,2026-06-09 11:13:52
+R_5DPgfdKAUlZ4BzC,true,cloudresearch,2026-06-08,2026-06-05 15:49:14,true,true,true,true,true,false,true,true,,true,true,2,3,0.6666666666666666,2026-06-08 18:49:44,2026-06-08 22:26:35
+R_5Hpnl68ruFjoLXM,true,cloudresearch,2026-06-08,2026-06-05 15:47:51,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 20:27:23,2026-06-09 02:13:57
+R_5JDywpnle0aVwZl,true,cloudresearch,2026-06-08,2026-06-05 15:46:14,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-08 19:24:13,2026-06-08 19:25:48
+R_5JYXeJm7sQDqsDf,true,cloudresearch,2026-06-08,2026-06-05 15:47:50,true,true,true,true,true,false,true,true,,true,true,2,3,0.6666666666666666,2026-06-08 17:05:53,2026-06-08 21:27:05
+R_5LsrRiDps2iv4gV,true,cloudresearch,2026-06-08,2026-06-05 16:46:25,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 12:13:24,2026-06-08 15:35:32
+R_5MdZtYrFJwy5hPX,true,cloudresearch,2026-06-08,2026-06-05 15:47:22,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:04:00,2026-06-08 21:49:11
+R_5QE45GygTwclETU,true,cloudresearch,2026-06-08,2026-06-03 12:54:26,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:05:38,2026-06-08 21:28:27
+R_5Qa9DhyvnzUYfN5,true,cloudresearch,2026-06-08,2026-06-05 15:46:54,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 15:04:18,2026-06-08 23:13:04
+R_5WCICx8Wk1hDGKY,true,cloudresearch,2026-06-08,2026-06-05 15:46:52,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 16:12:55,2026-06-09 01:24:03
+R_5Ym2yWlVtvsF9zZ,true,cloudresearch,2026-06-08,2026-06-05 15:52:25,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-08 20:13:14,2026-06-08 20:13:14
+R_5c5zqaAYtzSUZnl,true,cloudresearch,2026-06-08,2026-06-05 15:46:28,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 15:24:48,2026-06-08 23:16:01
+R_5cV05gwAivb9m93,true,cloudresearch,2026-06-08,2026-06-03 12:53:08,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5dLAOo0zDRTRh7n,true,cloudresearch,2026-06-08,2026-06-03 13:07:16,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:06:09,2026-06-08 21:04:26
+R_5dY8HJqR1A5NnCM,true,cloudresearch,2026-06-08,2026-06-05 17:26:36,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 14:45:01,2026-06-08 22:27:25
+R_5eaJJGdQaWXRKiR,true,cloudresearch,2026-06-08,2026-06-03 13:12:27,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 14:21:44,2026-06-08 22:11:33
+R_5ezMmFlG0LdabvD,true,cloudresearch,2026-06-08,2026-06-05 15:48:39,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 14:14:43,2026-06-08 22:30:15
+R_5fQtPjkUGOlEnbX,true,cloudresearch,2026-06-08,2026-06-03 12:52:23,true,true,true,true,true,false,true,false,,true,,1,2,0.3333333333333333,2026-06-08 17:12:20,2026-06-08 17:12:20
+R_5isxxKjCDE2DfQP,true,cloudresearch,2026-06-08,2026-06-05 15:46:26,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 20:37:43,2026-06-09 02:08:05
+R_5n8BzEPBE07U9zj,true,cloudresearch,2026-06-08,2026-06-05 15:48:20,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 20:39:58,2026-06-09 02:25:54
+R_5njZRrjzhVNqt3l,true,cloudresearch,2026-06-08,2026-06-05 15:45:18,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:12:26,2026-06-09 10:56:16
+R_5q7o4AZE1FMgVCx,true,cloudresearch,2026-06-08,2026-06-03 12:54:47,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-08 13:11:35,2026-06-08 19:06:28
+R_5qWgwiaDhwbA91T,false,snowball,2026-06-08,2026-06-04 17:04:06,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5r2rA33HMxskbdM,true,cloudresearch,2026-06-08,2026-06-05 16:01:14,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-08 20:21:26,2026-06-08 20:21:26
+R_5stz7oDN7np7MAR,true,cloudresearch,2026-06-08,2026-06-03 12:46:18,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:10:58,2026-06-08 21:03:24
+R_66g9BeXiN7pmX4M,true,cloudresearch,2026-06-08,2026-06-05 15:52:50,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-08 16:09:26,2026-06-08 21:02:43
+R_69fT6jWevH7AKmR,true,cloudresearch,2026-06-08,2026-06-03 12:47:32,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-08 14:12:20,2026-06-08 14:12:20
+R_6BWrQhluSaJ9Mbi,true,cloudresearch,2026-06-08,2026-06-05 15:48:01,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6CJH2qQp51OsrMe,true,cloudresearch,2026-06-08,2026-06-05 15:47:54,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 14:27:06,2026-06-08 22:15:02
+R_6FK9JallQXoob6m,true,cloudresearch,2026-06-08,2026-06-05 15:52:19,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 14:08:01,2026-06-08 22:03:46
+R_6L1CO8QJBwDbuU9,true,cloudresearch,2026-06-08,2026-06-03 12:49:48,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 14:02:39,2026-06-08 22:05:33
+R_6LApuXNMggC0lxu,true,cloudresearch,2026-06-08,2026-06-05 15:53:31,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 16:15:26,2026-06-09 00:04:14
+R_6OTkHNK327NwZwm,false,snowball,2026-06-08,2026-06-03 01:48:08,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 16:46:12,2026-06-09 02:18:14
+R_6PMi1xo2lYybqaO,true,cloudresearch,2026-06-08,2026-06-05 15:51:06,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 14:07:20,2026-06-08 22:19:50
+R_6PgBIVQFGljohTH,true,cloudresearch,2026-06-08,2026-06-03 13:40:06,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:09:50,2026-06-08 21:38:14
+R_6SyWVx1xQmJ5cNr,true,cloudresearch,2026-06-08,2026-06-05 15:49:42,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 20:28:00,2026-06-09 02:37:03
+R_6T9jHRbDiwVWVRn,true,cloudresearch,2026-06-08,2026-06-03 12:54:12,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 14:03:33,2026-06-08 22:08:04
+R_6bZviGfRcUpMbnD,true,cloudresearch,2026-06-08,2026-06-05 15:48:54,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:20:58,2026-06-08 21:08:56
+R_6d3VbRUi3JPOwvU,true,cloudresearch,2026-06-08,2026-06-05 16:04:19,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6dUlB8R1EJHsG53,false,snowball,2026-06-08,2026-06-04 23:41:15,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:54:09,2026-06-08 22:07:48
+R_6e2le5DVTROAw0I,true,cloudresearch,2026-06-08,2026-06-05 15:51:52,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 14:39:20,2026-06-08 22:12:48
+R_6fdE3SkEL0g5dwz,true,cloudresearch,2026-06-08,2026-06-05 16:04:52,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 14:32:13,2026-06-08 22:17:05
+R_6nXf4LtM4PVkifn,true,cloudresearch,2026-06-08,2026-06-03 12:50:52,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-08 13:23:04,2026-06-08 21:13:13
+R_6njHbehS7Ws9O5J,true,cloudresearch,2026-06-08,2026-06-03 13:00:11,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:04:08,2026-06-08 21:53:39
+R_6qVRkFCKmsaYaDI,true,cloudresearch,2026-06-08,2026-06-03 12:50:05,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 14:08:41,2026-06-08 22:04:59
+R_6rH4XYlxwAxkXUT,false,snowball,2026-06-08,2026-05-31 12:49:40,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:07:00,2026-06-08 21:09:34
+R_71GJleHmk001EHg,true,cloudresearch,2026-06-08,2026-06-03 12:48:05,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:07:06,2026-06-08 21:05:46
+R_71snY7mbQfN7x6u,true,cloudresearch,2026-06-08,2026-06-05 15:47:35,true,true,true,true,true,false,true,true,,true,true,2,3,0.6666666666666666,2026-06-08 20:19:15,2026-06-09 00:23:44
+R_72J4DA06xHqGXy5,true,cloudresearch,2026-06-08,2026-06-05 15:48:48,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_77pbAzoRWGRPPN1,true,cloudresearch,2026-06-08,2026-06-03 13:15:31,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7BWA9v0oNRWz25H,true,cloudresearch,2026-06-08,2026-06-03 12:51:25,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7CIHrqoWWIP5p0X,true,cloudresearch,2026-06-08,2026-06-05 15:48:14,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-08 16:14:56,2026-06-08 16:14:56
+R_7EEZPoyY0KzVU72,false,snowball,2026-06-08,2026-05-29 17:38:53,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7HzPSpaG7C0U8wb,true,cloudresearch,2026-06-08,2026-06-03 12:58:59,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7KxvoKei7JYBRNA,true,cloudresearch,2026-06-08,2026-06-03 13:05:10,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 16:12:26,2026-06-09 00:42:15
+R_7OkqwLxi5bpuHke,true,cloudresearch,2026-06-08,2026-06-05 15:46:26,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7PnPEt57SlQcYi5,true,cloudresearch,2026-06-08,2026-06-03 13:00:31,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7bW530dosaLcWqd,true,cloudresearch,2026-06-08,2026-06-03 13:04:14,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7c8DRxNJTIfNvZb,true,cloudresearch,2026-06-08,2026-06-03 12:50:57,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 14:03:17,2026-06-08 22:03:06
+R_7dyBXfRx9jW2HcY,true,cloudresearch,2026-06-08,2026-06-05 15:59:39,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7dyoFXJcWiDDVY5,true,cloudresearch,2026-06-08,2026-06-05 15:49:48,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-08 20:21:47,2026-06-08 20:21:47
+R_7hisMNMqM7bkf4J,true,cloudresearch,2026-06-08,2026-06-05 15:59:04,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 15:37:55,2026-06-08 23:56:49
+R_7jPAnVJr0ItR9OF,true,cloudresearch,2026-06-08,2026-06-05 15:53:31,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 22:38:45,2026-06-09 04:32:27
+R_7jW2dDYkAWHfVjN,true,cloudresearch,2026-06-08,2026-06-05 15:46:00,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7jwCZuYTujWyWtu,true,cloudresearch,2026-06-08,2026-06-03 13:16:38,true,true,true,true,true,false,false,true,,,true,1,2,0.3333333333333333,2026-06-08 22:15:42,2026-06-08 22:15:42
+R_7lfqpAaJqxALdnN,true,cloudresearch,2026-06-08,2026-06-03 12:51:43,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:07:32,2026-06-08 21:19:12
+R_7pmWwmTU6Vb7M7r,true,cloudresearch,2026-06-08,2026-06-05 15:48:02,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7py70zwZswjSZkS,true,cloudresearch,2026-06-08,2026-06-03 13:03:36,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7qX7dKgTKBmokUG,true,cloudresearch,2026-06-08,2026-06-05 15:47:16,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-08 13:23:47,2026-06-08 17:21:59
+R_7r5qxqFYUSG7l6x,true,cloudresearch,2026-06-08,2026-06-05 15:48:39,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 14:10:44,2026-06-08 22:14:33
+R_7rT8ypf7JhZVbD6,true,cloudresearch,2026-06-08,2026-06-03 13:06:22,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7s1w8ZXmIlZCukt,true,cloudresearch,2026-06-08,2026-06-03 13:04:02,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 16:37:47,2026-06-09 00:16:13
+R_7uETwOArA73UObf,true,cloudresearch,2026-06-08,2026-06-05 15:45:28,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:06:07,2026-06-08 21:03:19
+R_7vI2L9F3y5vvkZz,false,snowball,2026-06-08,2026-05-31 12:25:42,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 13:04:12,2026-06-08 22:24:06
+R_7zTinqEEHBvQRco,true,cloudresearch,2026-06-08,2026-06-05 15:46:08,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-08 13:07:33,2026-06-08 18:14:18
+R_1BWalYAEGYoOZzE,true,cloudresearch,2026-06-07,2026-06-05 15:53:10,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1pPS5dmj3bBCN3F,true,cloudresearch,2026-06-07,2026-06-03 13:21:35,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-07 13:12:29,2026-06-07 21:07:29
+R_3ERob0l9k1eDmXC,true,cloudresearch,2026-06-07,2026-06-03 13:17:18,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3TAsDp8fIflm5C9,true,cloudresearch,2026-06-07,2026-06-05 15:46:47,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-07 13:19:36,2026-06-07 21:08:29
+R_3ToX2Lg2T9vZlgu,true,cloudresearch,2026-06-07,2026-06-05 15:50:41,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-07 20:20:17,2026-06-08 02:40:51
+R_5Qy1xWPlHfPJj5T,true,cloudresearch,2026-06-07,2026-06-03 13:05:44,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-07 14:01:04,2026-06-07 14:01:04
+R_5YWWbFO8eOLSkDH,true,cloudresearch,2026-06-07,2026-06-05 15:51:33,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6r08yVweST7RxqJ,true,cloudresearch,2026-06-07,2026-06-05 15:50:52,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-07 16:11:39,2026-06-08 12:53:30
+R_6tDKeqiafK9OxNj,true,cloudresearch,2026-06-07,2026-06-05 15:59:39,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6vViziYXLOFYavT,true,cloudresearch,2026-06-07,2026-06-05 15:45:16,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7VEj9aDAS2g6lRH,true,cloudresearch,2026-06-07,2026-06-05 15:48:40,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-07 20:39:41,2026-06-08 02:03:54
+R_7rxDsT7AQ24QSwa,true,cloudresearch,2026-06-07,2026-06-05 16:00:42,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-07 22:23:39,2026-06-07 22:23:39
+R_11xt27t2faQZ7j3,true,cloudresearch,2026-06-06,2026-06-05 15:48:28,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_14cuNSOssNdyWBj,true,cloudresearch,2026-06-06,2026-06-03 12:49:11,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-06 13:58:53,2026-06-06 21:31:09
+R_1DGslXSNQWvXV1k,true,cloudresearch,2026-06-06,2026-06-03 12:45:41,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-06 13:04:35,2026-06-06 13:04:35
+R_1EzcyBZ0eqwaoSq,true,cloudresearch,2026-06-06,2026-06-03 13:18:43,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1M1oPauDQtCUb3H,true,cloudresearch,2026-06-06,2026-06-03 12:54:18,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1P4TFzHZRjnwLTA,true,cloudresearch,2026-06-06,2026-06-05 16:13:32,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-08 07:51:35,2026-06-08 08:07:40
+R_1dDPvzNWEGKjRik,true,cloudresearch,2026-06-06,2026-06-05 15:48:40,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-06 17:48:44,2026-06-08 15:04:51
+R_1m7yTZAgWmhh2ZS,true,cloudresearch,2026-06-06,2026-06-05 15:58:23,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1oBJqopzDNtwLRJ,true,cloudresearch,2026-06-06,2026-06-05 16:01:34,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-06 21:12:50,2026-06-07 05:47:03
+R_1qg3voivEspcGUF,true,cloudresearch,2026-06-06,2026-06-05 16:30:19,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_2LObbbYBNZqyuhX,true,snowball,2026-06-06,2026-06-05 12:20:03,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_33kAmBbEK8swtIR,true,cloudresearch,2026-06-06,2026-06-03 12:49:28,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-06 16:05:37,2026-06-07 00:09:46
+R_3D6mq1SktzbBcvW,true,cloudresearch,2026-06-06,2026-06-03 12:46:35,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5EgH1RRYfIO1MDK,true,cloudresearch,2026-06-06,2026-06-05 15:54:59,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5Gwytehlq6uI2Yl,true,cloudresearch,2026-06-06,2026-06-05 15:51:32,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-06 14:21:46,2026-06-06 22:14:23
+R_5IENNKJB0zpUeTc,true,cloudresearch,2026-06-06,2026-06-05 15:48:10,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-07 04:41:38,2026-06-07 08:04:44
+R_5uO4GSxBBAQFtDC,true,cloudresearch,2026-06-06,2026-06-05 15:50:29,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-06 20:07:36,2026-06-07 02:05:08
+R_611Q09DkHMIEzLu,true,cloudresearch,2026-06-06,2026-06-03 12:49:39,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-06 13:14:50,2026-06-06 21:11:31
+R_6AXCjptG92LheHx,true,cloudresearch,2026-06-06,2026-06-05 15:53:10,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6Krplc7cUR4qR6Y,true,cloudresearch,2026-06-06,2026-06-05 15:59:46,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-06 20:59:15,2026-06-07 02:10:20
+R_6fuAk9vod923Sd5,true,cloudresearch,2026-06-06,2026-06-03 12:53:35,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6fvWqKZ7u7qQtup,true,cloudresearch,2026-06-06,2026-06-05 15:50:29,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7Iq9yAiHoZelhC1,true,cloudresearch,2026-06-06,2026-06-05 15:57:13,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7Jfq2mjzCkxQLo2,true,cloudresearch,2026-06-06,2026-06-05 15:48:15,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-06 20:07:42,2026-06-07 02:03:53
+R_7X5JcH2GA0a6C3D,true,cloudresearch,2026-06-06,2026-06-03 12:44:16,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-06 13:12:59,2026-06-06 21:47:05
+R_7bKqwOHOkwqOtfT,true,cloudresearch,2026-06-06,2026-06-05 15:48:49,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-06 21:10:25,2026-06-07 03:06:36
+R_7ioh8BNpSxNOAaR,true,cloudresearch,2026-06-06,2026-06-03 12:56:50,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-06 13:04:08,2026-06-06 21:11:32
+R_7qxqj0A9nJVbDBD,true,cloudresearch,2026-06-06,2026-06-05 15:52:32,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-06 11:33:47,2026-06-06 16:35:28
+R_11GInvmIGUavxnm,true,cloudresearch,2026-06-05,2026-06-03 12:48:53,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_11gQkfhD7AiL8ml,true,cloudresearch,2026-06-05,2026-06-03 13:20:01,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:13:43,2026-06-05 22:07:45
+R_11oTA3DDim98Q93,true,cloudresearch,2026-06-05,2026-06-03 13:10:35,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_17rFnnGAkwRvVOS,true,cloudresearch,2026-06-05,2026-06-03 13:03:31,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_19LXrbtrg3RG4Tf,true,cloudresearch,2026-06-05,2026-06-03 13:54:46,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1HaKkLZi1XsboAN,true,cloudresearch,2026-06-05,2026-06-03 12:54:28,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-05 14:38:09,2026-06-05 22:17:50
+R_1JEfbeRO3c8hqtP,true,cloudresearch,2026-06-05,2026-06-03 13:12:27,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:08:14,2026-06-05 22:15:51
+R_1M4ijIgyy666kIP,true,cloudresearch,2026-06-05,2026-06-03 13:14:33,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1NvTgTbWzkphQoX,false,snowball,2026-06-05,2026-06-01 01:54:00,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:06:13,2026-06-05 21:16:59
+R_1OOPBpnJu0Xb6pj,true,cloudresearch,2026-06-05,2026-06-03 13:11:39,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:07:29,2026-06-05 21:22:07
+R_1Om1kxYG5IMw9kR,true,cloudresearch,2026-06-05,2026-06-03 13:08:42,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:06:38,2026-06-05 22:14:53
+R_1TtJHFzJM55Ng2q,true,cloudresearch,2026-06-05,2026-06-03 13:15:11,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:06:08,2026-06-05 22:37:32
+R_1dKZbbs55hfxcMd,true,cloudresearch,2026-06-05,2026-06-03 13:14:14,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-05 13:09:33,2026-06-05 13:09:33
+R_1guTgET99N9SLAT,true,cloudresearch,2026-06-05,2026-06-03 13:04:53,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:03:36,2026-06-05 21:20:11
+R_1mglZSHF6h7fnif,true,cloudresearch,2026-06-05,2026-06-03 13:44:08,true,true,true,true,true,false,true,true,,true,true,2,3,0.6666666666666666,2026-06-05 17:41:08,2026-06-05 17:52:27
+R_1mn5eeDdlgftey8,true,cloudresearch,2026-06-05,2026-06-03 13:11:44,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-05 13:59:57,2026-06-05 17:07:46
+R_1rfDBzpTyXvi5li,true,cloudresearch,2026-06-05,2026-06-03 13:05:37,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:04:50,2026-06-05 22:05:46
+R_1vWHfIBgxc3PtMB,true,cloudresearch,2026-06-05,2026-06-03 12:48:17,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:06:14,2026-06-05 21:24:29
+R_1xihgqGmAqbng2t,true,cloudresearch,2026-06-05,2026-06-03 12:44:13,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:10:20,2026-06-05 21:15:24
+R_229jV2s6Jekzhsk,true,cloudresearch,2026-06-05,2026-06-03 12:46:06,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:04:26,2026-06-05 21:03:14
+R_3075A4nWkFNOmHG,true,cloudresearch,2026-06-05,2026-06-03 13:19:54,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:55:48,2026-06-05 22:37:38
+R_30Zc44TgVLcCBTj,true,cloudresearch,2026-06-05,2026-06-03 13:44:04,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_31783gNk07yVEqq,true,cloudresearch,2026-06-05,2026-06-03 13:17:14,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:13:12,2026-06-05 21:45:53
+R_31E2GmX4vgJN4Ln,true,cloudresearch,2026-06-05,2026-06-03 13:20:11,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:10:49,2026-06-05 21:04:59
+R_34IcE4gyXHAC5Qn,false,snowball,2026-06-05,2026-06-04 22:30:21,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_37Pjh2oxL2VyQWR,true,cloudresearch,2026-06-05,2026-06-03 12:47:01,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 16:32:24,2026-06-06 00:03:53
+R_3CHDEBBcNev46mB,true,cloudresearch,2026-06-05,2026-06-03 13:39:17,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3Ca7uM5qNG8onkL,true,cloudresearch,2026-06-05,2026-06-03 13:04:49,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3DZLQh2ORnKEBgt,true,cloudresearch,2026-06-05,2026-06-03 13:00:54,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-05 14:54:34,2026-06-05 18:16:21
+R_3FRPiB9epLqW2VB,true,cloudresearch,2026-06-05,2026-06-03 12:50:32,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3GVy7TZg9iKaBaU,false,snowball,2026-06-05,2026-05-29 16:04:39,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:05:02,2026-06-05 22:24:08
+R_3Jh0VYZT6w2pujR,true,cloudresearch,2026-06-05,2026-06-03 12:53:59,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:39:14,2026-06-05 21:22:58
+R_3KVDk8kD9Sp2VtA,true,cloudresearch,2026-06-05,2026-06-03 12:57:07,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3MZ5qMP5fN4tvj3,false,snowball,2026-06-05,2026-05-30 11:06:04,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-05 14:21:55,2026-06-05 22:47:34
+R_3PuCY2Ma5PbKzpm,true,cloudresearch,2026-06-05,2026-06-03 12:58:21,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3SwfwndXdCsxYop,true,cloudresearch,2026-06-05,2026-06-03 13:30:04,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3cZo7qRIVJgeo7Y,true,cloudresearch,2026-06-05,2026-06-03 12:46:41,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:27:02,2026-06-05 21:23:38
+R_3eLvYlKHKtn6jF7,true,cloudresearch,2026-06-05,2026-06-03 13:27:32,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3gi1OsiSuYRizzz,true,cloudresearch,2026-06-05,2026-06-03 12:45:14,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3hKhkORJXIwYftq,false,snowball,2026-06-05,2026-06-05 03:15:12,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:04:01,2026-06-05 21:02:42
+R_3hL9GoTCzZEmCzW,true,cloudresearch,2026-06-05,2026-06-03 13:02:58,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:23:16,2026-06-05 22:22:19
+R_3hSkzQxcHCjbUZj,true,cloudresearch,2026-06-05,2026-06-03 12:50:57,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:07:38,2026-06-05 22:26:33
+R_3lUcOEbdvLWp6OB,true,cloudresearch,2026-06-05,2026-06-03 13:14:53,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:03:26,2026-06-05 21:13:48
+R_3nRSjJcg9qAgJO1,true,cloudresearch,2026-06-05,2026-06-03 12:57:49,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-05 15:04:44,2026-06-05 15:04:44
+R_3npzY58RVm1dJn3,true,cloudresearch,2026-06-05,2026-06-03 13:11:59,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:05:09,2026-06-05 21:18:27
+R_3u8Kr79ULjS3pHr,true,cloudresearch,2026-06-05,2026-06-03 13:01:10,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:08:08,2026-06-05 21:05:24
+R_3xy0BrQHwCuUxzs,true,cloudresearch,2026-06-05,2026-06-03 12:45:57,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3ym6CeURVgpMcrS,true,snowball,2026-06-05,2026-05-29 22:44:33,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:51:31,2026-06-05 22:10:50
+R_3zROuLfghaRvtjM,true,cloudresearch,2026-06-05,2026-06-03 13:08:08,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 21:53:03,2026-06-06 02:05:40
+R_3zvESVKHuA9XP8e,true,cloudresearch,2026-06-05,2026-06-03 12:46:05,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:20:56,2026-06-05 22:05:45
+R_4jeq3RiXB0hYP18,true,cloudresearch,2026-06-05,2026-06-03 12:49:45,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_50eCN5rUsIDFw8I,true,cloudresearch,2026-06-05,2026-06-03 13:04:51,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:09:03,2026-06-05 21:10:11
+R_554KOQxr2bgOdu9,true,cloudresearch,2026-06-05,2026-06-03 13:17:23,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:09:42,2026-06-05 21:12:55
+R_58A5CYCwUwnMYLY,false,snowball,2026-06-05,2026-06-04 23:38:22,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-05 13:33:19,2026-06-05 18:39:34
+R_5GKaXnLlfK1R1k4,true,cloudresearch,2026-06-05,2026-06-03 12:53:48,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:38:45,2026-06-05 21:23:42
+R_5N9O0TkJFsl9MNb,true,cloudresearch,2026-06-05,2026-06-03 12:57:15,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-05 14:58:04,2026-06-05 14:58:04
+R_5P7XXpCCTv9fGxh,true,cloudresearch,2026-06-05,2026-06-03 13:09:55,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:06:24,2026-06-05 22:04:51
+R_5Pcdu6aOWXgZzmI,true,cloudresearch,2026-06-05,2026-06-03 12:52:22,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:04:07,2026-06-05 21:08:40
+R_5Qa9bu3VHuM0mfn,false,snowball,2026-06-05,2026-05-31 19:30:13,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5Uft67OEXzHmFpG,true,cloudresearch,2026-06-05,2026-06-03 12:53:54,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5WNDuG8N60Zsf5L,true,cloudresearch,2026-06-05,2026-06-03 12:56:45,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-05 22:30:00,2026-06-05 22:30:00
+R_5WfmMMWVQ3WnCox,true,cloudresearch,2026-06-05,2026-06-03 12:51:56,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:12:37,2026-06-05 21:04:51
+R_5jOEJy0kluErhc9,true,cloudresearch,2026-06-05,2026-06-03 12:52:52,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5pHFCdyZZsFBO8N,false,snowball,2026-06-05,2026-05-30 02:19:19,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:18:06,2026-06-05 21:45:24
+R_5sGsYIQUjC5kVJn,true,cloudresearch,2026-06-05,2026-06-03 12:53:13,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:09:57,2026-06-05 21:09:00
+R_5xXYf6K5rnefi1D,true,cloudresearch,2026-06-05,2026-06-03 12:53:41,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:07:32,2026-06-05 21:06:43
+R_60YhjlZyz18bJvR,true,cloudresearch,2026-06-05,2026-06-03 13:43:07,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_63PnjJ7TpOQlHEt,true,cloudresearch,2026-06-05,2026-06-03 13:27:09,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:35:26,2026-06-05 21:59:11
+R_63eeGtR1upkT0WP,true,cloudresearch,2026-06-05,2026-06-03 12:46:42,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:22:12,2026-06-05 21:43:09
+R_63wqA5XGuPGpbty,true,cloudresearch,2026-06-05,2026-06-03 13:27:42,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6ALSqP1IbSWcwo1,true,cloudresearch,2026-06-05,2026-06-03 12:57:02,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6D13233BtivBCRX,true,cloudresearch,2026-06-05,2026-06-03 13:15:55,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:51:33,2026-06-05 21:02:53
+R_6Fyc1EsuxD3bvI9,true,cloudresearch,2026-06-05,2026-06-03 13:10:01,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:10:15,2026-06-05 21:08:48
+R_6GAzam0Ebj3GB7b,true,cloudresearch,2026-06-05,2026-06-03 12:55:45,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6GfeuWv4E3aa5Hw,true,cloudresearch,2026-06-05,2026-06-03 12:42:41,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6OkgSBtPR77rDah,true,cloudresearch,2026-06-05,2026-06-03 12:50:31,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6PmYNs9JQg4g6Kl,true,cloudresearch,2026-06-05,2026-06-03 13:16:46,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6PpLm2iU33lCLWS,true,cloudresearch,2026-06-05,2026-06-03 12:45:46,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:07:26,2026-06-05 22:08:11
+R_6Yb2MJti4Lub63n,true,cloudresearch,2026-06-05,2026-06-03 13:02:53,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-05 13:04:51,2026-06-05 17:11:44
+R_6YnaRU9Bo6giXJN,true,cloudresearch,2026-06-05,2026-06-03 12:50:35,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6f5OFTd0Qx7PuP7,true,cloudresearch,2026-06-05,2026-06-03 12:51:48,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6iDbS73AX99E31a,true,cloudresearch,2026-06-05,2026-06-03 13:08:40,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:09:15,2026-06-05 21:18:16
+R_6igIKYOeZqKpknN,false,snowball,2026-06-05,2026-06-02 21:50:28,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:26:37,2026-06-05 22:37:21
+R_6jd0rHvZFHVneEQ,false,snowball,2026-06-05,2026-06-01 20:19:20,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:34:23,2026-06-05 21:06:32
+R_6k7gSR5JiJZuBIi,true,cloudresearch,2026-06-05,2026-06-03 13:25:53,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:30:37,2026-06-05 21:09:16
+R_6lWSqIpH6E7uNZO,true,cloudresearch,2026-06-05,2026-06-03 12:58:24,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6n9nSxHKBaxsngP,true,cloudresearch,2026-06-05,2026-06-03 12:52:27,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6nHS3obVv6RNr83,true,cloudresearch,2026-06-05,2026-06-03 13:16:38,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:14:23,2026-06-05 21:26:21
+R_6otHb4bMKdHxXWD,true,cloudresearch,2026-06-05,2026-06-03 13:14:32,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-05 14:06:13,2026-06-05 18:05:21
+R_6pJw4BsAsCuXlI0,true,cloudresearch,2026-06-05,2026-06-03 13:06:16,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:06:29,2026-06-05 21:49:07
+R_6pKy5OR13ILoSiw,true,cloudresearch,2026-06-05,2026-06-03 12:59:42,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:05:23,2026-06-05 21:20:39
+R_6rutvoPMIHpfFHY,true,cloudresearch,2026-06-05,2026-06-03 14:23:14,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6tyPuXWLYw5p77b,true,cloudresearch,2026-06-05,2026-06-03 14:02:57,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6ysIQsRAp9ft2Tf,false,snowball,2026-06-05,2026-06-02 18:44:00,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_736UQXBbWJ6uNZT,true,cloudresearch,2026-06-05,2026-06-03 13:13:45,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:39:49,2026-06-05 22:56:01
+R_76bdiFTeDyMudoI,true,cloudresearch,2026-06-05,2026-06-03 12:52:42,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:06:29,2026-06-05 22:03:03
+R_7HYA1S2DjnIxluF,true,snowball,2026-06-05,2026-05-29 16:29:26,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-05 13:09:22,2026-06-05 13:09:22
+R_7M5qibIw8DWVVwZ,true,cloudresearch,2026-06-05,2026-06-03 12:51:43,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:42:08,2026-06-05 21:38:31
+R_7P8mPgU98ZOFGKr,true,cloudresearch,2026-06-05,2026-06-03 13:15:57,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:25:36,2026-06-05 21:07:48
+R_7QGtHWf8MhTGabU,true,cloudresearch,2026-06-05,2026-06-03 12:53:09,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7TNwlMB5tf7mj19,true,cloudresearch,2026-06-05,2026-06-03 12:44:39,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:12:01,2026-06-05 21:07:37
+R_7VI1YXHgHRUPWkh,true,cloudresearch,2026-06-05,2026-06-03 13:33:34,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:04:32,2026-06-05 22:50:16
+R_7hGXdoWxHSi312a,true,cloudresearch,2026-06-05,2026-06-03 13:10:52,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:17:42,2026-06-05 23:16:22
+R_7kRNS1F3eMUu0Lw,true,cloudresearch,2026-06-05,2026-06-03 13:15:03,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:05:26,2026-06-05 23:44:05
+R_7nvtqrZ7LpoBkbv,true,cloudresearch,2026-06-05,2026-06-03 12:46:30,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 13:14:54,2026-06-05 21:04:40
+R_7rZOXBpyPIiPpAC,true,cloudresearch,2026-06-05,2026-06-03 13:00:36,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 21:10:27,2026-06-06 00:14:38
+R_7syJRfrAqjpIQLk,true,cloudresearch,2026-06-05,2026-06-03 12:53:47,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:55:31,2026-06-05 21:48:04
+R_7zbtXn8MsULNBuB,true,cloudresearch,2026-06-05,2026-06-03 12:53:27,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-05 14:20:16,2026-06-05 22:43:45
+R_7zcHSF8sP1QqrS6,true,cloudresearch,2026-06-05,2026-06-03 13:03:58,true,true,true,true,true,false,true,false,,true,,1,2,0.3333333333333333,2026-06-05 19:03:57,2026-06-05 19:03:57
+R_110yhrSNrFQb592,true,cloudresearch,2026-06-04,2026-06-03 13:03:34,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_11cIFkE1R1xfyjT,true,cloudresearch,2026-06-04,2026-06-03 12:47:24,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:05:22,2026-06-04 21:04:27
+R_12Y2dKvS1lI5VmL,true,cloudresearch,2026-06-04,2026-06-03 12:47:48,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_138fWPPnaRbNTjc,true,cloudresearch,2026-06-04,2026-06-03 12:49:17,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 13:30:38,2026-06-04 17:08:19
+R_14ksdDqc5eH8Yww,true,cloudresearch,2026-06-04,2026-06-03 12:45:34,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:08:07,2026-06-04 21:07:47
+R_166eBIfp8na81TX,true,cloudresearch,2026-06-04,2026-06-03 12:46:51,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 14:54:51,2026-06-04 22:15:01
+R_17E1SYPM3hOJvYR,true,cloudresearch,2026-06-04,2026-06-03 13:05:43,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:56:42,2026-06-04 21:03:53
+R_18ONUwt4ia4iCPM,true,cloudresearch,2026-06-04,2026-06-03 12:51:12,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1D6qrbQpSNqlHD4,true,cloudresearch,2026-06-04,2026-06-03 13:06:22,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:03:25,2026-06-04 21:06:21
+R_1En4Irti6IW69r5,true,cloudresearch,2026-06-04,2026-06-03 12:54:14,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 13:56:25,2026-06-04 17:03:50
+R_1Fg21ChRvQH14aT,true,cloudresearch,2026-06-04,2026-06-03 13:10:09,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1GIWKQroOLPr9Hb,true,cloudresearch,2026-06-04,2026-06-03 13:11:42,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1Hnl75vxwBhBQJj,false,snowball,2026-06-04,2026-05-29 16:04:38,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:09:46,2026-06-04 21:20:42
+R_1HvJckqZ5TjFwwr,true,cloudresearch,2026-06-04,2026-06-03 13:08:46,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:08:16,2026-06-04 21:10:06
+R_1I6YY9Y9yaSvuwN,true,cloudresearch,2026-06-04,2026-06-03 13:00:31,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:41:26,2026-06-04 21:14:14
+R_1IZxeHc6W1wBXgL,true,cloudresearch,2026-06-04,2026-06-03 13:13:44,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:24:07,2026-06-04 21:15:00
+R_1JN21ilKKWhEmFX,true,cloudresearch,2026-06-04,2026-06-03 13:29:29,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-04 13:24:01,2026-06-04 13:24:01
+R_1KpVe2kSyA1KqS7,true,cloudresearch,2026-06-04,2026-06-03 12:46:07,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-04 13:08:00,2026-06-04 21:52:11
+R_1L1lbpKpEz2Hhdz,true,cloudresearch,2026-06-04,2026-06-03 12:46:10,true,true,true,true,true,false,true,false,,true,,1,2,0.3333333333333333,2026-06-04 17:13:35,2026-06-04 17:13:35
+R_1OuZbSIsphkqaMV,true,cloudresearch,2026-06-04,2026-06-03 12:48:00,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1P1DhlI7nmvKqHM,true,cloudresearch,2026-06-04,2026-06-03 13:00:36,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1QE2t2lfKk42zMd,true,cloudresearch,2026-06-04,2026-06-03 12:58:53,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:41:06,2026-06-04 21:07:02
+R_1QTNluUkpDRdN6h,true,cloudresearch,2026-06-04,2026-06-03 13:09:45,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1Ra0FA0W317TeJF,true,cloudresearch,2026-06-04,2026-06-03 12:52:06,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 14:36:27,2026-06-04 22:23:39
+R_1TRjNhAjGsgC0qZ,true,cloudresearch,2026-06-04,2026-06-03 12:45:35,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 14:03:44,2026-06-04 18:02:46
+R_1Trxqg8N1npFbSF,true,cloudresearch,2026-06-04,2026-06-03 13:00:47,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1W8XyJD3qSM9FoB,true,cloudresearch,2026-06-04,2026-06-03 13:02:58,true,true,true,true,true,false,true,false,,true,,1,2,0.3333333333333333,2026-06-04 18:22:04,2026-06-04 18:22:04
+R_1Xpq43Wxon98fGV,true,cloudresearch,2026-06-04,2026-06-03 13:03:45,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:09:30,2026-06-04 21:12:42
+R_1aVkBy8rsUzPKMu,true,cloudresearch,2026-06-04,2026-06-03 13:17:46,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 14:05:22,2026-06-04 18:04:16
+R_1aheAqBSY4wBGeJ,true,cloudresearch,2026-06-04,2026-06-03 13:07:47,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 14:04:55,2026-06-04 22:03:14
+R_1dRYFTyDFBD4V9f,true,cloudresearch,2026-06-04,2026-06-03 12:50:59,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:08:21,2026-06-04 21:12:42
+R_1dh0bYSliCfk7Wo,true,cloudresearch,2026-06-04,2026-06-03 12:44:53,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:25:33,2026-06-04 21:11:45
+R_1dhANRBfGZfnRTz,true,cloudresearch,2026-06-04,2026-06-03 12:48:11,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 13:11:03,2026-06-04 17:24:45
+R_1e36TMkGwT02qE3,true,cloudresearch,2026-06-04,2026-06-03 13:04:10,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1f9GUEhrLYl8DkN,true,cloudresearch,2026-06-04,2026-06-03 12:54:37,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1fvCnwl9FKNtSDv,true,cloudresearch,2026-06-04,2026-06-03 12:55:45,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1gIlc9au0p9aX29,true,cloudresearch,2026-06-04,2026-06-03 13:08:09,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1gLt05852EEqFTP,true,cloudresearch,2026-06-04,2026-06-03 12:58:15,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:22:27,2026-06-04 21:09:22
+R_1gZ0MpSiwx1x5j9,true,cloudresearch,2026-06-04,2026-06-03 12:50:22,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 14:47:14,2026-06-04 18:34:33
+R_1n3gwLvuiPL0dif,true,cloudresearch,2026-06-04,2026-06-03 13:15:12,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 14:08:57,2026-06-04 21:04:37
+R_1nJBc89EoFktnNZ,true,cloudresearch,2026-06-04,2026-06-03 12:43:24,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1rJJOsqSsgiMvf2,true,cloudresearch,2026-06-04,2026-06-03 12:48:21,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:06:43,2026-06-04 22:02:02
+R_1rqYC7M5McP65ix,true,cloudresearch,2026-06-04,2026-06-03 13:19:18,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 16:06:02,2026-06-05 00:11:04
+R_1skmOBfiE3Y1qwh,true,cloudresearch,2026-06-04,2026-06-03 13:09:07,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:10:29,2026-06-04 21:03:03
+R_1tfiO7h2SlllCA1,true,cloudresearch,2026-06-04,2026-06-03 13:27:42,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 15:15:01,2026-06-04 19:41:40
+R_1vVX6uf5NFn8WIN,true,cloudresearch,2026-06-04,2026-06-03 13:10:32,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:45:56,2026-06-04 21:24:58
+R_2EaOWAnYt6F6Kee,true,cloudresearch,2026-06-04,2026-06-03 12:45:55,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_30Q8gtWLCJGE0jT,true,cloudresearch,2026-06-04,2026-06-03 13:17:12,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_30Us16Yu0iT1QZz,true,cloudresearch,2026-06-04,2026-06-03 13:00:41,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:07:33,2026-06-04 21:31:50
+R_31pC3pOSR1SHAd3,true,cloudresearch,2026-06-04,2026-06-03 13:17:51,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 16:31:34,2026-06-05 00:17:47
+R_32DZ7YEI0ltFeYN,true,cloudresearch,2026-06-04,2026-06-03 12:56:02,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:11:32,2026-06-04 21:30:54
+R_347BTVd3eJL2hbu,true,cloudresearch,2026-06-04,2026-06-03 13:17:29,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_35Wlm186t3L74F0,true,cloudresearch,2026-06-04,2026-06-03 12:50:10,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_36KnmCzoZvFAZbz,true,cloudresearch,2026-06-04,2026-06-03 13:17:08,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_39oz0jYsIl8seCG,true,cloudresearch,2026-06-04,2026-06-03 12:50:11,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:05:35,2026-06-04 21:29:39
+R_3DSet4R5VnQ3tBv,true,cloudresearch,2026-06-04,2026-06-03 13:09:40,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-04 13:26:25,2026-06-04 13:26:25
+R_3DuIPjpp2mrYpHb,false,snowball,2026-06-04,2026-06-01 13:59:18,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:11:53,2026-06-04 21:31:51
+R_3DvZTA8RHAf3SWi,true,cloudresearch,2026-06-04,2026-06-03 12:55:56,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 14:34:35,2026-06-04 22:23:45
+R_3EZpGrUV2Z4Hrib,true,cloudresearch,2026-06-04,2026-06-03 12:59:14,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 16:07:20,2026-06-05 00:07:31
+R_3FDrB2ISqT9TMjn,true,cloudresearch,2026-06-04,2026-06-03 12:54:13,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3GjN0sXbdDgLCS7,false,snowball,2026-06-04,2026-05-29 15:44:41,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:11:37,2026-06-04 21:19:57
+R_3IN5VdMWcDVy9qj,true,cloudresearch,2026-06-04,2026-06-03 12:52:23,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3IsVWIAAurh5x9v,true,cloudresearch,2026-06-04,2026-06-03 12:43:59,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:03:46,2026-06-04 21:26:20
+R_3JBIvDjYNjgzczv,true,cloudresearch,2026-06-04,2026-06-03 13:09:38,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:08:54,2026-06-04 21:04:21
+R_3LFmHx7WsfjCpn5,true,cloudresearch,2026-06-04,2026-06-03 12:55:11,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3Lk9WKp4DD8GZ6T,true,cloudresearch,2026-06-04,2026-06-03 12:53:58,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3MccGMJ65OoeJZ4,false,snowball,2026-06-04,2026-06-04 00:30:09,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-04 16:25:58,2026-06-04 16:25:58
+R_3OiaAQFyxVAZZWT,true,cloudresearch,2026-06-04,2026-06-03 12:53:09,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-04 15:44:59,2026-06-04 15:44:59
+R_3P0VcXr0gII9JiY,true,cloudresearch,2026-06-04,2026-06-03 13:13:44,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 14:17:22,2026-06-04 22:37:38
+R_3P0ZYrV2k3p7HVJ,true,cloudresearch,2026-06-04,2026-06-03 12:49:12,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 15:08:12,2026-06-04 23:15:09
+R_3PA15BPu91mmyOi,true,cloudresearch,2026-06-04,2026-06-03 13:13:33,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:08:53,2026-06-04 21:05:23
+R_3Pe3saRnCiqJMD1,true,cloudresearch,2026-06-04,2026-06-03 13:00:58,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3QmhI1ZXtWuem6B,true,cloudresearch,2026-06-04,2026-06-03 12:45:41,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:05:14,2026-06-04 21:04:16
+R_3R1tSL6w71JOofw,true,cloudresearch,2026-06-04,2026-06-03 13:01:26,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:06:42,2026-06-04 22:05:24
+R_3T98t8FWpBUHc6B,true,cloudresearch,2026-06-04,2026-06-03 13:21:03,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 15:03:09,2026-06-04 23:06:47
+R_3Tp8VFaPlBjiKpb,true,cloudresearch,2026-06-04,2026-06-03 13:04:55,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 14:06:26,2026-06-04 22:05:12
+R_3VOBwiMJzglIXzp,true,cloudresearch,2026-06-04,2026-06-03 12:56:59,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:05:55,2026-06-04 21:28:32
+R_3Yuhrfc2djrA68p,true,cloudresearch,2026-06-04,2026-06-03 12:46:22,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:07:26,2026-06-04 21:14:45
+R_3bdYNaPgMwi7t97,true,cloudresearch,2026-06-04,2026-06-03 12:55:13,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:13:06,2026-06-04 21:11:50
+R_3efr3NdGZCtcBMw,true,cloudresearch,2026-06-04,2026-06-03 12:43:03,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:04:28,2026-06-04 21:08:35
+R_3gQx0LMNTd4wfPr,true,cloudresearch,2026-06-04,2026-06-03 12:50:41,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 14:32:50,2026-06-04 18:15:22
+R_3hPrNvm1Ci0kPaV,true,cloudresearch,2026-06-04,2026-06-03 13:04:20,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:43:53,2026-06-04 21:04:05
+R_3hYgqIHC4FFQrOV,true,cloudresearch,2026-06-04,2026-06-03 13:40:30,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3j3vJF4SQH3gphU,true,cloudresearch,2026-06-04,2026-06-03 12:54:26,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3k17FvYOFjcn2GM,true,cloudresearch,2026-06-04,2026-06-03 13:05:37,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:38:37,2026-06-04 21:13:21
+R_3lxBy15hoXY8tzh,true,cloudresearch,2026-06-04,2026-06-03 13:20:46,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-04 14:37:21,2026-06-04 21:06:16
+R_3n2CPTkQrPZzlQU,true,cloudresearch,2026-06-04,2026-06-03 12:51:49,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:08:06,2026-06-04 21:10:36
+R_3pxvdThxGY6AHp4,true,cloudresearch,2026-06-04,2026-06-03 12:57:01,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:08:16,2026-06-04 21:27:57
+R_3qDlLNUmFu89jp9,true,cloudresearch,2026-06-04,2026-06-03 13:12:21,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 13:49:22,2026-06-04 17:07:48
+R_3rNCso5ZyFoKJMN,true,cloudresearch,2026-06-04,2026-06-03 12:49:01,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:57:21,2026-06-04 21:21:06
+R_3sc8L7vCRX2bieZ,true,cloudresearch,2026-06-04,2026-06-03 14:30:56,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3yckTVdTQSt1q6J,true,cloudresearch,2026-06-04,2026-06-03 12:52:23,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:24:07,2026-06-04 21:44:04
+R_50TyvVTZK5nffMF,true,cloudresearch,2026-06-04,2026-06-03 12:57:25,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 15:10:14,2026-06-04 23:13:34
+R_515N37Hk3oEfYSt,true,cloudresearch,2026-06-04,2026-06-03 12:52:57,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:24:19,2026-06-04 21:08:46
+R_53VTYo6feTOrdM8,true,cloudresearch,2026-06-04,2026-06-03 13:29:30,true,true,true,true,true,false,true,true,,true,true,2,3,0.6666666666666666,2026-06-04 20:23:18,2026-06-05 00:08:34
+R_54c2eoNMCfuj5u4,true,cloudresearch,2026-06-04,2026-06-03 12:44:44,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_58M792XN6t9CyGX,true,cloudresearch,2026-06-04,2026-06-03 12:49:04,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:43:32,2026-06-04 21:30:56
+R_5Aw8oE9dI9HMebv,true,cloudresearch,2026-06-04,2026-06-03 12:54:47,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:07:16,2026-06-04 21:10:55
+R_5E6d00zdVBe1A1a,true,cloudresearch,2026-06-04,2026-06-03 12:46:19,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:25:49,2026-06-04 22:07:13
+R_5HMYPvzMI1WngY1,true,cloudresearch,2026-06-04,2026-06-03 12:55:23,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-04 17:05:45,2026-06-04 17:05:45
+R_5NXpXGSm2eIH6OO,true,cloudresearch,2026-06-04,2026-06-03 13:09:50,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-04 18:06:38,2026-06-04 22:55:23
+R_5PUdKF8ZUhoXKzq,true,cloudresearch,2026-06-04,2026-06-03 13:17:54,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:07:16,2026-06-04 21:17:12
+R_5ReeOCLC8yXSvdL,true,cloudresearch,2026-06-04,2026-06-03 12:59:38,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-04 13:25:07,2026-06-04 21:09:09
+R_5Rz4Kr7uD3UAHiO,true,cloudresearch,2026-06-04,2026-06-03 12:54:21,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 14:17:34,2026-06-04 22:22:05
+R_5Z8Xwx6YT07Ouel,true,cloudresearch,2026-06-04,2026-06-03 12:52:08,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5a2PgUcWsMxqaBP,true,cloudresearch,2026-06-04,2026-06-03 12:51:05,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 16:11:20,2026-06-05 01:07:55
+R_5cYyMSQfmBdsupQ,true,cloudresearch,2026-06-04,2026-06-03 12:53:09,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5dFkViQdoeQmRri,true,cloudresearch,2026-06-04,2026-06-03 12:55:22,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5dazAXKWC20LI85,true,cloudresearch,2026-06-04,2026-06-03 13:16:57,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5eSwVUbJXM6eVLr,true,cloudresearch,2026-06-04,2026-06-03 13:03:11,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5eY9eqraYl6ioql,true,cloudresearch,2026-06-04,2026-06-03 13:24:11,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 15:07:04,2026-06-04 23:23:24
+R_5g6DKqrbRPRkqkt,true,cloudresearch,2026-06-04,2026-06-03 12:53:48,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-04 13:44:37,2026-06-04 21:04:07
+R_5im1LPTDrGllqpl,true,cloudresearch,2026-06-04,2026-06-03 13:10:25,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 13:16:42,2026-06-04 17:24:40
+R_5kdKkOkr3ndLJFT,true,cloudresearch,2026-06-04,2026-06-03 12:57:20,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_5lGKpm0IyDBA8Qe,true,cloudresearch,2026-06-04,2026-06-03 12:53:48,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-04 14:53:53,2026-06-04 23:22:20
+R_5pyhmMW24MJHdRJ,false,snowball,2026-06-04,2026-06-02 16:34:20,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 15:03:58,2026-06-04 23:08:30
+R_5ts37WEKdfooejV,false,snowball,2026-06-04,2026-06-01 23:42:20,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:26:00,2026-06-04 21:30:54
+R_606p6Z61QZ4f6r2,true,cloudresearch,2026-06-04,2026-06-03 13:15:22,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-04 14:07:25,2026-06-04 14:07:25
+R_61EQnQ7a0WtJN8u,true,cloudresearch,2026-06-04,2026-06-03 12:48:29,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 15:40:33,2026-06-04 18:13:24
+R_62x4MMFnzAdNbJ1,true,cloudresearch,2026-06-04,2026-06-03 12:59:55,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_62yC6YOuIEMUPUb,true,cloudresearch,2026-06-04,2026-06-03 12:43:28,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:07:00,2026-06-04 21:07:03
+R_63Dygvvqo6ZQnUR,true,cloudresearch,2026-06-04,2026-06-03 12:50:31,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_63w2p2EEqerBdb5,true,cloudresearch,2026-06-04,2026-06-03 13:11:51,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 14:04:05,2026-06-04 22:05:38
+R_65XiRItXHbGRcDn,true,cloudresearch,2026-06-04,2026-06-03 13:00:13,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:07:12,2026-06-04 21:05:13
+R_65Yuj1dSKZs9gVH,true,cloudresearch,2026-06-04,2026-06-03 12:54:21,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_677B7BcFFWFiw6t,true,cloudresearch,2026-06-04,2026-06-03 13:23:17,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 14:28:54,2026-06-05 00:50:54
+R_6AMQunWMlbP6FJI,true,cloudresearch,2026-06-04,2026-06-03 13:40:24,true,true,true,true,true,false,true,false,,true,,1,2,0.3333333333333333,2026-06-04 18:27:14,2026-06-04 18:27:14
+R_6CI1pZJ9CMSa5BW,true,cloudresearch,2026-06-04,2026-06-03 12:49:44,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:36:50,2026-06-05 10:40:21
+R_6CP4FuE8ELVEnuz,true,cloudresearch,2026-06-04,2026-06-03 12:46:14,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:07:29,2026-06-04 21:02:41
+R_6DhYT5VymFjV3mI,true,cloudresearch,2026-06-04,2026-06-03 12:48:48,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:04:43,2026-06-04 21:02:50
+R_6EGElqkhGEd46Z3,true,cloudresearch,2026-06-04,2026-06-03 12:49:48,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 15:57:40,2026-06-04 21:09:50
+R_6HjBVyN4F1xv3hZ,true,cloudresearch,2026-06-04,2026-06-03 13:09:34,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-04 13:04:13,2026-06-04 21:03:25
+R_6JDe3dVUucS83P0,true,cloudresearch,2026-06-04,2026-06-03 12:44:00,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:07:20,2026-06-04 21:04:28
+R_6JLtaVSaVjH5FzW,true,cloudresearch,2026-06-04,2026-06-03 12:52:52,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6LcKTcoOTOjeqC5,true,cloudresearch,2026-06-04,2026-06-03 12:44:00,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:04:23,2026-06-04 21:39:49
+R_6Lv2YaCSbuugIUE,true,cloudresearch,2026-06-04,2026-06-03 13:09:43,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6OMubORW5qvCxj3,true,cloudresearch,2026-06-04,2026-06-03 13:07:15,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:16:25,2026-06-04 21:28:56
+R_6PgKy9jSeIcbeZH,true,cloudresearch,2026-06-04,2026-06-03 13:08:40,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:08:44,2026-06-04 21:06:24
+R_6QoIIn2qkciEr78,true,cloudresearch,2026-06-04,2026-06-03 12:53:31,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:06:11,2026-06-04 21:05:44
+R_6SlB7cb8VchOHgB,true,cloudresearch,2026-06-04,2026-06-03 13:14:14,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 14:53:01,2026-06-04 22:09:08
+R_6TD4IXw7MHrjznX,true,cloudresearch,2026-06-04,2026-06-03 12:50:47,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 14:07:58,2026-06-04 18:04:37
+R_6VKP9XJk20cqu2G,true,cloudresearch,2026-06-04,2026-06-03 12:51:38,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:35:55,2026-06-04 21:06:52
+R_6XcE47MCfC7M6Kw,true,cloudresearch,2026-06-04,2026-06-03 12:48:48,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 16:18:24,2026-06-05 00:05:17
+R_6Yox3cBsiFE0FW1,true,cloudresearch,2026-06-04,2026-06-03 13:14:22,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:25:39,2026-06-04 21:05:00
+R_6YzU64hjeB25fj5,true,cloudresearch,2026-06-04,2026-06-03 13:35:22,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6eYJb4x3vtaIX7j,true,cloudresearch,2026-06-04,2026-06-03 13:15:21,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6fI4fm7LT4oy8Bn,true,cloudresearch,2026-06-04,2026-06-03 12:58:53,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:12:05,2026-06-04 21:04:31
+R_6fMErLRXOJf7jNP,true,cloudresearch,2026-06-04,2026-06-03 13:01:30,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:23:26,2026-06-04 21:10:18
+R_6gkFt4XugFWOlLy,true,cloudresearch,2026-06-04,2026-06-03 13:10:42,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 14:16:51,2026-06-04 18:12:42
+R_6is5CtEcA0VMaT7,true,cloudresearch,2026-06-04,2026-06-03 12:47:10,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-04 13:05:58,2026-06-04 13:05:58
+R_6ixiuYTnwGFbpnz,true,snowball,2026-06-04,2026-05-29 17:58:25,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 14:37:16,2026-06-04 21:44:49
+R_6j6nO6IFjhO8sSd,true,cloudresearch,2026-06-04,2026-06-03 13:11:38,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 14:05:39,2026-06-04 22:09:39
+R_6jvFVfPsT5KVrAR,true,cloudresearch,2026-06-04,2026-06-03 13:15:57,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:23:38,2026-06-05 02:55:18
+R_6lEra9ijdH4UDuW,true,cloudresearch,2026-06-04,2026-06-03 13:12:26,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:04:02,2026-06-04 21:02:59
+R_6lcnI6Y44LHktwJ,false,snowball,2026-06-04,2026-06-03 08:12:42,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 13:24:28,2026-06-04 17:06:19
+R_6loTm4ovoYSGS95,true,cloudresearch,2026-06-04,2026-06-03 13:01:32,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6mPMiZo4YkboVwE,true,cloudresearch,2026-06-04,2026-06-03 13:00:36,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 15:26:19,2026-06-04 22:48:19
+R_6pqCSnTqYCnAe7n,true,cloudresearch,2026-06-04,2026-06-03 13:03:34,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 14:21:26,2026-06-04 21:28:03
+R_6qqekaxjqTqs9EJ,true,cloudresearch,2026-06-04,2026-06-03 13:37:55,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6rHp70u7YptbjQk,true,cloudresearch,2026-06-04,2026-06-03 12:44:28,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:33:30,2026-06-04 21:04:36
+R_6sRMDP7fS7v9DSe,true,cloudresearch,2026-06-04,2026-06-03 12:45:54,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:06:54,2026-06-04 22:18:30
+R_6tkQQXfTZLNX4I9,true,cloudresearch,2026-06-04,2026-06-03 14:35:07,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6uO7ZCsYwQUNcop,true,cloudresearch,2026-06-04,2026-06-03 12:52:30,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 16:09:49,2026-06-05 00:14:03
+R_6v8m1wAM3rt19US,true,cloudresearch,2026-06-04,2026-06-03 12:43:53,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 13:07:02,2026-06-04 17:38:25
+R_6whrBNMv3jwfsq7,true,cloudresearch,2026-06-04,2026-06-03 13:06:01,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6xDU95SgedvHaRo,true,cloudresearch,2026-06-04,2026-06-03 12:50:52,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:36:31,2026-06-04 21:41:44
+R_6xVMomiB0R23cyp,true,cloudresearch,2026-06-04,2026-06-03 12:51:49,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:06:16,2026-06-04 21:03:13
+R_6xaIav3nQmUoWBP,true,cloudresearch,2026-06-04,2026-06-03 12:47:32,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 14:08:20,2026-06-04 18:07:40
+R_6yH00xnmn30s7sJ,true,cloudresearch,2026-06-04,2026-06-03 13:04:18,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_701U0E3FlhxRdXF,true,cloudresearch,2026-06-04,2026-06-03 13:07:46,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:07:40,2026-06-04 21:11:51
+R_70DzVriUkSYigZo,true,cloudresearch,2026-06-04,2026-06-03 12:52:22,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 14:32:05,2026-06-04 18:17:53
+R_70W7WWSmhd2UgGB,true,cloudresearch,2026-06-04,2026-06-03 12:47:48,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 16:26:22,2026-06-05 00:29:17
+R_72MsRvVQwgbvjYa,true,cloudresearch,2026-06-04,2026-06-03 12:47:53,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_733866zJBqavm9a,true,cloudresearch,2026-06-04,2026-06-03 12:50:36,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 14:29:14,2026-06-04 18:21:37
+R_74pUV0Sr6MekiBo,true,cloudresearch,2026-06-04,2026-06-03 13:10:43,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:19:32,2026-06-04 21:41:33
+R_76bRA7SXTfxuB8e,true,cloudresearch,2026-06-04,2026-06-03 13:00:54,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 14:00:54,2026-06-04 21:07:45
+R_76cI4Ilplhwf4OZ,true,cloudresearch,2026-06-04,2026-06-03 12:54:12,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 15:05:40,2026-06-04 23:04:24
+R_799Zfu2CoY0Y5EX,true,cloudresearch,2026-06-04,2026-06-03 13:01:46,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:05:47,2026-06-04 21:59:02
+R_79FbPWgdtZsedc5,true,cloudresearch,2026-06-04,2026-06-03 12:48:45,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:03:30,2026-06-04 21:05:05
+R_7Bd2935qiRpTxGF,true,cloudresearch,2026-06-04,2026-06-03 13:04:28,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7DYjei8xM4d0vdJ,true,cloudresearch,2026-06-04,2026-06-03 12:55:04,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7DwRbOydsKHWqqG,true,cloudresearch,2026-06-04,2026-06-03 13:07:43,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7EgosUIXBGv9Mkx,true,cloudresearch,2026-06-04,2026-06-03 13:02:52,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:04:50,2026-06-04 21:02:34
+R_7EkvLLplINyVmLv,true,cloudresearch,2026-06-04,2026-06-03 13:04:01,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 14:27:05,2026-06-04 22:13:41
+R_7EzjVoVG3SUweSd,true,cloudresearch,2026-06-04,2026-06-03 12:48:21,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:19:48,2026-06-04 21:12:56
+R_7FG71d4Pi1KvPhT,true,cloudresearch,2026-06-04,2026-06-03 12:54:04,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:34:22,2026-06-04 21:19:57
+R_7FRnFL7S7OuModw,true,cloudresearch,2026-06-04,2026-06-03 12:51:19,true,true,true,true,true,false,true,true,,true,true,2,3,0.6666666666666666,2026-06-04 20:08:28,2026-06-05 00:28:58
+R_7G3xqdQovJ08Kb2,true,cloudresearch,2026-06-04,2026-06-03 12:50:41,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-04 13:08:09,2026-06-04 13:08:09
+R_7GOSqTE4ttm7jep,true,cloudresearch,2026-06-04,2026-06-03 12:49:10,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:03:21,2026-06-04 21:10:46
+R_7LefJbdAZf3yXHA,true,cloudresearch,2026-06-04,2026-06-03 12:45:02,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-04 13:50:47,2026-06-04 17:05:01
+R_7MM9VouuPzLOsfv,false,snowball,2026-06-04,2026-06-01 15:21:35,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:06:27,2026-06-04 21:06:15
+R_7OGO6hGgI7JUqB3,false,snowball,2026-06-04,2026-06-01 16:23:14,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:06:03,2026-06-04 22:09:22
+R_7QEhGQZ9jL9YFcA,true,cloudresearch,2026-06-04,2026-06-03 13:05:22,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:17:41,2026-06-04 21:07:09
+R_7QRa4pJSevkiZyh,true,cloudresearch,2026-06-04,2026-06-03 12:46:17,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:06:21,2026-06-04 21:06:24
+R_7Qm53Zqjj8flFeM,true,cloudresearch,2026-06-04,2026-06-03 13:00:42,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 14:19:37,2026-06-04 22:45:08
+R_7ReaD1WZDiocYYf,true,cloudresearch,2026-06-04,2026-06-03 12:56:02,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:07:02,2026-06-04 21:03:59
+R_7TLQkC8SmuH8kGJ,true,cloudresearch,2026-06-04,2026-06-03 14:27:33,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7UAx7dK7y9MFnzz,true,cloudresearch,2026-06-04,2026-06-03 12:59:28,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 15:45:58,2026-06-04 22:10:21
+R_7WGX1okO8sVrqUR,true,cloudresearch,2026-06-04,2026-06-03 13:09:55,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7dMS8Tkb1VSF4Jq,true,cloudresearch,2026-06-04,2026-06-03 13:00:01,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7dRuBLYfpXkzYMr,true,cloudresearch,2026-06-04,2026-06-03 12:59:05,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7fiVQ52lPXkDDrd,true,cloudresearch,2026-06-04,2026-06-03 13:18:01,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-04 13:11:21,2026-06-04 13:11:21
+R_7gpBKbepCWNNqqT,true,cloudresearch,2026-06-04,2026-06-03 13:03:40,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 16:23:32,2026-06-05 01:35:13
+R_7ilBPi38mifmTK6,true,cloudresearch,2026-06-04,2026-06-03 13:03:41,true,true,true,true,true,false,true,false,,true,,1,2,0.3333333333333333,2026-06-04 17:05:45,2026-06-04 17:05:45
+R_7jxpfFkARecrLKt,true,cloudresearch,2026-06-04,2026-06-03 12:42:49,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7mTiMx7uw9MyoTf,true,cloudresearch,2026-06-04,2026-06-03 13:26:22,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7o0H1ol9a1u5sC8,false,snowball,2026-06-04,2026-06-01 16:44:00,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7pReKLl9HbprqLQ,true,cloudresearch,2026-06-04,2026-06-03 12:53:17,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:07:40,2026-06-04 21:05:44
+R_7qlL7ewcAQXO2jP,true,cloudresearch,2026-06-04,2026-06-03 12:54:47,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7qv3BElnvegFO6t,true,cloudresearch,2026-06-04,2026-06-03 13:07:09,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7s54VW5I3goAnBJ,true,cloudresearch,2026-06-04,2026-06-03 13:08:37,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7suoN0ikCLqwXyC,true,cloudresearch,2026-06-04,2026-06-03 12:53:54,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 14:26:05,2026-06-04 22:34:05
+R_7tA4O1mLbDZuVxO,true,cloudresearch,2026-06-04,2026-06-03 12:56:11,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7tiBQLeZwQlORFf,true,cloudresearch,2026-06-04,2026-06-03 12:48:49,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-04 13:17:10,2026-06-04 13:17:10
+R_7vAvf92K7SBT7wt,true,cloudresearch,2026-06-04,2026-06-03 13:05:21,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7ypkTVbLdnMztx2,true,cloudresearch,2026-06-04,2026-06-03 12:50:45,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-04 13:04:08,2026-06-04 21:11:29
+R_7zONMklsjcwdKzx,true,cloudresearch,2026-06-04,2026-06-03 13:15:55,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_8PhvfB7o1Hnbm3W,true,cloudresearch,2026-06-04,2026-06-03 12:55:15,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_1G5TsC6Zt9926yt,false,snowball,2026-06-03,2026-05-29 20:10:05,true,true,true,true,true,false,true,true,,true,true,2,3,0.6666666666666666,2026-06-03 17:18:33,2026-06-03 21:07:43
+R_1NUT4zIXJUaJrvk,false,snowball,2026-06-03,2026-06-02 14:38:49,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-03 14:05:49,2026-06-03 22:02:39
+R_1y7oBPSk1tPLak5,false,snowball,2026-06-03,2026-05-29 16:09:13,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-03 13:03:42,2026-06-03 21:50:46
+R_3hclZ5oFV5jY206,false,snowball,2026-06-03,2026-05-30 00:22:10,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-03 14:25:00,2026-06-03 17:03:02
+R_5dlvKAftZCoieGZ,false,snowball,2026-06-03,2026-05-29 22:37:29,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-03 13:07:48,2026-06-03 21:33:15
+R_5h9I8gIPLF24L9p,false,snowball,2026-06-03,2026-06-01 21:14:46,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-03 14:59:47,2026-06-03 23:35:57
+R_5ykMyFDzNwph1W9,false,snowball,2026-06-03,2026-05-31 18:04:06,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-03 13:24:02,2026-06-03 21:32:38
+R_673tvBQBJLK8Qu2,false,snowball,2026-06-03,2026-06-01 12:20:26,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-03 13:03:16,2026-06-03 21:17:14
+R_6OqN8tERrSZT0Nr,false,snowball,2026-06-03,2026-06-01 15:49:24,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-03 13:30:27,2026-06-03 17:04:29
+R_6jV9Za2czcM7Prn,false,snowball,2026-06-03,2026-06-02 11:39:11,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-03 13:16:51,2026-06-03 21:01:02
+R_72RoHuzY0ELEpxO,false,snowball,2026-06-03,2026-06-01 20:49:26,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-03 13:09:05,2026-06-03 21:10:18
+R_7E3ZqRh0VPaCObD,false,snowball,2026-06-03,2026-05-31 00:38:59,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-03 13:04:46,2026-06-03 21:03:40
+R_7HBIXHJ2QaqofLm,false,snowball,2026-06-03,2026-05-31 13:46:47,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-03 13:33:39,2026-06-03 21:02:59
+R_7HivoHEHuMnZs7C,false,snowball,2026-06-03,2026-05-31 21:04:22,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-03 13:08:40,2026-06-03 21:02:44
+R_7PWYw91zEHBKUKv,false,snowball,2026-06-03,2026-05-31 00:41:00,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7S6pEigqXSnIql3,false,snowball,2026-06-03,2026-05-31 13:09:23,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-03 15:04:49,2026-06-03 19:02:54
+R_7du3EETjpjYpC2B,false,snowball,2026-06-03,2026-06-01 15:23:30,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-03 20:15:20,2026-06-03 20:15:20
+R_10wS9a8uiqOZQ1O,false,snowball,2026-06-02,2026-05-30 11:23:14,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 15:18:15,2026-06-02 22:17:21
+R_12DPFUdLW4fIJD6,false,snowball,2026-06-02,2026-05-30 11:29:01,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 13:07:19,2026-06-02 21:06:29
+R_15XR6zytV4WZVRe,false,snowball,2026-06-02,2026-05-31 03:02:06,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 13:07:41,2026-06-02 23:11:18
+R_1HpN8Ldgu4k1b4y,false,snowball,2026-06-02,2026-05-29 16:04:43,true,true,true,true,true,false,false,true,,,true,1,2,0.3333333333333333,2026-06-02 22:10:23,2026-06-02 22:10:23
+R_1RPGRzwv7F9FasV,true,snowball,2026-06-02,2026-05-29 19:37:43,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 13:19:28,2026-06-03 13:53:10
+R_1j0AYXzdro8N3lT,false,snowball,2026-06-02,2026-05-30 02:51:33,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 14:13:34,2026-06-02 22:04:21
+R_30UeQDjoyxkJaL6,false,snowball,2026-06-02,2026-05-31 13:06:24,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-02 13:17:54,2026-06-02 13:17:54
+R_342hwPB3s3SRCQQ,false,snowball,2026-06-02,2026-06-01 13:32:11,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 13:04:54,2026-06-02 23:34:15
+R_3XVzNTNPOq1BBq9,false,snowball,2026-06-02,2026-05-29 16:18:04,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-02 15:22:43,2026-06-02 19:30:55
+R_3h3YG8EXXaqs9I5,false,snowball,2026-06-02,2026-05-30 01:42:17,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-02 13:57:44,2026-06-02 13:57:44
+R_3rJ3LsczL04Orlk,false,snowball,2026-06-02,2026-05-29 17:47:14,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 13:06:30,2026-06-02 21:52:07
+R_3rcB2W1zkZlDOBi,false,snowball,2026-06-02,2026-06-01 23:54:01,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 13:16:09,2026-06-02 21:31:18
+R_5PSiKmqQmcgcvXV,false,snowball,2026-06-02,2026-05-29 22:24:50,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 13:26:17,2026-06-02 21:30:24
+R_5axpVBKf3nN1z2x,true,snowball,2026-06-02,2026-05-29 18:12:48,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 13:09:09,2026-06-02 22:13:53
+R_5q2a0CUuiaYEPpl,false,snowball,2026-06-02,2026-05-29 23:34:14,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-02 13:04:40,2026-06-02 13:04:40
+R_5sjoDWfaUHiw5Yy,false,snowball,2026-06-02,2026-05-29 15:54:34,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 13:04:22,2026-06-02 21:07:37
+R_60p0COa5dUalyIi,true,snowball,2026-06-02,2026-05-29 22:33:34,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 17:03:39,2026-06-02 21:03:37
+R_69oCniqgVCmM7Ye,false,snowball,2026-06-02,2026-05-30 02:30:16,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 13:05:33,2026-06-02 21:02:55
+R_6BVp82IcC2EjcxU,false,snowball,2026-06-02,2026-05-30 18:11:48,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 14:31:03,2026-06-02 22:21:49
+R_6IY3mnQJM5MLp3x,true,snowball,2026-06-02,2026-05-29 15:34:26,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-02 13:58:47,2026-06-02 18:23:11
+R_6MQck0C2Xd4UL6G,false,snowball,2026-06-02,2026-05-30 15:02:05,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 16:17:04,2026-06-03 00:06:10
+R_6QusCLkSu6KqK6L,true,snowball,2026-06-02,2026-05-29 22:31:39,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 13:07:40,2026-06-02 21:06:27
+R_6mUEaJlRUvWnMeA,false,snowball,2026-06-02,2026-05-31 17:30:18,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6snwzzo9zGTymZj,false,snowball,2026-06-02,2026-05-29 23:04:09,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 16:07:01,2026-06-03 00:16:45
+R_6z91b9PsSYD9UDB,false,snowball,2026-06-02,2026-05-29 16:34:28,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 13:34:11,2026-06-02 22:32:53
+R_7MJIHvkwBSAESLv,false,snowball,2026-06-02,2026-05-29 18:44:51,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7Nq4O4EGZMXyj2E,true,snowball,2026-06-02,2026-05-29 19:13:46,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 13:04:53,2026-06-02 21:03:36
+R_7OEMcLKaFCmm8Kt,false,snowball,2026-06-02,2026-05-31 02:12:06,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 13:05:36,2026-06-02 21:40:34
+R_7PbLhkQKAiwbm3J,false,snowball,2026-06-02,2026-06-01 17:33:40,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 16:11:32,2026-06-03 00:02:29
+R_7boL7fD6uzZCwyl,false,snowball,2026-06-02,2026-05-29 16:08:00,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 13:13:37,2026-06-02 21:04:13
+R_7dte2AhsCijDbUm,false,snowball,2026-06-02,2026-05-30 00:14:48,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 16:25:19,2026-06-03 00:09:59
+R_8fxUXDdhlCifeXq,false,snowball,2026-06-02,2026-05-29 16:04:44,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-02 13:04:10,2026-06-02 22:00:06
+R_15RtNRPZvuR3rqu,true,snowball,2026-06-01,2026-05-29 19:24:51,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-01 14:07:49,2026-06-01 22:07:38
+R_1V06zuD2136fQch,false,snowball,2026-06-01,2026-05-29 18:31:16,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-01 13:05:11,2026-06-01 17:27:37
+R_1rMJGGfgkwr5qjK,false,snowball,2026-06-01,2026-05-29 15:51:32,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 14:07:22,2026-06-01 22:02:35
+R_1s4hSFVSK1Ss0uw,true,snowball,2026-06-01,2026-05-29 17:12:28,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 13:18:30,2026-06-01 21:04:58
+R_1u7ZjT0q2ezgFTH,false,snowball,2026-06-01,2026-05-29 15:33:18,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 14:42:25,2026-06-01 23:04:02
+R_1uruhJwMv91VrKp,false,snowball,2026-06-01,2026-05-29 16:51:37,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 13:05:48,2026-06-01 21:51:51
+R_26vzVUWNbdkOkF3,false,snowball,2026-06-01,2026-05-29 18:31:13,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 13:21:31,2026-06-01 21:04:40
+R_3AqJg1WLzOxRCDv,true,snowball,2026-06-01,2026-05-29 17:01:09,true,true,true,true,true,false,false,true,,,true,1,2,0.3333333333333333,2026-06-01 21:08:15,2026-06-01 21:08:15
+R_3dVTCsFT8OJvbeo,true,snowball,2026-06-01,2026-05-29 18:50:09,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 13:06:20,2026-06-01 21:04:57
+R_3hHeRXhIEcfePUp,false,snowball,2026-06-01,2026-05-31 17:11:10,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3ipMWXc8H1Q7aV1,true,snowball,2026-06-01,2026-05-29 22:16:58,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 14:09:50,2026-06-01 22:15:57
+R_3jZ52YaiH2urjfr,false,snowball,2026-06-01,2026-05-29 15:52:34,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-01 14:09:33,2026-06-01 18:05:09
+R_3rYncJ8xyCgXiDy,true,snowball,2026-06-01,2026-05-29 22:18:20,true,true,true,true,true,false,true,true,,true,true,2,3,0.6666666666666666,2026-06-01 18:06:13,2026-06-01 22:04:33
+R_515gASXDPoopUT9,false,snowball,2026-06-01,2026-05-30 11:44:47,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 18:30:04,2026-06-02 00:05:22
+R_5CvIkNTRUheeZtM,false,snowball,2026-06-01,2026-05-29 16:04:45,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 16:04:37,2026-06-01 23:19:01
+R_5QcEHz0Z5X9FRc9,true,snowball,2026-06-01,2026-05-29 20:56:09,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 13:08:41,2026-06-01 21:03:47
+R_5aFW85E5jhY2Cic,false,snowball,2026-06-01,2026-05-29 16:19:58,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 13:08:06,2026-06-01 21:05:53
+R_5ilIQvmfb2IBosg,false,snowball,2026-06-01,2026-05-29 16:13:57,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 13:06:56,2026-06-01 21:06:51
+R_65SKFjjYLXtYPOc,false,snowball,2026-06-01,2026-05-29 21:12:56,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 16:15:23,2026-06-02 00:03:10
+R_6EXRsV6VY4CuSZ4,false,snowball,2026-06-01,2026-05-30 20:02:27,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 13:24:32,2026-06-01 21:06:14
+R_6EmAaToYvRFDNuh,false,snowball,2026-06-01,2026-05-29 16:13:49,true,true,true,true,true,true,true,false,true,true,,2,3,0.6666666666666666,2026-06-01 14:06:11,2026-06-01 17:05:23
+R_6OJIyPCOfMC4ykd,false,snowball,2026-06-01,2026-05-30 00:04:16,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-01 13:07:50,2026-06-01 21:23:33
+R_6Ses4Ed8hvoUUzn,false,snowball,2026-06-01,2026-05-30 12:14:55,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-01 13:23:04,2026-06-01 13:23:04
+R_6W8B3OsEAbphH57,false,snowball,2026-06-01,2026-05-29 16:04:37,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6eVUFppye4zCrTi,false,snowball,2026-06-01,2026-05-29 16:04:40,true,true,true,true,true,true,false,true,true,,true,2,3,0.6666666666666666,2026-06-01 13:15:11,2026-06-01 21:07:26
+R_6fdQyegqCwQspv2,false,snowball,2026-06-01,2026-05-29 23:09:16,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 13:43:37,2026-06-01 21:39:39
+R_6mLjOo156wVkUbn,false,snowball,2026-06-01,2026-05-29 17:01:07,true,true,true,true,true,true,false,false,true,,,1,2,0.3333333333333333,2026-06-01 14:19:16,2026-06-01 14:19:16
+R_6mwtwOr90hOfj8g,false,snowball,2026-06-01,2026-05-29 21:39:13,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 20:00:19,2026-06-01 23:05:56
+R_72s2vNArsvlmg3q,false,snowball,2026-06-01,2026-05-29 18:39:20,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 13:27:08,2026-06-01 21:08:15
+R_76gQwYDeTeUG9Sm,false,snowball,2026-06-01,2026-05-31 13:59:13,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 13:12:53,2026-06-01 21:05:48
+R_7LcByiqVfBoDtWK,false,snowball,2026-06-01,2026-05-29 16:04:41,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 14:02:32,2026-06-02 00:21:15
+R_7LijsZ137U67dV3,false,snowball,2026-06-01,2026-05-30 01:05:35,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 14:12:06,2026-06-01 21:04:52
+R_7O6ww9z43lcBxP0,false,snowball,2026-06-01,2026-06-01 03:21:47,true,true,true,true,true,false,true,true,,true,true,2,3,0.6666666666666666,2026-06-01 18:09:28,2026-06-01 22:08:23
+R_7fj92dg24fNftLx,false,snowball,2026-06-01,2026-05-29 16:05:49,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 14:05:06,2026-06-01 22:13:19
+R_7pmRTff6885Ajb5,false,snowball,2026-06-01,2026-05-31 13:19:57,true,true,true,true,true,true,true,true,true,true,true,3,4,1.0,2026-06-01 13:10:37,2026-06-01 21:05:44
+R_7dWpz4Mo0ZmVTjV,true,snowball,2026-05-29,2026-05-29 15:39:58,true,true,true,true,true,false,true,false,,true,,1,2,0.3333333333333333,2026-05-29 18:04:10,2026-05-29 18:04:10
+R_3MQFcpdjBnvOGmN,true,cloudresearch,0002-07-05,2026-06-03 13:18:12,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_3dR4XGfZd5DQJvd,true,cloudresearch,0002-06-10,2026-06-09 01:15:50,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_6tbCCS3UuUIVQec,true,cloudresearch,0002-06-08,2026-06-03 12:44:47,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7wh3xKxFcFQLezw,true,cloudresearch,0002-06-05,2026-06-03 13:08:40,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
+R_7rSDP03CMpyau2R,true,cloudresearch,0002-03-07,2026-06-03 12:59:09,true,true,true,true,true,false,false,false,,,,0,1,0.0,,
