@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # =============================================================================
-# analysis/run_power_analysis/scripts/visualize_power_analysis.R
+# analysis/run_power_analysis/scripts/visualize_power_analysis.r
 #
 # Power curve visualizations for the multilevel model sensitivity analysis.
 # Produces publication-quality PDF figures from simulation output (.rds/.csv).
@@ -232,14 +232,14 @@ fig1_data <- results |>
     filter(
         Random_Slope_Std == ref_rs,
         (Effect == "L1_Direct" &
-            Level2_Effect_Std == ref_effect &
-            XLevel_Intxn_Effect_Std == ref_effect) |
+             Level2_Effect_Std == ref_effect &
+             XLevel_Intxn_Effect_Std == ref_effect) |
             (Effect == "L2_Direct" &
-                Level1_Effect_Std == ref_effect &
-                XLevel_Intxn_Effect_Std == ref_effect) |
+                 Level1_Effect_Std == ref_effect &
+                 XLevel_Intxn_Effect_Std == ref_effect) |
             (Effect == "Cross_Level_Interaction" &
-                Level1_Effect_Std == ref_effect &
-                Level2_Effect_Std == ref_effect)
+                 Level1_Effect_Std == ref_effect &
+                 Level2_Effect_Std == ref_effect)
     )
 
 fig1 <- ggplot(
@@ -667,14 +667,14 @@ fig8_data <- results |>
     filter(
         Random_Slope_Std == ref_rs,
         (Effect == "L1_Direct" &
-            Level2_Effect_Std == ref_effect &
-            XLevel_Intxn_Effect_Std == ref_effect) |
+             Level2_Effect_Std == ref_effect &
+             XLevel_Intxn_Effect_Std == ref_effect) |
             (Effect == "L2_Direct" &
-                Level1_Effect_Std == ref_effect &
-                XLevel_Intxn_Effect_Std == ref_effect) |
+                 Level1_Effect_Std == ref_effect &
+                 XLevel_Intxn_Effect_Std == ref_effect) |
             (Effect == "Cross_Level_Interaction" &
-                Level1_Effect_Std == ref_effect &
-                Level2_Effect_Std == ref_effect)
+                 Level1_Effect_Std == ref_effect &
+                 Level2_Effect_Std == ref_effect)
     )
 
 fig8 <- ggplot(

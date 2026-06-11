@@ -1,12 +1,12 @@
 #!/usr/bin/env Rscript
 
 # ---------------------------------------------------------------------------
-# run_power_analysis.R - Orchestration script for power analysis grid
+# run_power_analysis.r - Orchestration script for power analysis grid
 #
 # Builds a full factorial parameter grid from config, distributes across
 # parallel workers via furrr, and saves timestamped results.
 #
-# Usage: Rscript run_power_analysis.R --version <dev|prod|benchmark_gcp|prod_gcp>
+# Usage: Rscript run_power_analysis.r --version <dev|prod|benchmark_gcp|prod_gcp>
 #        (Normally invoked by main.sh, not called directly)
 # ---------------------------------------------------------------------------
 
@@ -24,7 +24,7 @@ parser$add_argument(
     "--version",
     type = "character",
     required = TRUE,
-    choices = c("dev", "prod", "benchmark_gcp", "prod_gcp"),
+    choices = c("dev", "prod", "benchmark_gcp", "prod_gcp", "posthoc_gcp"),
     help = "Configuration version to use"
 )
 args <- parser$parse_args()
@@ -34,7 +34,7 @@ version <- args$version
 # [2] Path resolution -----------------------------------------------------
 
 # Derive all paths from this script's filesystem location.
-# Expected location: analysis/run_power_analysis/scripts/run_power_analysis.R
+# Expected location: analysis/run_power_analysis/scripts/run_power_analysis.r
 
 resolve_paths <- function(version) {
     # Get the directory containing this script
@@ -46,7 +46,7 @@ resolve_paths <- function(version) {
         script_path <- normalizePath(sub("^--file=", "", file_arg))
     } else {
         # Sourced interactively -- fall back to working directory
-        script_path <- normalizePath(file.path(getwd(), "scripts", "run_power_analysis.R"))
+        script_path <- normalizePath(file.path(getwd(), "scripts", "run_power_analysis.r"))
     }
 
     scripts_dir <- dirname(script_path)
@@ -79,7 +79,7 @@ resolve_paths <- function(version) {
         }
     }
 
-    utils_file <- file.path(paths$utils_dir, "power_analysis_utils.R")
+    utils_file <- file.path(paths$utils_dir, "power_analysis_utils.r")
     if (!file.exists(utils_file)) {
         stop(paste0("Required file not found: ", utils_file))
     }
@@ -93,7 +93,7 @@ paths <- resolve_paths(version)
 # [3] Source dependencies -------------------------------------------------
 
 source(paths$common_utils)
-source(file.path(paths$utils_dir, "power_analysis_utils.R"))
+source(file.path(paths$utils_dir, "power_analysis_utils.r"))
 
 # Ensure runtime directories exist
 ensure_dir(paths$data_dir)
@@ -115,7 +115,7 @@ log_msg("")
 
 # [5] Load config and build parameter grid --------------------------------
 
-# Import remaining packages (common_utils.r and power_analysis_utils.R
+# Import remaining packages (common_utils.r and power_analysis_utils.r
 # already loaded their own dependencies)
 library(dplyr)
 library(furrr)
