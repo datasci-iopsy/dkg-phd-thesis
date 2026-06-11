@@ -27,6 +27,7 @@ bash analysis/tests/validate_r_structure.sh                            # pre-fli
 make synthetic_analysis                                                 # steps 1-5; run make synthetic_tables separately for publication output
 make synthetic_data_quality                                             # Step 1 only: careless responding screening
 make synthetic_tables                                                   # Step 6: publication-ready Word .docx tables
+make study_export                                                       # rebuild BQ fact tables and re-export CSVs (prompts for confirmation)
 make study_analysis                                                     # steps 1-5 on real study data (requires data/export/ CSVs)
 make study_data_quality                                                 # Step 1 only: careless responding screening on study data
 make study_tables                                                       # Step 6: publication Word .docx tables (gtsummary + flextable)

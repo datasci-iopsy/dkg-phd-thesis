@@ -30,6 +30,7 @@ FN ?= run-qualtrics-scheduling
         synthetic_analysis synthetic_data_quality \
         synthetic_eda synthetic_measurement \
         synthetic_mlm synthetic_correlation synthetic_tables \
+        study_export \
         study_analysis study_data_quality \
         study_eda study_measurement \
         study_mlm study_correlation study_tables \
@@ -99,7 +100,7 @@ _check_study_export:
 	if [ "$$n" -eq 0 ]; then \
 		echo "No raw panel CSV found in analysis/run_study_analysis/data/export/"; \
 		echo "   Expected: qualtrics_fct_panel_responses.csv"; \
-		echo "   Run the export script first: bash analysis/run_study_analysis/scripts/export_study_fct_panel_responses_csv.sh"; \
+		echo "   Run: make study_export"; \
 		exit 1; \
 	fi; \
 	echo "Found study raw panel CSV in data/export/"
@@ -155,7 +156,9 @@ help:
 	@echo "   make synthetic_mlm             5. Multilevel model (main analysis)"
 	@echo "   make synthetic_tables          6. Publication-ready Word tables"
 	@echo ""
-	@echo "STUDY DATA ANALYSIS  (requires data/export/ CSVs from BQ)"
+	@echo "STUDY DATA ANALYSIS"
+	@echo "   make study_export              Rebuild BQ fact tables and re-export CSVs (prompts for confirmation)"
+	@echo "   make study_all                 Full pipeline: quality -> analyses -> tables (guaranteed fresh)"
 	@echo "   make study_analysis            Run steps 1-5 (data quality through MLM)"
 	@echo "   make study_data_quality        1. Careless responding screening -> cleaned CSV"
 	@echo "   make study_eda                 2. Exploratory data analysis"
@@ -459,6 +462,12 @@ synthetic_tables: _check_uvr_env _check_synthetic_cleaned_export
 # Study Data Analysis
 # ---------------------------------------------------------------------------
 
+study_export:
+	@read -p "Rebuild BQ fact tables and re-export CSVs? This overwrites data/export/. [y/N] " confirm; \
+	[ "$$confirm" = "y" ] || { echo "Aborted."; exit 1; }; \
+	bash "$(ROOT)/analysis/run_study_analysis/scripts/export_study_participation_summary_csv.sh" && \
+	bash "$(ROOT)/analysis/run_study_analysis/scripts/export_study_fct_panel_responses_csv.sh"
+
 study_data_quality: _check_uvr_env _check_study_export
 	@echo "Running study data quality screening..."
 	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/data_quality.r" || { \
@@ -503,6 +512,10 @@ study_correlation: _check_uvr_env _check_study_cleaned_export
 study_analysis: study_data_quality study_eda study_correlation study_measurement study_mlm
 	@echo ""
 	@echo "All study data analyses complete."
+
+study_all: _check_uvr_env _check_study_export study_analysis study_tables
+	@echo ""
+	@echo "Full study pipeline complete (data quality -> analyses -> tables)."
 
 study_tables: _check_uvr_env _check_study_cleaned_export
 	@echo "Generating study publication tables..."
