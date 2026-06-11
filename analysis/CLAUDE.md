@@ -1,8 +1,9 @@
 # analysis/CLAUDE.md
 
-R (4.4, uvr) analysis pipeline. Two pillars:
-- `run_power_analysis/` — multilevel sensitivity analysis (Arend & Schafer 2019); see `run_power_analysis/README.md`
-- `run_synthetic_data/` — synthetic ESM data generation (Python + R + SQL + bash); analysis pipeline runs in 6 steps starting with `data_quality.R` (careless responding screening)
+R (4.4, uvr) analysis pipeline. Three pillars:
+- `run_power_analysis/` : multilevel sensitivity analysis (Arend & Schafer 2019); see `run_power_analysis/README.md`
+- `run_synthetic_data/` : synthetic ESM data generation (Python + R + SQL + bash); analysis pipeline runs in 6 steps starting with `data_quality.R` (careless responding screening)
+- `run_study_analysis/` : official study pipeline on real participant data from BigQuery; same 6-step structure; see `run_study_analysis/README.md`
 
 Shared utilities in `analysis/shared/utils/`:
 - `common_utils.R` — `log_msg()`, `load_config()`, `ensure_dir()`, `get_system_info()`
@@ -23,9 +24,12 @@ bash analysis/run_power_analysis/main.sh benchmark_gcp                 # GCP tim
 bash analysis/run_power_analysis/main.sh prod_gcp                      # GCP full grid (3,645 cells)
 uvr run analysis/run_power_analysis/scripts/visualize_power_analysis.R # SVG figures from latest results
 bash analysis/tests/validate_r_structure.sh                            # pre-flight static validation
-make synthetic_analysis                                                 # steps 1–5; run make synthetic_tables separately for publication output
+make synthetic_analysis                                                 # steps 1-5; run make synthetic_tables separately for publication output
 make synthetic_data_quality                                             # Step 1 only: careless responding screening
 make synthetic_tables                                                   # Step 6: publication-ready Word .docx tables
+make study_analysis                                                     # steps 1-5 on real study data (requires data/export/ CSVs)
+make study_data_quality                                                 # Step 1 only: careless responding screening on study data
+make study_tables                                                       # Step 6: publication Word .docx tables (gtsummary + flextable)
 ```
 
 ## Synthetic data quality screening
