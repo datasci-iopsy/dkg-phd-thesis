@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # =============================================================================
-# analysis/run_synthetic_data/scripts/r/eda.R
+# analysis/run_synthetic_data/scripts/r/eda.r
 #
 # Comprehensive Exploratory Data Analysis for the synthetic panel dataset.
 # Produces publication-quality SVG figures and diagnostic tables across 8
@@ -50,7 +50,7 @@ options(tibble.width = Inf)
 # Source shared utilities (log_msg, ensure_dir, load_config, theme_apa, save_svg)
 source(here::here("analysis", "shared", "utils", "common_utils.r"))
 source(here::here("analysis", "shared", "utils", "plot_utils.r"))
-source(here::here("analysis", "run_synthetic_data", "utils", "data_loader.R"))
+source(here::here("analysis", "run_synthetic_data", "utils", "data_loader.r"))
 
 # --- Global settings ---------------------------------------------------------
 FIGS_DIR <- here::here("analysis", "run_synthetic_data", "figs", "eda")

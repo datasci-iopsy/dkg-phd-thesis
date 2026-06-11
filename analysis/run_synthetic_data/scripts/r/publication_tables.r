@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # =============================================================================
-# analysis/run_synthetic_data/scripts/r/publication_tables.R
+# analysis/run_synthetic_data/scripts/r/publication_tables.r
 #
 # Publication-ready Word tables for dissertation (JAP / Psychological Methods).
 # Reads saved CSVs from the analysis pipeline and produces one .docx per table.
@@ -412,7 +412,7 @@ factor_labels <- c(
 #' factor order, selects display columns, and formats p-values via fmt_p().
 #'
 #' @param df           Data frame of loadings with columns factor, item,
-#'   std_all, se, and pvalue (as produced by measurement_model.R).
+#'   std_all, se, and pvalue (as produced by measurement_model.r).
 #' @param factor_order Character vector of factor names defining display order.
 #' @return Tibble with columns Factor, Item, lambda, SE, p (character).
 format_loadings <- function(df, factor_order) {

@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # =============================================================================
-# analysis/run_synthetic_data/scripts/r/measurement_model.R
+# analysis/run_synthetic_data/scripts/r/measurement_model.r
 #
 # Confirmatory Factor Analysis (CFA) and Multilevel CFA (MCFA) for the
 # synthetic panel dataset. Produces fit indices, standardized loadings, and
@@ -31,7 +31,7 @@ options(tibble.width = Inf)
 # Source shared utilities (log_msg, ensure_dir, save_md)
 source(here::here("analysis", "shared", "utils", "common_utils.r"))
 source(here::here("analysis", "shared", "utils", "plot_utils.r"))
-source(here::here("analysis", "run_synthetic_data", "utils", "data_loader.R"))
+source(here::here("analysis", "run_synthetic_data", "utils", "data_loader.r"))
 
 FIGS_DIR <- here::here("analysis", "run_synthetic_data", "figs", "cfa")
 ensure_dir(FIGS_DIR)

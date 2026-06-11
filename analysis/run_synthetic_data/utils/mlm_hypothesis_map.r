@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # ---------------------------------------------------------------------------
-# mlm_hypothesis_map.R — Manuscript-aligned hypothesis definitions
+# mlm_hypothesis_map.r — Manuscript-aligned hypothesis definitions
 #
 # Provides:
 #   HYPOTHESIS_MAP         — single source of truth for all hypothesis labels,

@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # =============================================================================
-# analysis/run_synthetic_data/scripts/r/correlation.R
+# analysis/run_synthetic_data/scripts/r/correlation.r
 #
 # Correlation analysis for the synthetic panel dataset.
 # Computes L2 Pearson correlations, L1 standard Pearson correlations, and
@@ -25,7 +25,7 @@ options(tibble.width = Inf)
 # Source shared utilities (log_msg, ensure_dir, plot helpers)
 source(here::here("analysis", "shared", "utils", "common_utils.r"))
 source(here::here("analysis", "shared", "utils", "plot_utils.r"))
-source(here::here("analysis", "run_synthetic_data", "utils", "data_loader.R"))
+source(here::here("analysis", "run_synthetic_data", "utils", "data_loader.r"))
 
 # --- Global settings ---------------------------------------------------------
 FIGS_DIR <- here::here("analysis", "run_synthetic_data", "figs", "corr")

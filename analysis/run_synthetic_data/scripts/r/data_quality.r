@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # =============================================================================
-# analysis/run_synthetic_data/scripts/r/data_quality.R
+# analysis/run_synthetic_data/scripts/r/data_quality.r
 #
 # Careless responding detection and data quality screening for the synthetic
 # panel dataset using the careless package (Yentes & Wilhelm, 2018).
