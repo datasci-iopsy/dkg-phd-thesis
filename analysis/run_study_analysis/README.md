@@ -70,9 +70,8 @@ bq query int_followup_responses_scored.sql
 bq query fct_participation_summary.sql
 bq query fct_panel_responses.sql
 
-# CSV exports
-bash scripts/export_study_participation_summary_csv.sh
-bash scripts/export_study_fct_panel_responses_csv.sh
+# CSV exports (prompts for confirmation; rebuilds BQ tables then exports)
+make study_export
 
 # R analysis sequence (run from project root)
 make study_data_quality    # Step 1: careless responding screening -> cleaned CSV

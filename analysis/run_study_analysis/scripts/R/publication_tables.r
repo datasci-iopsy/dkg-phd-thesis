@@ -45,6 +45,31 @@ MLM_DIR <- here::here("analysis", "run_study_analysis", "figs", "mlm")
 
 ensure_dir(TABLES_DIR)
 
+# Guard: all figs CSVs consumed by this script must be newer than the cleaned dataset.
+# If any are stale, the table output would mix N values from different pipeline runs.
+require_fresh(
+    targets = c(
+        file.path(EDA_DIR, "eda_04_descriptive_statistics.csv"),
+        file.path(EDA_DIR, "eda_15_icc_table.csv"),
+        file.path(CFA_DIR, "cfa_01_fit_indices.csv"),
+        file.path(CFA_DIR, "cfa_02_loadings_l2.csv"),
+        file.path(CFA_DIR, "cfa_03_loadings_l1.csv"),
+        file.path(CFA_DIR, "cfa_04_omega.csv"),
+        file.path(CORR_DIR, "corr_01_l2_pearson_matrix.csv"),
+        file.path(CORR_DIR, "corr_03_mlm_between_matrix.csv"),
+        file.path(CORR_DIR, "corr_04_rmcorr_within_matrix.csv"),
+        file.path(MLM_DIR, "mlm_01_model_comparison.csv"),
+        file.path(MLM_DIR, "mlm_01b_phase6_comparison.csv"),
+        file.path(MLM_DIR, "mlm_02_fixed_effects.csv"),
+        file.path(MLM_DIR, "mlm_04_hypothesis_tests.csv"),
+        file.path(MLM_DIR, "mlm_05_standardized_effects.csv"),
+        file.path(MLM_DIR, "mlm_06_level_specific_es.csv"),
+        file.path(MLM_DIR, "mlm_07_delta_r2.csv")
+    ),
+    prerequisites = file.path(DATA_DIR, "qualtrics_fct_panel_responses_cleaned.csv"),
+    remediation = "make study_analysis"
+)
+
 log_msg("=== PUBLICATION TABLES (Study Analysis) ===")
 log_msg("Output directory: ", TABLES_DIR)
 

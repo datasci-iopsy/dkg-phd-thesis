@@ -97,9 +97,9 @@ log_msg("=== [1] Loading data ===")
 input_path <- file.path(EXPORT_DIR, "qualtrics_fct_panel_responses.csv")
 if (!file.exists(input_path)) {
     stop(
-        "No panel CSV found. Expected: ",
-        input_path,
-        "\nRun export_study_fct_panel_responses_csv.sh first."
+        "Raw panel CSV not found: ", input_path,
+        "\nRun: bash analysis/run_study_analysis/scripts/export_study_fct_panel_responses_csv.sh",
+        "\nSee: analysis/run_study_analysis/tables/NOTE.md for the full refresh procedure."
     )
 }
 log_msg("Loading: ", basename(input_path))
