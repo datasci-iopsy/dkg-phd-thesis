@@ -12,7 +12,7 @@
 #
 # PF factor uses 5 items (pf1, pf2, pf4, pf5, pf6). pf3 is excluded at
 # all timepoints because it was absent from the 1PM and 5PM surveys
-# (survey design omission; see METHODS_NOTES.md). Using pf3 only at tp1
+# (survey design omission; see METHOD_NOTES.md). Using pf3 only at tp1
 # would violate measurement equivalence across timepoints.
 #
 # Estimation: MLR (robust ML) for both models
@@ -179,7 +179,7 @@ l2_omega_df <- tibble::tibble(
 # -----------------------------------------------------------------------------
 # PF modeled with 5 items (pf1, pf2, pf4, pf5, pf6). pf3 excluded at
 # all timepoints for measurement equivalence (absent at tp2/tp3 by survey
-# design; see METHODS_NOTES.md).
+# design; see METHOD_NOTES.md).
 #
 # omega_within : reliability of within-person (state) fluctuation scores
 # omega_between: reliability of person-mean (trait) scores

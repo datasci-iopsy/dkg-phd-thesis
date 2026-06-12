@@ -1,7 +1,8 @@
-# Methods Notes: Real-Data Analysis Pipeline
+# Method Notes: Real-Data Analysis Pipeline
 
-Running notes for the updated methods section. Sections added as each analysis phase completes.
+Running notes for the Method and Results sections. Sections added as each analysis phase completes; each section carries an interpretation block tying the output to the proposal and theoretical framing.
 Numbers are from the current pipeline run (N = 351 raw, data as of 2026-06-11).
+Companion file: `tables/TABLE_NOTES.md` interprets each publication table directly; this file covers method decisions, provenance, and result-level interpretation.
 
 ---
 
@@ -10,6 +11,8 @@ Numbers are from the current pipeline run (N = 351 raw, data as of 2026-06-11).
 - Dual-source recruitment: CloudResearch Connect panel + snowball sampling.
 - **CloudResearch classification**: `connect_id` matching `^[A-Za-z0-9]{32}$` (exactly 32 alphanumeric characters). Snowball participants who entered random text in the `connect_id` field are correctly classified as snowball based on pattern match, not null check.
 - Raw intake responses: **351 participants**.
+
+**Interpretation (sample profile, retained N = 336)**: 75.9% CloudResearch / 24.1% snowball (n = 81); 50.9% women, 47.3% men, 1.5% non-binary; mean age 38.3 (SD = 9.8, range 18-70); 71.1% White, 11.9% Black, 7.7% Hispanic/Latino; 72.0% hold a bachelor's degree or higher; 56.5% remote workers (`eda_10_table1`). The profile skews toward educated, majority-remote workers, which fits the knowledge-worker framing the proposal uses to motivate within-day cognitive-load and meeting dynamics, and simultaneously bounds generalizability to hourly, frontline, and shift-based occupations. Three write-up implications: (1) the snowball stratum is a minority but not a fringe cell (n = 81), so the significant snowball TI difference (see MLM section) reflects a real composition effect, not sparse-cell noise; (2) demographic composition is description, not adjustment -- gender, ethnicity, and education were deliberately kept out of the models (see M6 notes), so committee questions about demographic confounding route to the M6 sensitivity result, not to Table 1; (3) the 56.5% remote share makes the null `is_remote` screen (r = .008) informative rather than artifactual: remote status genuinely carries no bivariate TI signal in this sample despite ample variance on the variable.
 
 ---
 
@@ -21,6 +24,8 @@ Numbers are from the current pipeline run (N = 351 raw, data as of 2026-06-11).
   - `pf3` (SMBM Physical Fatigue item 3) absent from 1PM and 5PM surveys (`SV_eRKl4lgMZDAurT8`, `SV_6J3svun1r97AAHc`). Present at tp1 only.
   - `js1` (Job Satisfaction item) placed after survey end in 1PM and 5PM flows. Scored at tp1 only; NULL at tp2/tp3 by design.
 - **Deduplication**: 14 participants submitted the same followup survey twice within hours. First submission retained (ordered by `_created_at ASC` within each `intake_response_id x survey_id` pair).
+
+**Interpretation**: The 9AM/1PM/5PM cadence operationalizes the proposal's beginning/middle/end-of-workday sampling frame and trades trajectory resolution for completion burden, exactly the tradeoff the proposal pre-commits to: the design targets *detection of within-person variability*, not characterization of the intraday curve shape. The complete-case requirement (all three timepoints) means the analytical sample conditions on full protocol compliance; momentary states that drive same-day dropout are unobservable here, a survivorship boundary worth one Limitations sentence. The two item-level design omissions (pf3, js1) are handled by measurement decisions downstream (5-item PF for equivalence; JS scored at intake only), so neither propagates into the models as missing data.
 
 ---
 
@@ -77,6 +82,8 @@ Six indices computed; three used for exclusion (Meade & Craig, 2012). Three reta
 - **8 additional participants** flagged by >= 2 of all 6 indices (longstring + duration only); not excluded. Mahalanobis does not flag any of them, supporting their retention. (Verified against current `dq_08_person_summary.csv`, 2026-06-12.)
 - Cite: Meade & Craig (2012); Curran (2016) for sequential multi-criterion framework.
 
+**Interpretation**: A 4.3% exclusion rate sits at the low end of the 3-12% range typical for online panels screened with multi-criterion rules (Meade & Craig, 2012, found ~10-12% in undergraduate samples), consistent with CloudResearch Connect's documented data quality advantage (Hauser et al., 2022; Douglas et al., 2023) and with the >= 2-of-3 conjunction rule, which is deliberately conservative -- single-indicator flags alone never exclude. The 8 flagged-but-retained participants are a robustness asset: their flags came from longstring + duration only, the two indices weakest in ESM designs (repeated short surveys legitimately produce fast, uniform responding), and Mahalanobis -- the strongest multivariate index -- clears all 8. If a committee member asks "would your results change if those 8 were dropped," the honest answer is that exclusion was never empirically defensible for them; a sensitivity rerun without them is cheap if requested.
+
 ---
 
 ## Analytical Sample
@@ -85,7 +92,13 @@ Six indices computed; three used for exclusion (Meade & Craig, 2012). Three reta
 - Level 1 (within-person): person-timepoint observations.
 - Level 2 (between-person): person-level means and intake covariates.
 
----
+**Distributional characteristics that shape interpretation** (`eda_04_descriptive_statistics`):
+
+- **TI is strongly right-skewed** (M = 1.57, SD = 1.10, skew = 2.14, kurtosis = 3.65): most participants report little to no momentary turnover cognition most of the time. The supported effects are therefore detected against a floor-compressed outcome; observed effect sizes likely understate the latent association strength, and the high ICC (.792) partly reflects many stable low scorers. Worth one Results sentence so readers do not misread small unstandardized coefficients.
+- **EE shows the same floor** (M = 1.38, skew = 2.35, kurtosis = 5.92): acute emotional exhaustion is rare in this sample, yet EE still carries the largest within-person effect on TI (H2a:ee). Rarity with potency, a pattern consistent with COR's claim that emotional resource loss is the most consequential form of depletion.
+- **Autonomy frustration is the most prevalent and most dispersed need frustration** (M = 2.41, SD = 1.13, skew = 0.27, nearly symmetric) yet has a near-zero TI effect, while competence frustration (M = 1.75, right-skewed) is the facet that predicts. Prevalence and potency dissociate across facets; this sharpens the facet-specific Discussion (see Write-Up Flags).
+- **Meeting load is light and zero-inflated** (count M = 0.72 per ~4-hour window, skew = 2.65; time M = 25.0 min, max 231): many windows contain no meetings. Null within-person meeting effects (direct and moderation) must be read against this restricted exposure base; samples with denser meeting loads (e.g., managers; Rogelberg et al., 2007) provide the stronger test.
+- **ATCB is high and tight** (M = 4.53, SD = 0.59): people like blue. The marker has little room to correlate with anything, which is the design intent.
 
 ---
 
@@ -136,6 +149,15 @@ The `correlation::correlation(multilevel = TRUE)` approach (lme4-based partial c
 
 - **Manuscript figure**: `figs/corr/corr_between_within.svg`
 - Integration test: `analysis/tests/test_correlation_outputs.r` verifies r/p matrix alignment and spot-checks corr_05 against an independent `cor.test` recomputation.
+
+### Interpretive synthesis (what the correlation pattern says before any model is fit)
+
+1. **Between-person associations are uniformly larger than their within-person counterparts** (PF-TI: .628 BP vs. .306 WP; EE-TI larger BP as well). This is the classic trait/state signature: chronic standing on burnout tracks chronic standing on withdrawal cognitions more tightly than moment-to-moment coupling. It previews the MLM result (M4's R²_marginal jump) and is itself a finding the proposal's framing predicts -- dispositional and state variance are distinct, and both exist.
+2. **The within-person matrix establishes the phenomenon the dissertation needs**: burnout facets, competence frustration, and TI co-fluctuate within a single workday (rmcorr .19-.31 with TI). Before any MLM, this is the existence proof for within-day covariation of depletion and withdrawal cognition, the documented gap (SMBM intraday variance) the proposal stakes out.
+3. **Burnout coheres within persons; need frustration coheres separately** (PF-CW .641; comp-relt .496, comp-auto .381; cross-block rs notably weaker). The two construct families fluctuate as semi-independent systems within a day, supporting their joint-but-distinct treatment in the models rather than a single depletion composite.
+4. **Meeting load is behaviorally real but psychologically weak within persons** (count-time rmcorr .733, so the two measures agree on what happened; count-TI .061, time-TI .094). Occasions with more meetings are barely occasions with more turnover cognition. The interesting meeting signal lives between persons (see M5 interpretation).
+5. **The L2 block has one structural hazard**: PCB-PCV at .857 (see Write-Up Flags). JS correlates -.62/-.68 with both, forming a tight evaluative cluster around the employment relationship; the M5 partialled coefficients for H4a/H4b/H5 divide largely shared variance, which is why the hypothesis verdicts for breach vs. violation should be narrated jointly, not as independent confirmations.
+6. **Timepoint correlates positively with TI within persons** (rmcorr .127 with TI, .163 with PF): raw descriptive support for the within-day drift that M1/M5's time effect formalizes.
 
 ---
 
@@ -200,6 +222,8 @@ RMSEA is particularly strong (.033); SRMR_between (.077) slightly elevated relat
 - Turnover Intention (TI): single item measured at each of three ESM timepoints. TI was NOT included in the MCFA for the same reason (no factor structure to estimate from one item). Instead, its between/within variance partition was confirmed via the ICC from the unconditional MLM (M0): ICC = .792, indicating that 79.2% of TI variance is between-person and 20.8% is within-person, sufficient to support both L1 and L2 hypothesis tests (Song et al., 2023). Manuscript framing: "Given that TI was measured as a single item at each timepoint, internal consistency was not assessable. The between- and within-person variance structure of TI was evaluated by examining its ICC from the unconditional model (ICC = .792), confirming meaningful variability at both levels."
 - Desirability of Movement (DES): 2-item factor (des1, des2) included in the L2 CFA. A 2-indicator factor is just identified (0 df); fit cannot be tested independently but omega is estimable.
 - Cite: Bakdash & Marusich (2017) for rmcorr; Lai (2021) for MCFA omega; Geldhof et al. (2014) for level-specific reliability; Vandenberg & Lance (2000) for measurement equivalence rationale (pf3 exclusion); Muthén (1994) for MCFA framework; Song et al. (2023) for single-item ESM DV validation.
+
+**Interpretive synthesis (measurement model as a whole)**: The two CFAs jointly deliver the psychometric warrant the design depends on. The L2 model shows the intake scales behave as five discriminable factors with good fit (CFI .967, RMSEA .049) and strong reliabilities (.77-.94), so the between-person predictors entering M5 are clean. The MCFA shows the seven within-person constructs maintain their factor structure when variance is decomposed across levels (RMSEA .033), and the ω_within/ω_between contrast tells the substantive story: between-level omegas of .94-.99 mean person means are nearly error-free trait scores, while within-level omegas of .55-.84 mean state fluctuation is measured with honest noise. The implication for the MLM runs in one direction only -- L1 measurement error attenuates within-person effects toward zero, so the supported L1 effects (PF, EE, competence frustration) survive *despite* the harder measurement test, while the high-reliability L2 effects face no such handicap. The within-level reliability ordering (CW .84 > PF .81 >> facets .55-.62) also maps onto item language: resource-state items (tired, drained) register momentary change better than interpersonal-appraisal items (feeling rejected by others), which carry more situational specificity per item. This belongs in the measurement Discussion as the mechanism behind both the EE tension flag and the NF facet nulls.
 
 ### Metric Invariance Test
 
@@ -286,6 +310,8 @@ Nested data: N = 336 L2 units (participants) x 3 L1 observations nested within e
 - **M4 drives the explained variance**: R2_marginal jumps from .046 to .496 when between-person means enter; L1 person-mean components carry the bulk of the predictive signal.
 - **M5 adds 7 L2 parameters** (pa, na, jis, des, br, vio, js -- all grand-mean centered); LRT df = 7.
 - **M6 non-significant**: LRT χ²(4) = 1.25, *p* = .870. M6 = M5 + two mandatory, theory-justified demographic covariates: `age_c` (1 df) and `job_tenure` (3 dummy df), pre-specified in the proposal (Griffeth et al., 2000; Rubenstein et al., 2018). `is_remote` was the only covariate subjected to the Bernerth & Aguinis (2016) bivariate screen and **failed it decisively** (r = .008, *p* = .878; `mlm_09_covariate_screening.csv`); it does not appear in M6 or any model. Gender, education level, and ethnicity were never candidates for entry (collected for sample description only). `recruitment_source` entered at M3 as a mandatory control and is retained through M7b.
+
+**Narrative arc of the sequence (use this as the Results roadmap)**: M0 establishes that TI is predominantly a stable individual difference within a single day (ICC = .792) yet leaves a real momentary component (20.8%). M1-M2 show TI is not flat within the day: it drifts upward (fixed time) and people differ in that drift (random time slope). M3 demonstrates the core within-person claim -- momentary depletion states predict momentary withdrawal cognition inside the 20.8% (R²_marginal .046 is small in *total*-variance terms precisely because the within-person pool is small). M4 is the variance event of the sequence: chronic standing on the same constructs explains the lion's share of TI (R²_marginal .046 -> .496), confirming the trait/state asymmetry the correlations previewed. M5 tests whether the relational-context variables (PC breach/violation, JS) add signal beyond chronic depletion -- they do (LRT p < .001), with JS and PCB carrying the weight. M6 closes the loop: demographics add nothing (p = .870), so the substantive story is not a composition artifact. Each step answers one question; resist reporting the sequence as seven interchangeable models.
 
 ### ML vs. REML: Estimation Strategy
 
@@ -419,6 +445,8 @@ Snowball participants report ~0.26 points higher average TI (1-5 scale) than Clo
 | Auto NF (within) | .004 | .020 | negligible |
 
 rho_beta quantifies the proportion of within-person variance explained by slope heterogeneity (i.e., individual differences in how strongly each L1 predictor relates to TI). PF has the largest rho_beta (.053), indicating moderate person-level variability in the PF-TI slope. Most other predictors show small-medium or negligible slope heterogeneity.
+
+**Interpretation**: The ordering is theoretically coherent: the depletion-to-withdrawal coupling varies most across people for exactly the predictors that carry significant average effects (PF, competence frustration), and is negligible for the facets with null average effects (autonomy, relatedness) -- people do not differ much in a slope that is essentially zero for everyone. Substantively, a PF rho_beta of .053 says the workday-fatigue-to-quit-thoughts link is a *person-conditional* process: for some workers a hard day barely registers in withdrawal cognition, for others it translates directly. That heterogeneity is precisely where the meeting-load moderation hypotheses looked (and found nothing with composites), and it remains the most promising target for future moderator work with richer L1 sampling -- a constructive Discussion endpoint that converts the H3 nulls into a research agenda. Frame rho_beta as descriptive effect size, not inference: with 3 occasions, slope variance is downwardly biased (Heisig & Schaeffer, 2019), so these values are floors, not ceilings.
 
 - Outputs: `figs/mlm/mlm_04_hypothesis_tests.md`, `mlm_08_iccbeta.csv`, model diagnostics at `mlm_diag_model_*.svg`
 - Cite: Curran & Bauer (2011); Enders & Tofighi (2007); Aguinis & Culpepper (2015).
