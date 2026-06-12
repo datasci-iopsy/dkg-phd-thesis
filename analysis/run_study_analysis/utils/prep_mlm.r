@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # ---------------------------------------------------------------------------
-# prep_mlm.R -- MLM centering and variable preparation
+# prep_mlm.r -- MLM centering and variable preparation
 #
 # Provides:
 #   prepare_mlm_frame(df, defs)
@@ -22,7 +22,7 @@
 # Prerequisites (caller must source before using):
 #   analysis/shared/utils/common_utils.r   -- log_msg()
 #   analysis/shared/utils/mlm_utils.r      -- verify_centering()
-#   analysis/run_study_analysis/utils/data_loader.R  -- VARIABLE_DEFS
+#   analysis/run_study_analysis/utils/data_loader.r  -- VARIABLE_DEFS
 # ---------------------------------------------------------------------------
 
 
@@ -64,6 +64,11 @@ prepare_mlm_frame <- function(df, defs = VARIABLE_DEFS) {
 
     # [4] L2 grand-mean centering for study variables
     for (v in defs$l2_study_vars) {
+        df[[paste0(v, "_c")]] <- df[[v]] - mean(df[[v]], na.rm = TRUE)
+    }
+
+    # L2 grand-mean centering for environmental control variables (JIS, DES)
+    for (v in defs$l2_control_vars) {
         df[[paste0(v, "_c")]] <- df[[v]] - mean(df[[v]], na.rm = TRUE)
     }
 

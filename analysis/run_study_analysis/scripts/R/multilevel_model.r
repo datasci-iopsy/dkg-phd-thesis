@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # =============================================================================
-# analysis/run_study_analysis/scripts/R/multilevel_model.R
+# analysis/run_study_analysis/scripts/R/multilevel_model.r
 #
 # Multilevel Model Building Sequence for Turnover Intentions
 # Following dissertation proposal (Curran & Bauer 2011; Enders & Tofighi 2007)
@@ -29,7 +29,7 @@
 # Phase 6 (M7a-b): L1 x L1 moderation -- meetings x burnout/NF (H3a, H3b)
 # Phase 7       : ICC-beta (rho_beta) slope heterogeneity
 #
-# Centering: Enders & Tofighi (2007) / Curran & Bauer (2011) -- see prep_mlm.R
+# Centering: Enders & Tofighi (2007) / Curran & Bauer (2011) -- see prep_mlm.r
 #   - L1 predictors: person-mean centered (within) + grand-mean centered
 #     person means (between) via datawizard::demean()
 #   - L2 predictors: grand-mean centered (_c suffix)
@@ -80,10 +80,10 @@ source(here::here("analysis", "shared", "utils", "common_utils.r"))
 source(here::here("analysis", "shared", "utils", "plot_utils.r"))
 source(here::here("analysis", "shared", "utils", "mlm_utils.r"))
 
-source(here::here("analysis", "run_study_analysis", "utils", "data_loader.R"))
-source(here::here("analysis", "run_study_analysis", "utils", "prep_mlm.R"))
-source(here::here("analysis", "run_study_analysis", "utils", "mlm_hypothesis_map.R"))
-source(here::here("analysis", "run_synthetic_data", "utils", "mlm_diagnostics.R"))
+source(here::here("analysis", "run_study_analysis", "utils", "data_loader.r"))
+source(here::here("analysis", "run_study_analysis", "utils", "prep_mlm.r"))
+source(here::here("analysis", "run_study_analysis", "utils", "mlm_hypothesis_map.r"))
+source(here::here("analysis", "run_synthetic_data", "utils", "mlm_diagnostics.r"))
 
 FIGS_DIR <- here::here("analysis", "run_study_analysis", "figs", "mlm")
 ensure_dir(FIGS_DIR)
@@ -110,12 +110,13 @@ n_participants <- dplyr::n_distinct(df_raw$response_id)
 log_msg("Participants (L2): ", n_participants)
 log_msg("Timepoints  (L1) : ", max(df_raw$timepoint))
 
-# Variable group definitions from canonical data_loader.R
+# Variable group definitions from canonical data_loader.r
 l1_predictor_vars <- VARIABLE_DEFS$l1_predictor_vars
-l1_marker_var     <- VARIABLE_DEFS$l1_marker_var
-l2_study_vars     <- VARIABLE_DEFS$l2_study_vars
-l2_demo_vars      <- VARIABLE_DEFS$l2_demo_vars
-dv                <- VARIABLE_DEFS$dv
+l1_marker_var <- VARIABLE_DEFS$l1_marker_var
+l2_study_vars <- VARIABLE_DEFS$l2_study_vars
+l2_control_vars <- VARIABLE_DEFS$l2_control_vars
+l2_demo_vars <- VARIABLE_DEFS$l2_demo_vars
+dv <- VARIABLE_DEFS$dv
 
 # Pretty labels for output tables
 var_labels <- c(
@@ -127,12 +128,13 @@ var_labels <- c(
     pa_mean = "Positive Affect", na_mean = "Negative Affect",
     br_mean = "PC Breach", vio_mean = "PC Violation",
     js_mean = "Job Satisfaction",
+    jis_mean = "Job Insecurity (JIS)", des_mean = "Desirability of Movement (DES)",
     turnover_intention_mean = "Turnover Intention"
 )
 
 
 # =============================================================================
-# [2] CENTERING AND VARIABLE PREPARATION (sourced from prep_mlm.R)
+# [2] CENTERING AND VARIABLE PREPARATION (sourced from prep_mlm.r)
 # =============================================================================
 log_msg("=== [2] Centering and variable preparation ===")
 
@@ -154,9 +156,9 @@ for (nm in names(tbl_rs)) {
 # check_vif, save_vif_plot, compute_standardized_coefs,
 # compute_level_specific_es, compute_delta_r2, verify_centering,
 # select_covariates_bivariate) sourced from analysis/shared/utils/mlm_utils.r.
-# check_assumptions() sourced from run_synthetic_data/utils/mlm_diagnostics.R.
+# check_assumptions() sourced from run_synthetic_data/utils/mlm_diagnostics.r.
 # HYPOTHESIS_MAP, get_coef_result(), evaluate_hypotheses() sourced from
-# run_study_analysis/utils/mlm_hypothesis_map.R.
+# run_study_analysis/utils/mlm_hypothesis_map.r.
 # =============================================================================
 
 
@@ -177,9 +179,9 @@ icc_m0 <- performance::icc(m0_reml)
 log_msg("  ICC (adjusted)    = ", round(icc_m0$ICC_adjusted, 4))
 log_msg("  ICC (conditional) = ", round(icc_m0$ICC_conditional, 4))
 
-vc_m0   <- as.data.frame(VarCorr(m0_reml))
-tau_00  <- vc_m0$vcov[vc_m0$grp == "response_id"]
-sigma2  <- vc_m0$vcov[vc_m0$grp == "Residual"]
+vc_m0 <- as.data.frame(VarCorr(m0_reml))
+tau_00 <- vc_m0$vcov[vc_m0$grp == "response_id"]
+sigma2 <- vc_m0$vcov[vc_m0$grp == "Residual"]
 log_msg("  tau_00 (between) = ", round(tau_00, 4))
 log_msg("  sigma2 (within)  = ", round(sigma2, 4))
 log_msg("  Grand mean TI    = ", round(fixef(m0_reml)[1], 4))
@@ -260,7 +262,7 @@ if (is.null(m2_reml) || isSingular(m2_reml)) {
     use_random_slope <- FALSE
     re_note <- "intercept only"
     m2_reml <- m1_reml
-    m2_ml   <- m1_ml
+    m2_ml <- m1_ml
 }
 
 if (use_random_slope) {
@@ -315,11 +317,11 @@ m3_formula <- as.formula(paste(
 log_msg("  Formula: ", deparse(m3_formula, width.cutoff = 200))
 
 m3_reml <- safe_lmer(m3_formula, data = df, REML = TRUE)
-m3_ml   <- safe_lmer(m3_formula, data = df, REML = FALSE)
+m3_ml <- safe_lmer(m3_formula, data = df, REML = FALSE)
 
-m_prev_ml  <- if (use_random_slope) m2_ml else m1_ml
-prev_name  <- if (use_random_slope) "Model 2" else "Model 1"
-lrt_3vp    <- compare_models(m_prev_ml, m3_ml, prev_name, "Model 3")
+m_prev_ml <- if (use_random_slope) m2_ml else m1_ml
+prev_name <- if (use_random_slope) "Model 2" else "Model 1"
+lrt_3vp <- compare_models(m_prev_ml, m3_ml, prev_name, "Model 3")
 log_msg(
     "  LRT Model 3 vs ", prev_name, ": chi2 = ",
     round(lrt_3vp$chi_sq, 3),
@@ -376,7 +378,7 @@ m4_formula <- as.formula(paste(
 log_msg("  Formula: ", deparse(m4_formula, width.cutoff = 200))
 
 m4_reml <- safe_lmer(m4_formula, data = df, REML = TRUE)
-m4_ml   <- safe_lmer(m4_formula, data = df, REML = FALSE)
+m4_ml <- safe_lmer(m4_formula, data = df, REML = FALSE)
 
 lrt_4v3 <- compare_models(m3_ml, m4_ml, "Model 3", "Model 4")
 log_msg(
@@ -395,7 +397,7 @@ for (v in l1_predictor_vars) {
     }
 }
 
-h2b_vars   <- c("pf_mean_between", "cw_mean_between", "ee_mean_between")
+h2b_vars <- c("pf_mean_between", "cw_mean_between", "ee_mean_between")
 h2b_labels <- c("H2b:pf", "H2b:cw", "H2b:ee")
 for (i in seq_along(h2b_vars)) {
     row <- fe4[fe4$term == h2b_vars[i], ]
@@ -411,7 +413,7 @@ for (i in seq_along(h2b_vars)) {
     }
 }
 
-h1b_vars   <- c("comp_mean_between", "auto_mean_between", "relt_mean_between")
+h1b_vars <- c("comp_mean_between", "auto_mean_between", "relt_mean_between")
 h1b_labels <- c("H1b:comp", "H1b:auto", "H1b:relt")
 for (i in seq_along(h1b_vars)) {
     row <- fe4[fe4$term == h1b_vars[i], ]
@@ -436,7 +438,7 @@ m4_summary <- extract_model_summary(m4_reml, "Model 4: L1 Within + Between")
 # =============================================================================
 log_msg("=== [9] Model 5: L2 Between-Person Study Variables ===")
 log_msg("  Tests H4a (breach -> TI), H4b (violation -> TI), H5 (JS -> TI)")
-log_msg("  PA/NA entered as affect controls")
+log_msg("  PA/NA entered as affect controls; JIS/DES as mandatory environmental controls")
 
 m5_formula <- as.formula(paste(
     "turnover_intention_mean ~ time_c +",
@@ -446,14 +448,15 @@ m5_formula <- as.formula(paste(
     "pf_mean_between + cw_mean_between + ee_mean_between +",
     "comp_mean_between + auto_mean_between + relt_mean_between +",
     "meetings_count_between + meetings_time_between +",
-    "pa_mean_c + na_mean_c + br_mean_c + vio_mean_c + js_mean_c +",
+    "pa_mean_c + na_mean_c + jis_mean_c + des_mean_c +",
+    "br_mean_c + vio_mean_c + js_mean_c +",
     "recruitment_source +",
     re_term
 ))
 log_msg("  Formula: ", deparse(m5_formula, width.cutoff = 200))
 
 m5_reml <- safe_lmer(m5_formula, data = df, REML = TRUE)
-m5_ml   <- safe_lmer(m5_formula, data = df, REML = FALSE)
+m5_ml <- safe_lmer(m5_formula, data = df, REML = FALSE)
 
 lrt_5v4 <- compare_models(m4_ml, m5_ml, "Model 4", "Model 5")
 log_msg(
@@ -463,10 +466,15 @@ log_msg(
 
 fe5 <- broom.mixed::tidy(m5_reml, effects = "fixed", conf.int = TRUE)
 
-for (ctrl in c("pa_mean_c", "na_mean_c")) {
+for (ctrl in c("pa_mean_c", "na_mean_c", "jis_mean_c", "des_mean_c")) {
     row <- fe5[fe5$term == ctrl, ]
     if (nrow(row) > 0) {
-        dir <- if (ctrl == "pa_mean_c") "negative" else "positive"
+        dir <- switch(ctrl,
+            pa_mean_c  = "negative",
+            na_mean_c  = "positive",
+            jis_mean_c = "positive",
+            des_mean_c = "positive"
+        )
         log_msg(
             "  Control (", ctrl, "): b = ", round(row$estimate, 4),
             ", p = ", format.pval(row$p.value, digits = 4),
@@ -475,8 +483,8 @@ for (ctrl in c("pa_mean_c", "na_mean_c")) {
     }
 }
 
-h5_vars       <- c("br_mean_c", "vio_mean_c", "js_mean_c")
-h5_labels     <- c("H4a", "H4b", "H5")
+h5_vars <- c("br_mean_c", "vio_mean_c", "js_mean_c")
+h5_labels <- c("H4a", "H4b", "H5")
 h5_directions <- c("positive", "positive", "negative")
 for (i in seq_along(h5_vars)) {
     row <- fe5[fe5$term == h5_vars[i], ]
@@ -507,23 +515,23 @@ m5_summary <- extract_model_summary(m5_reml, "Model 5: L1 + L2 Study Variables")
 # =============================================================================
 log_msg("=== [10] Model 6: Demographic Covariates (data-driven selection) ===")
 log_msg("  Mandatory controls (theory-justified): age_c, job_tenure")
-log_msg("  Screened via Bernerth & Aguinis (2016): gender, is_remote, edu_lvl, ethnicity")
+log_msg("  Screened via Bernerth & Aguinis (2016): is_remote")
 log_msg("  recruitment_source already in M3-M5; retained in M6")
-log_msg("  PA/NA already in M5 as affect controls; not re-screened here")
+log_msg("  PA/NA, JIS, DES already in M5 as controls; not re-screened here")
 
-mandatory_covs     <- c("age_c", "job_tenure")
-screened_candidates <- c("gender", "is_remote", "edu_lvl", "ethnicity")
+mandatory_covs <- c("age_c", "job_tenure")
+screened_candidates <- c("is_remote")
 
 df_bp <- df |>
     dplyr::group_by(response_id) |>
     dplyr::summarise(
-        ti_mean            = mean(turnover_intention_mean, na.rm = TRUE),
-        age_c              = dplyr::first(age_c),
-        gender             = dplyr::first(gender),
-        job_tenure         = dplyr::first(job_tenure),
-        is_remote          = dplyr::first(is_remote),
-        edu_lvl            = dplyr::first(edu_lvl),
-        ethnicity          = dplyr::first(ethnicity),
+        ti_mean = mean(turnover_intention_mean, na.rm = TRUE),
+        age_c = dplyr::first(age_c),
+        gender = dplyr::first(gender),
+        job_tenure = dplyr::first(job_tenure),
+        is_remote = dplyr::first(is_remote),
+        edu_lvl = dplyr::first(edu_lvl),
+        ethnicity = dplyr::first(ethnicity),
         .groups = "drop"
     )
 
@@ -559,7 +567,8 @@ m5_base_terms <- paste(
     "pf_mean_between + cw_mean_between + ee_mean_between +",
     "comp_mean_between + auto_mean_between + relt_mean_between +",
     "meetings_count_between + meetings_time_between +",
-    "pa_mean_c + na_mean_c + br_mean_c + vio_mean_c + js_mean_c +",
+    "pa_mean_c + na_mean_c + jis_mean_c + des_mean_c +",
+    "br_mean_c + vio_mean_c + js_mean_c +",
     "recruitment_source"
 )
 
@@ -570,12 +579,12 @@ log_msg(
     if (length(cov_screen$selected) > 0) paste(cov_screen$selected, collapse = ", ") else "none"
 )
 
-cov_terms  <- paste(all_m6_covs, collapse = " + ")
+cov_terms <- paste(all_m6_covs, collapse = " + ")
 m6_formula <- as.formula(paste(m5_base_terms, "+", cov_terms, "+", re_term))
 log_msg("  Formula: ", deparse(m6_formula, width.cutoff = 200))
 
 m6_reml <- safe_lmer(m6_formula, data = df, REML = TRUE)
-m6_ml   <- safe_lmer(m6_formula, data = df, REML = FALSE)
+m6_ml <- safe_lmer(m6_formula, data = df, REML = FALSE)
 
 lrt_6v5 <- compare_models(m5_ml, m6_ml, "Model 5", "Model 6")
 log_msg(
@@ -587,13 +596,14 @@ fe6 <- broom.mixed::tidy(m6_reml, effects = "fixed", conf.int = TRUE)
 
 log_msg("  Checking stability of substantive effects (Model 5 -> 6):")
 check_stability_vars <- c(
-    h3_vars, paste0(l1_predictor_vars, "_between"), h5_vars
+    h3_vars, paste0(l1_predictor_vars, "_between"), h5_vars,
+    "jis_mean_c", "des_mean_c"
 )
 for (v in check_stability_vars) {
     r5 <- fe5[fe5$term == v, ]
     r6 <- fe6[fe6$term == v, ]
     if (nrow(r5) > 0 && nrow(r6) > 0) {
-        change     <- abs(r6$estimate - r5$estimate)
+        change <- abs(r6$estimate - r5$estimate)
         pct_change <- ifelse(abs(r5$estimate) > 0.001,
             round(change / abs(r5$estimate) * 100, 1), NA
         )
@@ -626,17 +636,19 @@ model_names <- c(
     "Model 6: Full Model with Covariates"
 )
 model_fits_reml <- list(m0_reml, m1_reml, m2_reml, m3_reml, m4_reml, m5_reml, m6_reml)
-model_fits_ml   <- list(m0_ml,   m1_ml,   m2_ml,   m3_ml,   m4_ml,   m5_ml,   m6_ml)
+model_fits_ml <- list(m0_ml, m1_ml, m2_ml, m3_ml, m4_ml, m5_ml, m6_ml)
 
 comparison_tbl <- purrr::map2_dfr(
     model_fits_reml, model_names,
     function(fit, name) {
-        if (is.null(fit)) return(tibble::tibble(Model = name))
-        gl  <- broom.mixed::glance(fit)
-        r2  <- tryCatch(performance::r2_nakagawa(fit),
+        if (is.null(fit)) {
+            return(tibble::tibble(Model = name))
+        }
+        gl <- broom.mixed::glance(fit)
+        r2 <- tryCatch(performance::r2_nakagawa(fit),
             error = function(e) list(R2_marginal = NA, R2_conditional = NA)
         )
-        vc  <- as.data.frame(VarCorr(fit))
+        vc <- as.data.frame(VarCorr(fit))
         tau_00_val <- vc$vcov[
             vc$grp == "response_id" & vc$var1 == "(Intercept)" & is.na(vc$var2)
         ]
@@ -678,10 +690,13 @@ readr::write_csv(comparison_tbl, file.path(FIGS_DIR, "mlm_01_model_comparison.cs
 log_msg("  Saved model comparison CSV")
 
 comparison_display <- comparison_tbl |> dplyr::mutate(across(where(is.numeric), ~ round(., 3)))
-p_comp_grob <- gridExtra::tableGrob(comparison_display, rows = NULL,
+p_comp_grob <- gridExtra::tableGrob(comparison_display,
+    rows = NULL,
     theme = gridExtra::ttheme_minimal(base_size = 8)
 )
-p_comp <- ggplot2::ggplot() + ggplot2::annotation_custom(p_comp_grob) + ggplot2::theme_void()
+p_comp <- ggplot2::ggplot() +
+    ggplot2::annotation_custom(p_comp_grob) +
+    ggplot2::theme_void()
 save_tbl(p_comp, "mlm_01_model_comparison.pdf", width = 18, height = 6)
 save_md(comparison_display, file.path(FIGS_DIR, "mlm_01_model_comparison.md"))
 
@@ -692,7 +707,9 @@ save_md(comparison_display, file.path(FIGS_DIR, "mlm_01_model_comparison.md"))
 log_msg("=== [12] Building fixed effects summary ===")
 
 fe_all <- purrr::map2_dfr(model_fits_reml, model_names, function(fit, name) {
-    if (is.null(fit)) return(tibble::tibble(model = name))
+    if (is.null(fit)) {
+        return(tibble::tibble(model = name))
+    }
     broom.mixed::tidy(fit, effects = "fixed", conf.int = TRUE, conf.level = 0.95) |>
         dplyr::mutate(model = name)
 })
@@ -706,15 +723,16 @@ for (i in seq_along(model_names)) {
         dplyr::select(term, estimate, std.error, statistic, df, p.value, conf.low, conf.high) |>
         dplyr::mutate(
             across(c(estimate, std.error, statistic, conf.low, conf.high), ~ round(., 4)),
-            df      = round(df, 1),
+            df = round(df, 1),
             p.value = dplyr::case_when(
                 is.na(p.value) ~ NA_character_,
                 p.value < .001 ~ "< .001",
-                TRUE           ~ as.character(round(p.value, 4))
+                TRUE ~ as.character(round(p.value, 4))
             )
         )
 
-    grob <- gridExtra::tableGrob(sub_tbl, rows = NULL,
+    grob <- gridExtra::tableGrob(sub_tbl,
+        rows = NULL,
         theme = gridExtra::ttheme_minimal(base_size = 9)
     )
     p_sub <- ggplot2::ggplot() +
@@ -730,11 +748,11 @@ for (i in seq_along(model_names)) {
 save_md(
     fe_all |> dplyr::mutate(
         across(c(estimate, std.error, statistic, conf.low, conf.high), ~ round(., 4)),
-        df      = round(df, 1),
+        df = round(df, 1),
         p.value = dplyr::case_when(
             is.na(p.value) ~ NA_character_,
             p.value < .001 ~ "< .001",
-            TRUE           ~ as.character(round(p.value, 4))
+            TRUE ~ as.character(round(p.value, 4))
         )
     ),
     file.path(FIGS_DIR, "mlm_02_fixed_effects.md")
@@ -748,7 +766,9 @@ log_msg("  Saved fixed effects PDFs and markdown")
 log_msg("=== [13] Building random effects summary ===")
 
 re_all <- purrr::map2_dfr(model_fits_reml, model_names, function(fit, name) {
-    if (is.null(fit)) return(tibble::tibble(model = name))
+    if (is.null(fit)) {
+        return(tibble::tibble(model = name))
+    }
     broom.mixed::tidy(fit, effects = "ran_pars") |> dplyr::mutate(model = name)
 })
 
@@ -756,10 +776,13 @@ readr::write_csv(re_all, file.path(FIGS_DIR, "mlm_03_random_effects.csv"))
 log_msg("  Saved random effects CSV")
 
 re_display <- re_all |> dplyr::mutate(across(where(is.numeric), ~ round(., 4)))
-re_grob <- gridExtra::tableGrob(re_display, rows = NULL,
+re_grob <- gridExtra::tableGrob(re_display,
+    rows = NULL,
     theme = gridExtra::ttheme_minimal(base_size = 9)
 )
-p_re <- ggplot2::ggplot() + ggplot2::annotation_custom(re_grob) + ggplot2::theme_void()
+p_re <- ggplot2::ggplot() +
+    ggplot2::annotation_custom(re_grob) +
+    ggplot2::theme_void()
 save_tbl(p_re, "mlm_03_random_effects.pdf", width = 12, height = 8)
 save_md(re_display, file.path(FIGS_DIR, "mlm_03_random_effects.md"))
 
@@ -780,10 +803,13 @@ hyp_results <- hyp_results |> dplyr::mutate(p_value = round(p_value, 4))
 readr::write_csv(hyp_results, file.path(FIGS_DIR, "mlm_04_hypothesis_tests.csv"))
 log_msg("  Saved hypothesis tests CSV (moderation rows pending Phase 6)")
 
-p_hyp_grob <- gridExtra::tableGrob(hyp_results, rows = NULL,
+p_hyp_grob <- gridExtra::tableGrob(hyp_results,
+    rows = NULL,
     theme = gridExtra::ttheme_minimal(base_size = 9)
 )
-p_hyp <- ggplot2::ggplot() + ggplot2::annotation_custom(p_hyp_grob) + ggplot2::theme_void()
+p_hyp <- ggplot2::ggplot() +
+    ggplot2::annotation_custom(p_hyp_grob) +
+    ggplot2::theme_void()
 save_tbl(p_hyp, "mlm_04_hypothesis_tests.pdf", width = 18, height = 10)
 save_md(hyp_results, file.path(FIGS_DIR, "mlm_04_hypothesis_tests.md"))
 
@@ -805,7 +831,7 @@ save_vif_plot(vif_m6, "Model 6", figs_dir = FIGS_DIR)
 log_msg("=== [16] Effect sizes ===")
 
 es_models <- list(m3_reml, m4_reml, m5_reml, m6_reml)
-es_names  <- c(
+es_names <- c(
     "Model 3: L1 Within-Person",
     "Model 4: L1 Within + Between",
     "Model 5: L1 + L2 Study Variables",
@@ -948,7 +974,8 @@ m7a_formula <- as.formula(paste(
     "meetings_count_within + meetings_time_within +",
     "burnout_mean_between + nf_mean_between +",
     "meetings_count_between + meetings_time_between +",
-    "pa_mean_c + na_mean_c + br_mean_c + vio_mean_c + js_mean_c +",
+    "pa_mean_c + na_mean_c + jis_mean_c + des_mean_c +",
+    "br_mean_c + vio_mean_c + js_mean_c +",
     "recruitment_source +",
     "burnout_mean_within:meetings_count_within +",
     "nf_mean_within:meetings_count_within +",
@@ -957,7 +984,7 @@ m7a_formula <- as.formula(paste(
 log_msg("  Formula: ", deparse(m7a_formula, width.cutoff = 200))
 
 m7a_reml <- safe_lmer(m7a_formula, data = df, REML = TRUE)
-m7a_ml   <- safe_lmer(m7a_formula, data = df, REML = FALSE)
+m7a_ml <- safe_lmer(m7a_formula, data = df, REML = FALSE)
 
 m7a_base_formula <- as.formula(paste(
     "turnover_intention_mean ~ time_c +",
@@ -965,7 +992,8 @@ m7a_base_formula <- as.formula(paste(
     "meetings_count_within + meetings_time_within +",
     "burnout_mean_between + nf_mean_between +",
     "meetings_count_between + meetings_time_between +",
-    "pa_mean_c + na_mean_c + br_mean_c + vio_mean_c + js_mean_c +",
+    "pa_mean_c + na_mean_c + jis_mean_c + des_mean_c +",
+    "br_mean_c + vio_mean_c + js_mean_c +",
     "recruitment_source +",
     re_term
 ))
@@ -1054,7 +1082,8 @@ m7b_formula <- as.formula(paste(
     "meetings_count_within + meetings_time_within +",
     "burnout_mean_between + nf_mean_between +",
     "meetings_count_between + meetings_time_between +",
-    "pa_mean_c + na_mean_c + br_mean_c + vio_mean_c + js_mean_c +",
+    "pa_mean_c + na_mean_c + jis_mean_c + des_mean_c +",
+    "br_mean_c + vio_mean_c + js_mean_c +",
     "recruitment_source +",
     "burnout_mean_within:meetings_time_within +",
     "nf_mean_within:meetings_time_within +",
@@ -1063,7 +1092,7 @@ m7b_formula <- as.formula(paste(
 log_msg("  Formula: ", deparse(m7b_formula, width.cutoff = 200))
 
 m7b_reml <- safe_lmer(m7b_formula, data = df, REML = TRUE)
-m7b_ml   <- safe_lmer(m7b_formula, data = df, REML = FALSE)
+m7b_ml <- safe_lmer(m7b_formula, data = df, REML = FALSE)
 
 lrt_7bv_base <- compare_models(m7a_base_ml, m7b_ml, "M7b base", "Model 7b")
 log_msg(
@@ -1130,6 +1159,45 @@ if (length(m7b_plots) > 0) {
 
 m7b_summary <- extract_model_summary(m7b_reml, "Model 7b: Time x Composites")
 
+m7_fits_reml <- list(m7a_reml, m7b_reml)
+m7_names <- c("Model 7a: Count x Composites", "Model 7b: Time x Composites")
+
+fe_m7 <- purrr::map2_dfr(m7_fits_reml, m7_names, function(fit, name) {
+    if (is.null(fit)) {
+        return(tibble::tibble(model = name))
+    }
+    broom.mixed::tidy(fit, effects = "fixed", conf.int = TRUE) |>
+        dplyr::mutate(model = name)
+})
+
+for (i in seq_along(m7_names)) {
+    sub_tbl <- fe_m7 |>
+        dplyr::filter(model == m7_names[i]) |>
+        dplyr::select(term, estimate, std.error, statistic, df, p.value, conf.low, conf.high) |>
+        dplyr::mutate(
+            across(c(estimate, std.error, statistic, conf.low, conf.high), ~ round(., 4)),
+            df = round(df, 1),
+            p.value = dplyr::case_when(
+                is.na(p.value) ~ NA_character_,
+                p.value < .001 ~ "< .001",
+                TRUE ~ as.character(round(p.value, 4))
+            )
+        )
+    grob <- gridExtra::tableGrob(sub_tbl,
+        rows = NULL,
+        theme = gridExtra::ttheme_minimal(base_size = 9)
+    )
+    p_sub <- ggplot2::ggplot() +
+        ggplot2::annotation_custom(grob) +
+        ggplot2::labs(title = m7_names[i]) +
+        ggplot2::theme_void() +
+        ggplot2::theme(plot.title = ggplot2::element_text(face = "bold", size = 12, hjust = 0.5))
+    fn_base <- paste0("mlm_02_fixed_effects_", gsub("[^a-z0-9]+", "_", tolower(m7_names[i])))
+    save_tbl(p_sub, paste0(fn_base, ".pdf"), width = 14, height = max(4, nrow(sub_tbl) * 0.4))
+    save_md(sub_tbl, file.path(FIGS_DIR, paste0(fn_base, ".md")))
+}
+log_msg("  Saved M7a/M7b fixed effects PDFs and markdown")
+
 
 # =============================================================================
 # [17c] PHASE 7: ICC-BETA (rho_beta) -- SLOPE HETEROGENEITY
@@ -1148,12 +1216,12 @@ rho_beta_predictors <- c(
 iccb_results <- purrr::map_dfr(rho_beta_predictors, function(pred) {
     log_msg("  Computing rho_beta for: ", pred)
 
-    f1  <- as.formula(paste("turnover_intention_mean ~", pred, "+ (", pred, "| response_id)"))
+    f1 <- as.formula(paste("turnover_intention_mean ~", pred, "+ (", pred, "| response_id)"))
     fit <- tryCatch(safe_lmer(f1, data = df, REML = FALSE), error = function(e) NULL)
     status <- "correlated"
 
     if (is.null(fit) || isSingular(fit)) {
-        f2  <- as.formula(paste("turnover_intention_mean ~", pred, "+ (", pred, "|| response_id)"))
+        f2 <- as.formula(paste("turnover_intention_mean ~", pred, "+ (", pred, "|| response_id)"))
         fit <- tryCatch(safe_lmer(f2, data = df, REML = FALSE), error = function(e) NULL)
         status <- "uncorrelated"
     }
@@ -1168,9 +1236,9 @@ iccb_results <- purrr::map_dfr(rho_beta_predictors, function(pred) {
 
     rb <- tryCatch(
         {
-            X   <- model.matrix(fit)
-            p   <- ncol(X)
-            T1  <- as.matrix(VarCorr(fit)$response_id)[1:p, 1:p, drop = FALSE]
+            X <- model.matrix(fit)
+            p <- ncol(X)
+            T1 <- as.matrix(VarCorr(fit)$response_id)[1:p, 1:p, drop = FALSE]
             grp <- as.integer(factor(df[["response_id"]]))
             iccbeta::icc_beta(X, grp, T1, vy)$rho_beta
         },
@@ -1180,7 +1248,7 @@ iccb_results <- purrr::map_dfr(rho_beta_predictors, function(pred) {
         }
     )
 
-    vc       <- as.data.frame(VarCorr(fit))
+    vc <- as.data.frame(VarCorr(fit))
     tau11_val <- vc$vcov[vc$grp == "response_id" & vc$var1 == pred & is.na(vc$var2)]
     if (length(tau11_val) == 0) tau11_val <- 0
     log_msg("  rho_beta = ", round(rb, 4), " | tau11 = ", round(tau11_val, 4))
@@ -1194,11 +1262,11 @@ iccb_results <- purrr::map_dfr(rho_beta_predictors, function(pred) {
 iccb_results <- iccb_results |>
     dplyr::mutate(
         magnitude = dplyr::case_when(
-            is.na(rho_beta)   ~ NA_character_,
-            rho_beta < 0.01   ~ "negligible (<.01)",
-            rho_beta < 0.05   ~ "small-medium (.01-.05)",
-            rho_beta < 0.10   ~ "medium (.05-.10)",
-            TRUE              ~ "large (>.10)"
+            is.na(rho_beta) ~ NA_character_,
+            rho_beta < 0.01 ~ "negligible (<.01)",
+            rho_beta < 0.05 ~ "small-medium (.01-.05)",
+            rho_beta < 0.10 ~ "medium (.05-.10)",
+            TRUE ~ "large (>.10)"
         )
     )
 
@@ -1238,15 +1306,16 @@ p_iccbeta <- iccb_results |>
     ) |>
     ggplot2::ggplot(ggplot2::aes(x = rho_beta, y = predictor, fill = magnitude)) +
     ggplot2::geom_col() +
-    ggplot2::geom_vline(xintercept = c(0.01, 0.05, 0.10),
+    ggplot2::geom_vline(
+        xintercept = c(0.01, 0.05, 0.10),
         linetype = "dashed", color = "grey40", linewidth = 0.4
     ) +
     ggplot2::scale_fill_manual(
         values = c(
-            "negligible (<.01)"     = "#E0E0E0",
+            "negligible (<.01)" = "#E0E0E0",
             "small-medium (.01-.05)" = "#56B4E9",
-            "medium (.05-.10)"      = "#0072B2",
-            "large (>.10)"          = "#D55E00"
+            "medium (.05-.10)" = "#0072B2",
+            "large (>.10)" = "#D55E00"
         ),
         drop = FALSE
     ) +
@@ -1267,16 +1336,18 @@ log_msg("  Saved rho_beta bar chart SVG")
 # =============================================================================
 log_msg("=== [17d] Phase 6 post-fit completions ===")
 
-phase6_names     <- c("Model 7a: Count x Composites", "Model 7b: Time x Composites")
+phase6_names <- c("Model 7a: Count x Composites", "Model 7b: Time x Composites")
 phase6_fits_reml <- list(m7a_reml, m7b_reml)
 
 phase6_tbl <- purrr::map2_dfr(phase6_fits_reml, phase6_names, function(fit, name) {
-    if (is.null(fit)) return(tibble::tibble(Model = name))
-    gl  <- broom.mixed::glance(fit)
-    r2  <- tryCatch(performance::r2_nakagawa(fit),
+    if (is.null(fit)) {
+        return(tibble::tibble(Model = name))
+    }
+    gl <- broom.mixed::glance(fit)
+    r2 <- tryCatch(performance::r2_nakagawa(fit),
         error = function(e) list(R2_marginal = NA, R2_conditional = NA)
     )
-    vc  <- as.data.frame(VarCorr(fit))
+    vc <- as.data.frame(VarCorr(fit))
     tau_00_val <- vc$vcov[vc$grp == "response_id" & vc$var1 == "(Intercept)" & is.na(vc$var2)]
     if (length(tau_00_val) == 0) tau_00_val <- NA
     sigma2_val <- vc$vcov[vc$grp == "Residual"]
@@ -1304,7 +1375,9 @@ log_msg("  Saved Phase 6 model comparison CSV")
 
 # Append M7a/M7b to fixed effects table
 fe_phase6_all <- purrr::map2_dfr(phase6_fits_reml, phase6_names, function(fit, name) {
-    if (is.null(fit)) return(tibble::tibble(model = name))
+    if (is.null(fit)) {
+        return(tibble::tibble(model = name))
+    }
     broom.mixed::tidy(fit, effects = "fixed", conf.int = TRUE) |> dplyr::mutate(model = name)
 })
 fe_all <- dplyr::bind_rows(fe_all, fe_phase6_all)
@@ -1312,7 +1385,9 @@ readr::write_csv(fe_all, file.path(FIGS_DIR, "mlm_02_fixed_effects.csv"))
 log_msg("  Updated fixed effects CSV with M7a/M7b")
 
 re_phase6 <- purrr::map2_dfr(phase6_fits_reml, phase6_names, function(fit, name) {
-    if (is.null(fit)) return(tibble::tibble(model = name))
+    if (is.null(fit)) {
+        return(tibble::tibble(model = name))
+    }
     broom.mixed::tidy(fit, effects = "ran_pars") |> dplyr::mutate(model = name)
 })
 re_all <- dplyr::bind_rows(re_all, re_phase6)
@@ -1334,10 +1409,13 @@ hyp_results <- hyp_results |>
 hyp_results <- hyp_results |> dplyr::mutate(p_value = round(p_value, 4))
 readr::write_csv(hyp_results, file.path(FIGS_DIR, "mlm_04_hypothesis_tests.csv"))
 
-p_hyp_final_grob <- gridExtra::tableGrob(hyp_results, rows = NULL,
+p_hyp_final_grob <- gridExtra::tableGrob(hyp_results,
+    rows = NULL,
     theme = gridExtra::ttheme_minimal(base_size = 9)
 )
-p_hyp_final <- ggplot2::ggplot() + ggplot2::annotation_custom(p_hyp_final_grob) + ggplot2::theme_void()
+p_hyp_final <- ggplot2::ggplot() +
+    ggplot2::annotation_custom(p_hyp_final_grob) +
+    ggplot2::theme_void()
 save_tbl(p_hyp_final, "mlm_04_hypothesis_tests.pdf", width = 18, height = 10)
 save_md(hyp_results, file.path(FIGS_DIR, "mlm_04_hypothesis_tests.md"))
 log_msg("  Regenerated hypothesis markdown and PDF with H3a/H3b moderation results")
@@ -1348,13 +1426,13 @@ check_assumptions(m7b_reml, "Model 7b", FIGS_DIR)
 save_vif_plot(check_vif(m7a_reml, "Model 7a"), "Model 7a", figs_dir = FIGS_DIR)
 save_vif_plot(check_vif(m7b_reml, "Model 7b"), "Model 7b", figs_dir = FIGS_DIR)
 
-std_effects_m7   <- purrr::map2_dfr(phase6_fits_reml, phase6_names, compute_standardized_coefs)
-std_effects_all  <- dplyr::bind_rows(std_effects, std_effects_m7)
+std_effects_m7 <- purrr::map2_dfr(phase6_fits_reml, phase6_names, compute_standardized_coefs)
+std_effects_all <- dplyr::bind_rows(std_effects, std_effects_m7)
 readr::write_csv(std_effects_all, file.path(FIGS_DIR, "mlm_05_standardized_effects.csv"))
 log_msg("  Updated standardized effects CSV with M7a/M7b")
 
-pseudo_d_m7      <- purrr::map2_dfr(phase6_fits_reml, phase6_names, compute_level_specific_es)
-pseudo_d_final   <- dplyr::bind_rows(pseudo_d_all, pseudo_d_m7)
+pseudo_d_m7 <- purrr::map2_dfr(phase6_fits_reml, phase6_names, compute_level_specific_es)
+pseudo_d_final <- dplyr::bind_rows(pseudo_d_all, pseudo_d_m7)
 readr::write_csv(pseudo_d_final, file.path(FIGS_DIR, "mlm_06_level_specific_es.csv"))
 log_msg("  Updated level-specific effect sizes CSV with M7a/M7b")
 

@@ -1,18 +1,18 @@
 #!/usr/bin/env Rscript
 # ---------------------------------------------------------------------------
-# data_loader.R -- Shared data loading and canonical variable definitions
+# data_loader.r -- Shared data loading and canonical variable definitions
 #
 # Provides:
-#   load_cleaned_data()  -- loads the cleaned export CSV produced by data_quality.R
+#   load_cleaned_data()  -- loads the cleaned export CSV produced by data_quality.r
 #   VARIABLE_DEFS        -- canonical L1/L2 variable group definitions
 #
-# Used by: eda.R, correlation.R, measurement_model.R, multilevel_model.R
+# Used by: eda.r, correlation.r, measurement_model.r, multilevel_model.r
 #
 # Dependencies: here, readr, common_utils.r (log_msg) must be sourced first.
 # ---------------------------------------------------------------------------
 
 
-#' Load the cleaned panel export CSV produced by data_quality.R
+#' Load the cleaned panel export CSV produced by data_quality.r
 #'
 #' @param show_col_types Logical; passed to readr::read_csv (default FALSE).
 #' @return A data frame with one row per participant-timepoint observation.
@@ -62,10 +62,10 @@ VARIABLE_DEFS <- list(
         "js_mean"    # Job Satisfaction (single item)
     ),
 
-    # L2 extra scales scored but not used in current hypotheses
-    l2_extra_vars = c(
-        "jis_mean",  # Job Insecurity (JIS)
-        "des_mean"   # Desirability of Movement (DES)
+    # L2 environmental control variables (mandatory; grand-mean centered via prep_mlm.r)
+    l2_control_vars = c(
+        "jis_mean",  # Job Insecurity (JIS; Sverke et al. 2002)
+        "des_mean"   # Desirability of Movement (DES; Griffeth et al. 2000)
     ),
 
     # L1 supplementary item: JS captured at tp1 (9AM survey) only.

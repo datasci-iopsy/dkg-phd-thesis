@@ -25,6 +25,7 @@ FN ?= run-qualtrics-scheduling
         uvr_sync uvr_lock uvr_status uvr_doctor \
         power_analysis_dev power_analysis_prod \
         power_analysis_gcp_benchmark power_analysis_gcp_prod \
+        power_analysis_gcp_posthoc \
         power_visual \
         synthetic_analysis synthetic_data_quality \
         synthetic_eda synthetic_measurement \
@@ -142,6 +143,7 @@ help:
 	@echo "   make power_analysis_prod         Full local grid, 1,215 cells, background (~hours)"
 	@echo "   make power_analysis_gcp_benchmark GCP timing probe; prod ~= benchmark x 100"
 	@echo "   make power_analysis_gcp_prod     GCP full grid, 3,645 cells, background"
+	@echo "   make power_analysis_gcp_posthoc  GCP post hoc supplement, 2,250 cells, background"
 	@echo "   make power_visual                Power curve figures (after any run)"
 	@echo ""
 	@echo "SYNTHETIC DATA ANALYSIS"
@@ -379,10 +381,19 @@ power_analysis_gcp_prod: _check_uvr_env validate
 	echo "GCP power analysis started with PID: $$!"; \
 	echo "   Monitor: tail -f analysis/run_power_analysis/logs/*.log"
 
+power_analysis_gcp_posthoc: _check_uvr_env validate
+	@echo "Starting GCP post hoc power analysis (2,250-cell supplement) in background..."
+	@echo ""
+	@mkdir -p "$(ROOT)/analysis/run_power_analysis/logs"
+	@nohup bash "$(ROOT)/analysis/run_power_analysis/main.sh" posthoc_gcp \
+		> "$(ROOT)/analysis/run_power_analysis/logs/posthoc_gcp_$$(date +%Y%m%d_%H%M%S).log" 2>&1 & \
+	echo "GCP post hoc power analysis started with PID: $$!"; \
+	echo "   Monitor: tail -f analysis/run_power_analysis/logs/*.log"
+
 power_visual: _check_uvr_env
 	@echo "Generating power analysis visualizations..."
-	@$(RSCRIPT) "$(ROOT)/analysis/run_power_analysis/scripts/visualize_power_analysis.R" || { \
-		echo "visualize_power_analysis.R failed"; \
+	@$(RSCRIPT) "$(ROOT)/analysis/run_power_analysis/scripts/visualize_power_analysis.r" || { \
+		echo "visualize_power_analysis.r failed"; \
 		exit 1; \
 	}
 	@echo "Visualizations complete. Figures -> analysis/run_power_analysis/figs/"
@@ -393,8 +404,8 @@ power_visual: _check_uvr_env
 
 synthetic_data_quality: _check_uvr_env _check_synthetic_export
 	@echo "Running data quality screening (careless responding)..."
-	@$(RSCRIPT) "$(ROOT)/analysis/run_synthetic_data/scripts/r/data_quality.R" || { \
-		echo "data_quality.R failed"; \
+	@$(RSCRIPT) "$(ROOT)/analysis/run_synthetic_data/scripts/r/data_quality.r" || { \
+		echo "data_quality.r failed"; \
 		exit 1; \
 	}
 	@echo "Data quality complete. Cleaned CSV -> analysis/run_synthetic_data/data/export/"
@@ -402,32 +413,32 @@ synthetic_data_quality: _check_uvr_env _check_synthetic_export
 
 synthetic_eda: _check_uvr_env _check_synthetic_cleaned_export
 	@echo "Running EDA script..."
-	@$(RSCRIPT) "$(ROOT)/analysis/run_synthetic_data/scripts/r/eda.R" || { \
-		echo "eda.R failed"; \
+	@$(RSCRIPT) "$(ROOT)/analysis/run_synthetic_data/scripts/r/eda.r" || { \
+		echo "eda.r failed"; \
 		exit 1; \
 	}
 	@echo "EDA complete. Figures -> analysis/run_synthetic_data/figs/eda/"
 
 synthetic_measurement: _check_uvr_env _check_synthetic_cleaned_export
 	@echo "Running measurement model..."
-	@$(RSCRIPT) "$(ROOT)/analysis/run_synthetic_data/scripts/r/measurement_model.R" || { \
-		echo "measurement_model.R failed"; \
+	@$(RSCRIPT) "$(ROOT)/analysis/run_synthetic_data/scripts/r/measurement_model.r" || { \
+		echo "measurement_model.r failed"; \
 		exit 1; \
 	}
 	@echo "Measurement model complete."
 
 synthetic_mlm: _check_uvr_env _check_synthetic_cleaned_export
 	@echo "Running multilevel model (main analysis)..."
-	@$(RSCRIPT) "$(ROOT)/analysis/run_synthetic_data/scripts/r/multilevel_model.R" || { \
-		echo "multilevel_model.R failed"; \
+	@$(RSCRIPT) "$(ROOT)/analysis/run_synthetic_data/scripts/r/multilevel_model.r" || { \
+		echo "multilevel_model.r failed"; \
 		exit 1; \
 	}
 	@echo "MLM complete. Figures -> analysis/run_synthetic_data/figs/mlm/"
 
 synthetic_correlation: _check_uvr_env _check_synthetic_cleaned_export
 	@echo "Running correlation analysis..."
-	@$(RSCRIPT) "$(ROOT)/analysis/run_synthetic_data/scripts/r/correlation.R" || { \
-		echo "correlation.R failed"; \
+	@$(RSCRIPT) "$(ROOT)/analysis/run_synthetic_data/scripts/r/correlation.r" || { \
+		echo "correlation.r failed"; \
 		exit 1; \
 	}
 	@echo "Correlation analysis complete. Figures -> analysis/run_synthetic_data/figs/corr/"
@@ -438,8 +449,8 @@ synthetic_analysis: synthetic_data_quality synthetic_eda synthetic_correlation s
 
 synthetic_tables: _check_uvr_env _check_synthetic_cleaned_export
 	@echo "Generating publication tables..."
-	@$(RSCRIPT) "$(ROOT)/analysis/run_synthetic_data/scripts/r/publication_tables.R" || { \
-		echo "publication_tables.R failed"; \
+	@$(RSCRIPT) "$(ROOT)/analysis/run_synthetic_data/scripts/r/publication_tables.r" || { \
+		echo "publication_tables.r failed"; \
 		exit 1; \
 	}
 	@echo "Publication tables -> analysis/run_synthetic_data/tables/"
@@ -450,8 +461,8 @@ synthetic_tables: _check_uvr_env _check_synthetic_cleaned_export
 
 study_data_quality: _check_uvr_env _check_study_export
 	@echo "Running study data quality screening..."
-	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/data_quality.R" || { \
-		echo "data_quality.R failed"; \
+	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/data_quality.r" || { \
+		echo "data_quality.r failed"; \
 		exit 1; \
 	}
 	@echo "Data quality complete. Cleaned CSV -> analysis/run_study_analysis/data/export/"
@@ -459,32 +470,32 @@ study_data_quality: _check_uvr_env _check_study_export
 
 study_eda: _check_uvr_env _check_study_cleaned_export
 	@echo "Running study EDA..."
-	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/eda.R" || { \
-		echo "eda.R failed"; \
+	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/eda.r" || { \
+		echo "eda.r failed"; \
 		exit 1; \
 	}
 	@echo "EDA complete. Figures -> analysis/run_study_analysis/figs/eda/"
 
 study_measurement: _check_uvr_env _check_study_cleaned_export
 	@echo "Running study measurement model..."
-	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/measurement_model.R" || { \
-		echo "measurement_model.R failed"; \
+	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/measurement_model.r" || { \
+		echo "measurement_model.r failed"; \
 		exit 1; \
 	}
 	@echo "Measurement model complete. Figures -> analysis/run_study_analysis/figs/cfa/"
 
 study_mlm: _check_uvr_env _check_study_cleaned_export
 	@echo "Running study multilevel model..."
-	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/multilevel_model.R" || { \
-		echo "multilevel_model.R failed"; \
+	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/multilevel_model.r" || { \
+		echo "multilevel_model.r failed"; \
 		exit 1; \
 	}
 	@echo "MLM complete. Figures -> analysis/run_study_analysis/figs/mlm/"
 
 study_correlation: _check_uvr_env _check_study_cleaned_export
 	@echo "Running study correlation analysis..."
-	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/correlation.R" || { \
-		echo "correlation.R failed"; \
+	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/correlation.r" || { \
+		echo "correlation.r failed"; \
 		exit 1; \
 	}
 	@echo "Correlation complete. Figures -> analysis/run_study_analysis/figs/corr/"
@@ -495,8 +506,8 @@ study_analysis: study_data_quality study_eda study_correlation study_measurement
 
 study_tables: _check_uvr_env _check_study_cleaned_export
 	@echo "Generating study publication tables..."
-	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/publication_tables.R" || { \
-		echo "publication_tables.R failed"; \
+	@$(RSCRIPT) "$(ROOT)/analysis/run_study_analysis/scripts/R/publication_tables.r" || { \
+		echo "publication_tables.r failed"; \
 		exit 1; \
 	}
 	@echo "Publication tables -> analysis/run_study_analysis/tables/"
@@ -630,7 +641,7 @@ status:
 	@echo "   Author  : $(AUTHOR)"
 	@echo ""
 	@echo "File counts:"
-	@echo "   R scripts    : $$(find "$(ROOT)/analysis" -name '*.r' -o -name '*.R' 2>/dev/null | wc -l | tr -d ' ') found"
+	@echo "   R scripts    : $$(find "$(ROOT)/analysis" -name '*.r' -o -name '*.r' 2>/dev/null | wc -l | tr -d ' ') found"
 	@echo "   YAML configs : $$(find "$(ROOT)/analysis" -name '*.yaml' 2>/dev/null | wc -l | tr -d ' ') found"
 	@echo "   CSV data     : $$(find "$(ROOT)/analysis" -name '*.csv' 2>/dev/null | wc -l | tr -d ' ') found"
 	@echo "   Python files : $$(find "$(ROOT)/gcp" -name '*.py' 2>/dev/null | wc -l | tr -d ' ') found"

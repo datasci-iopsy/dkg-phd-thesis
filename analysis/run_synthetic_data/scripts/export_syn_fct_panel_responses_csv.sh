@@ -3,7 +3,7 @@
 # analysis/run_synthetic_data/scripts/export_syn_fct_panel_responses_csv.sh
 #
 # Exports fct_syn_all_responses from BigQuery to a dated CSV in data/export/.
-# Run this before corr_analysis.R whenever the BigQuery fact table changes.
+# Run this before corr_analysis.r whenever the BigQuery fact table changes.
 # =============================================================================
 set -euo pipefail
 
@@ -21,7 +21,7 @@ bq query \
 	--project_id=${PROJECT} \
 	--location=US \
 	--use_legacy_sql=false \
-	< "${SQL_FILE}"
+	<"${SQL_FILE}"
 
 echo "Exporting ${TABLE} -> ${OUT_FILE}"
 

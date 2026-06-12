@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # =============================================================================
-# analysis/run_synthetic_data/scripts/r/multilevel_model.R
+# analysis/run_synthetic_data/scripts/r/multilevel_model.r
 #
 # Multilevel Model Building Sequence for Turnover Intentions
 # Following dissertation proposal (Curran & Bauer 2011; Enders & Tofighi 2007)
@@ -72,9 +72,9 @@ source(here::here("analysis", "shared", "utils", "plot_utils.r"))
 source(here::here("analysis", "shared", "utils", "mlm_utils.r"))
 
 # Source domain-specific utilities
-source(here::here("analysis", "run_synthetic_data", "utils", "data_loader.R"))
-source(here::here("analysis", "run_synthetic_data", "utils", "mlm_hypothesis_map.R"))
-source(here::here("analysis", "run_synthetic_data", "utils", "mlm_diagnostics.R"))
+source(here::here("analysis", "run_synthetic_data", "utils", "data_loader.r"))
+source(here::here("analysis", "run_synthetic_data", "utils", "mlm_hypothesis_map.r"))
+source(here::here("analysis", "run_synthetic_data", "utils", "mlm_diagnostics.r"))
 
 # --- Global settings ----------------------------------------------------------
 FIGS_DIR <- here::here("analysis", "run_synthetic_data", "figs", "mlm")
@@ -201,10 +201,10 @@ log_msg("  Centering complete. Total columns: ", ncol(df))
 #   analysis/shared/utils/mlm_utils.r
 #
 # check_assumptions() is sourced from:
-#   analysis/run_synthetic_data/utils/mlm_diagnostics.R
+#   analysis/run_synthetic_data/utils/mlm_diagnostics.r
 #
 # HYPOTHESIS_MAP, get_coef_result(), evaluate_hypotheses() are sourced from:
-#   analysis/run_synthetic_data/utils/mlm_hypothesis_map.R
+#   analysis/run_synthetic_data/utils/mlm_hypothesis_map.r
 # =============================================================================
 
 
@@ -944,7 +944,7 @@ log_msg("  Saved random effects PDF")
 # =============================================================================
 log_msg("=== [14] Building hypothesis testing summary ===")
 
-# evaluate_hypotheses() and HYPOTHESIS_MAP sourced from mlm_hypothesis_map.R.
+# evaluate_hypotheses() and HYPOTHESIS_MAP sourced from mlm_hypothesis_map.r.
 # Produces one row per test with Estimate, p_value, and Supported columns.
 hyp_results <- evaluate_hypotheses(
     fe_all      = fe_all,
@@ -980,7 +980,7 @@ log_msg("  Saved hypothesis tests PDF")
 # =============================================================================
 log_msg("=== [15] Assumption diagnostics ===")
 
-# check_assumptions() sourced from mlm_diagnostics.R; accepts figs_dir explicitly
+# check_assumptions() sourced from mlm_diagnostics.r; accepts figs_dir explicitly
 check_assumptions(m5_reml, "Model 5", FIGS_DIR)
 check_assumptions(m6_reml, "Model 6", FIGS_DIR)
 

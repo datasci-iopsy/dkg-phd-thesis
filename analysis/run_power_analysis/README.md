@@ -30,7 +30,7 @@ The program builds a full factorial grid from configuration parameters, distribu
 
 The architecture follows a thin-wrapper pattern: [`main.sh`](main.sh) handles process lifecycle (log file creation, wall-clock timing), while [`run_power_analysis.r`](scripts/run_power_analysis.r) owns all application logic (path resolution, configuration, uvr activation, parallel execution, and output).
 
-Key entry points: [`main.sh`](main.sh) (bash wrapper), [`scripts/run_power_analysis.r`](scripts/run_power_analysis.r) (orchestrator), and [`scripts/visualize_power_analysis.R`](scripts/visualize_power_analysis.R) (visualization). The visualizer auto-detects the most recent results file, produces SVG power curve figures saved to `figs/`, and scales from dev to prod grids without changes. The simulation engine lives in [`utils/power_analysis_utils.r`](utils/power_analysis_utils.r). Runtime directories (`data/`, `logs/`, `figs/`) are created automatically and gitignored.
+Key entry points: [`main.sh`](main.sh) (bash wrapper), [`scripts/run_power_analysis.r`](scripts/run_power_analysis.r) (orchestrator), and [`scripts/visualize_power_analysis.r`](scripts/visualize_power_analysis.r) (visualization). The visualizer auto-detects the most recent results file, produces SVG power curve figures saved to `figs/`, and scales from dev to prod grids without changes. The simulation engine lives in [`utils/power_analysis_utils.r`](utils/power_analysis_utils.r). Runtime directories (`data/`, `logs/`, `figs/`) are created automatically and gitignored.
 
 ## How it works
 

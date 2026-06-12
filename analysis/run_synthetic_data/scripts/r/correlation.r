@@ -1,13 +1,13 @@
 #!/usr/bin/env Rscript
 # =============================================================================
-# analysis/run_study_analysis/scripts/R/correlation.R
+# analysis/run_synthetic_data/scripts/r/correlation.r
 #
-# Correlation analysis for the real participant panel dataset.
+# Correlation analysis for the synthetic panel dataset.
 # Computes L2 Pearson correlations, L1 standard Pearson correlations, and
 # within-person repeated-measures correlations (Bakdash & Marusich, 2017)
 # using both correlation::correlation (multilevel) and rmcorr::rmcorr_mat.
 #
-# Output: SVG figures + CSV matrices -> analysis/run_study_analysis/figs/corr/
+# Output: SVG figures → analysis/run_synthetic_data/figs/corr/
 # =============================================================================
 
 # --- [0] Libraries and setup -------------------------------------------------
@@ -22,17 +22,23 @@ library(svglite)
 
 options(tibble.width = Inf)
 
+# Source shared utilities (log_msg, ensure_dir, plot helpers)
 source(here::here("analysis", "shared", "utils", "common_utils.r"))
 source(here::here("analysis", "shared", "utils", "plot_utils.r"))
-source(here::here("analysis", "run_study_analysis", "utils", "data_loader.R"))
-source(here::here("analysis", "run_study_analysis", "utils", "prep_levels.R"))
+source(here::here("analysis", "run_synthetic_data", "utils", "data_loader.r"))
 
-FIGS_DIR <- here::here("analysis", "run_study_analysis", "figs", "corr")
+# --- Global settings ---------------------------------------------------------
+FIGS_DIR <- here::here("analysis", "run_synthetic_data", "figs", "corr")
 ensure_dir(FIGS_DIR)
 
 #' Reshape a correlation::correlation result into a symmetric square matrix
 #'
-#' @param corr_obj Data frame with columns Parameter1, Parameter2, and r.
+#' Pivots the long-format correlation data frame to wide, forces rows and
+#' columns into the same sorted order (pivot_wider does not guarantee this),
+#' and sets the diagonal to 1.
+#'
+#' @param corr_obj Data frame or tibble with columns "Parameter1", "Parameter2",
+#'   and "r" as returned by correlation::correlation().
 #' @return Numeric square matrix with row/column names and diagonal equal to 1.
 corr_to_matrix <- function(corr_obj) {
     df <- as.data.frame(corr_obj)[, c("Parameter1", "Parameter2", "r")]
@@ -40,14 +46,15 @@ corr_to_matrix <- function(corr_obj) {
         df,
         dplyr::rename(df, Parameter1 = Parameter2, Parameter2 = Parameter1)
     )
-    wide <- tidyr::pivot_wider(sym, names_from = Parameter2, values_from = r)
-    vars <- wide$Parameter1
-    mat  <- as.matrix(wide[, vars])
+    wide  <- tidyr::pivot_wider(sym, names_from = Parameter2, values_from = r)
+    vars  <- wide$Parameter1                    # row order
+    mat   <- as.matrix(wide[, vars])            # columns forced to same order as rows
     rownames(mat) <- vars
     diag(mat) <- 1
     mat
 }
 
+# Base-R SVG save helper bound to FIGS_DIR (svglite device, for corrplot etc.)
 save_corr_svg <- make_save_base_svg(FIGS_DIR)
 
 
@@ -56,10 +63,31 @@ save_corr_svg <- make_save_base_svg(FIGS_DIR)
 # =============================================================================
 log_msg("=== [1] Loading data ===")
 
-df_raw   <- load_cleaned_data()
-levels   <- partition_levels(df_raw)
-df_l2    <- levels$l2
-df_l1    <- levels$l1
+df_raw <- load_cleaned_data()
+
+# L2: one row per participant (time-invariant variables)
+df_l2 <- df_raw |>
+    dplyr::distinct(response_id, .keep_all = TRUE) |>
+    dplyr::select(
+        response_id,
+        age, ethnicity, gender, job_tenure, edu_lvl, is_remote,
+        pa_mean, na_mean, br_mean, vio_mean, js_mean
+    )
+
+# L1: all rows (time-varying variables)
+df_l1 <- df_raw |>
+    dplyr::select(
+        response_id, timepoint,
+        pf_mean, cw_mean, ee_mean,
+        comp_mean, auto_mean, relt_mean,
+        atcb_mean, meetings_count, meetings_mins,
+        turnover_intention_mean
+    )
+
+log_msg(
+    "Partitioned: L2 n=", nrow(df_l2),
+    "; L1 n=", nrow(df_l1), " (", dplyr::n_distinct(df_l1$response_id), " participants)"
+)
 
 
 # =============================================================================
@@ -71,21 +99,23 @@ l2_corr <- df_l2 |>
     dplyr::select(where(is.numeric)) |>
     correlation::correlation(method = "pearson", redundant = FALSE)
 
+l2_mat <- summary(l2_corr) |> as.data.frame()
+log_msg("L2 correlation matrix: ", nrow(l2_mat), " pairs")
+
 l2_sq <- corr_to_matrix(l2_corr)
-log_msg("L2 correlation matrix: ", nrow(l2_sq), " x ", ncol(l2_sq))
 
 write.csv(l2_sq, file.path(FIGS_DIR, "corr_01_l2_pearson_matrix.csv"))
 log_msg("Saved: corr_01_l2_pearson_matrix.csv")
 
-save_corr_svg("corr_l2_pearson.svg", width = 12, height = 12, {
+save_corr_svg("corr_l2_pearson.svg", width = 10, height = 10, {
     corrplot::corrplot(
         l2_sq,
-        method      = "color",
-        type        = "lower",
+        method    = "color",
+        type      = "lower",
         addCoef.col = "black",
-        number.cex  = 0.55,
-        title       = "L2 Pearson correlations (between-person)",
-        mar         = c(0, 0, 2, 0)
+        number.cex  = 0.65,
+        title     = "L2 Pearson correlations (between-person)",
+        mar       = c(0, 0, 2, 0)
     )
 })
 
@@ -96,7 +126,7 @@ save_corr_svg("corr_l2_pearson.svg", width = 12, height = 12, {
 log_msg("=== [3] L1 standard Pearson correlations ===")
 
 l1_corr <- df_l1 |>
-    dplyr::select(-response_id, -duration) |>
+    dplyr::select(-response_id) |>
     correlation::correlation(method = "pearson", redundant = FALSE)
 
 l1_sq <- corr_to_matrix(l1_corr)
@@ -126,7 +156,6 @@ log_msg("=== [4] Within-person repeated-measures correlations ===")
 log_msg("  [4a] correlation::correlation (multilevel = TRUE)")
 
 mlm_corr <- df_l1 |>
-    dplyr::select(-duration) |>
     correlation::correlation(
         method     = "pearson",
         multilevel = TRUE,
@@ -136,43 +165,38 @@ mlm_corr <- df_l1 |>
 mlm_mat <- corr_to_matrix(mlm_corr)
 
 # --- 4b: rmcorr (Bakdash & Marusich, 2017) ----------------------------------
-# js_tp1_mean excluded: captured only at tp1 (9AM); NULL at tp2/tp3 by survey
-# design. A within-person correlation on a tp1-only item is not interpretable.
 log_msg("  [4b] rmcorr::rmcorr_mat")
 
-rmc_vars <- c(
+l1_vars <- c(
     "timepoint",
     "pf_mean", "cw_mean", "ee_mean",
     "comp_mean", "auto_mean", "relt_mean",
-    "atcb_mean", "meetings_count", "meetings_time",
+    "atcb_mean", "meetings_count", "meetings_mins",
     "turnover_intention_mean"
 )
 
-df_l1_rmc <- df_l1 |>
-    dplyr::select(response_id, dplyr::all_of(rmc_vars)) |>
-    tidyr::drop_na()
-
 rmc_corr <- rmcorr::rmcorr_mat(
     participant = response_id,
-    variables   = rmc_vars,
-    dataset     = df_l1_rmc,
+    variables   = l1_vars,
+    dataset     = df_l1,
     CI.level    = 0.95
 )
 
 # NaN in the rmcorr matrix occurs when SSFactor + SSresidual collapses to zero
 # for a near-zero within-person correlation (numerical artifact, not missing data).
+# Replace NaN with 0 so corrplot renders the cell rather than displaying "?".
 rmc_corr$matrix[is.nan(rmc_corr$matrix)] <- 0
 
 # Align variable ordering to shared variables
 shared_vars <- intersect(colnames(rmc_corr$matrix), rownames(mlm_mat))
-mlm_sq  <- mlm_mat[shared_vars, shared_vars]
-rmc_sq  <- rmc_corr$matrix[shared_vars, shared_vars]
+mlm_sq <- mlm_mat[shared_vars, shared_vars]
+rmc_sq <- rmc_corr$matrix[shared_vars, shared_vars]
 
 log_msg("  Shared variables for comparison: ", length(shared_vars))
 
 write.csv(mlm_sq, file.path(FIGS_DIR, "corr_03_mlm_between_matrix.csv"))
 write.csv(rmc_sq, file.path(FIGS_DIR, "corr_04_rmcorr_within_matrix.csv"))
-log_msg("Saved: corr_03_mlm_between_matrix.csv, corr_04_rmcorr_within_matrix.csv")
+log_msg("Saved: corr_03_mlm_between_matrix.csv and corr_04_rmcorr_within_matrix.csv")
 
 # --- 4c: side-by-side comparison --------------------------------------------
 save_corr_svg("corr_comparison.svg", width = 20, height = 10, {
@@ -221,41 +245,5 @@ save_corr_svg("corr_rmc.svg", width = 10, height = 10, {
         mar         = c(0, 0, 2, 0)
     )
 })
-
-# =============================================================================
-# [5] MANUSCRIPT FIGURE: between-person (L2 Pearson) + within-person (rmcorr)
-# -----------------------------------------------------------------------------
-# This is the primary correlation figure for the methods/results section.
-# L2 Pearson is the appropriate between-person estimate; rmcorr (Bakdash &
-# Marusich 2017) is the appropriate within-person estimate. The multilevel
-# approach (section 4a) uses partial correlations and attenuates within-person
-# associations; rmcorr preserves the full within-person signal.
-# =============================================================================
-log_msg("=== [5] Manuscript figure: L2 Pearson + rmcorr ===")
-
-save_corr_svg("corr_between_within.svg", width = 24, height = 12, {
-    par(mfrow = c(1, 2))
-    corrplot::corrplot(
-        l2_sq,
-        method      = "color",
-        type        = "lower",
-        addCoef.col = "black",
-        number.cex  = 0.75,
-        tl.cex      = 0.85,
-        title       = "Between-person correlations (L2 Pearson)",
-        mar         = c(0, 0, 2, 0)
-    )
-    corrplot::corrplot(
-        rmc_sq,
-        method      = "color",
-        type        = "lower",
-        addCoef.col = "black",
-        number.cex  = 0.75,
-        tl.cex      = 0.85,
-        title       = "Within-person correlations (rmcorr; Bakdash & Marusich 2017)",
-        mar         = c(0, 0, 2, 0)
-    )
-})
-log_msg("Saved: corr_between_within.svg")
 
 log_msg("=== Correlation analysis complete. Figures -> ", FIGS_DIR, " ===")

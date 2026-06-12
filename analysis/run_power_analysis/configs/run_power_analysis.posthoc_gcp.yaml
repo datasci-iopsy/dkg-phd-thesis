@@ -1,0 +1,22 @@
+# * Power Analysis Configuration
+# * Version: Post Hoc GCP (supplementary grid -- 2,250-cell post hoc confirmation)
+# * Purpose: extend the a priori prod_gcp grid to the study's actual conditions:
+# *   ICC up to ~0.80 (observed turnover-intention ICC) and finer L1/L2 effect nodes
+# *   bracketing the observed standardized effects (~.13, .20, .31, .46).
+# * Disjoint from prod_gcp (ICC values do not overlap), so results are a clean supplement.
+# * Recommended instance: c3-highcpu-88 (auto-detect yields 86 workers = 88 vCPUs - 2)
+params:
+  max_cores: # auto-detect (available_cores - 2); on c3-highcpu-88 this yields 86 workers
+  n_lvl1: [3]
+  n_lvl2: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+  lvl1_effect_std: [0.10, 0.15, 0.20, 0.30, 0.50]
+  lvl2_effect_std: [0.10, 0.15, 0.20, 0.30, 0.50]
+  xlvl_effect_std: [0.10, 0.30, 0.50]
+  icc: [0.60, 0.70, 0.80]
+  rand_slope_std: [0.09]
+  alpha: [0.05]
+  use_REML: [TRUE]
+  n_sims: 1000
+  verbose: FALSE
+  return_df: TRUE
+  rand_seed: 8762

@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # ---------------------------------------------------------------------------
-# mlm_diagnostics.R — MLM residual and random-effect diagnostic plots
+# mlm_diagnostics.r — MLM residual and random-effect diagnostic plots
 #
 # Provides:
 #   check_assumptions()  — 4-panel diagnostic SVG for a fitted lmer model

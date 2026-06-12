@@ -129,9 +129,9 @@ The `correlation::correlation(multilevel = TRUE)` approach (lme4-based partial c
 
 ### L2 Single-Level CFA (between-person scales)
 
-Four factors measured once at intake: Positive Affect (POS_AFF, 5 items), Negative Affect (NEG_AFF, 5 items), PC Breach (PCB, 5 items), PC Violation (PCV, 4 items). Estimated with MLR.
+Five factors measured once at intake: Positive Affect (POS_AFF, 5 items), Negative Affect (NEG_AFF, 5 items), PC Breach (PCB, 5 items), PC Violation (PCV, 4 items), Desirability of Movement (DES, 2 items). Estimated with MLR. DES is a just-identified 2-indicator factor (0 df); its inclusion does not change the testable df of the other four factors.
 
-**Fit**: χ²(146) = 250.83, *p* < .001; CFI = .967; TLI = .961; RMSEA = .052 [.041, .063]; SRMR = .046
+**Fit**: χ²(179) = 299.40, *p* < .001; CFI = .967; TLI = .962; RMSEA = .049 [.039, .058]; SRMR = .044
 
 All loadings significant (*p* < .001); standardized loadings range .508 -- .922.
 
@@ -139,49 +139,75 @@ All loadings significant (*p* < .001); standardized loadings range .508 -- .922.
 
 | Factor | ω |
 |---|---|
-| POS_AFF | .773 |
-| NEG_AFF | .815 |
-| PCB | .943 |
-| PCV | .921 |
+| POS_AFF | .774 |
+| NEG_AFF | .817 |
+| PCB | .942 |
+| PCV | .919 |
+| DES | .881 |
 
 ### L1 Multilevel CFA (within-person scales)
 
 Seven factors measured at each timepoint: PF (5 items; pf3 excluded -- see Scale Scoring), CW (5 items), EE (3 items), NF Competence (4 items), NF Autonomy (4 items), NF Relatedness (4 items), ATCB marker (4 items). MCFA with within- and between-person decomposition (Lai, 2021); estimated with MLR.
 
-**Fit**: χ²(712) = 1320.81, *p* < .001; CFI = .944; TLI = .936; RMSEA = .033 [.030, .036]; SRMR_within = .049; SRMR_between = .081
+**Fit**: χ²(712) = 1348.47, *p* < .001; CFI = .943; TLI = .935; RMSEA = .033 [.031, .036]; SRMR_within = .049; SRMR_between = .077
 
-RMSEA is particularly strong (.033); SRMR_between (.081) slightly elevated relative to the within level, consistent with modest between-person item variance in daily diary designs.
+RMSEA is particularly strong (.033); SRMR_between (.077) slightly elevated relative to the within level, consistent with modest between-person item variance in daily diary designs.
 
 **McDonald's omega -- within-level** (state reliability, key for ESM inference):
 
 | Factor | ω_within |
 |---|---|
-| PF | .817 |
-| CW | .852 |
-| EE | .613 |
-| NF Competence | .550 |
-| NF Autonomy | .558 |
-| NF Relatedness | .618 |
-| ATCB (marker) | .492 |
+| PF | .809 |
+| CW | .844 |
+| EE | .607 |
+| NF Competence | .563 |
+| NF Autonomy | .554 |
+| NF Relatedness | .619 |
+| ATCB (marker) | .483 |
 
 **McDonald's omega -- between-level** (person-mean / trait reliability):
 
 | Factor | ω_between |
 |---|---|
 | PF | .973 |
-| CW | .985 |
-| EE | .958 |
-| NF Competence | .966 |
+| CW | .986 |
+| EE | .957 |
+| NF Competence | .969 |
 | NF Autonomy | .949 |
 | NF Relatedness | .939 |
 | ATCB (marker) | .983 |
 
 **Notes for write-up**:
-- Within-level omegas for NF facets (.550 -- .618) and EE (.613) are moderate. This is expected in ESM designs: state-level fluctuation carries more item-specific noise than stable trait scores. PF (.817) and CW (.852) show strong within-level reliability.
+- Within-level omegas for NF facets (.554 -- .619) and EE (.607) are moderate. This is expected in ESM designs: state-level fluctuation carries more item-specific noise than stable trait scores. PF (.817) and CW (.852) show strong within-level reliability.
+- Level-specific ω_W and ω_B are reported separately for all factors per Geldhof et al. (2014): reliability in multilevel data must be evaluated at each level because measurement error accumulates at the within-person level.
 - Omega computed directly from λ, φ, θ parameter estimates (McDonald, 1999; Lai, 2021). semTools::compRelSEM() not used for MCFA levels due to deprecated config= argument in semTools >= 0.5-8.
 - Negative between-level residual variances (Heywood cases) clamped to 0 before omega computation, consistent with semTools internal convention.
-- Single-item measures excluded from CFA: Job Satisfaction (js1, tp1 only) and Turnover Intention (single item, L1).
-- Cite: Bakdash & Marusich (2017) for rmcorr; Lai (2021) for MCFA omega; Vandenberg & Lance (2000) for measurement equivalence rationale (pf3 exclusion).
+- Single-item measures excluded from CFA (JS, JIS): MCFA requires at least two indicators per latent factor; a single item has no within-variable covariance to decompose and cannot partition within/between variance. These variables are entered as observed L2 covariates in the MLM (Muthén, 1994). This is not a limitation; it is the correct specification.
+- Turnover Intention (TI): single item measured at each of three ESM timepoints. TI was NOT included in the MCFA for the same reason (no factor structure to estimate from one item). Instead, its between/within variance partition was confirmed via the ICC from the unconditional MLM (M0): ICC = .792, indicating that 79.2% of TI variance is between-person and 20.8% is within-person, sufficient to support both L1 and L2 hypothesis tests (Song et al., 2023). Manuscript framing: "Given that TI was measured as a single item at each timepoint, internal consistency was not assessable. The between- and within-person variance structure of TI was evaluated by examining its ICC from the unconditional model (ICC = .792), confirming meaningful variability at both levels."
+- Desirability of Movement (DES): 2-item factor (des1, des2) included in the L2 CFA. A 2-indicator factor is just identified (0 df); fit cannot be tested independently but omega is estimable.
+- Cite: Bakdash & Marusich (2017) for rmcorr; Lai (2021) for MCFA omega; Geldhof et al. (2014) for level-specific reliability; Vandenberg & Lance (2000) for measurement equivalence rationale (pf3 exclusion); Muthén (1994) for MCFA framework; Song et al. (2023) for single-item ESM DV validation.
+
+### Metric Invariance Test
+
+The current MCFA (section above) is a **configural** model: same factor structure at L1 (within-person) and L2 (between-person), but loadings are free to differ across levels. Metric invariance constrains loadings to be equal across levels, which is required to interpret the constructs as meaning the same thing at both levels (Hox, 2010) -- an assumption that is implicitly made when the same item block enters both the within-person (CWC) and between-person (person-mean) predictors in the MLM.
+
+**Test**: Satorra-Bentler scaled chi-square difference test (configural vs. metric), appropriate for MLR.
+
+**Result**: SB-Δχ²(22) = -2.35, *p* = 1.00 -- **metric invariance supported**. The constrained metric model (equal loadings at L1 and L2) does not produce a meaningful degradation in fit relative to the configural model. Factor loadings can be treated as equivalent across the within-person and between-person levels, providing psychometric justification for using the same items to operationalize both the CWC within-person predictors and the person-mean between-person predictors in the MLM.
+
+**Note for manuscript reporting**: A negative Satorra-Bentler scaled chi-square difference is a known artifact of the scaling correction: when the scaling factor differs between the configural and metric models, the scaled difference can be negative even when the raw chi-square increases. This does not indicate misspecification or a computational error; it reinforces metric invariance support. Suggested reporting language: "SB-Δχ²(22) = -2.35, *p* = 1.00; the negative value reflects the Satorra-Bentler scaling correction and indicates no meaningful degradation in fit when loadings are constrained to equality across levels."
+
+| Model | χ² | df | SB-Δχ² | Δdf | *p* |
+|---|---|---|---|---|---|
+| Configural | 1689.61 | 712 | -- | -- | -- |
+| Metric (equal loadings) | 1762.47 | 734 | -2.35 | 22 | 1.00 |
+
+**Known limitation**: A saturated between-level model (all L2 variances and covariances free, no latent factor at L2) was not tested as a robustness check (Hox, 2010). This model would diagnose constructs that exist only as within-person processes with minimal coherent between-person structure. Future work should include this check.
+
+**Known limitation**: Single-item reliability for TI could not be assessed via within-survey retest because the protocol did not include item repetition. This precludes the m-Path approach (Dejonckheere et al., 2022). Future ESM designs measuring TI as a single item should consider including a repeated item within the same survey occasion.
+
+- Cite: Hox (2010) for configural/metric invariance framework; Geldhof et al. (2014) for level-specific reliability; Menghini et al. (2024) for ESM MCFA template; Dejonckheere et al. (2022) for single-item retest reliability.
+- Output: `figs/cfa/cfa_08_metric_invariance.md`
 
 ### CFA Marker Variable Technique
 
@@ -205,13 +231,19 @@ Abbreviated strategy from Williams et al. (2010) and Williams & McGonagle (2016)
 
 All within-person associations between ATCB and substantive constructs are near zero (|r| < .10), confirming ATCB functions as a valid marker variable in this ESM sample.
 
-**Step 2 -- Baseline**: The MCFA from the previous section (7-factor, CFI = .944, RMSEA = .033) serves as the Baseline (Model 1).
+**Step 2 -- Baseline**: The MCFA from the previous section (7-factor, CFI = .943, RMSEA = .033) serves as the Baseline (Model 1).
 
-**Step 3 -- Method-U (free ATCB cross-loadings at L1)**: ATCB was allowed to freely cross-load on all 25 L1 substantive items. The Satorra-Bentler scaled chi-square difference test indicated no significant improvement in fit: SB-χ²(25) = 1.43, *p* = 1.00. The 25 additional cross-loading parameters contributed essentially zero improvement over the Baseline.
+**Step 3 -- Method-U (free ATCB cross-loadings at L1)**: ATCB was allowed to freely cross-load on all 25 L1 substantive items. The Satorra-Bentler scaled chi-square difference test was significant: SB-χ²(25) = 68.69, *p* < .001. The 25 additional cross-loading parameters produced a statistically significant improvement in fit. Importantly, this does NOT automatically indicate substantive common method bias; the test simply detects that ATCB shares some variance with substantive items beyond its marker role. Proceeding to Method-R is required to assess whether this contamination biases the substantive factor relationships.
 
-**Step 4 -- Method-R**: Not run; Method-U was not significant.
+**Step 4 -- Method-R (ATCB cross-loadings + L1 factor covariances fixed to Baseline)**: L1 factor covariances were fixed to the Baseline model values while ATCB cross-loadings remained free. The difference between Method-U and Method-R was not significant: SB-χ²(21) = 2.00, *p* = 1.00. The substantive factor correlations are invariant between Method-U and Method-R, meaning that ATCB's cross-loadings do not systematically bias the factor relationships among the substantive constructs.
 
-**Conclusion**: No evidence of common method bias at Level 1. Freely estimating ATCB cross-loadings on all within-person items produced no meaningful change in model fit, indicating that a common method factor does not account for systematic variance in the ESM responses. The marker variable technique supports the discriminant validity of the within-person measurement model.
+| Model | χ² | df | SB-Δχ² | Δdf | *p* |
+|---|---|---|---|---|---|
+| Baseline (MCFA) | 1348.47 | 712 | -- | -- | -- |
+| Method-U (free ATCB cross-loadings) | 1373.30 | 687 | 68.69 | 25 | < .001 |
+| Method-R (Method-U + fixed L1 factor covariances) | 1325.38 | 708 | 2.00 | 21 | 1.00 |
+
+**Conclusion**: Although ATCB showed statistically significant cross-loadings in Method-U, Method-R confirms that these cross-loadings do not bias the substantive factor correlations (Method-U vs. Method-R: *p* = 1.00). The marker variable technique indicates that common method variance does not meaningfully distort the discriminant validity of the within-person measurement model. This is the appropriate evidential standard: the absence of Method-R significance is the criterion, not the absence of Method-U significance.
 
 - Cite: Williams et al. (2010); Williams & McGonagle (2016); Miller & Simmering (2023); Miller et al. (2024).
 - Outputs: `figs/cfa/cfa_05_marker_evidence.csv`, `cfa_06_marker_fit.csv`, `cfa_07_marker_lrt.csv`
@@ -228,17 +260,57 @@ Cross-classified data: N = 322 L2 units (participants) x 3 L1 observations per p
 
 | Model | AIC | BIC | R2_mar | R2_con | tau_00 | LRT chi2 | df | p |
 |---|---|---|---|---|---|---|---|---|
-| M0: Unconditional means | 2226.8 | 2241.4 | .000 | .800 | .989 | -- | -- | -- |
-| M1: Fixed time | 2224.7 | 2244.2 | .002 | .803 | .990 | 10.12 | 1 | .001 |
-| M2: Random slope | 2207.2 | 2236.5 | .002 | .831 | .872 | 21.43 | 2 | <.001 |
-| M3: L1 within-person (H1a, H2a) | 2166.6 | 2239.7 | .046 | .841 | .890 | 107.40 | 9 | <.001 |
-| M4: L1 within + between (H1b, H2b) | 1969.3 | 2081.4 | .495 | .841 | .376 | 251.27 | 8 | <.001 |
-| M5: L2 study vars (H4a, H4b, H5) | 1924.6 | 2061.1 | .576 | .841 | .290 | 76.67 | 5 | <.001 |
-| M6: Demographic covariates | 1968.5 | 2153.7 | .575 | .843 | .294 | 6.27 | 10 | .792 |
+| M0: Unconditional means | 2331.3 | 2346.0 | .000 | .792 | .965 | -- | -- | -- |
+| M1: Fixed time | 2328.4 | 2348.0 | .002 | .795 | .967 | 10.97 | 1 | .001 |
+| M2: Random slope | 2309.8 | 2339.3 | .002 | .823 | .843 | 22.45 | 2 | <.001 |
+| M3: L1 within-person (H1a, H2a) | 2273.4 | 2347.2 | .046 | .831 | .857 | 103.26 | 9 | <.001 |
+| M4: L1 within + between (H1b, H2b) | 2062.9 | 2176.0 | .496 | .831 | .354 | 265.16 | 8 | <.001 |
+| M5: L2 study vars + controls (H4a, H4b, H5) | 2031.6 | 2179.1 | .572 | .832 | .277 | 77.11 | 7 | <.001 |
+| M6: Demographic screening | 2056.4 | 2223.5 | .570 | .833 | .280 | 1.25 | 4 | .870 |
 
-- **ICC (M0)**: R2_conditional = .800, confirming substantial between-person variance in TI (prerequisite met).
-- **M4 drives the explained variance**: R2_marginal jumps from .046 to .495 when between-person means enter; L1 person-mean components carry the bulk of the predictive signal.
-- **M6 non-significant**: LRT p = .792; demographic covariates (gender, is_remote, edu_lvl, ethnicity) add no incremental fit over M5. recruitment_source was entered in M3-M5 per the manuscript's mandatory control specification and was not re-screened.
+- **ICC (M0)**: R2_conditional = .792, confirming substantial between-person variance in TI (prerequisite met). With 79.2% of TI variance between-person, only 20.8% is within-person variance available for L1 predictors to explain. Significant L1 effects despite this constraint argue for within-person construct sensitivity; this framing belongs in the Discussion rather than presenting the high ICC as a neutral observation.
+- **M4 drives the explained variance**: R2_marginal jumps from .046 to .496 when between-person means enter; L1 person-mean components carry the bulk of the predictive signal.
+- **M5 adds 7 L2 parameters** (pa, na, jis, des, br, vio, js -- all grand-mean centered); LRT df = 7.
+- **M6 non-significant**: LRT p = .870; only `is_remote` was screened (Bernerth & Aguinis, 2016 threshold: r >= .10; gender, edu_lvl, and ethnicity did not meet threshold). recruitment_source entered in M3-M5 as mandatory control and was not re-screened.
+
+### ML vs. REML: Estimation Strategy
+
+**ML (Maximum Likelihood)** maximizes the likelihood of the data given both fixed and random effect parameters simultaneously. Treating fixed effects as known when estimating variance components produces downwardly biased estimates of τ₀₀, τ₁₁, and σ² (analogous to dividing by *n* rather than *n-1*). **REML (Restricted Maximum Likelihood)** maximizes the likelihood of the residuals after projecting out fixed effects, yielding unbiased variance component estimates.
+
+With only 3 Level 1 occasions per person, τ₁₁ is already estimated with limited information; ML would shrink it further. With M5 containing 25+ fixed effects, the REML degrees-of-freedom correction is non-trivial.
+
+**Critical constraint**: REML LRT is valid only when comparing models that differ *solely* in random effects structure with identical fixed effects. When fixed effects differ across nested models (M0 through M6), ML LRT is required because the REML log-likelihood is computed on a different residual space for each fixed-effect specification and cannot be directly compared.
+
+Fixed effect point estimates (β coefficients) are typically very similar between ML and REML at N = 322. The practical differences are in standard errors (REML SEs slightly larger, more conservative) and variance components (REML unbiased). More conservative REML SEs are the appropriate basis for reporting small L1 within-person effects.
+
+### L2 Environmental Controls (M5 and above)
+
+Two between-person controls were promoted to mandatory L2 covariates alongside the hypothesized study variables (PA, NA, BR, VIO, JS):
+
+**Job Insecurity (JIS; jis_mean)** -- adapted from Sverke et al. (2002). Measures perceived threat to continued employment. Single item; grand-mean centered to `jis_mean_c`. Included because dispositional job insecurity represents a stable environmental pressure on turnover intentions independent of the within-person burnout and need-frustration processes under study. Omitting it risks conflating between-person differences in employment precarity with the substantive L2 effects.
+
+**Desirability of Movement / Evaluation of Stability (DES; des_mean)** -- 2-item scale (des1, des2); grand-mean centered to `des_mean_c`. Measures individual differences in preference for occupational movement versus stability (Griffeth et al., 2000). Included as a distal dispositional antecedent of TI that is theoretically orthogonal to momentary burnout and need frustration. Omitting it could inflate the residual variance and potentially attenuate L2 between-person effects.
+
+Both variables appear in M5, M6, M7a, and M7b as covariates. JIS is excluded from the L2 CFA (single item, omega not estimable); DES is included as a 2-indicator factor.
+
+**Recruitment source covariate justification**: `recruitment_source` (CloudResearch vs. snowball) was entered as a mandatory control in M3-M5 but was not screened using the Bernerth & Aguinis (2016) r >= .10 threshold applied to demographics in M6. Manuscript must resolve this: either (a) verify that `recruitment_source` meets the .10 threshold and report its bivariate correlation with TI, or (b) state explicitly that it was held as a structural design control not subject to empirical screening -- because the two sources differ by design, not just empirically -- and that the threshold applied only to the M6 demographic block. Option (b) is the cleaner framing.
+
+**Predictor vs. covariate classification** (for write-up framing):
+
+| Variable | Role | Basis |
+|---|---|---|
+| Age, gender, job tenure | Demographic covariate | No directional hypothesis; screened in M6 |
+| `is_remote` | Demographic covariate | Passed Bernerth & Aguinis threshold; retained in M6 |
+| PA (pa_mean), NA (na_mean) | L2 covariate | Dispositional affect upstream of burnout/NF; no directional hypothesis |
+| `recruitment_source` | Structural covariate | Mandatory control M3-M5; structural difference between sources |
+| JS (js_mean) | L2 predictor of interest | Directional hypothesis H5 |
+| PCB (br_mean) | L2 predictor of interest | Directional hypothesis H4a |
+| PCV (vio_mean) | L2 predictor of interest | Directional hypothesis H4b |
+| JIS, DES | L2 covariate | Post-hoc environmental controls; no directional hypothesis |
+
+M5 contains theoretically motivated predictors and structural controls. M6 is a sensitivity check showing focal effects survive demographic controls. This distinction shapes how each model is narrated in Results.
+
+- Cite: Sverke, Hellgren, & Naswall (2002) for JIS; Griffeth, Hom, & Gaertner (2000) for DES; Bernerth & Aguinis (2016) for M6 covariate screening threshold.
 
 ### Hypothesis tests
 
@@ -246,58 +318,97 @@ Cross-classified data: N = 322 L2 units (participants) x 3 L1 observations per p
 
 | Hypothesis | Term | Estimate | p | Model |
 |---|---|---|---|---|
-| H1a:comp | WP competence frustration | +.138 | .003 | M3 |
-| H2a:pf | WP physical fatigue | +.180 | <.001 | M3 |
-| H2a:ee | WP emotional exhaustion | +.218 | <.001 | M3 |
-| H2b:pf | BP physical fatigue mean | +.520 | <.001 | M4 |
-| H2b:ee | BP emotional exhaustion mean | +.544 | <.001 | M4 |
-| H4a | BP PC breach | +.131 | .049 | M5 |
-| H5 | BP job satisfaction | -.178 | <.001 | M5 |
+| H1a:comp | WP competence frustration | +.115 | .013 | M3 |
+| H2a:pf | WP physical fatigue | +.165 | <.001 | M3 |
+| H2a:ee | WP emotional exhaustion | +.222 | <.001 | M3 |
+| H2b:pf | BP physical fatigue mean | +.529 | <.001 | M4 |
+| H2b:ee | BP emotional exhaustion mean | +.547 | <.001 | M4 |
+| H4a | BP PC breach | +.128 | .050 | M5 |
+| H5 | BP job satisfaction | -.163 | <.001 | M5 |
 
 **Not supported**:
 
 | Hypothesis | Term | Estimate | p | Note |
 |---|---|---|---|---|
-| H1a:auto | WP autonomy frustration | -.008 | .806 | Wrong direction |
-| H1a:relt | WP relatedness frustration | +.006 | .900 | ns |
-| H1b (all) | BP NF facet means | .042 to .107 | .262 to .454 | ns |
-| H2a:cw | WP cognitive weariness | +.008 | .834 | ns |
-| H2b:cw | BP cognitive weariness mean | -.227 | .002 | Wrong direction |
-| H3a:count | Count x NF composite | -.075 | .308 | ns |
-| H3a:time | Time x NF composite | -.002 | .399 | ns |
-| H3b:count | Count x burnout composite | +.007 | .920 | ns |
-| H3b:time | Time x burnout composite | +.003 | .179 | ns |
-| H4b | BP PC violation | +.092 | .217 | ns |
+| H1a:auto | WP autonomy frustration | -.005 | .888 | Wrong direction |
+| H1a:relt | WP relatedness frustration | +.005 | .917 | ns |
+| H1b (all) | BP NF facet means | .047 to .101 | .209 to .383 | ns |
+| H2a:cw | WP cognitive weariness | +.027 | .499 | ns |
+| H2b:cw | BP cognitive weariness mean | -.233 | .001 | Wrong direction |
+| H3a:count | Count x NF composite | -.072 | .335 | ns |
+| H3a:time | Time x NF composite | -.002 | .392 | ns |
+| H3b:count | Count x burnout composite | +.000 | .999 | ns |
+| H3b:time | Time x burnout composite | +.003 | .196 | ns |
+| H4b | BP PC violation | +.093 | .205 | ns |
+
+**Examiner-level flags for specific findings:**
+
+- **H2b:cw (actively contrary, not null)**: β = -.233, *p* = .001 is in the wrong direction and significant. This cannot be reported only as "not supported" -- it is a contradictory finding that directly counters the COR depletion logic. A Discussion paragraph must address it. Candidate explanations: (1) suppression from multicollinearity with PF at the between-person level (rmcorr r = .651 within-person; the L2 person-mean overlap is likely similar), where CW's between-person coefficient is displaced once PF's dominant L2 signal enters; (2) range restriction at the between-person level; (3) a compensatory habituation effect where chronically cognitively weary workers hold on more tightly to avoid job transition uncertainty. One of these must be engaged directly in the Discussion.
+
+- **H4a (borderline p + below-80% power)**: β = +.128, *p* = .050 exactly, estimated power ~.60. The power caveat must be integrated directly with the hypothesis test result in Results, not deferred to Limitations. Suggested framing: "H4a was supported at the threshold level (β = +.128, *p* = .050); given the borderline *p*-value and estimated power of approximately .60 at this sample size, this finding should be treated as provisional pending replication."
 
 ### Slope heterogeneity (rho_beta; Aguinis & Culpepper, 2015)
 
 | Predictor | rho_beta | tau11 | Magnitude |
 |---|---|---|---|
-| PF (within) | .053 | .311 | medium |
-| EE (within) | .020 | .189 | small-medium |
-| Comp NF (within) | .036 | .305 | small-medium |
-| Burnout composite (within) | .031 | .333 | small-medium |
-| CW (within) | .012 | .066 | small-medium |
-| NF composite (within) | .012 | .145 | small-medium |
-| Auto NF (within) | .006 | .030 | negligible |
-| Relt NF (within) | .003 | .033 | negligible |
+| PF (within) | .053 | .304 | medium |
+| Comp NF (within) | .040 | .329 | small-medium |
+| Burnout composite (within) | .033 | .355 | small-medium |
+| EE (within) | .022 | .210 | small-medium |
+| CW (within) | .014 | .073 | small-medium |
+| NF composite (within) | .012 | .155 | small-medium |
+| Relt NF (within) | .006 | .054 | negligible |
+| Auto NF (within) | .004 | .020 | negligible |
 
 rho_beta quantifies the proportion of within-person variance explained by slope heterogeneity (i.e., individual differences in how strongly each L1 predictor relates to TI). PF has the largest rho_beta (.053), indicating moderate person-level variability in the PF-TI slope. Most other predictors show small-medium or negligible slope heterogeneity.
 
 - Outputs: `figs/mlm/mlm_04_hypothesis_tests.md`, `mlm_08_iccbeta.csv`, model diagnostics at `mlm_diag_model_*.svg`
 - Cite: Curran & Bauer (2011); Enders & Tofighi (2007); Aguinis & Culpepper (2015).
 
+---
+
+## Write-Up Flags
+
+Identified in committee-level review. Address before dissertation defense.
+
+### PCB-PCV Multicollinearity
+
+Between-person correlation PCB-PCV = .857 approaches collinearity. Both are simultaneous L2 predictors in M5. H4a supports breach (p = .050) but H4b does not (PCV, p = .205); with r = .857 these findings are nearly inseparable. Required before final write-up: (a) run VIF for M5's L2 predictor block and document; (b) frame the theoretical distinction explicitly (cognitive appraisal vs. emotional response; Robinson & Morrison, 2000); (c) consider a sensitivity model with only one of the two to confirm estimates are not artificially split.
+
+### M7a/M7b Composite vs. Subscale Inconsistency
+
+M3/M4 used NF and burnout subscales; M7a/M7b used composites (burnout_mean = PF + CW + EE; nf_mean = comp + auto + relt). Supported M3 results show EE and PF drive L1 effects while CW is non-significant. Collapsing to a burnout composite averages in the non-significant CW, potentially diluting a real EE-meetings interaction. If computationally feasible, run M7a/M7b with individual subscales. If not, acknowledge explicitly: "Collapsing to composites may obscure facet-specific moderation; future work should test whether meeting load moderates the EE-TI and PF-TI slopes specifically."
+
+### JIS and DES: Post-Hoc Additions
+
+JIS and DES were not in the original proposal. They were added post-hoc as L2 covariates in M5. The manuscript must acknowledge this explicitly with theoretical rationale (see L2 Environmental Controls section above); M5 should not be presented as if it were the pre-specified model. Standard framing: "Two L2 controls were identified during analysis and added to address potential confounding (JIS: Sverke et al., 2002; DES: Griffeth et al., 2000)."
+
+### EE ω_within vs. Effect Size Tension
+
+EE within-level reliability (ω_within = .607) is the weakest primary construct, yet H2a:ee (β = +.222, *p* < .001) is one of the strongest supported findings. Reviewers will notice the tension. Proactive framing: EE items capture acute emotional depletion that is particularly sensitive to within-day fluctuation; high ESM-state sensitivity attenuates within-level reliability even when the construct is meaningfully varying. PF items use more stable resource language, consistent with PF's higher ω_within (.809). Address in the measurement model discussion, not only in the omega table.
+
+### Null NF Facets: Theoretical Engagement Required
+
+H1a:auto (β = -.008) and H1a:relt (β = +.006) are near-zero; all of H1b is non-significant. The Introduction built a full BPNT pathway across all three need-frustration facets. A Discussion paragraph must genuinely engage with the facet-specific pattern rather than citing only power. Candidate framings: (1) competence thwarting has the strongest face validity for turnover cognitions in knowledge workers (being blocked from exercising task competence has direct instrumental relevance to job exit); (2) autonomy and relatedness thwarting may operate through burnout as a mediator rather than directly onto TI; (3) the within-day three-timepoint grain may be too short for autonomy and relatedness effects to accumulate into turnover cognitions.
+
 ## Post Hoc Power Confirmation
 
 ### Analytic strategy
 
-Post hoc power estimates are drawn from the pre-study simulation grid (Arend & Schafer, 2019) run prior to data collection (`analysis/run_power_analysis/`). The GCP production run covered N_Level2 ∈ {100, ..., 1500}, ICC ∈ {0.10, 0.30, 0.50}, and standardized fixed effects ∈ {0.10, 0.30, 0.50} for L1 direct, L2 direct, and cross-level interaction effects (1,000 simulations per cell; Kenward-Roger tests).
+Post hoc power estimates are drawn from two Monte Carlo simulation grids (Arend & Schafer, 2019) run via `analysis/run_power_analysis/` on GCP Compute Engine (1,000 simulations per cell; Kenward-Roger tests).
 
-Three features of the actual design require explicit handling:
+**A priori grid** (`power_analysis_results_20260316_183228.csv`): N_Level2 ∈ {100, ..., 1500}, ICC ∈ {0.10, 0.30, 0.50}, fixed effects ∈ {0.10, 0.30, 0.50} for L1, L2, and cross-level effects (3,645 cells).
 
-1. **N = 322 falls between grid nodes.** Nodes at N = 300 and N = 400 bracket the actual sample; power values below are interpolated or stated as bounds.
-2. **TI ICC ≈ 0.80 exceeds the grid maximum (0.50).** Grid ICC = 0.50 is used as the nearest reference. For L1 (within-person) effects, higher ICC means less within-person variance available to detect state-level fluctuation, so ICC = 0.50 estimates are **optimistic upper bounds** for L1 power. For L2 (between-person) effects, higher ICC concentrates between-person signal and does not meaningfully degrade L2 power; ICC = 0.50 is **conservative** for L2.
-3. **Observed standardized effects computed post hoc:** L1 effects standardized using WP SD; L2 effects using BP (person-mean) SD.
+**Supplementary posthoc grid** (`power_analysis_results_20260611_104548.csv`): ICC ∈ {0.60, 0.70, 0.80}, N_Level2 ∈ {100, ..., 1000}, L1/L2 effects ∈ {0.10, 0.15, 0.20, 0.30, 0.50}, cross-level effects ∈ {0.10, 0.30, 0.50} (2,250 cells). Designed to directly simulate ICC ≈ 0.80 and to add finer effect-size resolution (.15 and .20 nodes) where observed effects landed.
+
+All power estimates below are drawn from the supplementary posthoc grid at ICC = 0.80. Two features of the actual design require handling:
+
+1. **N = 322 falls between grid nodes.** Nodes at N = 300 and N = 400 bracket the actual sample; power values for N ≈ 322 are linearly interpolated across the N dimension.
+2. **Observed standardized effects computed post hoc:** L1 effects standardized using WP SD; L2 effects using BP (person-mean) SD. Effects at ~.13 require interpolation between the .10 and .15 nodes.
+
+**Note on effect-size parameterization.** In the simulation, `lvl1_effect_std` is standardized relative to the within-person residual SD. At ICC = 0.80 the within-person residual SD is smaller than at ICC = 0.50, so a fixed std = 0.20 represents a larger signal-to-noise ratio at higher ICC. L1 power at moderate effects (std ≥ .20) is therefore higher at ICC = 0.80 than at ICC = 0.50 -- the opposite of the upper-bound framing previously used when only the a priori grid (max ICC = 0.50) was available. For small L1 effects (std = .10), the two ICC conditions yield nearly identical power (.621 vs. .614 at N = 300), so the distinction is negligible in that range. L2 power is uniformly higher at ICC = 0.80 than at ICC = 0.50, consistent with between-person signal concentration.
+
+**Note on simulation conservatism.** Arend & Schäfer (2019) set the slope-intercept covariance to zero throughout their simulation design to produce conservative power estimates; they note this "will not greatly influence the results, because the standard errors of fixed effects are not sensitive to the correlation" (Bosker et al., 2003; Snijders & Bosker, 1993). The observed random effects show a negative slope-intercept correlation across models (Cor(U₀ⱼ, U₁ⱼ) = -0.177 to -0.224 in M2 through M4). A negative correlation reduces standard errors for slope estimates, which increases power relative to the zero-covariance assumption used in the simulation. The reported power values are therefore conservative lower bounds; actual power achieved with real data is likely modestly higher, providing an additional margin of safety.
 
 ### Observed standardized effect sizes
 
@@ -320,43 +431,44 @@ Standardized beta = beta_unstd * (SD_pred / SD_TI), computed from actual WP and 
 | H4a | BP PC Breach | +.131 | 1.045 | 1.034 | ~.13 |
 | H5 | BP Job Satisfaction | -.178 | 1.151 | 1.034 | ~.20 |
 
-### Power estimates from simulation grid (ICC = 0.50; N = 300 and N = 400)
+### Power estimates from supplementary simulation (ICC = 0.80; N = 300 and N = 400)
 
 **L1 direct effects:**
 
-| std_beta | N = 300 | N = 400 | Approx. N ≈ 322 |
+| std_beta | N = 300 | N = 400 | N ≈ 322 |
 |---|---|---|---|
-| .10 (small) | .63-.65 | .71-.77 | ~.65 |
-| .20 (interpolated) | ~.87* | ~.93* | ~.89* |
+| .10 (small) | .621 | .747 | ~.649 |
+| .13 (H1a:comp; interp.) | ~.808 | ~.886 | ~.825 |
+| .15 | .933 | .978 | ~.943 |
+| .20 (H2a:pf, H2a:ee) | .996 | .999 | ~.997 |
 | .30+ (medium) | 1.00 | 1.00 | 1.00 |
 
-*Linear interpolation between the .10 and .30 grid nodes.
-
-These are upper bounds for L1: actual power at ICC = 0.80 is lower than shown.
+Values at std = .13 are bilinearly interpolated between the .10 and .15 effect nodes and the N = 300 and N = 400 nodes. Values at N ≈ 322 are linearly interpolated within each effect row.
 
 **L2 direct effects:**
 
-| std_beta | N = 300 | N = 400 | Approx. N ≈ 322 |
+| std_beta | N = 300 | N = 400 | N ≈ 322 |
 |---|---|---|---|
-| .10 (small) | .31-.35 | .40-.46 | ~.36 |
-| .20 (interpolated) | ~.65* | ~.72* | ~.67* |
-| .30+ (medium) | .99-1.00 | 1.00 | >=.99 |
+| .10 (small) | .387 | .494 | ~.411 |
+| .13 (H4a; interp.) | ~.579 | ~.697 | ~.603 |
+| .15 | .707 | .833 | ~.735 |
+| .20 (H5) | .925 | .974 | ~.936 |
+| .31 (H2b:ee; interp.) | .999 | 1.00 | ~.999 |
+| .46 (H2b:pf; interp.) | 1.00 | 1.00 | 1.00 |
 
-*Linear interpolation between the .10 and .30 grid nodes.
-
-These are conservative estimates for L2: actual power at ICC = 0.80 is equal to or greater than shown.
+Values at std = .13, .31, and .46 are bilinearly interpolated between adjacent effect nodes and the N = 300 and N = 400 nodes.
 
 ### Verdict by supported hypothesis
 
-| Hypothesis | std_beta | Approx. power | p | Assessment |
+| Hypothesis | std_beta | Power (N ≈ 322, ICC = 0.80) | p | Assessment |
 |---|---|---|---|---|
-| H1a:comp | ~.13 | <=.65 (upper bound) | .003 | Low power; finding significant; caution given small effect near detection floor |
-| H2a:pf | ~.20 | <=.89 (upper bound) | <.001 | Moderate-to-adequate power; supported |
-| H2a:ee | ~.20 | <=.89 (upper bound) | <.001 | Moderate-to-adequate power; supported |
-| H2b:pf | ~.46 | >=.99 | <.001 | Well-powered; supported |
-| H2b:ee | ~.31 | >=.99 | <.001 | Well-powered; supported |
-| H4a | ~.13 | ~.36-.67 | .049 | Low power; borderline p; replicate before treating as established |
-| H5 | ~.20 | ~.67 (conservative) | <.001 | Moderate power; strong p consistent with true effect |
+| H1a:comp | ~.13 | ~.82 | .003 | Moderate power; significant; small effect near detection floor -- caution on replication |
+| H2a:pf | ~.20 | ~.997 | <.001 | Excellent power; well-supported |
+| H2a:ee | ~.20 | ~.997 | <.001 | Excellent power; well-supported |
+| H2b:pf | ~.46 | 1.00 | <.001 | Well-powered; supported |
+| H2b:ee | ~.31 | ~.999 | <.001 | Well-powered; supported |
+| H4a | ~.13 | ~.60 | .049 | Low-moderate power; borderline p; replicate before treating as established |
+| H5 | ~.20 | ~.936 | <.001 | Good power; well-supported |
 
 ### Null findings
 
@@ -364,14 +476,14 @@ These are conservative estimates for L2: actual power at ICC = 0.80 is equal to 
 
 **Non-significant L2 effects** (H1b NF facet means: std_beta ≈ .04--.09; H4b PCV: p = .217): effects are below the small-effect threshold. At std_beta = .10, L2 power ≈ .36 (N = 322, ICC = 0.50). The simulation cannot distinguish between a true zero and an underpowered small effect at this N for these predictors. Replication at larger N would be needed to confirm absence of NF facet effects on TI.
 
-**Cross-level interactions** (H3a, H3b): all non-significant. The simulation shows cross-level interaction power is consistently below .50 for small effects (std = .10) at N = 300-400 with ICC = 0.50. These null findings are inconclusive; the design was not adequately powered to detect small interaction effects at this N.
+**Within-person (L1 x L1) moderation interactions** (H3a, H3b): all non-significant. These tests model meeting load (CWC) as a within-person moderator of the NF-TI and burnout-TI slopes (M7a/M7b), making them L1 x L1 interactions -- not cross-level interactions. M7a/M7b use composites (burnout_mean = PF+CW+EE; nf_mean = comp+auto+relt) rather than the individual L1 subscales from M3/M4, but still operate at the same three timepoints (within-person). Meeting load is person-mean centered (CWC) before the interaction terms are formed.
 
-### Scope limitation
+JIS and DES appear in M7a/M7b as between-person covariates (grand-mean centered), not as moderators. There are no cross-level interactions (L2 x L1) in this study. The L2 variables control for stable between-person differences in job insecurity and mobility preferences, which would otherwise inflate residual variance at L2 and potentially contaminate the within-person moderation estimates. rho_beta was used as the primary effect-size index because it addresses the question of whether meeting load's moderation varies by person -- the appropriate frame for this L1 x L1 design.
 
-The simulation grid does not include ICC = 0.80. All L1 power estimates are upper bounds; the true power for L1 effects at ICC = 0.80 is lower. The L2 estimates are conservative. Supplementary simulations at ICC = 0.80 (N = 300-400, n_lvl1 = 3) would tighten these bounds and are noted as a future addition if requested during peer review.
+No power estimate from the simulation grid applies to M7a/M7b: the grid's `xl_effect` parameter models a between-person (L2) predictor moderating an L1 slope, a structurally different test. Power for L1 x L1 within-person moderation in a random-intercept, 3-timepoint design is not covered by the parameterization. This gap is the reason the design foregrounds rho_beta (Aguinis & Culpepper, 2015) as a supplementary effect-size index of slope heterogeneity in lieu of formal interaction inference: with only three Level 1 occasions, random slope variance is downwardly biased and formal significance tests for L1-slope-based interactions would carry inflated Type I error rates. The interaction null findings are reported as exploratory.
 
 - Cite: Arend & Schafer (2019); Kenward-Roger tests via `simr`.
-- Source data: `analysis/run_power_analysis/data/power_analysis_results_20260316_183228.csv` (GCP prod run, 3,645 cells x 1,000 sims).
+- Source data: `analysis/run_power_analysis/data/power_analysis_results_20260316_183228.csv` (GCP a priori run, 3,645 cells x 1,000 sims); `power_analysis_results_20260611_104548.csv` (GCP posthoc run, 2,250 cells x 1,000 sims, ICC 0.60-0.80).
 
 ---
 

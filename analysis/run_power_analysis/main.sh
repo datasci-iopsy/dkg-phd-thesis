@@ -10,13 +10,14 @@
 #   bash main.sh dev                          # local dev (seconds)
 #   bash main.sh prod                         # full grid (hours)
 #   bash main.sh benchmark_gcp                # GCP timing probe
-#   bash main.sh prod_gcp                     # GCP full grid
+#   bash main.sh prod_gcp                     # GCP full grid (3,645 cells)
+#   bash main.sh posthoc_gcp                  # GCP post hoc supplement (2,250 cells)
 #   nohup bash main.sh prod_gcp 2>&1 &       # background on GCP VM
 # ---------------------------------------------------------------------------
 
 set -euo pipefail
 
-version="${1:?ERROR: version argument required (dev, prod, benchmark_gcp, or prod_gcp)}"
+version="${1:?ERROR: version argument required (dev, prod, benchmark_gcp, prod_gcp, or posthoc_gcp)}"
 
 # resolve this script's directory regardless of where invoked from
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -36,7 +37,7 @@ echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting run_power_analysis (version: ${ver
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Log file: ${log_file}"
 
 # hand off to R -- all orchestration logic lives there
-uvr run Rscript "${script_dir}/scripts/run_power_analysis.R" --version "${version}" 2>&1
+uvr run "${script_dir}/scripts/run_power_analysis.r" -- --version "${version}" 2>&1
 
 exit_code=$?
 

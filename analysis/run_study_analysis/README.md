@@ -24,7 +24,7 @@ listwise attention-check deletion before export. Exported to
 
 ## Careless responding screening
 
-`scripts/R/data_quality.R` **excludes** participants flagged on >= 2 of the following
+`scripts/R/data_quality.r` **excludes** participants flagged on >= 2 of the following
 3 indicators (Meade & Craig 2012):
 
 1. Instructed-response / attention checks (failed at any timepoint)
@@ -39,12 +39,12 @@ for exclusion:
 
 ## Prep modules
 
-Scripts source `utils/prep_levels.R` and `utils/prep_mlm.R` instead of repeating
+Scripts source `utils/prep_levels.r` and `utils/prep_mlm.r` instead of repeating
 data-wrangling logic inline.
 
-- `prep_levels.R`: `partition_levels(df)` splits the panel into L1 (within-person) and
+- `prep_levels.r`: `partition_levels(df)` splits the panel into L1 (within-person) and
   L2 (between-person) frames.
-- `prep_mlm.R`: `prepare_mlm_frame(df, defs)` applies within-person centering (CWC),
+- `prep_mlm.r`: `prepare_mlm_frame(df, defs)` applies within-person centering (CWC),
   grand-mean centering of L2 predictors, demographic coding, and burnout/NF composite
   construction. Returns a model-ready frame.
 
@@ -82,4 +82,4 @@ make study_tables          # Step 6: publication-ready Word .docx tables
 
 ## Variable definitions
 
-See `utils/data_loader.R` (`VARIABLE_DEFS`) for the canonical variable group lists.
+See `utils/data_loader.r` (`VARIABLE_DEFS`) for the canonical variable group lists.

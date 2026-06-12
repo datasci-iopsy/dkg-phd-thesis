@@ -1,18 +1,18 @@
 #!/usr/bin/env Rscript
 # ---------------------------------------------------------------------------
-# data_loader.R — Shared data loading and canonical variable definitions
+# data_loader.r — Shared data loading and canonical variable definitions
 #
 # Provides:
 #   load_cleaned_data()  — loads the most-recent cleaned export CSV
 #   VARIABLE_DEFS        — canonical L1/L2 variable group definitions
 #
-# Used by: eda.R, correlation.R, measurement_model.R, multilevel_model.R
+# Used by: eda.r, correlation.r, measurement_model.r, multilevel_model.r
 #
 # Dependencies: here, readr, common_utils.r (log_msg) must be sourced first.
 # ---------------------------------------------------------------------------
 
 
-#' Load the cleaned panel export CSV produced by data_quality.R
+#' Load the cleaned panel export CSV produced by data_quality.r
 #'
 #' @param show_col_types Logical; passed to readr::read_csv (default FALSE).
 #' @return A data frame with one row per participant-timepoint observation.

@@ -1,16 +1,16 @@
 #!/usr/bin/env Rscript
 # ---------------------------------------------------------------------------
-# mlm_hypothesis_map.R -- Manuscript-aligned hypothesis definitions
+# mlm_hypothesis_map.r — Manuscript-aligned hypothesis definitions
 #
 # Provides:
-#   HYPOTHESIS_MAP         -- single source of truth for all hypothesis labels,
+#   HYPOTHESIS_MAP         — single source of truth for all hypothesis labels,
 #                            lme4 terms, directions, and model assignments,
 #                            aligned to the dissertation proposal numbering.
-#   get_coef_result()      -- extract estimate/p/support from a fixed-effects tbl
-#   evaluate_hypotheses()  -- vectorized hypothesis evaluation returning a
+#   get_coef_result()      — extract estimate/p/support from a fixed-effects tbl
+#   evaluate_hypotheses()  — vectorized hypothesis evaluation returning a
 #                            completed results tibble
 #
-# Numbering follows proposal-final-draft.txt:
+# Numbering follows the dissertation proposal (proposal-final-draft.docx):
 #   H1a  WP need frustration (NF) facets -> TI (+)                    [M3]
 #   H1b  BP NF facet means -> TI (+)                                   [M4]
 #   H2a  WP burnout facets -> TI (+)                                   [M3]
@@ -21,15 +21,13 @@
 #   H4b  BP PC violation -> TI (+)                                     [M5]
 #   H5   BP job satisfaction -> TI (-)                                 [M5]
 #
-# OPERATIONALIZATION NOTE -- H3a/H3b (moderation):
+# OPERATIONALIZATION NOTE — H3a/H3b (moderation):
 #   The manuscript refers to "meeting load" as a single moderator.
 #   It is operationalized here as two indicators (meeting count and meeting
-#   time in minutes), yielding four interaction tests total:
-#     count x NF, time x NF, count x burnout, time x burnout.
+#   minutes), yielding four interaction tests total (count x NF, mins x NF,
+#   count x burnout, mins x burnout). This provides finer-grained insight into
+#   whether frequency or duration of meetings drives the moderation effect.
 #   Both indicators must be significant for full support of H3a or H3b.
-#
-#   Variable: meetings_time (minutes; supplement-backfilled; NAs where uncaptured).
-#   Centering: meetings_time_within / meetings_time_between via prepare_mlm_frame().
 #
 # Dependencies: tibble, dplyr. common_utils.r (log_msg) must be sourced first.
 # ---------------------------------------------------------------------------
@@ -42,16 +40,17 @@ library(dplyr)
 # [1] Hypothesis map
 # ---------------------------------------------------------------------------
 
-# One row per test. For hypotheses with multiple facets, one row per facet.
-# For moderation (H3a/H3b), two rows per hypothesis (count and time).
+# One row per test (some hypotheses have one term; others have multiple facets
+# or two operationalizations of meeting load).
 #
 # Columns:
-#   hypothesis       -- manuscript label (e.g., "H1a:comp")
-#   description      -- concise description of the test
-#   level            -- "L1 (within)" or "L2 (between)"
-#   model_name       -- exact string used as the 'model' column in fe_all
-#   term             -- exact lme4 fixed-effect term name
-#   direction        -- "+" (positive) or "-" (negative)
+#   hypothesis       — manuscript label (e.g., "H1a:comp")
+#   description      — concise description of the test
+#   level            — "L1 (within)" or "L2 (between)"
+#   model_name       — exact string used as the 'model' column in fe_all
+#   term             — exact lme4 fixed-effect term name
+#   direction        — "+" (positive) or "-" (negative)
+#   operationalization — brief note where relevant
 
 HYPOTHESIS_MAP <- tibble::tibble(
     hypothesis = c(
@@ -65,10 +64,10 @@ HYPOTHESIS_MAP <- tibble::tibble(
         "H2a:pf", "H2a:cw", "H2a:ee",
         # H2b: BP burnout facet means
         "H2b:pf", "H2b:cw", "H2b:ee",
-        # H3a: meeting load x NF (count and time)
-        "H3a:count", "H3a:time",
-        # H3b: meeting load x burnout (count and time)
-        "H3b:count", "H3b:time",
+        # H3a: meeting load x NF (2 operationalizations)
+        "H3a:count", "H3a:mins",
+        # H3b: meeting load x burnout (2 operationalizations)
+        "H3b:count", "H3b:mins",
         # H4a, H4b, H5
         "H4a", "H4b", "H5"
     ),
@@ -87,9 +86,9 @@ HYPOTHESIS_MAP <- tibble::tibble(
         "BP cognitive weariness mean -> TI (+)",
         "BP emotional exhaustion mean -> TI (+)",
         "WP meeting count x NF composite -> TI (+)",
-        "WP meeting time x NF composite -> TI (+)",
+        "WP meeting minutes x NF composite -> TI (+)",
         "WP meeting count x burnout composite -> TI (+)",
-        "WP meeting time x burnout composite -> TI (+)",
+        "WP meeting minutes x burnout composite -> TI (+)",
         "BP PC breach -> TI (+)",
         "BP PC violation -> TI (+)",
         "BP job satisfaction -> TI (-)"
@@ -110,8 +109,8 @@ HYPOTHESIS_MAP <- tibble::tibble(
         "Model 4: L1 Within + Between", "Model 4: L1 Within + Between", "Model 4: L1 Within + Between",
         "Model 3: L1 Within-Person", "Model 3: L1 Within-Person", "Model 3: L1 Within-Person",
         "Model 4: L1 Within + Between", "Model 4: L1 Within + Between", "Model 4: L1 Within + Between",
-        "Model 7a: Count x Composites", "Model 7b: Time x Composites",
-        "Model 7a: Count x Composites", "Model 7b: Time x Composites",
+        "Model 7a: Count x Composites", "Model 7b: Minutes x Composites",
+        "Model 7a: Count x Composites", "Model 7b: Minutes x Composites",
         "Model 5: L1 + L2 Study Variables",
         "Model 5: L1 + L2 Study Variables",
         "Model 5: L1 + L2 Study Variables"
@@ -123,9 +122,9 @@ HYPOTHESIS_MAP <- tibble::tibble(
         "pf_mean_within", "cw_mean_within", "ee_mean_within",
         "pf_mean_between", "cw_mean_between", "ee_mean_between",
         "nf_mean_within:meetings_count_within",
-        "nf_mean_within:meetings_time_within",
+        "nf_mean_within:meetings_mins_within",
         "burnout_mean_within:meetings_count_within",
-        "burnout_mean_within:meetings_time_within",
+        "burnout_mean_within:meetings_mins_within",
         "br_mean_c", "vio_mean_c", "js_mean_c"
     ),
     direction = c(
@@ -179,6 +178,10 @@ get_coef_result <- function(fe_tbl, model_nm, term_nm, direction) {
 
 #' Populate hypothesis test results from a combined fixed-effects table
 #'
+#' Matches each row in hyp_map to the corresponding fixed-effect term in
+#' fe_all and returns a completed tibble with Estimate, p_value, and Supported.
+#' The ICC prerequisite row is handled via the separately passed icc_value.
+#'
 #' @param fe_all    Data frame; combined broom.mixed::tidy() output with a
 #'                  'model' column (one row per term per model).
 #' @param hyp_map   Data frame; HYPOTHESIS_MAP or a subset of it.
@@ -199,6 +202,7 @@ evaluate_hypotheses <- function(fe_all, hyp_map, icc_value) {
         mdl <- results$model_name[i]
         dir <- results$direction[i]
 
+        # Prerequisite row uses ICC, not a model coefficient
         if (hyp == "Prereq") {
             results$Estimate[i]  <- round(icc_value, 4)
             results$p_value[i]   <- NA_real_

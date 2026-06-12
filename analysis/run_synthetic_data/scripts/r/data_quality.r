@@ -1,38 +1,36 @@
 #!/usr/bin/env Rscript
 # =============================================================================
-# analysis/run_study_analysis/scripts/R/data_quality.R
+# analysis/run_synthetic_data/scripts/r/data_quality.r
 #
-# Careless responding detection and data quality screening for the real
-# study panel dataset using the careless package (Yentes & Wilhelm, 2018).
+# Careless responding detection and data quality screening for the synthetic
+# panel dataset using the careless package (Yentes & Wilhelm, 2018).
 #
-# Repeated-measures design: 3 within-day followup surveys per participant.
-# L1 indices are computed per survey independently. L2 (intake) indices are
-# computed once per participant.
+# This is a repeated-measures design (3 within-day surveys per participant).
+# L1 indices are computed for each survey independently, allowing detection of
+# careless responding that appears only in a specific survey. L2 (intake)
+# indices are computed once per participant. All L1 diagnostic figures are
+# faceted by survey; L2 figures use a single-panel layout.
 #
-# EXCLUSION criteria (3; Meade & Craig 2012):
-#   1. Instructed-response / attention checks -- applied upstream in SQL
-#      (listwise deletion); all participants in this file have passed.
-#   2. LongString L1/L2 -- max run of identical responses.
-#   3. Mahalanobis distance L1/L2 -- multivariate outlier.
+# Four screening criteria, evaluated at the person level for exclusion:
+#   1. Longstring L1  — max run of identical responses within a survey (30 items)
+#   2. Longstring L2  — max run of identical responses in the intake block (20 items)
+#   3. IRV L1         — intra-individual response variability within a survey
+#   4. IRV L2         — intra-individual response variability in the intake block
+#   5. Duration       — survey completion time
+#   6. Mahalanobis    — multivariate outlier flag (L1 per-survey + L2 per-person)
 #
-# DIAGNOSTIC criteria (3 additional; computed but do NOT trigger exclusion):
-#   4. IRV L1    -- intra-individual response variability per survey.
-#   5. IRV L2    -- intra-individual response variability on intake block.
-#   6. Duration  -- survey completion time.
+# Person-level exclusion: flagged by >= 2 criteria (any criterion is TRUE if
+# it triggered on any survey). Per-survey detail is preserved in the output.
 #
-# Exclusion rule: participant flagged by >= 2 exclusion criteria.
-# Since attention checks are already resolved, this means flagged by BOTH
-# LongString AND Mahalanobis.
-#
-# Input:  data/export/qualtrics_fct_panel_responses.csv
-# Output: data/export/qualtrics_fct_panel_responses_cleaned.csv (.rds)
-#         figs/data_quality/ -- diagnostic SVGs + screening CSVs
+# Input:  data/export/syn_qualtrics_fct_panel_responses.csv
+# Output: data/export/syn_qualtrics_fct_panel_responses_cleaned.csv
+#         figs/data_quality/ — diagnostic SVGs + CSV screening tables
 #
 # References:
 #   Yentes & Wilhelm (2018). The careless R package.
 #     Practical Assessment, Research & Evaluation, 23(2).
-#   Meade & Craig (2012). Identifying careless responses in survey data.
-#     Psychological Methods, 17(3), 437-455.
+#   Curran (2016). Methods for the detection of carelessly invalid responses.
+#     Journal of Experimental Social Psychology, 66.
 # =============================================================================
 
 # --- [0] Libraries and setup -------------------------------------------------
@@ -43,50 +41,56 @@ library(dplyr)
 library(tidyr)
 library(readr)
 library(tibble)
+library(stringr)
 library(here)
 
 options(tibble.width = Inf)
 
+# Source shared utilities (log_msg, ensure_dir, save_svg)
 source(here::here("analysis", "shared", "utils", "common_utils.r"))
 source(here::here("analysis", "shared", "utils", "plot_utils.r"))
 
-FIGS_DIR   <- here::here("analysis", "run_study_analysis", "figs", "data_quality")
-EXPORT_DIR <- here::here("analysis", "run_study_analysis", "data", "export")
+FIGS_DIR <- here::here("analysis", "run_synthetic_data", "figs", "data_quality")
 ensure_dir(FIGS_DIR)
+
+EXPORT_DIR <- here::here("analysis", "run_synthetic_data", "data", "export")
+
 
 theme_set(theme_apa)
 
+# SVG save helper (binds FIGS_DIR; no timestamp — script overwrites on each run)
 save_fig <- make_save_fig(FIGS_DIR, default_height = 6)
 
+# Survey label helper: converts integer timepoint to readable label
 survey_label <- function(tp) paste0("Survey ", tp)
 
+# Shared facet strip theme used across L1 figures
 facet_theme <- theme(
     strip.text       = element_text(face = "bold", size = 10),
     strip.background = element_rect(fill = "#f0f0f0", color = NA)
 )
 
 # ---------------------------------------------------------------------------
-# Screening thresholds
+# Screening thresholds (modify here to change criteria globally)
 # ---------------------------------------------------------------------------
-THRESH_LONGSTRING_L1 <- 10L   # flag if > 10 of 31 L1 items identical in a run
-THRESH_LONGSTRING_L2 <- 10L   # flag if > 10 of 23 L2 items identical in a run
-THRESH_IRV_L1        <- 0.50  # diagnostic only; flag if SD < 0.50
-THRESH_IRV_L2        <- 0.25  # diagnostic only; flag if SD < 0.25
-THRESH_DURATION_SECS <- 90L   # diagnostic only; flag if duration < 90 seconds
+THRESH_LONGSTRING_L1 <- 10L   # flag if > 10 of 30 L1 items identical in a run
+THRESH_LONGSTRING_L2 <- 10L   # flag if > 10 of 20 L2 items identical in a run
+THRESH_IRV_L1        <- 0.50  # flag if SD of L1 item responses < 0.50
+THRESH_IRV_L2        <- 0.25  # flag if SD of L2 item responses < 0.25
+THRESH_DURATION_SECS <- 90L   # flag if survey duration < 90 seconds
 THRESH_MAHAD_CONF    <- 0.999 # chi-squared confidence for Mahalanobis cutoff
-# Exclude if both LongString AND Mahalanobis flagged (attention checks already resolved in SQL)
-MIN_FLAGS_TO_EXCLUDE <- 2L
+MIN_FLAGS_TO_EXCLUDE <- 2L    # exclude if >= 2 person-level criteria flagged
 
 log_msg("=== DATA QUALITY SCREENING ===")
 log_msg("Output directory: ", FIGS_DIR)
-log_msg("Exclusion criteria (>= ", MIN_FLAGS_TO_EXCLUDE, " to exclude):")
-log_msg("  [excl] Longstring L1 > ", THRESH_LONGSTRING_L1, " (of 31 items per survey)")
-log_msg("  [excl] Longstring L2 > ", THRESH_LONGSTRING_L2, " (of 23 items, intake block)")
-log_msg("  [excl] Mahalanobis (chi-sq p=", THRESH_MAHAD_CONF, ")")
-log_msg("Diagnostic criteria (computed, not used for exclusion):")
-log_msg("  [diag] IRV L1 < ", THRESH_IRV_L1)
-log_msg("  [diag] IRV L2 < ", THRESH_IRV_L2)
-log_msg("  [diag] Duration < ", THRESH_DURATION_SECS, " seconds")
+log_msg("Thresholds:")
+log_msg("  Longstring L1 > ", THRESH_LONGSTRING_L1, " (of 30 items per survey)")
+log_msg("  Longstring L2 > ", THRESH_LONGSTRING_L2, " (of 20 items, intake block)")
+log_msg("  IRV L1 < ", THRESH_IRV_L1)
+log_msg("  IRV L2 < ", THRESH_IRV_L2)
+log_msg("  Duration < ", THRESH_DURATION_SECS, " seconds")
+log_msg("  Mahalanobis confidence: ", THRESH_MAHAD_CONF)
+log_msg("  Exclusion rule: >= ", MIN_FLAGS_TO_EXCLUDE, " criteria flagged at person level")
 
 
 # =============================================================================
@@ -94,12 +98,11 @@ log_msg("  [diag] Duration < ", THRESH_DURATION_SECS, " seconds")
 # =============================================================================
 log_msg("=== [1] Loading data ===")
 
-input_path <- file.path(EXPORT_DIR, "qualtrics_fct_panel_responses.csv")
+input_path <- file.path(EXPORT_DIR, "syn_qualtrics_fct_panel_responses.csv")
 if (!file.exists(input_path)) {
     stop(
-        "No panel CSV found. Expected: ",
-        input_path,
-        "\nRun export_study_fct_panel_responses_csv.sh first."
+        "No raw panel CSV found in data/export/. ",
+        "Expected: syn_qualtrics_fct_panel_responses.csv"
     )
 }
 log_msg("Loading: ", basename(input_path))
@@ -117,39 +120,35 @@ log_msg("Surveys per participant (L1): ", n_surveys)
 # =============================================================================
 log_msg("=== [2] Defining item blocks ===")
 
-# L1 items: followup surveys (31 items -- 30 scored + TI single item)
+# L1 items: from followup surveys, vary across surveys (30 items total)
 l1_item_cols <- c(
-    paste0("pf",   1:6),                       # physical fatigue (6)
-    paste0("cw",   1:5),                       # cognitive weariness (5)
-    paste0("ee",   1:3),                       # emotional exhaustion (3)
-    paste0("comp", 1:4),                       # competence NF (4)
-    paste0("auto", 1:4),                       # autonomy NF (4)
-    paste0("relt", 1:4),                       # relatedness NF (4)
-    "atcb2", "atcb5", "atcb6", "atcb7",        # ATCB marker (4)
-    "turnover_intention"                        # TI single item (1)
+    paste0("pf",   1:6),              # physical fatigue (burnout)
+    paste0("cw",   1:5),              # cognitive weariness (burnout)
+    paste0("ee",   1:3),              # emotional exhaustion (burnout)
+    paste0("comp", 1:4),              # competence need frustration
+    paste0("auto", 1:4),              # autonomy need frustration
+    paste0("relt", 1:4),              # relatedness need frustration
+    "atcb2", "atcb5", "atcb6", "atcb7"  # turnover intentions
 )
 
-# L1 scale means used for per-survey Mahalanobis
+# L1 scale mean columns used for per-survey Mahalanobis
 l1_scale_cols <- c(
     "pf_mean", "cw_mean", "ee_mean",
     "comp_mean", "auto_mean", "relt_mean",
     "atcb_mean", "turnover_intention_mean"
 )
 
-# L2 items: intake survey (23 items)
+# L2 items: from intake survey, constant across surveys (20 items total)
 l2_item_cols <- c(
-    paste0("pa",  1:5),  # positive affect (5)
-    paste0("na",  1:5),  # negative affect (5)
-    paste0("br",  1:5),  # psychological contract breach (5)
-    paste0("vio", 1:4),  # contract violation (4)
-    "js1",               # job satisfaction (1)
-    "jis1",              # job insecurity (1)
-    "des1", "des2"       # desirability of movement (2)
+    paste0("pa",  1:5),  # positive affect
+    paste0("na",  1:5),  # negative affect
+    paste0("br",  1:5),  # psychological contract breach
+    paste0("vio", 1:4),  # contract violation
+    "js1"                # job satisfaction (single item)
 )
 
-# L2 scale means used for person-level Mahalanobis
-l2_scale_cols <- c("pa_mean", "na_mean", "br_mean", "vio_mean", "js_mean",
-                   "jis_mean", "des_mean")
+# L2 scale mean columns used for person-level Mahalanobis
+l2_scale_cols <- c("pa_mean", "na_mean", "br_mean", "vio_mean", "js_mean")
 
 missing_l1 <- setdiff(l1_item_cols,  names(df_raw))
 missing_l2 <- setdiff(l2_item_cols,  names(df_raw))
@@ -172,13 +171,12 @@ log_msg("=== [3] Per-survey L1 indices (longstring, IRV, duration) ===")
 #' @param df_survey Data frame rows for a single timepoint.
 #' @param item_cols Character vector of L1 item column names.
 #' @return Tibble: response_id, timepoint, survey_label, longstring, irv, duration.
-#'
 compute_l1_survey_indices <- function(df_survey, item_cols) {
     mat <- as.matrix(df_survey[, item_cols])
     tibble::tibble(
         response_id   = df_survey$response_id,
         timepoint     = df_survey$timepoint,
-        survey_label  = survey_label(df_survey$timepoint[[1]]),
+        survey_label  = survey_label(df_survey$timepoint),
         duration      = df_survey$duration,
         longstring_l1 = careless::longstring(mat),
         irv_l1        = careless::irv(mat)
@@ -198,15 +196,16 @@ l1_survey_indices <- df_raw |>
     )
 
 log_msg(
-    "L1 indices: ", nrow(l1_survey_indices), " obs across ",
+    "L1 indices computed: ",
+    nrow(l1_survey_indices), " observations across ",
     dplyr::n_distinct(l1_survey_indices$timepoint), " surveys"
 )
 
 
 # =============================================================================
-# [4] PER-SURVEY L1 MAHALANOBIS
+# [4] PER-SURVEY L1 MAHALANOBIS (on scale means at each survey)
 # =============================================================================
-log_msg("=== [4] Per-survey Mahalanobis L1 ===")
+log_msg("=== [4] Per-survey Mahalanobis L1 (scale means per survey) ===")
 
 mahad_l1_cutoff <- qchisq(THRESH_MAHAD_CONF, df = length(l1_scale_cols))
 log_msg(
@@ -219,14 +218,13 @@ log_msg(
 #' @param df_survey Data frame rows for a single timepoint.
 #' @param scale_cols Character vector of L1 scale mean column names.
 #' @param cutoff Numeric; chi-squared cutoff for flagging.
-#' @return Tibble: response_id, timepoint, survey_label, mahad_l1_dist, flag_mahad_l1.
-#'
+#' @return Tibble: response_id, timepoint, mahad_l1_dist, flag_mahad_l1.
 compute_l1_mahad <- function(df_survey, scale_cols, cutoff) {
     mat <- as.matrix(df_survey[, scale_cols])
     tibble::tibble(
         response_id   = df_survey$response_id,
         timepoint     = df_survey$timepoint,
-        survey_label  = survey_label(df_survey$timepoint[[1]]),
+        survey_label  = survey_label(df_survey$timepoint),
         mahad_l1_dist = careless::mahad(mat),
         flag_mahad_l1 = mahad_l1_dist > cutoff
     )
@@ -248,14 +246,15 @@ for (tp in sort(unique(l1_mahad$timepoint))) {
 
 
 # =============================================================================
-# [5] L2 CARELESS INDICES (intake block -- once per person)
+# [5] L2 CARELESS INDICES (longstring, IRV, Mahalanobis — once per person)
 # =============================================================================
-log_msg("=== [5] L2 indices (intake block) ===")
+log_msg("=== [5] L2 indices (intake block — once per person) ===")
 
 df_l2 <- df_raw |>
     dplyr::distinct(response_id, .keep_all = TRUE)
 
-l2_item_mat  <- as.matrix(df_l2[, l2_item_cols])
+# Longstring and IRV on L2 items
+l2_item_mat <- as.matrix(df_l2[, l2_item_cols])
 l2_scale_mat <- as.matrix(df_l2[, l2_scale_cols])
 
 mahad_l2_cutoff <- qchisq(THRESH_MAHAD_CONF, df = length(l2_scale_cols))
@@ -274,16 +273,17 @@ l2_indices <- tibble::tibble(
     flag_mahad_l2 = mahad_l2_dist > mahad_l2_cutoff
 )
 
-log_msg("L2 longstring flagged:    ", sum(l2_indices$flag_ls_l2), " [excl]")
-log_msg("L2 IRV flagged:           ", sum(l2_indices$flag_irv_l2), " [diag]")
-log_msg("L2 Mahalanobis flagged:   ", sum(l2_indices$flag_mahad_l2), " [excl]")
+log_msg("L2 longstring flagged: ", sum(l2_indices$flag_ls_l2))
+log_msg("L2 IRV flagged:        ", sum(l2_indices$flag_irv_l2))
+log_msg("L2 Mahalanobis flagged: ", sum(l2_indices$flag_mahad_l2))
 
 
 # =============================================================================
-# [6] PER-SURVEY DETAIL AND PERSON-LEVEL AGGREGATION
+# [6] PER-SURVEY DETAIL TABLE AND PERSON-LEVEL AGGREGATION
 # =============================================================================
-log_msg("=== [6] Person-level aggregation ===")
+log_msg("=== [6] Building per-survey detail and person-level summary ===")
 
+# --- Per-survey detail (person x survey) -------------------------------------
 survey_detail <- l1_survey_indices |>
     dplyr::left_join(
         l1_mahad |> dplyr::select(response_id, timepoint, mahad_l1_dist, flag_mahad_l1),
@@ -297,13 +297,18 @@ survey_detail <- l1_survey_indices |>
     ) |>
     dplyr::arrange(response_id, timepoint)
 
+# --- Person-level aggregation ------------------------------------------------
+# A criterion is TRUE at the person level if it triggered on ANY survey.
+# This preserves sensitivity to survey-specific careless responding.
 person_summary <- survey_detail |>
     dplyr::group_by(response_id) |>
     dplyr::summarise(
+        # Worst-case raw values across surveys (for interpretability)
         longstring_l1_max = max(longstring_l1),
         irv_l1_min        = min(irv_l1),
         duration_min_secs = min(duration),
         mahad_l1_max      = max(mahad_l1_dist),
+        # Per-survey raw values (wide: one column per timepoint)
         dplyr::across(
             longstring_l1,
             list(tp1 = ~ .x[timepoint == 1], tp2 = ~ .x[timepoint == 2], tp3 = ~ .x[timepoint == 3]),
@@ -333,42 +338,36 @@ person_summary <- survey_detail |>
     ) |>
     dplyr::left_join(l2_indices, by = "response_id") |>
     dplyr::mutate(
-        # Combined exclusion flags (Meade & Craig 2012 indicators 2 and 3)
-        flag_longstring = flag_longstring_l1 | flag_ls_l2,
-        flag_mahad      = flag_mahad_l1 | flag_mahad_l2,
-        # Exclusion count: only 2 exclusion criteria (attention checks already applied)
-        n_excl_flags = rowSums(
-            dplyr::pick(flag_longstring, flag_mahad),
+        # Combined Mahalanobis flag: L1 (any survey) or L2
+        flag_mahad = flag_mahad_l1 | flag_mahad_l2,
+        # Person-level criterion count (6 criteria; use actual post-join column names)
+        n_flags = rowSums(
+            dplyr::pick(flag_longstring_l1, flag_ls_l2, flag_irv_l1, flag_irv_l2, flag_duration, flag_mahad),
             na.rm = TRUE
         ),
-        # Diagnostic flag count (3 non-exclusion indicators: IRV L1, IRV L2, duration)
-        n_diag_flags = rowSums(
-            dplyr::pick(flag_irv_l1, flag_irv_l2, flag_duration),
-            na.rm = TRUE
-        ),
-        exclude = n_excl_flags >= MIN_FLAGS_TO_EXCLUDE
+        exclude = n_flags >= MIN_FLAGS_TO_EXCLUDE
     )
 
 n_excluded <- sum(person_summary$exclude)
 n_retained <- n_participants - n_excluded
 
-log_msg("Participants with >= 1 exclusion flag: ", sum(person_summary$n_excl_flags >= 1L))
-log_msg(
-    "Participants excluded (>= ", MIN_FLAGS_TO_EXCLUDE,
-    " exclusion criteria, i.e. both LongString AND Mahalanobis): ", n_excluded
-)
+log_msg("Participants with >= 1 flag: ", sum(person_summary$n_flags >= 1L))
+log_msg("Participants excluded (>= ", MIN_FLAGS_TO_EXCLUDE, " criteria): ", n_excluded)
 log_msg("Participants retained: ", n_retained)
 
-crit_counts <- c(
-    "[excl] LongString (L1 or L2)" = sum(person_summary$flag_longstring),
-    "[excl] Mahalanobis (L1 or L2)" = sum(person_summary$flag_mahad),
-    "[diag] IRV L1 (any survey)"    = sum(person_summary$flag_irv_l1),
-    "[diag] IRV L2 (intake)"        = sum(l2_indices$flag_irv_l2),
-    "[diag] Duration (any survey)"  = sum(person_summary$flag_duration)
+# Per-criterion counts at person level
+crit_person <- c(
+    "Longstring L1 (any survey)" = sum(person_summary$flag_longstring_l1),
+    "Longstring L2 (intake)"     = sum(person_summary$flag_ls_l2),
+    "IRV L1 (any survey)"        = sum(person_summary$flag_irv_l1),
+    "IRV L2 (intake)"            = sum(person_summary$flag_irv_l2),
+    "Duration (any survey)"      = sum(person_summary$flag_duration),
+    "Mahalanobis (L1+L2)"        = sum(person_summary$flag_mahad)
 )
-log_msg("Per-criterion person-level counts:")
-for (nm in names(crit_counts)) log_msg("  ", nm, ": ", crit_counts[[nm]])
+log_msg("Per-criterion person-level flag counts:")
+for (nm in names(crit_person)) log_msg("  ", nm, ": ", crit_person[[nm]])
 
+# Per-criterion, per-survey counts for figures
 survey_flag_counts <- survey_detail |>
     dplyr::group_by(survey_label, timepoint) |>
     dplyr::summarise(
@@ -389,12 +388,12 @@ survey_flag_counts <- survey_detail |>
 # =============================================================================
 log_msg("=== [7] Generating diagnostic figures ===")
 
-col_retained  <- "#2c7bb6"
-col_flagged   <- "#d7191c"
+# Shared color palette
+col_retained <- "#2c7bb6"
+col_flagged  <- "#d7191c"
 col_threshold <- "#d7191c"
-col_l2        <- "#1a9641"
 
-# [7a] L1 Longstring by survey
+# --- [7a] L1 Longstring — faceted by survey ----------------------------------
 flag_counts_ls <- l1_survey_indices |>
     dplyr::group_by(survey_label) |>
     dplyr::summarise(n_flagged = sum(flag_ls_l1), .groups = "drop")
@@ -411,14 +410,15 @@ p_ls_l1 <- ggplot(l1_survey_indices, aes(x = longstring_l1)) +
     facet_wrap(~ survey_label, ncol = 3) +
     facet_theme +
     labs(
-        title    = "L1 LongString [excl] -- consecutive identical responses per survey",
-        subtitle = paste0("Flag threshold: > ", THRESH_LONGSTRING_L1, " of ", length(l1_item_cols), " items"),
+        title    = "L1 Longstring — consecutive identical responses per survey",
+        subtitle = paste0("Flag threshold: > ", THRESH_LONGSTRING_L1, " of 30 items"),
         x        = "Max consecutive identical responses",
         y        = "Count"
     )
+
 save_fig(p_ls_l1, "dq_01_longstring_l1_by_survey.svg", width = 12, height = 5)
 
-# [7b] L1 IRV by survey
+# --- [7b] L1 IRV — faceted by survey -----------------------------------------
 flag_counts_irv <- l1_survey_indices |>
     dplyr::group_by(survey_label) |>
     dplyr::summarise(n_flagged = sum(flag_irv_l1), .groups = "drop")
@@ -435,14 +435,15 @@ p_irv_l1 <- ggplot(l1_survey_indices, aes(x = irv_l1)) +
     facet_wrap(~ survey_label, ncol = 3) +
     facet_theme +
     labs(
-        title    = "L1 IRV [diag] -- intra-individual response variability per survey",
-        subtitle = paste0("Diagnostic threshold: < ", THRESH_IRV_L1, " SD (not used for exclusion)"),
+        title    = "L1 IRV — intra-individual response variability per survey",
+        subtitle = paste0("Flag threshold: < ", THRESH_IRV_L1, " SD"),
         x        = "Response variability (SD)",
         y        = "Count"
     )
+
 save_fig(p_irv_l1, "dq_02_irv_l1_by_survey.svg", width = 12, height = 5)
 
-# [7c] Duration by survey
+# --- [7c] Duration — faceted by survey ---------------------------------------
 flag_counts_dur <- l1_survey_indices |>
     dplyr::group_by(survey_label) |>
     dplyr::summarise(n_flagged = sum(flag_duration), .groups = "drop")
@@ -459,14 +460,15 @@ p_dur <- ggplot(l1_survey_indices, aes(x = duration)) +
     facet_wrap(~ survey_label, ncol = 3) +
     facet_theme +
     labs(
-        title    = "Duration [diag] -- survey completion time",
-        subtitle = paste0("Diagnostic threshold: < ", THRESH_DURATION_SECS, " seconds (not used for exclusion)"),
+        title    = "Survey duration per survey",
+        subtitle = paste0("Flag threshold: < ", THRESH_DURATION_SECS, " seconds"),
         x        = "Duration (seconds)",
         y        = "Count"
     )
+
 save_fig(p_dur, "dq_03_duration_by_survey.svg", width = 12, height = 5)
 
-# [7d] L1 Mahalanobis by survey
+# --- [7d] L1 Mahalanobis — faceted by survey ----------------------------------
 mahad_l1_ranked <- l1_mahad |>
     dplyr::group_by(timepoint) |>
     dplyr::arrange(mahad_l1_dist) |>
@@ -477,10 +479,7 @@ flag_counts_mh <- l1_mahad |>
     dplyr::group_by(survey_label) |>
     dplyr::summarise(n_flagged = sum(flag_mahad_l1), .groups = "drop")
 
-p_mahad_l1 <- ggplot(
-    mahad_l1_ranked,
-    aes(x = rank, y = mahad_l1_dist, color = flag_mahad_l1)
-) +
+p_mahad_l1 <- ggplot(mahad_l1_ranked, aes(x = rank, y = mahad_l1_dist, color = flag_mahad_l1)) +
     geom_point(alpha = 0.55, size = 1.0) +
     geom_hline(yintercept = mahad_l1_cutoff,
                color = col_threshold, linetype = "dashed", linewidth = 0.8) +
@@ -497,7 +496,7 @@ p_mahad_l1 <- ggplot(
     facet_wrap(~ survey_label, ncol = 3) +
     facet_theme +
     labs(
-        title    = "L1 Mahalanobis [excl] -- multivariate outliers per survey",
+        title    = "L1 Mahalanobis distance — multivariate outliers per survey",
         subtitle = paste0(
             "Cutoff: ", round(mahad_l1_cutoff, 1),
             " (chi-sq df=", length(l1_scale_cols), ", p=", THRESH_MAHAD_CONF, ")"
@@ -506,27 +505,28 @@ p_mahad_l1 <- ggplot(
         y = "Mahalanobis distance"
     ) +
     theme(legend.position = "bottom")
+
 save_fig(p_mahad_l1, "dq_04_mahalanobis_l1_by_survey.svg", width = 12, height = 5)
 
-# [7e] L2 intake indices
+# --- [7e] L2 intake indices (single-panel; no faceting) ----------------------
 p_ls_l2 <- ggplot(l2_indices, aes(x = longstring_l2)) +
-    geom_histogram(binwidth = 1, fill = col_l2, color = "white", alpha = 0.85) +
+    geom_histogram(binwidth = 1, fill = "#1a9641", color = "white", alpha = 0.85) +
     geom_vline(xintercept = THRESH_LONGSTRING_L2 + 0.5,
                color = col_threshold, linetype = "dashed", linewidth = 0.8) +
     labs(
-        title    = "L2 LongString [excl] (intake)",
-        subtitle = paste0("Threshold > ", THRESH_LONGSTRING_L2, " | Flagged: ", sum(l2_indices$flag_ls_l2)),
+        title    = "L2 Longstring (intake block)",
+        subtitle = paste0("Threshold: > ", THRESH_LONGSTRING_L2, " | Flagged: ", sum(l2_indices$flag_ls_l2)),
         x        = "Max consecutive identical responses",
         y        = "Count"
     )
 
 p_irv_l2 <- ggplot(l2_indices, aes(x = irv_l2)) +
-    geom_histogram(bins = 30, fill = col_l2, color = "white", alpha = 0.85) +
+    geom_histogram(bins = 30, fill = "#1a9641", color = "white", alpha = 0.85) +
     geom_vline(xintercept = THRESH_IRV_L2,
                color = col_threshold, linetype = "dashed", linewidth = 0.8) +
     labs(
-        title    = "L2 IRV [diag] (intake)",
-        subtitle = paste0("Threshold < ", THRESH_IRV_L2, " | Flagged: ", sum(l2_indices$flag_irv_l2)),
+        title    = "L2 IRV (intake block)",
+        subtitle = paste0("Threshold: < ", THRESH_IRV_L2, " | Flagged: ", sum(l2_indices$flag_irv_l2)),
         x        = "Response variability (SD)",
         y        = "Count"
     )
@@ -540,14 +540,15 @@ p_mahad_l2 <- ggplot(mahad_l2_ranked, aes(x = rank, y = mahad_l2_dist, color = f
     geom_hline(yintercept = mahad_l2_cutoff,
                color = col_threshold, linetype = "dashed", linewidth = 0.8) +
     scale_color_manual(
-        values = c("FALSE" = col_l2, "TRUE" = col_flagged),
+        values = c("FALSE" = "#1a9641", "TRUE" = col_flagged),
         labels = c("Retained", "Flagged"),
         name   = NULL
     ) +
     labs(
-        title    = "L2 Mahalanobis [excl] (intake scale means)",
+        title    = "L2 Mahalanobis distance (intake scale means)",
         subtitle = paste0(
             "Cutoff: ", round(mahad_l2_cutoff, 1),
+            " (chi-sq df=", length(l2_scale_cols), ", p=", THRESH_MAHAD_CONF, ")",
             " | Flagged: ", sum(l2_indices$flag_mahad_l2)
         ),
         x = "Participant rank",
@@ -562,7 +563,8 @@ save_fig(
     width = 14, height = 5
 )
 
-# [7f] Flag summary
+# --- [7f] Flag summary — per-survey and person-level -------------------------
+# Panel A: per-criterion flags broken down by survey (L1 criteria)
 survey_order <- paste0("Survey ", sort(unique(l1_survey_indices$timepoint)))
 pal_surveys  <- viridis::viridis(n_surveys, end = 0.85)
 names(pal_surveys) <- survey_order
@@ -570,7 +572,7 @@ names(pal_surveys) <- survey_order
 p_criteria_by_survey <- ggplot(
     survey_flag_counts |>
         dplyr::mutate(
-            criterion    = factor(criterion, levels = c("Longstring L1", "IRV L1", "Duration", "Mahalanobis L1")),
+            criterion    = factor(criterion,    levels = c("Longstring L1", "IRV L1", "Duration", "Mahalanobis L1")),
             survey_label = factor(survey_label, levels = survey_order)
         ),
     aes(x = criterion, y = n_flagged, fill = survey_label)
@@ -583,21 +585,19 @@ p_criteria_by_survey <- ggplot(
     ) +
     scale_fill_manual(values = pal_surveys, name = NULL) +
     labs(
-        title    = "Flagged observations per criterion by survey",
-        subtitle = paste0(
-            "N per survey: ", nrow(df_raw) / n_surveys,
-            " | [excl] = exclusion criterion | [diag] = diagnostic only"
-        ),
-        x = NULL,
-        y = "Observations flagged"
+        title    = "Flagged observations per L1 criterion by survey",
+        subtitle = paste0("N observations per survey: ", nrow(df_raw) / n_surveys),
+        x        = NULL,
+        y        = "Observations flagged"
     ) +
     theme(legend.position = "bottom")
 
+# Panel B: person-level flag count distribution
 flag_dist <- person_summary |>
-    dplyr::count(n_excl_flags) |>
-    dplyr::mutate(excluded = n_excl_flags >= MIN_FLAGS_TO_EXCLUDE)
+    dplyr::count(n_flags) |>
+    dplyr::mutate(excluded = n_flags >= MIN_FLAGS_TO_EXCLUDE)
 
-p_nflags <- ggplot(flag_dist, aes(x = factor(n_excl_flags), y = n, fill = excluded)) +
+p_nflags <- ggplot(flag_dist, aes(x = factor(n_flags), y = n, fill = excluded)) +
     geom_col(width = 0.6, alpha = 0.88) +
     geom_text(aes(label = n), vjust = -0.4, size = 3.5) +
     scale_fill_manual(
@@ -606,13 +606,13 @@ p_nflags <- ggplot(flag_dist, aes(x = factor(n_excl_flags), y = n, fill = exclud
         name   = NULL
     ) +
     labs(
-        title    = "Person-level exclusion criteria flag count",
+        title    = "Person-level criteria flag count",
         subtitle = paste0(
-            "N=", n_participants,
-            " | Excluded (both LongString AND Mahalanobis): ", n_excluded,
+            "N = ", n_participants,
+            " | Excluded (>= ", MIN_FLAGS_TO_EXCLUDE, " criteria): ", n_excluded,
             " | Retained: ", n_retained
         ),
-        x = "Exclusion criteria flagged (of 2: LongString, Mahalanobis)",
+        x = "Number of person-level criteria flagged",
         y = "Participants"
     ) +
     theme(legend.position = "bottom")
@@ -623,7 +623,7 @@ save_fig(
     width = 12, height = 10
 )
 
-log_msg("Figures saved to: ", FIGS_DIR)
+log_msg("Diagnostic figures saved to: ", FIGS_DIR)
 
 
 # =============================================================================
@@ -631,6 +631,7 @@ log_msg("Figures saved to: ", FIGS_DIR)
 # =============================================================================
 log_msg("=== [8] Writing screening tables ===")
 
+# --- Per-survey detail (person x survey) -----
 detail_path <- file.path(FIGS_DIR, "dq_07_screening_detail.csv")
 readr::write_csv(
     survey_detail |>
@@ -644,39 +645,49 @@ readr::write_csv(
 )
 log_msg("Per-survey detail: ", detail_path)
 
+# --- Person-level summary -----
+# Rename flag columns for clarity before writing
+person_out <- person_summary |>
+    dplyr::rename(
+        flag_longstring_l2 = flag_ls_l2,
+        flag_irv_l2_col    = flag_irv_l2
+    ) |>
+    dplyr::select(
+        response_id,
+        # Worst-case aggregates
+        longstring_l1_max, irv_l1_min, duration_min_secs, mahad_l1_max,
+        # Per-survey raw values
+        dplyr::starts_with("longstring_l1_tp"),
+        dplyr::starts_with("irv_l1_tp"),
+        dplyr::starts_with("duration_tp"),
+        dplyr::starts_with("mahad_l1_tp"),
+        # L2 values
+        longstring_l2, irv_l2, mahad_l2_dist,
+        # Person-level criterion flags
+        flag_longstring_l1, flag_longstring_l2,
+        flag_irv_l1, flag_irv_l2_col,
+        flag_duration, flag_mahad_l1, flag_mahad_l2, flag_mahad,
+        n_flags, exclude
+    )
+
 summary_path <- file.path(FIGS_DIR, "dq_08_person_summary.csv")
-readr::write_csv(
-    person_summary |>
-        dplyr::select(
-            response_id,
-            longstring_l1_max, irv_l1_min, duration_min_secs, mahad_l1_max,
-            dplyr::starts_with("longstring_l1_tp"),
-            dplyr::starts_with("irv_l1_tp"),
-            dplyr::starts_with("duration_tp"),
-            dplyr::starts_with("mahad_l1_tp"),
-            longstring_l2, irv_l2, mahad_l2_dist,
-            flag_longstring_l1, flag_ls_l2, flag_longstring,
-            flag_irv_l1, flag_irv_l2,
-            flag_duration,
-            flag_mahad_l1, flag_mahad_l2, flag_mahad,
-            n_excl_flags, n_diag_flags, exclude
-        ),
-    summary_path
-)
+readr::write_csv(person_out, summary_path)
 log_msg("Person-level summary: ", summary_path)
 
+# --- Excluded participants -----
+excluded_out <- person_summary |>
+    dplyr::filter(exclude) |>
+    dplyr::select(
+        response_id, n_flags,
+        flag_longstring_l1, flag_ls_l2,
+        flag_irv_l1, flag_irv_l2,
+        flag_duration, flag_mahad,
+        longstring_l1_max, irv_l1_min, duration_min_secs
+    )
+
 excluded_path <- file.path(FIGS_DIR, "dq_09_excluded_participants.csv")
-readr::write_csv(
-    person_summary |>
-        dplyr::filter(exclude) |>
-        dplyr::select(
-            response_id, n_excl_flags,
-            flag_longstring, flag_mahad,
-            longstring_l1_max, mahad_l1_max, mahad_l2_dist
-        ),
-    excluded_path
-)
-log_msg("Excluded participants (", sum(person_summary$exclude), "): ", excluded_path)
+readr::write_csv(excluded_out, excluded_path)
+log_msg("Excluded participants (", nrow(excluded_out), "): ", excluded_path)
 
 
 # =============================================================================
@@ -691,18 +702,13 @@ retained_ids <- person_summary |>
 df_cleaned <- df_raw |>
     dplyr::filter(response_id %in% retained_ids)
 
-cleaned_path <- file.path(EXPORT_DIR, "qualtrics_fct_panel_responses_cleaned.csv")
+cleaned_path <- file.path(EXPORT_DIR, "syn_qualtrics_fct_panel_responses_cleaned.csv")
 readr::write_csv(df_cleaned, cleaned_path)
-saveRDS(df_cleaned, file.path(EXPORT_DIR, "qualtrics_fct_panel_responses_cleaned.rds"))
+rds_path <- file.path(EXPORT_DIR, "syn_qualtrics_fct_panel_responses_cleaned.rds")
+saveRDS(df_cleaned, rds_path)
 
-log_msg("Cleaned dataset written: ", basename(cleaned_path))
-log_msg("  Original:  ", nrow(df_raw), " rows, ", n_participants, " participants")
-log_msg(
-    "  Cleaned:   ", nrow(df_cleaned), " rows, ",
-    dplyr::n_distinct(df_cleaned$response_id), " participants"
-)
-log_msg(
-    "  Excluded:  ", n_excluded, " participants (",
-    round(n_excluded / n_participants * 100, 1), "%)"
-)
+log_msg("Cleaned dataset: ", basename(cleaned_path))
+log_msg("  Original: ", nrow(df_raw), " rows, ", n_participants, " participants")
+log_msg("  Cleaned:  ", nrow(df_cleaned), " rows, ", dplyr::n_distinct(df_cleaned$response_id), " participants")
+log_msg("  Excluded: ", n_excluded, " participants (", round(n_excluded / n_participants * 100, 1), "%)")
 log_msg("=== DATA QUALITY SCREENING COMPLETE ===")

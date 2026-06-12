@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # =============================================================================
-# analysis/run_study_analysis/scripts/R/eda.R
+# analysis/run_study_analysis/scripts/R/eda.r
 #
 # Comprehensive Exploratory Data Analysis for the real participant panel dataset.
 # Produces publication-quality SVG figures and diagnostic tables across 8
@@ -49,9 +49,9 @@ options(tibble.width = Inf)
 
 source(here::here("analysis", "shared", "utils", "common_utils.r"))
 source(here::here("analysis", "shared", "utils", "plot_utils.r"))
-source(here::here("analysis", "run_study_analysis", "utils", "data_loader.R"))
-source(here::here("analysis", "run_study_analysis", "utils", "prep_levels.R"))
-source(here::here("analysis", "run_study_analysis", "utils", "prep_mlm.R"))
+source(here::here("analysis", "run_study_analysis", "utils", "data_loader.r"))
+source(here::here("analysis", "run_study_analysis", "utils", "prep_levels.r"))
+source(here::here("analysis", "run_study_analysis", "utils", "prep_mlm.r"))
 
 # --- Global settings ---------------------------------------------------------
 FIGS_DIR <- here::here("analysis", "run_study_analysis", "figs", "eda")
@@ -59,12 +59,12 @@ ensure_dir(FIGS_DIR)
 
 theme_set(theme_apa)
 
-save_fig   <- make_save_fig(FIGS_DIR)
+save_fig <- make_save_fig(FIGS_DIR)
 save_table <- make_save_tbl(FIGS_DIR, default_width = 10, default_height = 7)
 
-pal_3      <- viridis::viridis(3, end = 0.85)
+pal_3 <- viridis::viridis(3, end = 0.85)
 pal_burnout <- viridis::viridis(3, option = "C", end = 0.85)
-pal_nf     <- viridis::viridis(3, option = "D", end = 0.85)
+pal_nf <- viridis::viridis(3, option = "D", end = 0.85)
 
 
 # =============================================================================
@@ -225,12 +225,14 @@ l2_desc <- tbls$l2 |>
     dplyr::mutate(level = "L2")
 
 all_desc <- dplyr::bind_rows(l1_desc, l2_desc) |>
-    dplyr::mutate(across(c(mean, sd, min, max, skew, kurtosis, se),
+    dplyr::mutate(across(
+        c(mean, sd, min, max, skew, kurtosis, se),
         ~ round(., 3)
     ))
 
 floor_ceil <- tbls$l1 |>
-    dplyr::summarise(across(all_of(l1_scale_vars),
+    dplyr::summarise(across(
+        all_of(l1_scale_vars),
         list(
             floor = ~ mean(. <= 1, na.rm = TRUE),
             ceil  = ~ mean(. >= 5, na.rm = TRUE)
@@ -270,7 +272,7 @@ md <- mahalanobis(
     cov(l2_numeric, use = "complete.obs")
 )
 tbls$l2$mahal_dist <- md
-crit_val  <- qchisq(0.999, df = length(l2_cont_vars))
+crit_val <- qchisq(0.999, df = length(l2_cont_vars))
 n_outliers <- sum(md > crit_val)
 
 p_mahal <- ggplot(tibble::tibble(md = sort(md)), aes(sample = md)) +
@@ -394,7 +396,7 @@ p_cross_1 <- tbls$l2 |>
     ggplot(aes(x = gender, y = n, fill = factor(is_remote))) +
     geom_col(position = "dodge") +
     scale_fill_viridis_d(
-        name   = "Remote",
+        name = "Remote",
         labels = c("No", "Yes"), end = 0.85
     ) +
     labs(title = "Gender x Remote Work Status", x = NULL, y = "Count")
@@ -447,7 +449,7 @@ pdf(file.path(FIGS_DIR, "eda_10_table1.pdf"), width = 10, height = 14)
 gridExtra::grid.arrange(
     t1_cont_grob, t1_cat_grob,
     nrow = 2,
-    top  = grid::textGrob("Table 1: Sample Characteristics",
+    top = grid::textGrob("Table 1: Sample Characteristics",
         gp = grid::gpar(fontsize = 14, fontface = "bold")
     )
 )
@@ -472,8 +474,8 @@ log_msg("  3.1 Raincloud plots")
 
 p_raincloud <- tbls$l1 |>
     tidyr::pivot_longer(
-        cols      = all_of(l1_scale_vars),
-        names_to  = "scale", values_to = "value"
+        cols = all_of(l1_scale_vars),
+        names_to = "scale", values_to = "value"
     ) |>
     dplyr::mutate(scale = factor(scale, levels = l1_scale_vars)) |>
     ggplot(aes(x = factor(timepoint), y = value, fill = factor(timepoint))) +
@@ -483,7 +485,8 @@ p_raincloud <- tbls$l1 |>
     ) +
     geom_boxplot(width = 0.15, outlier.shape = NA, alpha = 0.5) +
     scale_fill_viridis_d(end = 0.85, guide = "none") +
-    facet_wrap(~scale, scales = "free_y", ncol = 4,
+    facet_wrap(~scale,
+        scales = "free_y", ncol = 4,
         labeller = labeller(scale = l1_labels)
     ) +
     labs(
@@ -500,8 +503,8 @@ log_msg("  3.2 Ridgeline plots")
 
 p_ridge_burn <- tbls$l1 |>
     tidyr::pivot_longer(
-        cols      = c(pf_mean, cw_mean, ee_mean),
-        names_to  = "subscale", values_to = "value"
+        cols = c(pf_mean, cw_mean, ee_mean),
+        names_to = "subscale", values_to = "value"
     ) |>
     dplyr::mutate(subscale = factor(subscale,
         levels = c("pf_mean", "cw_mean", "ee_mean"),
@@ -518,8 +521,8 @@ save_fig(p_ridge_burn, "eda_12a_burnout_ridgelines.svg", width = 8, height = 5)
 
 p_ridge_nf <- tbls$l1 |>
     tidyr::pivot_longer(
-        cols      = c(comp_mean, auto_mean, relt_mean),
-        names_to  = "subscale", values_to = "value"
+        cols = c(comp_mean, auto_mean, relt_mean),
+        names_to = "subscale", values_to = "value"
     ) |>
     dplyr::mutate(subscale = factor(subscale,
         levels = c("comp_mean", "auto_mean", "relt_mean"),
@@ -544,8 +547,8 @@ all_l2_cont <- c(l2_cont_vars, l2_extra_cont)
 
 p_l2_dist <- tbls$l2 |>
     tidyr::pivot_longer(
-        cols      = all_of(all_l2_cont),
-        names_to  = "scale", values_to = "value"
+        cols = all_of(all_l2_cont),
+        names_to = "scale", values_to = "value"
     ) |>
     dplyr::mutate(scale = factor(scale,
         levels = all_l2_cont,
@@ -613,12 +616,12 @@ ucm_fits <- purrr::map(l1_scale_vars, function(var) {
 names(ucm_fits) <- l1_scale_vars
 
 icc_results <- purrr::map_dfr(l1_scale_vars, function(var) {
-    fit      <- ucm_fits[[var]]
-    icc_val  <- performance::icc(fit)
-    vc       <- as.data.frame(VarCorr(fit))
+    fit <- ucm_fits[[var]]
+    icc_val <- performance::icc(fit)
+    vc <- as.data.frame(VarCorr(fit))
 
     var_between <- vc$vcov[vc$grp == "response_id"]
-    var_within  <- vc$vcov[vc$grp == "Residual"]
+    var_within <- vc$vcov[vc$grp == "Residual"]
 
     tibble::tibble(
         variable     = var,
@@ -627,7 +630,7 @@ icc_results <- purrr::map_dfr(l1_scale_vars, function(var) {
         var_within   = var_within,
         var_total    = var_between + var_within,
         pct_between  = var_between / (var_between + var_within),
-        pct_within   = var_within  / (var_between + var_within)
+        pct_within   = var_within / (var_between + var_within)
     )
 })
 
@@ -665,7 +668,7 @@ p_icc <- ggplot(
         linewidth  = 0.5
     ) +
     annotate("text",
-        x     = 0.6, y = c(0.12, 0.32, 0.52),
+        x = 0.6, y = c(0.12, 0.32, 0.52),
         label = c("ICC = .10", "ICC = .30", "ICC = .50"),
         hjust = 0, size = 2.8,
         color = c("forestgreen", "orange3", "red3")
@@ -673,7 +676,7 @@ p_icc <- ggplot(
     coord_flip() +
     scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.1)) +
     labs(
-        title    = "Intraclass Correlation Coefficients (L1 Variables)",
+        title = "Intraclass Correlation Coefficients (L1 Variables)",
         subtitle = "Dashed lines correspond to power analysis ICC scenarios",
         x = NULL, y = "ICC (Adjusted)"
     )
@@ -686,8 +689,8 @@ log_msg("  4.3 Variance decomposition")
 p_vardecomp <- icc_results |>
     dplyr::mutate(var_order = pct_within) |>
     tidyr::pivot_longer(
-        cols      = c(pct_within, pct_between),
-        names_to  = "component", values_to = "proportion"
+        cols = c(pct_within, pct_between),
+        names_to = "component", values_to = "proportion"
     ) |>
     dplyr::mutate(component = ifelse(component == "pct_within",
         "Within-Person", "Between-Person"
@@ -716,7 +719,7 @@ make_spaghetti <- function(data, var, title, sample_ids) {
     group_means <- data |>
         dplyr::group_by(timepoint) |>
         dplyr::summarise(
-            m  = mean(.data[[var]], na.rm = TRUE),
+            m = mean(.data[[var]], na.rm = TRUE),
             se = sd(.data[[var]], na.rm = TRUE) / sqrt(dplyr::n()),
             .groups = "drop"
         )
@@ -783,7 +786,7 @@ p_person_sd <- person_sds |>
     geom_density(linewidth = 0.7) +
     facet_wrap(~variable, scales = "free", ncol = 4) +
     labs(
-        title    = "Distribution of Person-Level Standard Deviations",
+        title = "Distribution of Person-Level Standard Deviations",
         subtitle = "Higher values = more within-person fluctuation",
         x = "Person SD (across 3 timepoints)", y = "Density"
     )
@@ -795,7 +798,7 @@ log_msg("  4.6 Random intercept distributions")
 
 ri_dfs <- purrr::map_dfr(l1_scale_vars, function(var) {
     fit <- ucm_fits[[var]]
-    ri  <- ranef(fit)$response_id
+    ri <- ranef(fit)$response_id
     tibble::tibble(variable = var, random_intercept = ri[, 1])
 })
 
@@ -817,7 +820,7 @@ save_fig(p_ri, "eda_20_random_intercept_distributions.svg",
 # =============================================================================
 log_msg("=== PHASE 5: Within-Person Dynamics ===")
 
-# --- 5.1 CWC diagnostics (sourced from prep_mlm.R) --------------------------
+# --- 5.1 CWC diagnostics (sourced from prep_mlm.r) --------------------------
 log_msg("  5.1 CWC diagnostics")
 
 # prepare_mlm_frame applies datawizard::demean() -> {var}_within columns
@@ -833,13 +836,13 @@ tbls$l1_mlm <- datawizard::demean(
 
 # prepare_mlm_frame demeans l1_predictor_vars + l1_marker_var; DV is not decomposed here.
 within_plot_vars <- c(VARIABLE_DEFS$l1_predictor_vars, VARIABLE_DEFS$l1_marker_var)
-within_vars      <- paste0(within_plot_vars, "_within")
-within_dv   <- "turnover_intention_mean_within"
+within_vars <- paste0(within_plot_vars, "_within")
+within_dv <- "turnover_intention_mean_within"
 
 p_cwc <- tbls$l1_mlm |>
     tidyr::pivot_longer(
-        cols      = all_of(within_vars),
-        names_to  = "variable", values_to = "within_value"
+        cols = all_of(within_vars),
+        names_to = "variable", values_to = "within_value"
     ) |>
     dplyr::mutate(variable = stringr::str_remove(variable, "_within$")) |>
     ggplot(aes(x = within_value, fill = variable)) +
@@ -848,7 +851,7 @@ p_cwc <- tbls$l1_mlm |>
     facet_wrap(~variable, scales = "free", ncol = 4) +
     scale_fill_viridis_d(guide = "none", end = 0.85) +
     labs(
-        title    = "Within-Person Centered Score Distributions",
+        title = "Within-Person Centered Score Distributions",
         subtitle = "Deviations from each person's mean across 3 timepoints",
         x = "Within-Person Deviation", y = "Density"
     )
@@ -860,12 +863,12 @@ log_msg("  5.2 Timepoint means")
 
 timepoint_means <- tbls$l1 |>
     tidyr::pivot_longer(
-        cols      = all_of(l1_scale_vars),
-        names_to  = "variable", values_to = "value"
+        cols = all_of(l1_scale_vars),
+        names_to = "variable", values_to = "value"
     ) |>
     dplyr::group_by(variable, timepoint) |>
     dplyr::summarise(
-        m  = mean(value, na.rm = TRUE),
+        m = mean(value, na.rm = TRUE),
         se = sd(value, na.rm = TRUE) / sqrt(dplyr::n()),
         .groups = "drop"
     )
@@ -926,7 +929,7 @@ p_cluster <- tbls$l1 |>
     scale_color_viridis_d(name = "Cluster", end = 0.85) +
     scale_x_continuous(breaks = 1:3) +
     labs(
-        title    = "Turnover Intention Trajectories by Cluster (Exploratory)",
+        title = "Turnover Intention Trajectories by Cluster (Exploratory)",
         subtitle = "K-means (k=3) on person-level mean, SD, and slope",
         x = "Timepoint", y = "Turnover Intention"
     )
@@ -961,7 +964,7 @@ p_lag1 <- lag1_cors |>
     geom_vline(xintercept = 0, linetype = "dashed") +
     facet_wrap(~variable, ncol = 4) +
     labs(
-        title    = "Distribution of Lag-1 Autocorrelations (Within-Person)",
+        title = "Distribution of Lag-1 Autocorrelations (Within-Person)",
         subtitle = "Each bar = number of persons with that autocorrelation",
         x = "Lag-1 Autocorrelation", y = "Count"
     )
@@ -998,16 +1001,16 @@ log_msg("Saved: ", file.path(FIGS_DIR, "eda_25_l2_correlation_matrix.svg"))
 log_msg("  6.2 Within-person scatterplots")
 
 key_predictors <- c("pf_mean", "cw_mean", "ee_mean", "comp_mean", "auto_mean", "relt_mean")
-within_preds   <- paste0(key_predictors, "_within")
+within_preds <- paste0(key_predictors, "_within")
 
 within_scatter_plots <- purrr::map(within_preds, function(pred) {
     pred_label <- stringr::str_remove(pred, "_within$")
     ggplot(tbls$l1_mlm, aes(x = .data[[pred]], y = .data[[within_dv]])) +
         geom_point(alpha = 0.08, size = 0.5) +
         geom_smooth(
-            method    = "lm",
-            color     = viridis::viridis(1, begin = 0.4),
-            se        = TRUE, linewidth = 1
+            method = "lm",
+            color = viridis::viridis(1, begin = 0.4),
+            se = TRUE, linewidth = 1
         ) +
         labs(
             x = paste0(pred_label, " (within)"),
@@ -1034,23 +1037,23 @@ person_means_ti <- tbls$l1 |>
     ) |>
     dplyr::left_join(tbls$l2, by = "response_id")
 
-xlvl_plots <- purrr::map(c("br_mean", "vio_mean", "js_mean"), function(mod) {
+xlvl_plots <- purrr::map(c("br_mean", "vio_mean", "js_mean", "jis_mean", "des_mean"), function(mod) {
     ggplot(person_means_ti, aes(x = .data[[mod]], y = ti_pmean)) +
         geom_point(alpha = 0.2, size = 1) +
         geom_smooth(method = "loess", color = viridis::viridis(1), se = TRUE) +
-        geom_smooth(method = "lm",    color = "red", linetype = "dashed", se = FALSE) +
+        geom_smooth(method = "lm", color = "red", linetype = "dashed", se = FALSE) +
         labs(
             x = l2_labels[mod] %||% mod,
             y = "Person-Mean Turnover Intention"
         )
 })
 
-p_xlvl <- patchwork::wrap_plots(xlvl_plots, ncol = 3) +
+p_xlvl <- patchwork::wrap_plots(xlvl_plots, ncol = 5) +
     patchwork::plot_annotation(
         title    = "Cross-Level: L2 Moderators vs. Person-Mean Turnover Intention",
         subtitle = "Blue = LOESS, Red dashed = linear fit"
     )
-save_fig(p_xlvl, "eda_27_crosslevel_scatterplots.svg", width = 14, height = 5)
+save_fig(p_xlvl, "eda_27_crosslevel_scatterplots.svg", width = 22, height = 5)
 
 
 # --- 6.4 Repeated-measures correlation (rmcorr) key pairs --------------------
@@ -1070,13 +1073,13 @@ par(mfrow = c(2, 2))
 for (pair in rmc_pairs) {
     rmc <- rmcorr::rmcorr(
         participant = response_id,
-        measure1    = pair[1], measure2 = pair[2],
-        dataset     = as.data.frame(tbls$l1)
+        measure1 = pair[1], measure2 = pair[2],
+        dataset = as.data.frame(tbls$l1)
     )
     plot(rmc,
         overall = TRUE, lwd = 2, overall.lwd = 3,
-        xlab    = pair[1], ylab = pair[2],
-        main    = glue(
+        xlab = pair[1], ylab = pair[2],
+        main = glue(
             "rmcorr = {round(rmc$r, 3)}, p = {format.pval(rmc$p, digits = 3)}"
         )
     )
@@ -1117,7 +1120,7 @@ rmc_long <- as.data.frame(as.table(rmc_mat_full)) |>
 
 corr_compare <- naive_corr |>
     dplyr::left_join(easystats_corr, by = c("Parameter1", "Parameter2")) |>
-    dplyr::left_join(rmc_long,       by = c("Parameter1", "Parameter2")) |>
+    dplyr::left_join(rmc_long, by = c("Parameter1", "Parameter2")) |>
     dplyr::mutate(across(starts_with("r_"), ~ round(., 3)))
 
 cat("\n=== Three-Way Correlation Comparison ===\n")
@@ -1152,8 +1155,8 @@ log_msg("=== PHASE 7: Preliminary MLM Diagnostics ===")
 log_msg("  7.1 Unconditional means models")
 
 ucm_table <- purrr::map_dfr(l1_scale_vars, function(var) {
-    fit     <- ucm_fits[[var]]
-    tidied  <- broom.mixed::tidy(fit)
+    fit <- ucm_fits[[var]]
+    tidied <- broom.mixed::tidy(fit)
     glanced <- broom.mixed::glance(fit)
 
     tibble::tibble(
@@ -1201,7 +1204,7 @@ ugm_results <- purrr::map_dfr(l1_scale_vars, function(var) {
     fit_ucm <- lme4::lmer(f_ucm, data = tbls$l1, REML = FALSE)
     fit_ugm <- tryCatch(
         lme4::lmer(f_ugm, data = tbls$l1, REML = FALSE),
-        error   = function(e) NULL,
+        error = function(e) NULL,
         warning = function(w) {
             suppressWarnings(lme4::lmer(f_ugm, data = tbls$l1, REML = FALSE))
         }
@@ -1338,7 +1341,7 @@ log_msg("=== PHASE 8: Cross-Level Interaction Exploration ===")
 log_msg("  8.1 Slope-as-outcome")
 
 l1_preds <- c("pf_mean", "cw_mean", "ee_mean", "comp_mean", "auto_mean", "relt_mean")
-l2_mods  <- c("br_mean", "vio_mean", "js_mean")
+l2_mods <- c("br_mean", "vio_mean", "js_mean", "jis_mean", "des_mean")
 
 person_slopes <- tbls$l1 |>
     dplyr::group_by(response_id) |>
@@ -1386,7 +1389,9 @@ tbls$full <- tbls$full |>
     dplyr::mutate(
         br_tertile  = dplyr::ntile(br_mean, 3),
         vio_tertile = dplyr::ntile(vio_mean, 3),
-        js_tertile  = dplyr::ntile(js_mean, 3)
+        js_tertile  = dplyr::ntile(js_mean, 3),
+        jis_tertile = dplyr::ntile(jis_mean, 3),
+        des_tertile = dplyr::ntile(des_mean, 3)
     ) |>
     dplyr::mutate(across(
         ends_with("_tertile"),
@@ -1396,7 +1401,7 @@ tbls$full <- tbls$full |>
 make_cond_panel <- function(data, l1_preds, moderator_col, mod_label) {
     plots <- purrr::map(l1_preds, function(pred) {
         ggplot(data, aes(
-            x     = .data[[pred]], y = turnover_intention_mean,
+            x = .data[[pred]], y = turnover_intention_mean,
             color = .data[[moderator_col]]
         )) +
             geom_point(alpha = 0.05, size = 0.3) +
@@ -1410,14 +1415,20 @@ make_cond_panel <- function(data, l1_preds, moderator_col, mod_label) {
         )
 }
 
-p_cond_br <- make_cond_panel(tbls$full, l1_preds, "br_tertile",  "Breach Level")
-save_fig(p_cond_br,  "eda_35_conditional_slopes_breach.svg", width = 14, height = 10)
+p_cond_br <- make_cond_panel(tbls$full, l1_preds, "br_tertile", "Breach Level")
+save_fig(p_cond_br, "eda_35_conditional_slopes_breach.svg", width = 14, height = 10)
 
 p_cond_vio <- make_cond_panel(tbls$full, l1_preds, "vio_tertile", "Violation Level")
 save_fig(p_cond_vio, "eda_36_conditional_slopes_violation.svg", width = 14, height = 10)
 
-p_cond_js <- make_cond_panel(tbls$full, l1_preds, "js_tertile",  "Job Satisfaction Level")
-save_fig(p_cond_js,  "eda_37_conditional_slopes_js.svg", width = 14, height = 10)
+p_cond_js <- make_cond_panel(tbls$full, l1_preds, "js_tertile", "Job Satisfaction Level")
+save_fig(p_cond_js, "eda_37_conditional_slopes_js.svg", width = 14, height = 10)
+
+p_cond_jis <- make_cond_panel(tbls$full, l1_preds, "jis_tertile", "Job Insecurity Level")
+save_fig(p_cond_jis, "eda_38_conditional_slopes_jis.svg", width = 14, height = 10)
+
+p_cond_des <- make_cond_panel(tbls$full, l1_preds, "des_tertile", "Desirability of Movement Level")
+save_fig(p_cond_des, "eda_39_conditional_slopes_des.svg", width = 14, height = 10)
 
 
 # --- 8.3 Interaction heatmap ------------------------------------------------
@@ -1453,4 +1464,6 @@ log_msg("Total SVGs generated: 32 (figures)")
 log_msg("Total PDFs generated: 6 (tables)")
 log_msg("Total CSVs generated: 3")
 cat("\n=== File Listing ===\n")
-list.files(FIGS_DIR, pattern = "\\.(svg|pdf|csv)$") |> sort() |> cat(sep = "\n")
+list.files(FIGS_DIR, pattern = "\\.(svg|pdf|csv)$") |>
+    sort() |>
+    cat(sep = "\n")
