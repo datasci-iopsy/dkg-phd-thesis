@@ -314,8 +314,8 @@ t2_rows <- purrr::map_dfr(seq_along(table2_vars), function(i) {
     row <- tibble::tibble(
         ` ` = as.character(i),
         Variable = var_labels[v],
-        M = if (nrow(d) > 0) as.character(d$mean) else "",
-        SD = if (nrow(d) > 0) as.character(d$sd) else "",
+        M = if (nrow(d) > 0) formatC(d$mean, digits = 2, format = "f") else "",
+        SD = if (nrow(d) > 0) formatC(d$sd, digits = 2, format = "f") else "",
         ICC = if (v %in% l1_vars && length(icc_val) > 0) fmt_r(icc_val) else ""
     )
 
@@ -836,8 +836,8 @@ t5 <- hyp |>
             formatC(Estimate, digits = 3, format = "f")
         ),
         p = ifelse(is.na(p_value), "", fmt_p(p_value)),
-        beta = ifelse(is.na(beta), "", as.character(beta)),
-        d = ifelse(is.na(pseudo_d), "", as.character(pseudo_d))
+        beta = ifelse(is.na(beta), "", formatC(beta, digits = 3, format = "f")),
+        d = ifelse(is.na(pseudo_d), "", formatC(pseudo_d, digits = 3, format = "f"))
     ) |>
     dplyr::select(
         hypothesis,

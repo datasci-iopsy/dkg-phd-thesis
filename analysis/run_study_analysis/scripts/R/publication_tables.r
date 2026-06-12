@@ -913,22 +913,36 @@ make_vc_row <- function(label, col_name, tbl, short_names) {
 
 short_main <- model_short
 
+#' Resolve mlm_05_standardized_effects.csv to a canonical (term, model, beta_val)
+#' frame, tolerating column-name drift. Stops if no term key column exists;
+#' returns NA beta values (with a warning) if no beta column is found.
+resolve_stdzd <- function(stdzd) {
+    key_col <- intersect(c("term", "Parameter"), names(stdzd))[1]
+    if (is.na(key_col)) {
+        stop("No term key column (term/Parameter) in mlm_05_standardized_effects.csv")
+    }
+    beta_col <- intersect(
+        c("Std_Coefficient", "beta", "std_beta", "standardized"),
+        names(stdzd)
+    )[1]
+    if (is.na(beta_col)) {
+        log_msg("WARNING: beta column not found in mlm_05_standardized_effects.csv")
+        stdzd |>
+            dplyr::rename(term = !!key_col) |>
+            dplyr::mutate(beta_val = NA_real_) |>
+            dplyr::select(term, model, beta_val)
+    } else {
+        stdzd |>
+            dplyr::rename(term = !!key_col) |>
+            dplyr::select(term, model, beta_val = !!beta_col)
+    }
+}
+
 # Load standardized effects for Strategy 1 beta column
 stdzd <- readr::read_csv(file.path(MLM_DIR, "mlm_05_standardized_effects.csv"),
     show_col_types = FALSE
 )
-beta_col <- intersect(
-    c("Std_Coefficient", "beta", "std_beta", "standardized"),
-    names(stdzd)
-)[1]
-key_col <- intersect(c("term", "Parameter"), names(stdzd))[1]
-if (is.na(beta_col)) {
-    log_msg("WARNING: beta column not found in mlm_05_standardized_effects.csv")
-    beta_col <- key_col
-}
-stdzd_join <- stdzd |>
-    dplyr::rename(term = !!key_col) |>
-    dplyr::select(term, model, beta_val = !!beta_col)
+stdzd_join <- resolve_stdzd(stdzd)
 
 # --- Strategy 1: M5 focal coefficient table + fit progression panel ----------
 
@@ -1300,8 +1314,9 @@ ps_d <- readr::read_csv(file.path(MLM_DIR, "mlm_06_level_specific_es.csv"),
     show_col_types = FALSE
 )
 
-std_lookup <- std_fx |>
-    dplyr::select(model, term = Parameter, beta = Std_Coefficient) |>
+# Same column-drift-tolerant resolver used by Strategy 1
+std_lookup <- resolve_stdzd(std_fx) |>
+    dplyr::rename(beta = beta_val) |>
     dplyr::mutate(beta = round(beta, 3))
 
 pd_lookup <- ps_d |>

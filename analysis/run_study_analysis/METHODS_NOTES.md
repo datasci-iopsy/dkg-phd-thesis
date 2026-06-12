@@ -192,7 +192,7 @@ RMSEA is particularly strong (.033); SRMR_between (.077) slightly elevated relat
 | ATCB (marker) | .983 |
 
 **Notes for write-up**:
-- Within-level omegas for NF facets (.554 -- .619) and EE (.607) are moderate. This is expected in ESM designs: state-level fluctuation carries more item-specific noise than stable trait scores. PF (.817) and CW (.852) show strong within-level reliability.
+- Within-level omegas for NF facets (.554 -- .619) and EE (.607) are moderate. This is expected in ESM designs: state-level fluctuation carries more item-specific noise than stable trait scores. PF (.809) and CW (.844) show strong within-level reliability.
 - Level-specific ω_W and ω_B are reported separately for all factors per Geldhof et al. (2014): reliability in multilevel data must be evaluated at each level because measurement error accumulates at the within-person level.
 - Omega computed directly from λ, φ, θ parameter estimates (McDonald, 1999; Lai, 2021). semTools::compRelSEM() not used for MCFA levels due to deprecated config= argument in semTools >= 0.5-8.
 - Negative between-level residual variances (Heywood cases) clamped to 0 before omega computation, consistent with semTools internal convention.
@@ -268,7 +268,7 @@ All within-person associations between ATCB and substantive constructs are near 
 
 ### Model building sequence (M0 to M7b)
 
-Cross-classified data: N = 336 L2 units (participants) x 3 L1 observations per person (1,008 total). DV: turnover_intention_mean (single-item, 1-5 scale). Centering: person-mean centering (CWC) for L1 predictors via datawizard::demean(); grand-mean centering for L2 predictors. Following Curran & Bauer (2011) and Enders & Tofighi (2007). ML for LRTs; REML for final parameter tables.
+Nested data: N = 336 L2 units (participants) x 3 L1 observations nested within each person (1,008 total). DV: turnover_intention_mean (single-item, 1-5 scale). Centering: person-mean centering (CWC) for L1 predictors via datawizard::demean(); grand-mean centering for L2 predictors. Following Curran & Bauer (2011) and Enders & Tofighi (2007). ML for LRTs; REML for final parameter tables.
 
 **Model fit summary** (ML estimation):
 
