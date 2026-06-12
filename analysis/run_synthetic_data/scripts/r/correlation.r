@@ -3,9 +3,10 @@
 # analysis/run_synthetic_data/scripts/r/correlation.r
 #
 # Correlation analysis for the synthetic panel dataset.
-# Computes L2 Pearson correlations, L1 standard Pearson correlations, and
+# Computes L2 Pearson correlations, L1 pooled Pearson correlations,
 # within-person repeated-measures correlations (Bakdash & Marusich, 2017)
-# using both correlation::correlation (multilevel) and rmcorr::rmcorr_mat.
+# using both correlation::correlation (multilevel) and rmcorr::rmcorr_mat,
+# and true between-person correlations (Pearson on person means + L2 vars).
 #
 # Output: SVG figures → analysis/run_synthetic_data/figs/corr/
 # =============================================================================
@@ -46,9 +47,9 @@ corr_to_matrix <- function(corr_obj) {
         df,
         dplyr::rename(df, Parameter1 = Parameter2, Parameter2 = Parameter1)
     )
-    wide  <- tidyr::pivot_wider(sym, names_from = Parameter2, values_from = r)
-    vars  <- wide$Parameter1                    # row order
-    mat   <- as.matrix(wide[, vars])            # columns forced to same order as rows
+    wide <- tidyr::pivot_wider(sym, names_from = Parameter2, values_from = r)
+    vars <- wide$Parameter1 # row order
+    mat <- as.matrix(wide[, vars]) # columns forced to same order as rows
     rownames(mat) <- vars
     diag(mat) <- 1
     mat
@@ -110,20 +111,24 @@ log_msg("Saved: corr_01_l2_pearson_matrix.csv")
 save_corr_svg("corr_l2_pearson.svg", width = 10, height = 10, {
     corrplot::corrplot(
         l2_sq,
-        method    = "color",
-        type      = "lower",
+        method = "color",
+        type = "lower",
         addCoef.col = "black",
-        number.cex  = 0.65,
-        title     = "L2 Pearson correlations (between-person)",
-        mar       = c(0, 0, 2, 0)
+        number.cex = 0.65,
+        title = "L2 Pearson correlations (between-person)",
+        mar = c(0, 0, 2, 0)
     )
 })
 
 
 # =============================================================================
-# [3] L1 STANDARD PEARSON CORRELATIONS (ignores nesting)
+# [3] L1 POOLED PEARSON CORRELATIONS (ignores nesting -- diagnostic only)
+# -----------------------------------------------------------------------------
+# Pooled (total) correlations across all person-timepoint rows. These conflate
+# within- and between-person variance and are NOT a between-person estimate
+# (that is corr_05) nor a within-person estimate (that is corr_04).
 # =============================================================================
-log_msg("=== [3] L1 standard Pearson correlations ===")
+log_msg("=== [3] L1 pooled Pearson correlations (ignores nesting) ===")
 
 l1_corr <- df_l1 |>
     dplyr::select(-response_id) |>
@@ -131,17 +136,17 @@ l1_corr <- df_l1 |>
 
 l1_sq <- corr_to_matrix(l1_corr)
 
-write.csv(l1_sq, file.path(FIGS_DIR, "corr_02_l1_pearson_matrix.csv"))
-log_msg("Saved: corr_02_l1_pearson_matrix.csv")
+write.csv(l1_sq, file.path(FIGS_DIR, "corr_02_l1_pooled_pearson_matrix.csv"))
+log_msg("Saved: corr_02_l1_pooled_pearson_matrix.csv")
 
-save_corr_svg("corr_l1_pearson.svg", width = 10, height = 10, {
+save_corr_svg("corr_l1_pooled_pearson.svg", width = 10, height = 10, {
     corrplot::corrplot(
         l1_sq,
         method      = "color",
         type        = "lower",
         addCoef.col = "black",
         number.cex  = 0.65,
-        title       = "L1 Pearson correlations (ignores nesting)",
+        title       = "L1 pooled Pearson (ignores nesting; conflates within + between)",
         mar         = c(0, 0, 2, 0)
     )
 })
@@ -194,9 +199,12 @@ rmc_sq <- rmc_corr$matrix[shared_vars, shared_vars]
 
 log_msg("  Shared variables for comparison: ", length(shared_vars))
 
-write.csv(mlm_sq, file.path(FIGS_DIR, "corr_03_mlm_between_matrix.csv"))
+# corr_03 is the lme4-based partial correlation adjusted for person (a
+# within-person estimate, kept only for comparison with rmcorr); the file
+# was previously misnamed "_between_"
+write.csv(mlm_sq, file.path(FIGS_DIR, "corr_03_mlm_within_partial_matrix.csv"))
 write.csv(rmc_sq, file.path(FIGS_DIR, "corr_04_rmcorr_within_matrix.csv"))
-log_msg("Saved: corr_03_mlm_between_matrix.csv and corr_04_rmcorr_within_matrix.csv")
+log_msg("Saved: corr_03_mlm_within_partial_matrix.csv and corr_04_rmcorr_within_matrix.csv")
 
 # --- 4c: side-by-side comparison --------------------------------------------
 save_corr_svg("corr_comparison.svg", width = 20, height = 10, {
@@ -245,5 +253,37 @@ save_corr_svg("corr_rmc.svg", width = 10, height = 10, {
         mar         = c(0, 0, 2, 0)
     )
 })
+
+# =============================================================================
+# [5] TRUE BETWEEN-PERSON CORRELATIONS (person means of L1 vars + L2 vars)
+# -----------------------------------------------------------------------------
+# Person-level Pearson correlations: each L1 variable is averaged across a
+# participant's timepoints into one global person-mean score (one row per
+# person; NOT within-person centering), then joined with the L2 variables.
+# This is the appropriate between-person estimate for the descriptives/
+# correlations table; corr_03 (multilevel = TRUE) is a within-person partial
+# correlation, and corr_01 covers only the L2 intake variables.
+# =============================================================================
+log_msg("=== [5] Between-person correlations (person means + L2) ===")
+
+l1_mean_vars <- setdiff(l1_vars, "timepoint")
+
+df_between <- df_l1 |>
+    dplyr::group_by(response_id) |>
+    dplyr::summarise(
+        dplyr::across(dplyr::all_of(l1_mean_vars), ~ mean(.x, na.rm = TRUE)),
+        .groups = "drop"
+    ) |>
+    dplyr::inner_join(df_l2, by = "response_id")
+
+bw_corr <- df_between |>
+    dplyr::select(where(is.numeric)) |>
+    correlation::correlation(method = "pearson", redundant = FALSE)
+
+bw_sq <- corr_to_matrix(bw_corr)
+log_msg("Between-person matrix: ", nrow(bw_sq), " x ", ncol(bw_sq))
+
+write.csv(bw_sq, file.path(FIGS_DIR, "corr_05_between_person_matrix.csv"))
+log_msg("Saved: corr_05_between_person_matrix.csv")
 
 log_msg("=== Correlation analysis complete. Figures -> ", FIGS_DIR, " ===")
