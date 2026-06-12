@@ -285,7 +285,7 @@ Nested data: N = 336 L2 units (participants) x 3 L1 observations nested within e
 - **ICC (M0)**: R2_conditional = .792, confirming substantial between-person variance in TI (prerequisite met). With 79.2% of TI variance between-person, only 20.8% is within-person variance available for L1 predictors to explain. Significant L1 effects despite this constraint argue for within-person construct sensitivity; this framing belongs in the Discussion rather than presenting the high ICC as a neutral observation.
 - **M4 drives the explained variance**: R2_marginal jumps from .046 to .496 when between-person means enter; L1 person-mean components carry the bulk of the predictive signal.
 - **M5 adds 7 L2 parameters** (pa, na, jis, des, br, vio, js -- all grand-mean centered); LRT df = 7.
-- **M6 non-significant**: LRT p = .870; only `is_remote` was screened (Bernerth & Aguinis, 2016 threshold: r >= .10; gender, edu_lvl, and ethnicity did not meet threshold). recruitment_source entered in M3-M5 as mandatory control and was not re-screened.
+- **M6 non-significant**: LRT χ²(4) = 1.25, *p* = .870. M6 = M5 + two mandatory, theory-justified demographic covariates: `age_c` (1 df) and `job_tenure` (3 dummy df), pre-specified in the proposal (Griffeth et al., 2000; Rubenstein et al., 2018). `is_remote` was the only covariate subjected to the Bernerth & Aguinis (2016) bivariate screen and **failed it decisively** (r = .008, *p* = .878; `mlm_09_covariate_screening.csv`); it does not appear in M6 or any model. Gender, education level, and ethnicity were never candidates for entry (collected for sample description only). `recruitment_source` entered at M3 as a mandatory control and is retained through M7b.
 
 ### ML vs. REML: Estimation Strategy
 
@@ -307,14 +307,15 @@ Two between-person controls were promoted to mandatory L2 covariates alongside t
 
 Both variables appear in M5, M6, M7a, and M7b as covariates. JIS is excluded from the L2 CFA (single item, omega not estimable); DES is included as a 2-indicator factor.
 
-**Recruitment source covariate justification**: `recruitment_source` (CloudResearch vs. snowball) was entered as a mandatory control in M3-M5 but was not screened using the Bernerth & Aguinis (2016) r >= .10 threshold applied to demographics in M6. Manuscript must resolve this: either (a) verify that `recruitment_source` meets the .10 threshold and report its bivariate correlation with TI, or (b) state explicitly that it was held as a structural design control not subject to empirical screening -- because the two sources differ by design, not just empirically -- and that the threshold applied only to the M6 demographic block. Option (b) is the cleaner framing.
+**Recruitment source covariate justification (RESOLVED via proposal)**: The proposal pre-specifies this control verbatim: "CloudResearch vs. the snowball sampling will be dummy-coded and entered as a Level 2 covariate in all primary models. This approach will statistically control for systematic differences between samples at the between-person level while preserving the full sample for estimation of within-person effects" (Sample section). No empirical screening was ever required; the earlier framing question (screen vs. structural control) is moot. The Bernerth & Aguinis threshold applied only to the M6 screened candidate (`is_remote`). The coefficient turned out significant; see the dedicated subsection below.
 
 **Predictor vs. covariate classification** (for write-up framing):
 
 | Variable | Role | Basis |
 |---|---|---|
-| Age, gender, job tenure | Demographic covariate | No directional hypothesis; screened in M6 |
-| `is_remote` | Demographic covariate | Passed Bernerth & Aguinis threshold; retained in M6 |
+| Age, job tenure | Demographic covariate (M6) | Mandatory, theory-justified (Griffeth et al., 2000; Rubenstein et al., 2018); not screened |
+| `is_remote` | Screened candidate, excluded | Failed Bernerth & Aguinis r >= .10 screen (r = .008, *p* = .878); in no model |
+| Gender, education, ethnicity | Not modeled | Sample description only; never candidates for model entry |
 | PA (pa_mean), NA (na_mean) | L2 covariate | Dispositional affect upstream of burnout/NF; no directional hypothesis |
 | `recruitment_source` | Structural covariate | Mandatory control M3-M5; structural difference between sources |
 | JS (js_mean) | L2 predictor of interest | Directional hypothesis H5 |
@@ -325,6 +326,49 @@ Both variables appear in M5, M6, M7a, and M7b as covariates. JIS is excluded fro
 M5 contains theoretically motivated predictors and structural controls. M6 is a sensitivity check showing focal effects survive demographic controls. This distinction shapes how each model is narrated in Results.
 
 - Cite: Sverke, Hellgren, & Naswall (2002) for JIS; Griffeth, Hom, & Gaertner (2000) for DES; Bernerth & Aguinis (2016) for M6 covariate screening threshold.
+
+### Interpreting the final model (M5)
+
+M5 is the primary inferential model and should be narrated as such; this section outlines the full interpretation frame for Results and Discussion.
+
+**Why M5, not M6 or M7**: M5 has the best AIC (2031.6 vs. 2056.4 for M6), contains every hypothesized predictor, and the M6 LRT is decisively non-significant (χ²(4) = 1.25, *p* = .870). The pipeline's built-in stability check confirms no substantive coefficient moves more than 20% from M5 to M6 (e.g., EE within: .2309 in both; PCB: .128 vs. .129; JS: -.163 vs. -.160). M6 is therefore a *sensitivity analysis* demonstrating robustness to demographics, not a competing model; M7a/M7b are exploratory moderation probes. Narrate: "Model 5 served as the final inferential model; Model 6 confirmed that all substantive effects were robust to demographic covariates."
+
+**Variance accounted for (M5)**: R²_marginal = .572 (fixed effects), R²_conditional = .832. The fixed effects explain 57% of total TI variance; the random structure (person intercepts + time slopes) brings the model to 83%. τ₀₀ drops from .965 (M0) to .277 (M5): the L2 predictors account for ~71% of the between-person intercept variance.
+
+**Coefficient reading guide** (two distinct estimands; never compare raw magnitudes across levels):
+
+- `*_within` (CWC): occasion-level deviation effects. ee_mean_within = .231 reads "on check-ins where a person reports EE 1 point above *their own* daily average, TI is .23 higher, net of all else." These are pure within-person effects; CWC strips all between-person variance, so they are structurally immune to L2 confounds (including recruitment source).
+- `*_between` / `*_c` (person means / intake, GMC): chronic-standing effects. pf_mean_between = .439 reads "a person 1 raw point above the sample-average chronic PF reports .44 higher average TI." Use `mlm_05_standardized_effects.csv` / `mlm_06_level_specific_es.csv` for cross-level magnitude comparisons.
+
+**Significant effects in M5 outside the hypothesis set** (all must be reported, not buried):
+
+1. **Time trend**: time_c = +.044, *p* = .021. TI drifts upward across the workday (~.09 raw points from 9AM to 5PM) net of all predictors. Consistent with COR monotonic-depletion framing; merits one Discussion sentence as convergent (unhypothesized) evidence.
+2. **Between-person meeting load, opposite signs**: meetings_count_between = +.287 (*p* < .001) and meetings_time_between = -.0064/min (*p* < .001). These are *mutually partialled*: count holding total time constant indexes meeting *fragmentation* (many short meetings -> higher chronic TI); time holding count constant indexes longer average meetings (-> lower TI). Do not interpret as raw bivariate directions. The proposal's narrative anticipated meeting load as a direct within-person predictor plus moderator; the WP direct effects are null while these BP effects are significant and unhypothesized. Frame as exploratory between-person findings with the fragmentation interpretation offered cautiously.
+3. **Recruitment source**: snowball > CloudResearch on TI; dedicated subsection below.
+4. **CW between-person contrary effect**: already flagged under Write-Up Flags (H2b:cw).
+
+**Random-slope framing guard**: the proposal commits to "random intercepts but fixed slopes." That commitment concerns *substantive predictor* slopes (evaluated via rho_beta, no cross-level interaction tests; honored throughout). The retained random effect `(time_c | response_id)` is a growth-curve component for time, adopted at M2 via LRT (χ²(2) = 22.45, *p* < .001), standard for longitudinal designs. Make this distinction explicit in the manuscript so the M2 random slope is not misread as a deviation from the proposal.
+
+### Recruitment source: a significant between-sample difference
+
+`recruitment_sourcesnowball` is significant in every model that includes L2 predictors:
+
+| Model | B (snowball) | SE | *p* |
+|---|---|---|---|
+| M4 | +.435 | .091 | < .001 |
+| M5 | +.260 | .086 | .003 |
+| M6 | +.255 | .088 | .004 |
+
+Snowball participants report ~0.26 points higher average TI (1-5 scale) than CloudResearch Connect participants net of all substantive predictors, roughly 0.25 between-person SDs (BP SD_TI = 1.025). About 40% of the raw M4 source gap is absorbed when the L2 study variables (affect, JIS, DES, PCB/PCV, JS) enter at M5; the remainder persists.
+
+**How this changes interpretation (write-up guidance)**:
+
+1. **The control is doing exactly the job the proposal assigned it.** A significant coefficient is the design working, not a problem: systematic between-sample differences in TI level exist, and every L2 estimate (H4a, H4b, H5, covariates) is interpreted *net of source*, i.e., as a within-source effect. Had the dummy been omitted, those L2 coefficients would be contaminated by source composition.
+2. **L1 estimates are untouched.** Person-mean centering removes all between-person variance, source membership included, from the within-person predictors; H1-H3 conclusions are structurally independent of this coefficient. State this explicitly to preempt the committee question.
+3. **Candidate explanations for the Discussion** (cannot be adjudicated with these data; engage at least one): (a) *selection*: snowball recruits arrived via LinkedIn and personal networks; active LinkedIn presence correlates with job-market attentiveness, plausibly elevating baseline withdrawal cognitions; (b) *incentive asymmetry*: CloudResearch participants were compensated per occasion plus a completion bonus, snowball participation was voluntary, shaping who opts in; (c) *residual composition*: occupational/industry differences not captured by modeled covariates.
+4. **What it is NOT evidence of**: differential data quality (careless-responding screening applied identically to both sources) or a threat to internal validity of the within-person tests.
+5. **External validity caveat**: absolute TI levels are sample-composition-dependent and not population-representative; the inferential focus is relational (within- and between-person associations), which the dual-source design supports.
+6. **Untested assumption to disclose**: source x predictor interactions were not modeled (the proposal specified a main-effect control only). Homogeneity of slopes across sources is an assumption, not a finding; note it in Limitations or run a sensitivity interaction model if a committee member asks.
 
 ### Hypothesis tests
 
@@ -389,9 +433,9 @@ Identified in committee-level review. Address before dissertation defense.
 
 Between-person correlation PCB-PCV = .857 approaches collinearity. Both are simultaneous L2 predictors in M5. H4a supports breach (p = .050) but H4b does not (PCV, p = .205); with r = .857 these findings are nearly inseparable. Required before final write-up: (a) run VIF for M5's L2 predictor block and document; (b) frame the theoretical distinction explicitly (cognitive appraisal vs. emotional response; Robinson & Morrison, 2000); (c) consider a sensitivity model with only one of the two to confirm estimates are not artificially split.
 
-### M7a/M7b Composite vs. Subscale Inconsistency
+### M7a/M7b Composites: Proposal-Faithful, but Dilution Concern Stands
 
-M3/M4 used NF and burnout subscales; M7a/M7b used composites (burnout_mean = PF + CW + EE; nf_mean = comp + auto + relt). Supported M3 results show EE and PF drive L1 effects while CW is non-significant. Collapsing to a burnout composite averages in the non-significant CW, potentially diluting a real EE-meetings interaction. If computationally feasible, run M7a/M7b with individual subscales. If not, acknowledge explicitly: "Collapsing to composites may obscure facet-specific moderation; future work should test whether meeting load moderates the EE-TI and PF-TI slopes specifically."
+The composite operationalization is **pre-specified in the proposal**: H3a and H3b each read "operationalized as a composite of its subdimensions." M7a/M7b are therefore proposal-faithful, not an inconsistency; do not frame this as a deviation. The substantive concern remains: supported M3 results show EE and PF drive L1 effects while CW is non-significant, so collapsing to a burnout composite averages in the non-significant CW, potentially diluting a real EE-meetings interaction. If computationally feasible, run M7a/M7b with individual subscales. If not, acknowledge explicitly: "Collapsing to composites may obscure facet-specific moderation; future work should test whether meeting load moderates the EE-TI and PF-TI slopes specifically."
 
 ### JIS and DES: Post-Hoc Additions
 
@@ -412,6 +456,8 @@ re-verified against the current export, interpolations recomputed at N ≈ 336
 (weight 0.36 between the N = 300 and N = 400 grid nodes). All grid-node assignments
 are unchanged except H2a:ee, whose standardized effect rounds to ~.19 with current
 SDs (was ~.20); its power estimate moves from ~.997 to ~.99.
+
+**Target vs. achieved N**: the proposal's a priori target was N = 800 (chosen for >= 90% power on medium effects with conservative zero slope-intercept covariance). The achieved analytical sample is N = 336, 42% of target. The manuscript must state this shortfall plainly and point to this post hoc analysis as the quantification of what the realized N delivers: essentially full power for medium-and-larger effects, but ~.62-.84 power in the small-effect range (std ~.13) where H1a:comp and H4a landed. The shortfall is consequential exactly where the borderline findings live.
 
 ### Analytic strategy
 
@@ -505,6 +551,37 @@ No power estimate from the simulation grid applies to M7a/M7b: the grid's `xl_ef
 
 - Cite: Arend & Schafer (2019); Kenward-Roger tests via `simr`.
 - Source data: `analysis/run_power_analysis/data/power_analysis_results_20260316_183228.csv` (GCP a priori run, 3,645 cells x 1,000 sims); `power_analysis_results_20260611_104548.csv` (GCP posthoc run, 2,250 cells x 1,000 sims, ICC 0.60-0.80).
+
+---
+
+## Proposal Alignment Audit (2026-06-12)
+
+Systematic comparison of `docs/manuscript/drafts/proposal/proposal-final-draft.txt` against the implemented pipeline. Verdict: the analysis is faithful to the proposal on every methodological commitment; deviations are few, already documented, or favorable expansions.
+
+### Confirmed aligned
+
+| Proposal commitment | Implementation | Evidence |
+|---|---|---|
+| Dual recruitment; source dummy-coded as L2 covariate "in all primary models" | `recruitment_source` in M3-M7b | `multilevel_model.r` [7]; significant, see subsection |
+| Careless responding: instructed response + longstring + Mahalanobis (Meade & Craig, 2012; careless pkg) | Implemented; expanded to 6 indices (3 exclusionary as proposed, 3 diagnostic-only) | Data-quality section above |
+| WP correlations via rmcorr; BP correlations via Pearson on L1 person means | corr_04 (rmcorr), corr_05 (person-mean Pearson) | Correlation section above |
+| Reliability: Lai (2021) MCFA omega at within/between levels | cfa_04 omegas | Measurement section (semTools workaround documented) |
+| MCFA for factor structure (lavaan, ML-family) + CFA marker technique (Williams et al.; ATCB) | cfa_01-03 (MCFA, MLR), cfa_05-07 (marker) | Measurement section |
+| MLM in lme4; CWC for L1, GMC for L2; sequential build from null model; ICC | Implemented exactly | MLM section |
+| Occasions coded 0-2, intercept = baseline (Biesanz et al., 2004) | `time_c = timepoint - 1` | `prep_mlm.r:39` |
+| Fixed slopes for substantive predictors; rho_beta (Aguinis & Culpepper, 2015) instead of slope/cross-level significance tests | No predictor random slopes; no cross-level tests; rho_beta reported (mlm_08) | Slope heterogeneity section; random *time* slope is a growth component, see M5 interpretation guard |
+| Covariates: age, tenure, PA, NA | PA/NA in M5; age/tenure mandatory in M6; model comparison with/without (Bernerth & Aguinis) | M6 bullet above |
+| H3a/H3b moderation with NF/burnout *composites* | M7a/M7b composites | Write-up flag (proposal-faithful) |
+| H4a/H4b (PCB/PCV), H5 (JS) as L2 predictors | M5 | Hypothesis tests |
+
+### Deviations and manuscript fixes required
+
+1. **N = 336 vs. proposed N = 800** -- documented in the power section; state plainly in Method.
+2. **JIS and DES post-hoc L2 covariates** -- not in the proposal; existing write-up flag stands (explicit acknowledgment + rationale).
+3. **Proposal-internal hypothesis numbering error (fix in manuscript text)**: the Proposed Analyses paragraph reads "Level 1 predictors ... to test H1, followed by Level 2 predictors to test H2 and H3 ... Composites ... used to test H4," which contradicts the Introduction's scheme (H2 = burnout includes L1; H3 = moderation; H4 = PC; H5 = JS). The pipeline follows the Introduction's scheme. Renumber that paragraph when porting to the dissertation document.
+4. **Meeting load direct-effect framing**: the proposal narrative positions meeting load as "a direct within-person predictor of turnover intentions and as a moderator," but only the moderation is formally hypothesized (H3a/H3b). Observed: WP direct effects null; BP count/time effects significant and unhypothesized (see M5 interpretation). Manuscript should either present the WP direct effect as an implicit secondary expectation (null result) or fold it into exploratory findings; pick one framing and keep it consistent.
+5. **Metric invariance test** -- not promised in the proposal; favorable addition, already documented.
+6. **OSF commitment**: the proposal promises public materials at OSF (osf.io/9zprj) and GitHub. Confirm the OSF component is current before defense.
 
 ---
 
