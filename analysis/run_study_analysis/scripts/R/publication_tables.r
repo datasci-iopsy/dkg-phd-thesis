@@ -102,7 +102,7 @@ var_labels <- c(
     des_mean                 = "Desirability of Movement"
 )
 
-# Ordered row variables for Table 2 (conceptual grouping; excludes jis/des)
+# Ordered row variables for Table 2 (conceptual grouping)
 table2_vars <- c(
     "pf_mean", "cw_mean", "ee_mean",
     "comp_mean", "auto_mean", "relt_mean",
@@ -111,13 +111,15 @@ table2_vars <- c(
     "atcb_mean",
     "pa_mean", "na_mean",
     "br_mean", "vio_mean",
-    "js_mean"
+    "js_mean",
+    "jis_mean", "des_mean"
 )
 
-# Single-item measures with no omega
+# Single-item measures or scales not modeled in L2 CFA (no omega available)
 no_omega_vars <- c(
     "meetings_count", "meetings_time",
-    "turnover_intention_mean", "js_mean"
+    "turnover_intention_mean", "js_mean",
+    "jis_mean"
 )
 
 # L1 vs L2 classification
@@ -127,7 +129,7 @@ l1_vars <- c(
     "meetings_count", "meetings_time",
     "turnover_intention_mean", "atcb_mean"
 )
-l2_vars <- c("pa_mean", "na_mean", "br_mean", "vio_mean", "js_mean")
+l2_vars <- c("pa_mean", "na_mean", "br_mean", "vio_mean", "js_mean", "jis_mean", "des_mean")
 
 # CFA factor to variable mapping (for omega lookup)
 factor_to_var <- c(
@@ -141,7 +143,8 @@ factor_to_var <- c(
     POS_AFF = "pa_mean",
     NEG_AFF = "na_mean",
     PCB     = "br_mean",
-    PCV     = "vio_mean"
+    PCV     = "vio_mean",
+    DES     = "des_mean"
 )
 
 
@@ -464,8 +467,8 @@ t2b_rows <- purrr::map_dfr(seq_along(table2b_vars), function(i) {
 note2b <- paste0(
     "N = ", n_prs, " participants. Correlations are Pearson r from person-mean scores. ",
     "ω = McDonald's omega reliability coefficient (single-level CFA, MLR estimation; ",
-    "Lai, 2021). ", EMDASH, " = single-item measure (Job Satisfaction) or structurally ",
-    "inapplicable. PC = Psychological Contract. ",
+    "Lai, 2021). ", EMDASH, " = omega not reported (single-item measure or scale not ",
+    "modeled in L2 CFA). PC = Psychological Contract. ",
     "* p < .05. ** p < .01. *** p < .001."
 )
 
@@ -540,23 +543,24 @@ note2_comb <- paste0(
     "variables measured at intake). Below diagonal: within-person repeated-measures ",
     "correlations for within-person variables only (rmcorr; Bakdash & Marusich, 2017). ",
     "Diagonal entries in parentheses are McDonald's ω reliability coefficients ",
-    "(within-level from MCFA for variables 1-10; single-level CFA for variables 11-15; ",
-    "Lai, 2021). ICC = intraclass correlation from unconditional means model. ",
-    EMDASH, " = single-item measure. PC = Psychological Contract. ",
+    "(within-level from MCFA for within-person variables 1-10; single-level CFA for ",
+    "between-person scales; Lai, 2021). ICC = intraclass correlation from unconditional ",
+    "means model. ", EMDASH, " = omega not reported (single-item measure or scale not ",
+    "modeled in L2 CFA). PC = Psychological Contract. ",
     "* p < .05. ** p < .01. *** p < .001."
 )
 
-# Explicit column widths: 19 cols total, target 9.0 in landscape text width.
-# Body and header at 9pt so starred negatives (e.g. "-.34***") fit a 0.435-in
+# Explicit column widths: 21 cols total, target 9.0 in landscape text width.
+# Body and header at 9pt so starred negatives (e.g. "-.34***") fit a 0.385-in
 # column without wrapping and "ICC" stays on one header line; the caption and
 # note render at 12pt (caption via save_docx_table_landscape, note via
 # add_apa_note props).
 comb_corr_cols <- as.character(seq_along(table2_vars))
 comb_col_widths <- c(
     Variable = 1.475, M = 0.36, SD = 0.36, ICC = 0.28,
-    setNames(rep(0.435, length(comb_corr_cols)), comb_corr_cols)
+    setNames(rep(0.385, length(comb_corr_cols)), comb_corr_cols)
 )
-# Total: 1.475 + 0.36 + 0.36 + 0.28 + 15*0.435 = 9.0 in
+# Total: 1.475 + 0.36 + 0.36 + 0.28 + 17*0.385 = 9.025 in
 ft2_comb <- apa_flextable(t2_comb_rows, col_widths = comb_col_widths) |>
     flextable::fontsize(size = 9, part = "all") |>
     flextable::padding(
