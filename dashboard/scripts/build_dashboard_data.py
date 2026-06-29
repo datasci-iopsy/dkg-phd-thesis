@@ -577,9 +577,11 @@ def build_measurement():
         }
         for r in marker_lrt_rows
     ]
-    # Key conclusion: Method-R (unbiased model) vs baseline is non-significant
+    # Key conclusion: Method-U vs. Method-R comparison must be non-significant
+    _TARGET_COMPARISON = "Method-U vs. Method-R (fixed L1 factor covariances)"
     unbiased_lrt = next(
-        (row for row in marker_lrt if "Method-R" in row["comparison"]), None
+        (row for row in marker_lrt if row["comparison"] == _TARGET_COMPARISON),
+        None,
     )
     unbiased = unbiased_lrt is not None and unbiased_lrt["p_value"] >= 0.05
 
@@ -596,9 +598,13 @@ def build_measurement():
         }
         for r in invariance_rows
     ]
-    invariance_supported = any(
-        (r["result"] or "").strip().lower() in {"supported", "yes", "true"}
-        for r in metric_invariance
+    _metric_row = next(
+        (r for r in metric_invariance if r["model"].lower() == "metric"), None
+    )
+    invariance_supported = (
+        _metric_row is not None
+        and "supported" in (_metric_row["result"] or "").lower()
+        and "not supported" not in (_metric_row["result"] or "").lower()
     )
 
     return {

@@ -12,8 +12,8 @@ All sources under: `analysis/run_study_analysis/figs/`
 | `funnel` | METHOD_NOTES | 623 intake -> 351 complete -> 336 analytic; 15 excluded |
 | `sample.categorical` | `eda/eda_10_table1_categorical.csv` | variable, level, n, pct |
 | `sample.continuous` | `eda/eda_10_table1_continuous.csv` | variable, n, mean, sd |
-| `correlations.within` | `corr/corr_04_rmcorr_within_matrix.csv`, `corr_04_rmcorr_within_pvalues.csv` | Within-person rmcorr; lower triangle pairs |
-| `correlations.between` | `corr/corr_01_l2_pearson_matrix.csv`, `corr_01_l2_pearson_pvalues.csv` | Between-person Pearson; lower triangle pairs |
+| `correlations.within` | `corr/corr_04_rmcorr_within_matrix.csv`, `corr/corr_04_rmcorr_within_pvalues.csv` | Within-person rmcorr; lower triangle pairs |
+| `correlations.between` | `corr/corr_01_l2_pearson_matrix.csv`, `corr/corr_01_l2_pearson_pvalues.csv` | Between-person Pearson; lower triangle pairs |
 | `variance` | `eda/eda_15_icc_table.csv` | ICC, var_between, var_within per construct |
 | `models.comparison` | `mlm/mlm_01_model_comparison.csv` | M0-M6 fit stats; M7a/M7b not in this file |
 | `models.fixed_effects` | `mlm/mlm_02_fixed_effects.csv` | M0-M7b fixed effects (9 models, 131 rows) |
@@ -30,7 +30,7 @@ All sources under: `analysis/run_study_analysis/figs/`
 | `measurement.marker_lrt` | `cfa/cfa_07_marker_lrt.csv` | Marker LRT conclusions; delta chi-sq and p-value per comparison |
 | `measurement.marker_unbiased` | Derived from `cfa_07_marker_lrt.csv` | Boolean: Method-R vs. baseline LRT is non-significant |
 | `measurement.metric_invariance` | `cfa/cfa_08_metric_invariance.csv` | Metric invariance chi-sq difference tests across timepoints |
-| `measurement.metric_invariance_supported` | Derived from `cfa_08_metric_invariance.csv` | Boolean: at least one invariance result is supported |
+| `measurement.metric_invariance_supported` | Derived from `cfa_08_metric_invariance.csv` | Boolean: the Metric row result contains "supported" |
 
 ## Parsing notes
 

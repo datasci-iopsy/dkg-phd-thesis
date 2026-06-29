@@ -2,7 +2,8 @@
 
 /* Dark mode is the default; light mode applied via body.light-mode */
 :root {
-    --ncstate-red: #cc0000;
+    --ncstate-red:      #cc0000;
+    --ncstate-red-text: #f87171;
     --purple:      #7c3aed;
     --text:        #f1f5f9;
     --muted:       #94a3b8;
@@ -31,6 +32,7 @@
 }
 
 body.light-mode {
+    --ncstate-red-text: #cc0000;
     --text:        #0f172a;
     --muted:       #64748b;
     --border:      #e2e8f0;
@@ -131,7 +133,7 @@ header {
     white-space: nowrap;
 }
 
-#detail-toggle:hover { border-color: var(--ncstate-red); color: var(--ncstate-red); }
+#detail-toggle:hover { border-color: var(--ncstate-red); color: var(--ncstate-red-text); }
 
 #detail-toggle[data-on="1"] {
     background: var(--ncstate-red);
@@ -143,7 +145,7 @@ header {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: currentColor;
+    background: currentcolor;
     opacity: 0.7;
     flex-shrink: 0;
 }
@@ -208,7 +210,7 @@ nav.section-nav::-webkit-scrollbar { display: none; }
 .nav-tab:hover { color: var(--text); }
 
 .nav-tab.active {
-    color: var(--ncstate-red);
+    color: var(--ncstate-red-text);
     border-bottom-color: var(--ncstate-red);
 }
 
@@ -238,10 +240,10 @@ main {
 
 .section-block.active {
     display: block;
-    animation: pageIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation: page-in 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-@keyframes pageIn {
+@keyframes page-in {
     from { opacity: 0; transform: translateY(12px); }
     to   { opacity: 1; transform: translateY(0); }
 }
@@ -255,7 +257,7 @@ main {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.09em;
-    color: var(--ncstate-red);
+    color: var(--ncstate-red-text);
     margin-bottom: 0.3rem;
 }
 
@@ -300,7 +302,7 @@ main {
     line-height: 1;
 }
 
-.card-value.accent        { color: var(--ncstate-red); }
+.card-value.accent        { color: var(--ncstate-red-text); }
 .card-value.accent-purple { color: var(--purple); }
 
 .card-sub {
@@ -770,10 +772,10 @@ main {
 .hyp-id {
     font-size: 0.7rem;
     font-weight: 800;
-    color: var(--ncstate-red);
+    color: var(--ncstate-red-text);
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace;
+    font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
     flex-shrink: 0;
 }
 
@@ -951,7 +953,7 @@ footer {
 }
 
 footer a {
-    color: var(--ncstate-red);
+    color: var(--ncstate-red-text);
     text-decoration: none;
 }
 

@@ -93,7 +93,7 @@
             <p class="tech-detail-label">Study design</p>
             <p>
                 Three-wave experience sampling (ESM) design: participants completed surveys at the
-                beginning, middle, and end of their shift on each workday for approximately two weeks. Multilevel modeling (HLM)
+                beginning, middle, and end of a single workday. Multilevel modeling (HLM)
                 with random slopes partitions variance into within-person (L1) and between-person
                 (L2) components. Primary outcome: turnover intentions assessed at every time point.
             </p>
@@ -277,22 +277,22 @@
         <div class="stat-grid" style="margin-bottom:1.5rem">
             <div class="card">
                 <div class="card-label">Within-Person Model (L1)</div>
-                <div class="card-value accent" id="mmt-l1-cfi" style="font-size:1.75rem">.943</div>
-                <div class="card-sub">CFI &nbsp;&middot;&nbsp; RMSEA = .033</div>
+                <div class="card-value accent" id="mmt-l1-cfi" style="font-size:1.75rem">--</div>
+                <div class="card-sub" id="mmt-l1-sub">CFI &nbsp;&middot;&nbsp; RMSEA</div>
             </div>
             <div class="card">
                 <div class="card-label">Between-Person Model (L2)</div>
-                <div class="card-value accent" id="mmt-l2-cfi" style="font-size:1.75rem">.967</div>
-                <div class="card-sub">CFI &nbsp;&middot;&nbsp; RMSEA = .049</div>
+                <div class="card-value accent" id="mmt-l2-cfi" style="font-size:1.75rem">--</div>
+                <div class="card-sub" id="mmt-l2-sub">CFI &nbsp;&middot;&nbsp; RMSEA</div>
             </div>
             <div class="card" id="mmt-marker-card">
                 <div class="card-label">Common Method Bias</div>
-                <div class="card-value" id="mmt-marker-val" style="font-size:1.25rem;color:var(--ncstate-red)">None detected</div>
+                <div class="card-value" id="mmt-marker-val" style="font-size:1.25rem;color:var(--ncstate-red-text)">--</div>
                 <div class="card-sub">Marker variable test passed</div>
             </div>
             <div class="card" id="mmt-inv-card">
                 <div class="card-label">Metric Invariance</div>
-                <div class="card-value" id="mmt-inv-val" style="font-size:1.25rem;color:var(--ncstate-red)">Supported</div>
+                <div class="card-value" id="mmt-inv-val" style="font-size:1.25rem;color:var(--ncstate-red-text)">--</div>
                 <div class="card-sub">Loadings stable across waves</div>
             </div>
         </div>
@@ -311,8 +311,8 @@
             <strong>What the marker variable technique shows:</strong>
             An independent LRT comparison confirms the baseline model is statistically
             indistinguishable from the model that explicitly models common method effects
-            (p = 1.00). Factor loadings are also stable across the three daily waves
-            (metric invariance; p = 1.00), ruling out wave-specific measurement drift.
+            (p = <span id="mmt-marker-p">--</span>). Factor loadings are also stable across the three daily waves
+            (metric invariance; p = <span id="mmt-inv-p">--</span>), ruling out wave-specific measurement drift.
         </div>
 
         <div class="tech-detail">

@@ -343,7 +343,7 @@ function initExplainPanel() {
 
     var btn      = document.getElementById('explain-btn');
     var closeBtn = document.getElementById('explain-close');
-    var activeLevel = localStorage.getItem('explainLevel') || 'curious';
+    var activeLevel = storageGet('explainLevel') || 'curious';
 
     setExplainLevel(activeLevel);
 
@@ -375,13 +375,27 @@ function initExplainPanel() {
         }
     });
 
-    panel.querySelectorAll('.explain-tab').forEach(function(tab) {
+    var explainTabs = Array.prototype.slice.call(panel.querySelectorAll('.explain-tab'));
+    explainTabs.forEach(function(tab) {
         tab.addEventListener('click', function() { setExplainLevel(tab.dataset.level); });
+        tab.addEventListener('keydown', function(e) {
+            var idx = explainTabs.indexOf(tab);
+            var nextIdx = idx;
+            if (e.key === 'ArrowRight') nextIdx = (idx + 1) % explainTabs.length;
+            if (e.key === 'ArrowLeft')  nextIdx = (idx - 1 + explainTabs.length) % explainTabs.length;
+            if (e.key === 'Home')       nextIdx = 0;
+            if (e.key === 'End')        nextIdx = explainTabs.length - 1;
+            if (nextIdx !== idx) {
+                e.preventDefault();
+                setExplainLevel(explainTabs[nextIdx].dataset.level);
+                explainTabs[nextIdx].focus();
+            }
+        });
     });
 
     function setExplainLevel(level) {
         activeLevel = level;
-        localStorage.setItem('explainLevel', level);
+        storageSet('explainLevel', level);
         panel.querySelectorAll('.explain-tab').forEach(function(t) {
             var on = t.dataset.level === level;
             t.classList.toggle('active', on);
@@ -411,6 +425,20 @@ function initExplainPanel() {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+function storageGet(key) {
+    try { return localStorage.getItem(key); } catch (e) { return null; }
+}
+
+function storageSet(key, value) {
+    try { localStorage.setItem(key, value); } catch (e) { /* storage unavailable */ }
+}
+
+function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function(ch) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+    });
+}
 
 var fmt  = function(n, d) { d = d == null ? 2 : d; return n == null ? 'N/A' : Number(n).toFixed(d); };
 var pct  = function(n, d) { d = d == null ? 1 : d; return n == null ? 'N/A' : Number(n).toFixed(d) + '%'; };
@@ -466,7 +494,7 @@ function initToggle() {
     var btn  = document.getElementById('detail-toggle');
     var body = document.body;
 
-    if (localStorage.getItem(STORAGE_KEY) === '1') {
+    if (storageGet(STORAGE_KEY) === '1') {
         body.classList.add('detail-on');
         btn.setAttribute('data-on', '1');
         btn.setAttribute('aria-pressed', 'true');
@@ -476,7 +504,7 @@ function initToggle() {
         var on = body.classList.toggle('detail-on');
         btn.setAttribute('data-on', on ? '1' : '0');
         btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-        localStorage.setItem(STORAGE_KEY, on ? '1' : '0');
+        storageSet(STORAGE_KEY, on ? '1' : '0');
     });
 }
 
@@ -526,14 +554,14 @@ function initTheme() {
     var btn  = document.getElementById('theme-toggle');
     var body = document.body;
 
-    var isLight = localStorage.getItem(STORAGE_KEY) === 'light';
+    var isLight = storageGet(STORAGE_KEY) === 'light';
     if (isLight) body.classList.add('light-mode');
     applyThemeButton(isLight);
 
     if (btn) {
         btn.addEventListener('click', function() {
             var nowLight = body.classList.toggle('light-mode');
-            localStorage.setItem(STORAGE_KEY, nowLight ? 'light' : 'dark');
+            storageSet(STORAGE_KEY, nowLight ? 'light' : 'dark');
             applyThemeButton(nowLight);
             requestAnimationFrame(refreshChartsForTheme);
         });
@@ -655,7 +683,7 @@ function renderSample(data) {
         var max = funnel.steps[0].n;
         funnelEl.innerHTML = funnel.steps.map(function(s) {
             return '<div class="funnel-step">' +
-                '<span class="funnel-label">' + s.label + '</span>' +
+                '<span class="funnel-label">' + escapeHtml(s.label) + '</span>' +
                 '<div class="bar-track"><div class="bar-fill" data-target="' +
                     (s.n / max * 100).toFixed(1) + '"></div></div>' +
                 '<span class="funnel-stat"><strong>' + s.n.toLocaleString() + '</strong></span>' +
@@ -857,7 +885,7 @@ function renderCorrTable(corr, mode) {
             var cls  = pair.sig ? 'corr-cell-sig' : '';
             var star = pair.sig ? '*' : '';
             return '<td class="' + cls + '" title="r = ' + pair.r.toFixed(3) +
-                   ', p = ' + (pair.p ? pair.p.toFixed(4) : 'NA') + '">' +
+                   ', p = ' + (pair.p != null ? pair.p.toFixed(4) : 'NA') + '">' +
                    display + star + '</td>';
         }).join('');
         return '<tr><td class="row-label" title="' + rowLabel + '">' + short(rowKey) + '</td>' + cells + '</tr>';
@@ -915,7 +943,7 @@ function renderVariance(data) {
     if (!barsEl) return;
     barsEl.innerHTML = v.variables.map(function(row) {
         return '<div class="variance-row">' +
-            '<span class="variance-label">' + row.label + '</span>' +
+            '<span class="variance-label">' + escapeHtml(row.label) + '</span>' +
             '<div class="variance-track">' +
                 '<div class="variance-fill-between" data-target="' + row.pct_between.toFixed(1) + '"></div>' +
             '</div>' +
@@ -996,7 +1024,7 @@ function renderModelExplorer(data, selectedModel) {
         var sigClass = e.p_value < 0.001 ? 'sig-001' : e.p_value < 0.01 ? 'sig-01' : e.p_value < 0.05 ? 'sig-05' : '';
         var ci = '[' + fmt(e.conf_low, 3) + ', ' + fmt(e.conf_high, 3) + ']';
         return '<tr class="' + sigClass + '">' +
-            '<td class="term-label">' + (e.label || e.term) + '</td>' +
+            '<td class="term-label">' + escapeHtml(e.label || e.term) + '</td>' +
             '<td class="numeric">' + fmt(e.estimate, 3) + '</td>' +
             '<td class="numeric">' + fmt(e.std_error, 3) + '</td>' +
             '<td class="numeric">' + fmtP(e.p_value) + '</td>' +
@@ -1033,12 +1061,14 @@ function renderForest(data, modelName) {
     if (!ctx) return;
 
     var focal  = es.filter(function(e) { return !isStructuralControl(e.term); });
-    var sorted = focal.slice().sort(function(a, b) { return b.pseudo_d - a.pseudo_d; });
+    var sorted = focal.slice().sort(function(a, b) { return Math.abs(b.pseudo_d) - Math.abs(a.pseudo_d); });
     var labels = sorted.map(function(e) { return e.label; });
     var values = sorted.map(function(e) { return e.pseudo_d; });
     var colors = sorted.map(function(e) { return e.pseudo_d > 0 ? '#cc0000' : '#7c3aed'; });
 
     if (forestChart) { forestChart.destroy(); forestChart = null; }
+
+    ctx.parentElement.style.minHeight = Math.max(300, sorted.length * 28) + 'px';
 
     forestChart = new Chart(ctx, {
         type: 'bar',
@@ -1080,8 +1110,6 @@ function renderForest(data, modelName) {
             },
         },
     });
-
-    ctx.parentElement.style.minHeight = Math.max(300, sorted.length * 28) + 'px';
 }
 
 function initEffects(data) {
@@ -1149,7 +1177,38 @@ function renderMeasurement(data) {
     var mmt = data.measurement;
     if (!mmt) return;
 
-    // Fit index cards are hardcoded in HTML with live values; nothing to update there.
+    // Populate stat cards from JSON data
+    var fi = mmt.fit_indices || [];
+    var l1 = fi.filter(function(f) { return f.model && f.model.indexOf('L1') === 0; })[0];
+    var l2 = fi.filter(function(f) { return f.model && f.model.indexOf('L2') === 0; })[0];
+    if (l1) {
+        var l1cfi = document.getElementById('mmt-l1-cfi');
+        var l1sub = document.getElementById('mmt-l1-sub');
+        if (l1cfi) l1cfi.textContent = l1.cfi.toFixed(3).replace('0.', '.');
+        if (l1sub) l1sub.textContent = 'CFI · RMSEA = ' + l1.rmsea.toFixed(3).replace('0.', '.');
+    }
+    if (l2) {
+        var l2cfi = document.getElementById('mmt-l2-cfi');
+        var l2sub = document.getElementById('mmt-l2-sub');
+        if (l2cfi) l2cfi.textContent = l2.cfi.toFixed(3).replace('0.', '.');
+        if (l2sub) l2sub.textContent = 'CFI · RMSEA = ' + l2.rmsea.toFixed(3).replace('0.', '.');
+    }
+    var markerVal = document.getElementById('mmt-marker-val');
+    if (markerVal) markerVal.textContent = mmt.marker_unbiased ? 'None detected' : 'Bias detected';
+    var invVal = document.getElementById('mmt-inv-val');
+    if (invVal) invVal.textContent = mmt.metric_invariance_supported ? 'Supported' : 'Not supported';
+
+    // Update callout p-values from LRT data
+    var markerLrt = (mmt.marker_lrt || []).filter(function(r) { return r.conclusion === 'unbiased'; })[0];
+    var mmpEl = document.getElementById('mmt-marker-p');
+    if (mmpEl && markerLrt) mmpEl.textContent = markerLrt.p_value >= 1 ? '1.00' : markerLrt.p_value.toFixed(2);
+    var invRows = mmt.metric_invariance || [];
+    var metricRow = invRows.filter(function(r) { return r.model && r.model.toLowerCase() === 'metric'; })[0];
+    var mipEl = document.getElementById('mmt-inv-p');
+    if (mipEl && metricRow && metricRow.p_diff != null) {
+        mipEl.textContent = metricRow.p_diff >= 1 ? '1.00' : metricRow.p_diff.toFixed(2);
+    }
+
     // Marker correlation bars
     var barsEl = document.getElementById('mmt-marker-bars');
     if (barsEl && mmt.marker_evidence) {
