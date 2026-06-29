@@ -1,265 +1,757 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ESM Study Dashboard</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f5f5f5;
-      color: #1a1a1a;
-      min-height: 100vh;
-    }
-
-    header {
-      background: #fff;
-      border-bottom: 1px solid #e0e0e0;
-      padding: 1.25rem 2rem;
-      display: flex;
-      align-items: baseline;
-      gap: 1rem;
-    }
-
-    header h1 {
-      font-size: 1.125rem;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-    }
-
-    header p {
-      font-size: 0.8125rem;
-      color: #666;
-    }
-
-    main {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .card {
-      background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 1.25rem 1.5rem;
-    }
-
-    .card .label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #666;
-      margin-bottom: 0.5rem;
-    }
-
-    .card .value {
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      line-height: 1;
-    }
-
-    .card .sub {
-      font-size: 0.8125rem;
-      color: #666;
-      margin-top: 0.375rem;
-    }
-
-    .card.accent .value { color: #2563eb; }
-
-    .section-title {
-      font-size: 0.8125rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #666;
-      margin-bottom: 0.75rem;
-    }
-
-    .waves {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .wave-card {
-      background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 1.25rem 1.5rem;
-    }
-
-    .wave-card .wave-label {
-      font-size: 0.875rem;
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-    }
-
-    .bar-track {
-      height: 8px;
-      background: #f0f0f0;
-      border-radius: 4px;
-      overflow: hidden;
-      margin-bottom: 0.5rem;
-    }
-
-    .bar-fill {
-      height: 100%;
-      background: #2563eb;
-      border-radius: 4px;
-      transition: width 0.6s ease;
-    }
-
-    .wave-stats {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.8125rem;
-      color: #555;
-    }
-
-    .wave-stats .rate {
-      font-weight: 600;
-      color: #1a1a1a;
-    }
-
-    .meta {
-      font-size: 0.75rem;
-      color: #999;
-      text-align: right;
-    }
-
-    .error-msg {
-      background: #fff8f0;
-      border: 1px solid #f0c080;
-      border-radius: 8px;
-      padding: 1rem 1.25rem;
-      font-size: 0.875rem;
-      color: #7a4800;
-      margin-bottom: 1.5rem;
-    }
-
-    .skeleton {
-      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.4s infinite;
-      border-radius: 4px;
-    }
-
-    @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>"If You Only Knew the Power of the Dark Side" | Interactive Research Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" integrity="sha384-NrKB+u6Ts6AtkIhwPixiKTzgSKNblyhlk0Sohlgar9UHUBzai/sgnNNWWd291xqt" crossorigin="anonymous" defer></script>
+    <script src="app.js" defer></script>
 </head>
 <body>
-  <header>
-    <h1>ESM Study Dashboard</h1>
-    <p>Within-person fluctuation in burnout, need frustration, and turnover intentions</p>
-  </header>
 
-  <main>
-    <div id="error-banner" class="error-msg" style="display:none"></div>
-
-    <div class="grid" id="summary-cards">
-      <div class="card accent">
-        <div class="label">Enrolled</div>
-        <div class="value skeleton" id="val-enrolled" style="width:60px;height:2rem;">&nbsp;</div>
-        <div class="sub">participants</div>
-      </div>
-      <div class="card">
-        <div class="label">Overall Response Rate</div>
-        <div class="value skeleton" id="val-overall-rate" style="width:80px;height:2rem;">&nbsp;</div>
-        <div class="sub" id="sub-overall"></div>
-      </div>
-      <div class="card">
-        <div class="label">Follow-up Surveys Sent</div>
-        <div class="value skeleton" id="val-scheduled" style="width:70px;height:2rem;">&nbsp;</div>
-        <div class="sub" id="sub-scheduled"></div>
-      </div>
-    </div>
-
-    <p class="section-title">Response Rate by Wave</p>
-    <div class="waves" id="wave-cards"></div>
-
-    <p class="meta" id="updated-at"></p>
-  </main>
-
-  <script>
-    const DATA_URL = "/data.json";
-
-    function pct(rate) {
-      return (rate * 100).toFixed(1) + "%";
-    }
-
-    function setText(id, text) {
-      const el = document.getElementById(id);
-      if (el) {
-        el.textContent = text;
-        el.classList.remove("skeleton");
-        el.style.width = "";
-        el.style.height = "";
-      }
-    }
-
-    function render(data) {
-      setText("val-enrolled", data.enrollment.total.toLocaleString());
-
-      const { scheduled, completed, rate } = data.overall_followup;
-      setText("val-overall-rate", pct(rate));
-      document.getElementById("sub-overall").textContent =
-        completed + " of " + scheduled + " responses";
-
-      setText("val-scheduled", scheduled.toLocaleString());
-      document.getElementById("sub-scheduled").textContent =
-        data.response_rates.length + " waves tracked";
-
-      const container = document.getElementById("wave-cards");
-      container.innerHTML = data.response_rates.map(w => `
-        <div class="wave-card">
-          <div class="wave-label">${w.label}</div>
-          <div class="bar-track">
-            <div class="bar-fill" style="width:${pct(w.rate)}"></div>
-          </div>
-          <div class="wave-stats">
-            <span>${w.completed} of ${w.scheduled} responded</span>
-            <span class="rate">${pct(w.rate)}</span>
-          </div>
+<header>
+    <div class="header-left">
+        <img src="assets/nc-state-logo.png" alt="NC State University" class="header-logo">
+        <div class="header-title">
+            <h1>&ldquo;If You Only Knew the Power of the Dark Side&rdquo;</h1>
+            <p>Within-Person Fluctuation in Need Frustration, Burnout &amp; Turnover Intentions | Interactive Research Dashboard</p>
         </div>
-      `).join("");
+    </div>
+    <div class="header-right">
+        <button type="button" id="theme-toggle" data-mode="dark" aria-label="Switch to light mode" title="Switch to light mode">
+            <svg id="theme-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <!-- sun rays shown in dark mode -->
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <span id="theme-label">Light</span>
+        </button>
+        <button type="button" id="detail-toggle" data-on="0" aria-pressed="false">
+            <span class="toggle-dot"></span>
+            Technical detail
+        </button>
+    </div>
+</header>
 
-      const ts = new Date(data.updated_at);
-      document.getElementById("updated-at").textContent =
-        "Last updated: " + ts.toLocaleString();
-    }
+<nav class="section-nav" aria-label="Dashboard sections" role="tablist">
+    <button type="button" id="tab-study" class="nav-tab active" data-section="s-study" role="tab" aria-selected="true" aria-controls="s-study"><span class="tab-num">01</span>The Study</button>
+    <button type="button" id="tab-sample" class="nav-tab" data-section="s-sample" role="tab" aria-selected="false" aria-controls="s-sample"><span class="tab-num">02</span>The Sample</button>
+    <button type="button" id="tab-cofluct" class="nav-tab" data-section="s-cofluct" role="tab" aria-selected="false" aria-controls="s-cofluct"><span class="tab-num">03</span>Correlations</button>
+    <button type="button" id="tab-variance" class="nav-tab" data-section="s-variance" role="tab" aria-selected="false" aria-controls="s-variance"><span class="tab-num">04</span>Variance Story</button>
+    <button type="button" id="tab-measurement" class="nav-tab" data-section="s-measurement" role="tab" aria-selected="false" aria-controls="s-measurement"><span class="tab-num">05</span>Measurement</button>
+    <button type="button" id="tab-models" class="nav-tab" data-section="s-models" role="tab" aria-selected="false" aria-controls="s-models"><span class="tab-num">06</span>Model Explorer</button>
+    <button type="button" id="tab-effects" class="nav-tab" data-section="s-effects" role="tab" aria-selected="false" aria-controls="s-effects"><span class="tab-num">07</span>Effect Sizes</button>
+    <button type="button" id="tab-hypotheses" class="nav-tab" data-section="s-hypotheses" role="tab" aria-selected="false" aria-controls="s-hypotheses"><span class="tab-num">08</span>Hypotheses</button>
+    <button type="button" id="tab-discussion" class="nav-tab" data-section="s-discussion" role="tab" aria-selected="false" aria-controls="s-discussion"><span class="tab-num">09</span>Discussion</button>
+    <button type="button" id="tab-limitations" class="nav-tab" data-section="s-limitations" role="tab" aria-selected="false" aria-controls="s-limitations"><span class="tab-num">10</span>Limitations</button>
+</nav>
 
-    function showError(msg) {
-      const el = document.getElementById("error-banner");
-      el.textContent = msg;
-      el.style.display = "block";
-    }
+<main>
+    <div id="error-banner" class="error-msg" style="display:none" role="alert"></div>
 
-    fetch(DATA_URL)
-      .then(r => {
-        if (!r.ok) throw new Error("HTTP " + r.status);
-        return r.json();
-      })
-      .then(render)
-      .catch(err => {
-        showError("Could not load study data. It may not be available yet.");
-        console.error(err);
-      });
-  </script>
+    <!-- ================================================================
+         THE STUDY
+    ================================================================ -->
+    <section class="section-block active" id="s-study" role="tabpanel" aria-labelledby="tab-study">
+        <div class="section-header">
+            <p class="section-eyebrow">Background</p>
+            <h2>The Study</h2>
+            <p class="section-lead">
+                Burnout and unmet needs don't just vary across employees; they fluctuate
+                <em>within</em> the same employee across the workday. This study asks: do those
+                within-day fluctuations predict when employees are most likely to think about quitting?
+            </p>
+        </div>
+
+        <div class="model-diagram">
+            <img src="assets/research-model.svg" alt="Conceptual research model: within-person need frustration and burnout predicting turnover intentions, with between-person moderators">
+            <p class="fig-caption">
+                <strong>Conceptual model.</strong> Variables measured at three points per workday
+                (L1, within-person) are shown above the dashed line; stable employee characteristics
+                (L2, between-person) below. The outcome is turnover intentions at each measurement point.
+            </p>
+        </div>
+
+        <div class="callout neutral" style="margin-top:1.5rem">
+            <strong>Why does this matter?</strong> Most research on burnout and turnover measures
+            employees once or twice. Measuring three times daily reveals how the workday itself
+            shapes withdrawal thoughts, and which employees are most at risk, hour by hour.
+        </div>
+
+        <div class="tech-detail">
+            <p class="tech-detail-label">Study design</p>
+            <p>
+                Three-wave experience sampling (ESM) design: participants completed surveys at the
+                beginning, middle, and end of a single workday. Multilevel modeling (HLM)
+                with random slopes partitions variance into within-person (L1) and between-person
+                (L2) components. Primary outcome: turnover intentions assessed at every time point.
+            </p>
+        </div>
+    </section>
+
+    <!-- ================================================================
+         THE SAMPLE
+    ================================================================ -->
+    <section class="section-block" role="tabpanel" id="s-sample" aria-labelledby="tab-sample">
+        <div class="section-header">
+            <p class="section-eyebrow">Who participated</p>
+            <h2>The Sample</h2>
+            <p class="section-lead" id="sample-lead">
+                Loading participant data&hellip;
+            </p>
+        </div>
+
+        <div class="stat-grid" id="sample-stats" style="margin-bottom:1.5rem">
+            <div class="card">
+                <div class="card-label">Participants</div>
+                <div class="card-value accent skeleton" id="val-n" style="width:70px;height:2.25rem">&nbsp;</div>
+                <div class="card-sub">analytic sample</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Observations</div>
+                <div class="card-value skeleton" id="val-obs" style="width:80px;height:2.25rem">&nbsp;</div>
+                <div class="card-sub">ESM surveys completed</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Mean Age</div>
+                <div class="card-value skeleton" id="val-age" style="width:60px;height:2.25rem">&nbsp;</div>
+                <div class="card-sub" id="val-age-sub">years (SD ...)</div>
+            </div>
+            <div class="card" tabindex="0" title="Three surveys per workday: beginning, middle, and end of shift. Exact clock times varied by participant to accommodate first, second, and third shift workers.">
+                <div class="card-label">Surveys per day <span class="info-dot">?</span></div>
+                <div class="card-value" style="color:var(--ncstate-red)">3</div>
+                <div class="card-sub">Beginning, middle, end of shift</div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom:1.5rem;padding:1.375rem 1.5rem">
+            <p class="section-eyebrow" style="margin-bottom:0.875rem">Recruitment funnel</p>
+            <div id="funnel-steps"></div>
+        </div>
+
+        <div class="demo-grid" id="demo-grid"></div>
+
+        <div class="tech-detail">
+            <p class="tech-detail-label">Sample notes</p>
+            <p>
+                Knowledge-worker convenience sample recruited via CloudResearch and departmental
+                listservs. Inclusion criteria: full-time employment, primary use of a computer for
+                work. Exclusions: incomplete ESM phase or failed data quality screens (n = 15).
+            </p>
+        </div>
+    </section>
+
+    <!-- ================================================================
+         CO-FLUCTUATION
+    ================================================================ -->
+    <section class="section-block" role="tabpanel" id="s-cofluct" aria-labelledby="tab-cofluct">
+        <div class="section-header">
+            <p class="section-eyebrow">Relationships between variables</p>
+            <h2>Correlations</h2>
+            <p class="section-lead">
+                When employees feel more fatigued or frustrated at one time point, do they also
+                think more about leaving? These correlations show how the study variables move
+                together, both within a person across the day and between employees.
+            </p>
+        </div>
+
+        <div class="corr-controls">
+            <button type="button" class="corr-btn active" data-mode="within">Within-person</button>
+            <button type="button" class="corr-btn" data-mode="between">Between-person</button>
+        </div>
+
+        <div class="card">
+            <p id="corr-description" style="font-size:0.875rem;color:var(--muted);margin-bottom:1rem">
+                <strong>Within-person correlations</strong> (rmcorr): how each variable tends to
+                move together <em>within the same employee</em> across time points.
+                Values marked * are statistically significant (p &lt; .05).
+            </p>
+            <div class="corr-table-wrap">
+                <table class="corr-table" id="corr-table" aria-label="Correlation matrix">
+                    <thead id="corr-thead"></thead>
+                    <tbody id="corr-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="callout" style="margin-top:1rem">
+            Even within the same employee, physical fatigue (.31), emotional exhaustion (.22),
+            and competence frustration (.19) show the strongest same-timepoint associations with
+            turnover thoughts.
+        </div>
+
+        <div class="tech-detail">
+            <p class="tech-detail-label">Methods</p>
+            <p>
+                Within-person correlations use repeated-measures correlation (rmcorr; Bakdash &amp;
+                Marusich, 2017), which partitions between-person variance before estimating the
+                within-person association. Between-person correlations are Pearson correlations of
+                individual means. * p &lt; .05.
+            </p>
+        </div>
+    </section>
+
+    <!-- ================================================================
+         VARIANCE STORY
+    ================================================================ -->
+    <section class="section-block" role="tabpanel" id="s-variance" aria-labelledby="tab-variance">
+        <div class="section-header">
+            <p class="section-eyebrow">How much variance is within vs. between employees</p>
+            <h2>The Variance Story</h2>
+            <p class="section-lead" id="variance-lead">
+                Loading variance data&hellip;
+            </p>
+        </div>
+
+        <div class="stat-grid" style="margin-bottom:1.5rem">
+            <div class="card">
+                <div class="card-label">ICC for Turnover Intentions</div>
+                <div class="card-value accent skeleton" id="val-icc" style="width:80px;height:2.25rem">&nbsp;</div>
+                <div class="card-sub">between-person variance</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Within-person variance</div>
+                <div class="card-value skeleton" id="val-within-pct" style="width:60px;height:2.25rem">&nbsp;</div>
+                <div class="card-sub">the part that fluctuates daily</div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom:1rem">
+            <p style="font-size:0.8125rem;color:var(--muted);margin-bottom:1rem">
+                Bars show the proportion of each variable's variance attributable to
+                <strong style="color:var(--ncstate-red)">stable between-person differences</strong>
+                vs. within-person fluctuation across the workday.
+            </p>
+            <div class="variance-grid" id="variance-bars"></div>
+        </div>
+
+        <div class="callout">
+            <strong id="variance-callout-head">79% between, 21% within.</strong>
+            <span id="variance-callout-body">
+                Employees differ substantially in their baseline turnover intentions, but the
+                remaining 21% fluctuates within the same person across the day. That fluctuation is
+                what the within-person predictors in this study explain.
+            </span>
+        </div>
+
+        <div class="tech-detail">
+            <p class="tech-detail-label">Intraclass correlation (ICC)</p>
+            <p>
+                ICC = between-person variance / total variance. ICC = .792 for turnover intentions,
+                estimated from the unconditional means model (M0). High ICC indicates
+                stable trait-like differences; the remaining within-person variance (21%) is the
+                portion the L1 predictors can explain.
+            </p>
+            <div class="fig-embed" style="margin-top:1rem">
+                <img src="assets/figures/eda_16_icc_barchart.svg" alt="ICC barchart by construct" loading="lazy">
+                <p class="fig-caption">Publication figure: ICC by construct.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================
+         MEASUREMENT MODEL
+    ================================================================ -->
+    <section class="section-block" role="tabpanel" id="s-measurement" aria-labelledby="tab-measurement">
+        <div class="section-header">
+            <p class="section-eyebrow">Scale validity &amp; common method bias</p>
+            <h2>Measurement</h2>
+            <p class="section-lead">
+                Before testing the main hypotheses, we confirmed that each scale measured
+                what it was designed to measure and that results were not inflated by
+                same-source measurement artifacts.
+            </p>
+        </div>
+
+        <div class="stat-grid" style="margin-bottom:1.5rem">
+            <div class="card">
+                <div class="card-label">Within-Person Model (L1)</div>
+                <div class="card-value accent" id="mmt-l1-cfi" style="font-size:1.75rem">--</div>
+                <div class="card-sub" id="mmt-l1-sub">CFI &nbsp;&middot;&nbsp; RMSEA</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Between-Person Model (L2)</div>
+                <div class="card-value accent" id="mmt-l2-cfi" style="font-size:1.75rem">--</div>
+                <div class="card-sub" id="mmt-l2-sub">CFI &nbsp;&middot;&nbsp; RMSEA</div>
+            </div>
+            <div class="card" id="mmt-marker-card">
+                <div class="card-label">Common Method Bias</div>
+                <div class="card-value" id="mmt-marker-val" style="font-size:1.25rem;color:var(--ncstate-red-text)">--</div>
+                <div class="card-sub">Marker variable test passed</div>
+            </div>
+            <div class="card" id="mmt-inv-card">
+                <div class="card-label">Metric Invariance</div>
+                <div class="card-value" id="mmt-inv-val" style="font-size:1.25rem;color:var(--ncstate-red-text)">--</div>
+                <div class="card-sub">Loadings stable across waves</div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom:1rem">
+            <p class="card-label" style="margin-bottom:0.75rem">Marker Variable Correlations</p>
+            <p style="font-size:0.8125rem;color:var(--muted);margin-bottom:1rem">
+                Each bar shows how strongly a study construct correlates with the marker variable
+                (a scale chosen for high common method susceptibility but no theoretical link to the
+                outcomes). Near-zero correlations indicate common method bias is not inflating results.
+            </p>
+            <div id="mmt-marker-bars"></div>
+        </div>
+
+        <div class="callout purple" style="margin-bottom:1rem">
+            <strong>What the marker variable technique shows:</strong>
+            An independent LRT comparison confirms the baseline model is statistically
+            indistinguishable from the model that explicitly models common method effects
+            (p = <span id="mmt-marker-p">--</span>). Factor loadings are also stable across the three daily waves
+            (metric invariance; p = <span id="mmt-inv-p">--</span>), ruling out wave-specific measurement drift.
+        </div>
+
+        <div class="tech-detail">
+            <p class="tech-detail-label">Fit index thresholds</p>
+            <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem">
+                Acceptable fit: CFI/TLI &ge; .90; RMSEA &le; .08; SRMR &le; .10.
+                Both models exceed the CFI .90 threshold and fall within RMSEA bounds.
+            </p>
+            <div id="mmt-fit-table"></div>
+
+            <p class="tech-detail-label" style="margin-top:1.25rem">Marker model LRT comparison</p>
+            <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem">
+                Method-U adds marker cross-loadings; Method-R additionally constrains factor
+                covariances. A non-significant LRT (p = 1.00 for Method-R vs. Method-U) confirms
+                the baseline is unbiased. The marker variable used was ATCB (turnover cognitions
+                measured with an alternative format), chosen for high common-method susceptibility
+                with no unique theoretical role in the outcome.
+            </p>
+            <div id="mmt-lrt-table"></div>
+
+            <p class="tech-detail-label" style="margin-top:1.25rem">Metric invariance across waves</p>
+            <div id="mmt-inv-table"></div>
+        </div>
+    </section>
+
+    <!-- ================================================================
+         MODEL EXPLORER
+    ================================================================ -->
+    <section class="section-block" role="tabpanel" id="s-models" aria-labelledby="tab-models">
+        <div class="section-header">
+            <p class="section-eyebrow">Interactive</p>
+            <h2>Model Explorer</h2>
+            <p class="section-lead">
+                The analysis built a series of models, each adding predictors to explain more
+                variance. Select any model to see how well it fits and which predictors it includes.
+            </p>
+        </div>
+
+        <div class="model-selector-row" id="model-selector"></div>
+
+        <div class="model-fit-grid" id="model-fit-stats" style="margin-bottom:1.25rem"></div>
+
+        <div class="card">
+            <p class="demo-card-title" style="margin-bottom:0.875rem">Fixed effects</p>
+            <div class="fx-table-wrap">
+                <table class="fx-table" id="fx-table" aria-label="Fixed effects for selected model">
+                    <thead>
+                        <tr>
+                            <th>Predictor</th>
+                            <th class="numeric">Estimate</th>
+                            <th class="numeric">SE</th>
+                            <th class="numeric">p</th>
+                            <th class="numeric">95% CI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fx-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tech-detail" style="margin-top:1rem">
+            <p class="tech-detail-label">Model sequence &amp; shading</p>
+            <p>
+                M0: unconditional means (ICC only). M1: fixed time trend. M2: random slope for time.
+                M3: L1 within-person predictors. M4: L1 + between-person means. M5: L1 + L2 study
+                variables (breach, violation, job satisfaction). M6: M5 + covariates (work hours,
+                remote, shift). M7a/M7b: meeting-load interactions.
+                Row shading: p &lt; .05 (light red), p &lt; .01 (medium), p &lt; .001 (dark).
+            </p>
+        </div>
+    </section>
+
+    <!-- ================================================================
+         EFFECT SIZES
+    ================================================================ -->
+    <section class="section-block" role="tabpanel" id="s-effects" aria-labelledby="tab-effects">
+        <div class="section-header">
+            <p class="section-eyebrow">How large are the effects?</p>
+            <h2>Effect Sizes</h2>
+            <p class="section-lead">
+                Standardized coefficients show the relative size of each predictor's effect,
+                allowing comparison across variables on different scales.
+                Points to the right of zero indicate positive associations with turnover thoughts.
+            </p>
+        </div>
+
+        <div class="corr-controls" style="margin-bottom:1rem">
+            <button type="button" class="corr-btn" data-esmodel="Model 3: L1 Within-Person">Model 3</button>
+            <button type="button" class="corr-btn" data-esmodel="Model 4: L1 Within + Between">Model 4</button>
+            <button type="button" class="corr-btn active" data-esmodel="Model 5: L1 + L2 Study Variables">Model 5 (primary)</button>
+        </div>
+
+        <div class="card" style="padding:1.5rem">
+            <div class="chart-wrap" style="min-height:300px">
+                <canvas id="forest-canvas" aria-label="Forest plot of standardized effects"></canvas>
+            </div>
+            <p class="forest-note">
+                Focal predictors only. Structural controls (intercept, time trend, between-person meeting load, recruitment source) are excluded from this plot; full fixed-effects tables including all terms are available on the Model Explorer tab.
+            </p>
+        </div>
+
+        <div class="callout purple" style="margin-top:1rem">
+            Between-person chronic fatigue and exhaustion show the largest effects on turnover
+            intentions. Within-person fluctuations in emotional exhaustion and physical fatigue
+            still carry meaningful moment-to-moment influence.
+        </div>
+
+        <div class="tech-detail">
+            <p class="tech-detail-label">Standardization &amp; publication figure</p>
+            <p>
+                Coefficients standardized using pooled SD. Error bars are 95% CIs. The publication
+                forest plot below shows Model 5 effects with full variable labels.
+            </p>
+            <div class="fig-embed" style="margin-top:1rem">
+                <img src="assets/figures/mlm_es_forest_plot.svg" alt="Forest plot of standardized MLM effects" loading="lazy">
+                <p class="fig-caption">Publication figure: standardized effects with 95% CIs (Model 5).</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================
+         HYPOTHESIS SCORECARD
+    ================================================================ -->
+    <section class="section-block" role="tabpanel" id="s-hypotheses" aria-labelledby="tab-hypotheses">
+        <div class="section-header">
+            <p class="section-eyebrow">Results summary</p>
+            <h2>Hypothesis Scorecard</h2>
+            <p class="section-lead">
+                The study tested 17 directional hypotheses about how burnout, need frustration,
+                and contract-related perceptions predict turnover thoughts.
+            </p>
+        </div>
+
+        <div class="hyp-filters">
+            <button type="button" class="hyp-filter-btn active" data-filter="all">All</button>
+            <button type="button" class="hyp-filter-btn" data-filter="within">Within-person (L1)</button>
+            <button type="button" class="hyp-filter-btn" data-filter="between">Between-person (L2)</button>
+            <button type="button" class="hyp-filter-btn" data-filter="supported">Supported only</button>
+        </div>
+
+        <p class="hyp-tally" id="hyp-tally">Loading&hellip;</p>
+
+        <div class="hyp-grid" id="hyp-grid"></div>
+    </section>
+
+    <!-- ================================================================
+         DISCUSSION
+    ================================================================ -->
+    <section class="section-block" role="tabpanel" id="s-discussion" aria-labelledby="tab-discussion">
+        <div class="section-header">
+            <p class="section-eyebrow">What it means</p>
+            <h2>Takeaways</h2>
+            <p class="section-lead">
+                The findings reframe turnover intentions: withdrawal cognition is not only something
+                employees <em>have</em>; it is something their workday <em>does to them</em>,
+                hour by hour.
+            </p>
+        </div>
+
+        <div class="stat-grid" style="margin-bottom:1.5rem">
+            <div class="card">
+                <div class="card-label">Within-day fluctuation</div>
+                <div class="card-value accent">Real</div>
+                <div class="card-sub">ICC = .792 leaves 21% within-person variance to explain</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Key within-day drivers</div>
+                <div class="card-value" style="font-size:1.125rem;font-weight:700;color:var(--text);line-height:1.3">EE, PF, Comp</div>
+                <div class="card-sub">Emotional exhaustion, physical fatigue, competence frustration</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Strongest between-person effects</div>
+                <div class="card-value" style="font-size:1.125rem;font-weight:700;color:var(--text);line-height:1.3">Burnout (PF/EE)</div>
+                <div class="card-sub">Chronic levels dominate the between-person picture</div>
+            </div>
+        </div>
+
+        <div class="callout">
+            <strong>Practical implication:</strong> Within-day burnout signals (fatigue, exhaustion,
+            competence threat) function as leading indicators of withdrawal cognition. Interventions
+            that reduce daily load spikes may attenuate turnover risk beyond what trait-level
+            assessments can detect.
+        </div>
+
+        <div style="margin-top:1.25rem" class="callout neutral">
+            <strong>Three qualified findings:</strong>
+            <ul style="margin-top:0.5rem;padding-left:1.25rem;line-height:1.7">
+                <li>
+                    <strong>PC Breach</strong> was supported at p = .050 (boundary significance).
+                    Effect is directionally consistent but should be replicated.
+                </li>
+                <li>
+                    <strong>Cognitive weariness (between-person)</strong> showed a
+                    <em>negative</em> coefficient, contrary to the predicted direction. CW and EE
+                    are highly correlated at L2; suppression likely inflates the CW estimate.
+                </li>
+                <li>
+                    <strong>Meeting load moderation</strong> (H3a, H3b) was not supported.
+                    Meeting count and time did not amplify within-person effects, possibly
+                    due to floor effects (knowledge workers with moderate meeting loads).
+                </li>
+            </ul>
+        </div>
+
+        <div class="tech-detail">
+            <p class="tech-detail-label">Study limitations</p>
+            <p>
+                Power simulations indicated approximately 42% power for the smallest targeted
+                within-person effect sizes (f2 ~ .02). The sample skews toward knowledge workers,
+                limiting generalizability to manual or service-sector roles. Three daily measurement
+                occasions may not capture faster within-day dynamics. Cross-sectional between-person
+                associations cannot establish causality.
+            </p>
+        </div>
+    </section>
+
+    <!-- ================================================================
+         LIMITATIONS
+    ================================================================ -->
+    <section class="section-block" role="tabpanel" id="s-limitations" aria-labelledby="tab-limitations">
+        <div class="section-header">
+            <p class="section-eyebrow">Scope &amp; Constraints</p>
+            <h2>Limitations</h2>
+            <p class="section-lead">
+                Seven constraints qualify these findings. They do not invalidate the conclusions
+                but specify where replication, densification, and broader sampling are needed
+                before generalizing further.
+            </p>
+        </div>
+
+        <div class="lim-grid">
+
+            <!-- Statistical Power -->
+            <div class="lim-card">
+                <div class="lim-card-header">
+                    <span class="lim-badge lim-badge--power">Statistical Power</span>
+                </div>
+                <div class="lim-items">
+                    <div class="lim-item">
+                        <div class="lim-item-title">42% of target enrollment</div>
+                        <div class="lim-item-body">
+                            N = 336 against an a priori target of 800. Full power is achieved
+                            for medium and larger effects; power drops to approximately .62 to .84
+                            for the PC breach and competence frustration findings specifically.
+                            Those two results carry provisional framing accordingly.
+                        </div>
+                    </div>
+                    <div class="lim-item">
+                        <div class="lim-item-title">Between-person need frustration nulls are undetermined</div>
+                        <div class="lim-item-body">
+                            The study was not powered to detect small between-person effects.
+                            Null results for autonomy and relatedness frustration at L2 should
+                            be read as undetermined rather than established absences until a
+                            fully powered replication is available.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Study Design -->
+            <div class="lim-card">
+                <div class="lim-card-header">
+                    <span class="lim-badge lim-badge--design">Study Design</span>
+                </div>
+                <div class="lim-items">
+                    <div class="lim-item">
+                        <div class="lim-item-title">Three occasions per day</div>
+                        <div class="lim-item-body">
+                            With only three measurement points, random slope variance is
+                            downwardly biased and the intraday trajectory can only be modeled
+                            as linear drift. Five or more occasions would unlock stable slope
+                            estimation and non-linear trajectory characterization.
+                        </div>
+                    </div>
+                    <div class="lim-item">
+                        <div class="lim-item-title">Survivorship in the analytic sample</div>
+                        <div class="lim-item-body">
+                            Only participants who completed all three occasions were included.
+                            Momentary states that drive same-day dropout are unobservable,
+                            placing a survivorship boundary on the within-day inferences.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Measurement -->
+            <div class="lim-card">
+                <div class="lim-card-header">
+                    <span class="lim-badge lim-badge--measurement">Measurement</span>
+                </div>
+                <div class="lim-items">
+                    <div class="lim-item">
+                        <div class="lim-item-title">Single-item turnover intentions criterion</div>
+                        <div class="lim-item-body">
+                            A single item precludes internal consistency estimation and
+                            within-occasion momentary retest reliability. Measurement error
+                            in the criterion attenuates observed coefficients toward zero,
+                            meaning the reported effects are conservative.
+                        </div>
+                    </div>
+                    <div class="lim-item">
+                        <div class="lim-item-title">Two documented administration errors</div>
+                        <div class="lim-item-body">
+                            One physical fatigue item was lost to a survey administration
+                            error. Job insecurity and desirability of movement entered as
+                            post hoc controls rather than pre-specified covariates.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generalizability -->
+            <div class="lim-card">
+                <div class="lim-card-header">
+                    <span class="lim-badge lim-badge--scope">Generalizability</span>
+                </div>
+                <div class="lim-items">
+                    <div class="lim-item">
+                        <div class="lim-item-title">Knowledge-worker skew</div>
+                        <div class="lim-item-body">
+                            The sample skews educated and majority-remote. The within-day
+                            findings may not generalize to hourly, frontline, or manual
+                            occupations where depletion mechanisms and exit costs differ
+                            substantially from knowledge work.
+                        </div>
+                    </div>
+                    <div class="lim-item">
+                        <div class="lim-item-title">Recruitment source as main effect only</div>
+                        <div class="lim-item-body">
+                            Snowball and CloudResearch participants were controlled via a
+                            main effect in the between-person model. Homogeneity of predictor
+                            slopes across sources is an assumption, not a tested finding.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytical Approach (full-width) -->
+            <div class="lim-card lim-card--wide">
+                <div class="lim-card-header">
+                    <span class="lim-badge lim-badge--analytical">Analytical Approach</span>
+                </div>
+                <div class="lim-items">
+                    <div class="lim-item">
+                        <div class="lim-item-title">Multilevel linear regression applied to an ordinal, skewed outcome</div>
+                        <div class="lim-item-body">
+                            Turnover intentions were measured on a 1-to-5 frequency scale
+                            anchored "Never" to "Very often." Psychological scaling research
+                            consistently finds that verbal frequency anchors are not perceived
+                            as equally spaced: the gap between "Never" and "Rarely" is not the
+                            same as the gap between "Often" and "Very often" in psychological
+                            units. In this sample, the outcome had a mean of 1.57 (out of 5.0)
+                            and a skewness of 2.14, placing the bulk of responses at the floor
+                            with a long right tail. Multilevel linear regression assumes an
+                            interval-level, continuous, and unbounded outcome with normally
+                            distributed residuals; none of those assumptions hold here.
+                            <br><br>
+                            The principled alternative is multilevel ordinal regression via
+                            cumulative link mixed models (CLMM). Rather than estimating unit
+                            differences in a continuous score, CLMMs model the probability of
+                            exceeding each response threshold (1 to 2, 2 to 3, etc.) without
+                            requiring equal spacing between categories. They respect the
+                            bounded 1-to-5 range, handle floor and ceiling compression
+                            without violating residual normality, and produce threshold
+                            parameters that are more directly interpretable for ordered
+                            categorical outcomes.
+                            <br><br>
+                            The overall pattern of findings reported here is likely robust to
+                            this distinction; linear and ordinal approaches tend to agree on
+                            direction and significance when effects are not extreme and the
+                            scale has five or more categories. However, the specific
+                            coefficient magnitudes and their standard errors are best
+                            interpreted as approximations. A CLMM reanalysis is the most
+                            targeted methodological extension for this line of work.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="lim-future-header">
+            <h3>Future Directions</h3>
+            <p>These constraints define the natural next steps.</p>
+        </div>
+
+        <div class="future-dirs">
+            <div class="future-dir-card">
+                <div class="future-dir-num">01</div>
+                <div class="future-dir-title">Densify to 5+ occasions per day</div>
+                <div class="future-dir-body">
+                    More measurement points across multiple days would enable stable random
+                    slope estimation, formal moderation tests, and characterization of the
+                    intraday trajectory beyond the linear drift recoverable here.
+                </div>
+            </div>
+            <div class="future-dir-card">
+                <div class="future-dir-num">02</div>
+                <div class="future-dir-title">Retest meeting moderation at scale</div>
+                <div class="future-dir-body">
+                    Managers and high-meeting knowledge workers provide the meeting exposure
+                    needed for a fair test. Facet-specific predictors (fatigue, exhaustion)
+                    rather than a composite would sharpen the hypothesis.
+                </div>
+            </div>
+            <div class="future-dir-card">
+                <div class="future-dir-num">03</div>
+                <div class="future-dir-title">Separate breach from violation by design</div>
+                <div class="future-dir-body">
+                    The current data cannot adjudicate between breach (cognitive appraisal)
+                    and violation (affective reaction). Temporal ordering or experimental
+                    vignettes can separate the two components cleanly.
+                </div>
+            </div>
+            <div class="future-dir-card">
+                <div class="future-dir-num">04</div>
+                <div class="future-dir-title">Test need frustration mediation paths</div>
+                <div class="future-dir-body">
+                    Autonomy and relatedness frustration may reach withdrawal through
+                    accumulated burnout rather than directly. Mediation designs would test
+                    this and reconcile the present nulls with the longitudinal literature.
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+<footer>
+    <span>
+        D.K. Green | North Carolina State University | I-O Psychology PhD Dissertation
+    </span>
+    <span>
+        Data frozen: 2026-06-12 &nbsp;|&nbsp;
+        <a href="https://osf.io/gbuj8" target="_blank" rel="noopener">OSF project</a> &nbsp;|&nbsp;
+        <a href="https://github.com/datasci-iopsy/dkg-phd-thesis" target="_blank" rel="noopener">GitHub</a>
+    </span>
+</footer>
+
 </body>
 </html>
