@@ -33,7 +33,7 @@ FN ?= run-qualtrics-scheduling
         study_export \
         study_analysis study_data_quality \
         study_eda study_measurement \
-        study_mlm study_correlation study_tables \
+        study_mlm study_correlation study_tables study_all \
         py_lint py_format py_sqlfmt py_test \
         gcp_dev gcp_deploy \
         gcp_infra_up gcp_infra_status gcp_infra_down \
