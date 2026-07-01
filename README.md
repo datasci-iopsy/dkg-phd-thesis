@@ -4,7 +4,9 @@ Author & Maintainer: Demetrius K. Green
 
 [Email](mailto:dkgreen.iopsych@gmail.com) | ![github pic](https://raw.githubusercontent.com/CLorant/readme-social-icons/main/small/filled/github.svg) [GitHub](https://github.com/datasci-iopsy) | ![linkedin pic](https://raw.githubusercontent.com/CLorant/readme-social-icons/main/small/filled/linkedin.svg) [LinkedIn](https://www.linkedin.com/in/dkgreen-io/) | [ResearchGate](https://www.researchgate.net/profile/Demetrius-Green-2)
 
-A dissertation **TO BE** submitted to the Graduate Faculty of North Carolina State University in partial fulfillment of the requirements for the degree of Doctor of Philosophy.
+**Results Dashboard:** <https://esm-study-dashboard.netlify.app/>
+
+A dissertation submitted to the Graduate Faculty of North Carolina State University in partial fulfillment of the requirements for the degree of Doctor of Philosophy.
 
 Industrial-Organizational Psychology
 
@@ -109,6 +111,22 @@ make synthetic_analysis    # Synthetic data: EDA → correlation → measurement
 See `analysis/run_power_analysis/README.md` for the full parameter grid and configuration.
 See `analysis/run_synthetic_data/README.md` for synthetic data inputs and outputs.
 
+Study data (the official pipeline on real participant data from BigQuery):
+
+```bash
+make study_export         # Rebuild BQ fact tables, re-export CSVs (prompts for confirmation)
+make study_data_quality   # 1. Careless responding screening -> cleaned CSV
+make study_eda            # 2. Exploratory data analysis
+make study_correlation    # 3. Correlation analysis
+make study_measurement    # 4. Measurement model (CFA)
+make study_mlm            # 5. Multilevel model (main analysis)
+make study_analysis       # Steps 1-5 in sequence (study_data_quality through study_mlm)
+make study_tables         # 6. Publication-ready Word tables
+make study_all            # Full study pipeline: export -> steps 1-5 -> tables (guaranteed fresh)
+```
+
+See `analysis/run_study_analysis/README.md` for the data pipeline, careless-responding screening, and variable definitions.
+
 ### Track B — Python Development (Testing, Linting, Local Dev Server)
 
 Requires Quick Start steps 1–3. No GCP credentials needed — all tests are fully mocked.
@@ -154,8 +172,9 @@ See `make help_gcp` for the full GCP command reference.
 Requires Track B + `gcloud` CLI. The VM is Linux-only and is used solely for R simulations.
 
 ```bash
-uv run gcp/deploy/manage_compute.py setup   # Create VM (c3-highcpu-176)
-uv run gcp/deploy/manage_compute.py ssh     # SSH in
+make gcp_compute_up      # Create VM (c3-highcpu-176)
+make gcp_compute_status  # Show VM state + external IP
+make gcp_compute_ssh     # SSH in
 ```
 
 On the VM (run once after first SSH):
@@ -175,11 +194,15 @@ nohup make power_analysis_gcp_prod &       # Full grid in background (3,645 cell
 After completion:
 
 ```bash
-uv run gcp/deploy/manage_compute.py scp      # Download results to local machine
-uv run gcp/deploy/manage_compute.py teardown # Delete VM to stop billing
+make gcp_compute_scp     # Download results to local machine
+make gcp_compute_down    # Delete VM to stop billing
 ```
 
 See `analysis/run_power_analysis/README.md` for benchmarks and troubleshooting.
+
+### Track E: Results Dashboard
+
+Results from the study analysis are presented as an interactive dashboard, live at <https://esm-study-dashboard.netlify.app/>. It is a static, client-side app deployed on Netlify from `dashboard/`; there is no setup track to run here beyond what Quick Start already provides. See [`dashboard/README.md`](dashboard/README.md) for what it shows, how its data is built, and how to run or deploy it.
 
 ## Dependency Management
 
@@ -212,6 +235,7 @@ For a full command reference: `make help` (all commands) or `make help_gcp` (GCP
     - [Track B — Python Development (Testing, Linting, Local Dev Server)](#track-b--python-development-testing-linting-local-dev-server)
     - [Track C — GCP Deployment](#track-c--gcp-deployment)
     - [Track D — GCP VM for Large Power Analysis](#track-d--gcp-vm-for-large-power-analysis)
+    - [Track E: Results Dashboard](#track-e-results-dashboard)
   - [Dependency Management](#dependency-management)
   - [Troubleshooting](#troubleshooting)
 - [Table of Contents](#table-of-contents)

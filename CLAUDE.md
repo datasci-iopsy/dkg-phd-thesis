@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 PhD dissertation: within-person fluctuation in burnout, need frustration, and turnover intentions.
-Three pillars: `gcp/` (Python GCP pipeline), `analysis/run_power_analysis/` (R simulations), `analysis/run_synthetic_data/` (test data).
+Components: `gcp/` (Python GCP pipeline), `analysis/run_power_analysis/` (R simulations), `analysis/run_study_analysis/` (real-data dissertation analysis), `analysis/run_synthetic_data/` (test data), `dashboard/` (interactive results dashboard).
 Python >=3.12,<3.13 (uv) and R >= 4.4 (uvr) managed separately. `.python-version` pins `3.12.11` for pyenv.
 See `gcp/CLAUDE.md` and `analysis/CLAUDE.md` for domain specifics.
 
