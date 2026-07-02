@@ -15,6 +15,13 @@
 
 <header>
     <div class="header-left">
+        <button type="button" id="sidebar-toggle" aria-label="Toggle section navigation" aria-expanded="true" aria-controls="sidebar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+        </button>
         <img src="assets/nc-state-logo.png" alt="NC State University" class="header-logo">
         <div class="header-title">
             <h1>&ldquo;If You Only Knew the Power of the Dark Side&rdquo;</h1>
@@ -37,14 +44,16 @@
             </svg>
             <span id="theme-label">Light</span>
         </button>
-        <button type="button" id="detail-toggle" data-on="0" aria-pressed="false">
+        <button type="button" id="detail-toggle" data-on="0" aria-pressed="false" aria-label="Toggle technical detail" title="Toggle technical detail">
             <span class="toggle-dot"></span>
-            Technical detail
+            <span class="toggle-label">Technical detail</span>
         </button>
     </div>
 </header>
 
-<nav class="section-nav" aria-label="Dashboard sections" role="tablist">
+<div class="shell">
+<aside id="sidebar" class="sidebar" aria-label="Dashboard sections" role="tablist" aria-hidden="false">
+    <button type="button" id="tab-about" class="nav-tab" data-section="s-about" role="tab" aria-selected="false" aria-controls="s-about"><span class="tab-num">00</span>About the Researcher</button>
     <button type="button" id="tab-study" class="nav-tab active" data-section="s-study" role="tab" aria-selected="true" aria-controls="s-study"><span class="tab-num">01</span>The Study</button>
     <button type="button" id="tab-sample" class="nav-tab" data-section="s-sample" role="tab" aria-selected="false" aria-controls="s-sample"><span class="tab-num">02</span>The Sample</button>
     <button type="button" id="tab-cofluct" class="nav-tab" data-section="s-cofluct" role="tab" aria-selected="false" aria-controls="s-cofluct"><span class="tab-num">03</span>Correlations</button>
@@ -55,10 +64,101 @@
     <button type="button" id="tab-hypotheses" class="nav-tab" data-section="s-hypotheses" role="tab" aria-selected="false" aria-controls="s-hypotheses"><span class="tab-num">08</span>Hypotheses</button>
     <button type="button" id="tab-discussion" class="nav-tab" data-section="s-discussion" role="tab" aria-selected="false" aria-controls="s-discussion"><span class="tab-num">09</span>Discussion</button>
     <button type="button" id="tab-limitations" class="nav-tab" data-section="s-limitations" role="tab" aria-selected="false" aria-controls="s-limitations"><span class="tab-num">10</span>Limitations</button>
-</nav>
+</aside>
 
 <main>
     <div id="error-banner" class="error-msg" style="display:none" role="alert"></div>
+
+    <!-- ================================================================
+         ABOUT THE RESEARCHER
+    ================================================================ -->
+    <section class="section-block" id="s-about" role="tabpanel" aria-labelledby="tab-about">
+        <div class="section-header">
+            <p class="section-eyebrow">Who built this</p>
+            <h2>About the Researcher</h2>
+            <p class="section-lead">
+                A quick introduction to the person behind the numbers, and where to find more
+                of his work.
+            </p>
+        </div>
+
+        <div class="about-card">
+            <div class="about-avatar" aria-hidden="true">DKG</div>
+            <div class="about-id">
+                <p class="about-name">Demetrius K. Green</p>
+                <p class="about-role">PhD Candidate, Industrial-Organizational Psychology</p>
+                <p class="about-affil">Psychometrics Lab &middot; North Carolina State University</p>
+            </div>
+        </div>
+
+        <div class="social-links">
+            <a class="social-link" href="https://www.linkedin.com/in/dkgreen-io/" target="_blank" rel="noopener noreferrer">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                    <rect x="2" y="9" width="4" height="12"/>
+                    <circle cx="4" cy="4" r="2"/>
+                </svg>
+                LinkedIn
+            </a>
+            <a class="social-link" href="https://www.researchgate.net/profile/Demetrius-Green-2" target="_blank" rel="noopener noreferrer">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    <line x1="9" y1="7" x2="15" y2="7"/>
+                    <line x1="9" y1="11" x2="14" y2="11"/>
+                </svg>
+                ResearchGate
+            </a>
+            <a class="social-link" href="https://github.com/datasci-iopsy" target="_blank" rel="noopener noreferrer">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/>
+                </svg>
+                GitHub
+            </a>
+            <a class="social-link" href="https://orcid.org/0000-0001-7497-851X" target="_blank" rel="noopener noreferrer">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"/>
+                    <circle cx="9" cy="9" r="0.6" fill="currentColor" stroke="none"/>
+                    <line x1="9" y1="11.5" x2="9" y2="16"/>
+                    <path d="M12.5 11.5h1.8a2.3 2.3 0 0 1 0 4.5h-1.8z"/>
+                </svg>
+                ORCID iD
+            </a>
+        </div>
+
+        <div class="card" style="margin-top:1.5rem">
+            <p class="section-eyebrow" style="margin-bottom:0.75rem">Biography</p>
+            <p style="font-size:0.9375rem;color:var(--text);line-height:1.75">
+                Demetrius K. Green hails from Ingleside, North Carolina. He earned his bachelor's
+                degree in psychology from North Carolina State University before pursuing doctoral
+                studies in the Psychometrics Lab under Dr. Adam W. Meade. His expertise spans modern
+                and advanced psychometric techniques applied in both academic research and industry
+                projects. Within data science and people analytics, he has built and deployed machine
+                learning models for predictive analytics (e.g., ensemble methods and joint models for
+                survival data) and natural language processing (e.g., sentiment analysis and
+                recommendation systems). He works primarily in Python, R, and SQL on Unix-like
+                systems and has delivered solutions for multinational organizations using platforms
+                such as H2O.ai, Hugging Face, and PyTorch.
+            </p>
+            <p style="font-size:0.9375rem;color:var(--text);line-height:1.75;margin-top:0.875rem">
+                Demetrius has also designed, optimized, and managed data lakes and warehouses at
+                petabyte scale, implementing ETL/ELT pipelines with open-source tools (Hadoop,
+                Airflow, dbt, Docker, Spark) and proprietary platforms (AWS, Databricks, GCP,
+                Snowflake). His industry experience spans private consulting, banking, and retail,
+                where he has architected cloud-based data solutions and incorporated AI-enabled
+                tooling to ease CI/CD friction while adhering to sound data governance principles. He
+                integrates academic-level rigor with technical innovation to build robust, scalable
+                data systems while embodying the role of a modern full-stack data scientist and
+                engineer.
+            </p>
+        </div>
+
+        <div class="callout purple" style="margin-top:1.25rem">
+            <strong>What's next:</strong> starting a technology consultancy, collecting AI
+            engineering certifications, self-hosting a home media server, learning music theory for
+            guitar, and becoming a fully licensed massage therapist.
+        </div>
+    </section>
 
     <!-- ================================================================
          THE STUDY
@@ -741,16 +841,19 @@
     </section>
 
 </main>
+</div>
 
 <footer>
-    <span>
-        D.K. Green | North Carolina State University | I-O Psychology PhD Dissertation
-    </span>
-    <span>
-        Data frozen: 2026-06-12 &nbsp;|&nbsp;
-        <a href="https://osf.io/gbuj8" target="_blank" rel="noopener">OSF project</a> &nbsp;|&nbsp;
-        <a href="https://github.com/datasci-iopsy/dkg-phd-thesis" target="_blank" rel="noopener">GitHub</a>
-    </span>
+    <div class="footer-inner">
+        <span>
+            D.K. Green | North Carolina State University | I-O Psychology PhD Dissertation
+        </span>
+        <span>
+            Data frozen: 2026-06-12 &nbsp;|&nbsp;
+            <a href="https://osf.io/gbuj8" target="_blank" rel="noopener">OSF project</a> &nbsp;|&nbsp;
+            <a href="https://github.com/datasci-iopsy/dkg-phd-thesis" target="_blank" rel="noopener">GitHub</a>
+        </span>
+    </div>
 </footer>
 
 </body>
