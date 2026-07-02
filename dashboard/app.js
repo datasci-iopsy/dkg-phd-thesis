@@ -611,6 +611,7 @@ function initSidebar() {
         body.classList.toggle('sidebar-open', open);
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
         sidebar.setAttribute('aria-hidden', open ? 'false' : 'true');
+        sidebar.inert = !open;
     }
 
     applyState(isOpen);
