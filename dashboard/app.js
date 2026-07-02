@@ -21,6 +21,27 @@ var renderDemoChartGlobal = null;
 var _explainCurrentSection = 's-study';
 
 var EXPLANATIONS = {
+    's-about': {
+        curious:
+            'This dashboard was built by the same person who ran the study: a PhD candidate in ' +
+            'Industrial-Organizational psychology who also happens to write the code that turns ' +
+            'raw survey data into pages like this one. Nothing on this site required an outside ' +
+            'design team or a data-visualization contractor. ' +
+            'The "About" tab is just a quick way to see who is behind the numbers and where to ' +
+            'find more of his work.',
+        business:
+            'The researcher combines a psychology PhD with hands-on data engineering and machine ' +
+            'learning experience across consulting, banking, and retail. That dual background is ' +
+            'why this dashboard exists at all: most academic findings never leave a PDF, but a ' +
+            'background in production data systems makes it possible to ship results as an ' +
+            'interactive product instead.',
+        expert:
+            'Methodologically, the overlap between psychometric training (measurement invariance, ' +
+            'multilevel modeling, CFA) and applied data engineering (ETL/ELT pipelines, cloud ' +
+            'infrastructure, MLOps) is what enabled a from-scratch build script and static site ' +
+            'rather than a third-party BI tool: the entire pipeline from raw CSV exports to this ' +
+            'page is version-controlled and reproducible.'
+    },
     's-study': {
         curious:
             'Most burnout research asks employees once a year how they are doing. ' +
@@ -281,6 +302,7 @@ var EXPLANATIONS = {
 };
 
 var SECTION_NAMES = {
+    's-about':       '00 About the Researcher',
     's-study':       '01 The Study',
     's-sample':      '02 The Sample',
     's-cofluct':     '03 Correlations',
@@ -569,10 +591,67 @@ function initTheme() {
 }
 
 // ---------------------------------------------------------------------------
+// Sidebar toggle: pushes main content rather than overlaying it, so nothing
+// is ever hidden underneath. Defaults open on wider viewports, closed on
+// narrow ones; preference persists once the user toggles it explicitly.
+// ---------------------------------------------------------------------------
+
+function initSidebar() {
+    var STORAGE_KEY = 'dissertation-sidebar-open';
+    var body    = document.body;
+    var toggle  = document.getElementById('sidebar-toggle');
+    var sidebar = document.getElementById('sidebar');
+    if (!toggle || !sidebar) return;
+
+    var stored      = storageGet(STORAGE_KEY);
+    var defaultOpen = window.innerWidth > 640;
+    var isOpen      = stored === '1' ? true : stored === '0' ? false : defaultOpen;
+
+    function applyState(open) {
+        body.classList.toggle('sidebar-open', open);
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        sidebar.setAttribute('aria-hidden', open ? 'false' : 'true');
+    }
+
+    applyState(isOpen);
+
+    toggle.addEventListener('click', function() {
+        isOpen = !isOpen;
+        storageSet(STORAGE_KEY, isOpen ? '1' : '0');
+        applyState(isOpen);
+    });
+}
+
+// ---------------------------------------------------------------------------
+// Footer-avoidance: the "Explain it to me" FAB is fixed to the viewport, so
+// as the footer scrolls into view it would otherwise sit on top of the data
+// freeze date / OSF / GitHub links. Nudge the FAB and panel upward by
+// however much the footer currently intrudes into the viewport.
+// ---------------------------------------------------------------------------
+
+function initFooterAvoidance() {
+    var footer = document.querySelector('footer');
+    var fab    = document.getElementById('explain-fab');
+    var panel  = document.getElementById('explain-panel');
+    if (!footer || !fab) return;
+
+    function update() {
+        var intrusion = window.innerHeight - footer.getBoundingClientRect().top;
+        var offset    = intrusion > 0 ? intrusion + 16 : 0;
+        fab.style.bottom = 'calc(1.5rem + ' + offset + 'px)';
+        if (panel) panel.style.bottom = 'calc(5.25rem + ' + offset + 'px)';
+    }
+
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+}
+
+// ---------------------------------------------------------------------------
 // Tab system
 // ---------------------------------------------------------------------------
 
-var SECTIONS = ['s-study', 's-sample', 's-cofluct', 's-variance', 's-measurement', 's-models', 's-effects', 's-hypotheses', 's-discussion', 's-limitations'];
+var SECTIONS = ['s-about', 's-study', 's-sample', 's-cofluct', 's-variance', 's-measurement', 's-models', 's-effects', 's-hypotheses', 's-discussion', 's-limitations'];
 var rendered  = {};
 
 function activateSection(id, data, skipAnimation) {
@@ -627,17 +706,29 @@ function initTabs(data) {
         });
     });
 
-    // Keyboard: left/right arrows navigate tabs
-    document.querySelector('nav.section-nav').addEventListener('keydown', function(e) {
+    // Keyboard: up/down arrows navigate the vertical sidebar list
+    document.getElementById('sidebar').addEventListener('keydown', function(e) {
         var active = document.querySelector('.nav-tab.active');
         var idx    = SECTIONS.indexOf(active ? active.dataset.section : 's-study');
-        if (e.key === 'ArrowRight' && idx < SECTIONS.length - 1) {
+        if ((e.key === 'ArrowDown') && idx < SECTIONS.length - 1) {
+            e.preventDefault();
             activateSection(SECTIONS[idx + 1], data, false);
             document.querySelector('[data-section="' + SECTIONS[idx + 1] + '"]').focus();
         }
-        if (e.key === 'ArrowLeft' && idx > 0) {
+        if ((e.key === 'ArrowUp') && idx > 0) {
+            e.preventDefault();
             activateSection(SECTIONS[idx - 1], data, false);
             document.querySelector('[data-section="' + SECTIONS[idx - 1] + '"]').focus();
+        }
+        if (e.key === 'Home') {
+            e.preventDefault();
+            activateSection(SECTIONS[0], data, false);
+            document.querySelector('[data-section="' + SECTIONS[0] + '"]').focus();
+        }
+        if (e.key === 'End') {
+            e.preventDefault();
+            activateSection(SECTIONS[SECTIONS.length - 1], data, false);
+            document.querySelector('[data-section="' + SECTIONS[SECTIONS.length - 1] + '"]').focus();
         }
     });
 
@@ -1310,6 +1401,7 @@ async function init() {
     initTheme();
     setChartDefaults();
     initToggle();
+    initSidebar();
 
     var data;
     try {
@@ -1330,6 +1422,7 @@ async function init() {
 
     // Explain panel (pure DOM, no data dependency)
     initExplainPanel();
+    initFooterAvoidance();
 
     // Pre-render all non-chart sections immediately (canvas-free, safe when hidden)
     initCorr(data);

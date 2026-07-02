@@ -171,47 +171,88 @@ header {
 
 #theme-toggle svg { flex-shrink: 0; }
 
-/* ---- Section nav (tab bar) ---- */
-nav.section-nav {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 2rem;
+/* ---- Sidebar toggle button (header) ---- */
+#sidebar-toggle {
     display: flex;
-    gap: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-    position: sticky;
-    top: 60px;
-    z-index: 90;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
 
-nav.section-nav::-webkit-scrollbar { display: none; }
+#sidebar-toggle:hover { border-color: var(--ncstate-red); color: var(--ncstate-red-text); }
+
+#sidebar-toggle[aria-expanded="true"] {
+    background: var(--ncstate-red);
+    border-color: var(--ncstate-red);
+    color: #fff;
+}
+
+/* ---- App shell: sidebar pushes main content, never overlaps ---- */
+.shell {
+    display: flex;
+    align-items: flex-start;
+}
+
+.sidebar {
+    width: 250px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    position: sticky;
+    top: 60px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 1rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    transition: width 0.22s ease, padding 0.22s ease, opacity 0.18s ease, border-color 0.22s ease;
+}
+
+body:not(.sidebar-open) .sidebar {
+    width: 0;
+    padding: 1rem 0;
+    opacity: 0;
+    border-right-color: transparent;
+}
 
 .nav-tab {
     appearance: none;
     background: none;
     border: none;
-    border-bottom: 2px solid transparent;
-    padding: 0.75rem 1rem;
+    border-left: 3px solid transparent;
+    border-radius: 0 8px 8px 0;
+    padding: 0.6rem 0.75rem;
     font-family: inherit;
     font-size: 0.725rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     color: var(--muted);
     cursor: pointer;
     white-space: nowrap;
     display: flex;
     align-items: center;
-    gap: 0.45rem;
-    transition: color 0.15s, border-color 0.15s;
+    gap: 0.6rem;
+    text-align: left;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
-.nav-tab:hover { color: var(--text); }
+.nav-tab:hover { color: var(--text); background: var(--bg); }
 
 .nav-tab.active {
     color: var(--ncstate-red-text);
-    border-bottom-color: var(--ncstate-red);
+    border-left-color: var(--ncstate-red);
+    background: var(--callout-red-bg);
 }
 
 .tab-num {
@@ -219,6 +260,7 @@ nav.section-nav::-webkit-scrollbar { display: none; }
     font-weight: 800;
     letter-spacing: 0.06em;
     opacity: 0.45;
+    flex-shrink: 0;
     transition: opacity 0.15s;
 }
 
@@ -229,6 +271,8 @@ nav.section-nav::-webkit-scrollbar { display: none; }
 
 /* ---- Layout ---- */
 main {
+    flex: 1 1 auto;
+    min-width: 0;
     max-width: 1100px;
     margin: 0 auto;
     padding: 2rem 1.5rem 4rem;
@@ -277,6 +321,80 @@ main {
     max-width: 720px;
     line-height: 1.65;
 }
+
+/* ---- About the Researcher ---- */
+.about-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.about-avatar {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--ncstate-red);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.375rem;
+    letter-spacing: 0.02em;
+}
+
+.about-name {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.about-role {
+    font-size: 0.8125rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+}
+
+.about-affil {
+    font-size: 0.8125rem;
+    color: var(--muted);
+    margin-top: 0.1rem;
+}
+
+.social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+}
+
+.social-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.social-link:hover {
+    border-color: var(--ncstate-red);
+    color: var(--ncstate-red-text);
+    background: var(--callout-red-bg);
+}
+
+.social-link svg { flex-shrink: 0; }
 
 /* ---- Cards ---- */
 .card {
@@ -942,14 +1060,20 @@ body.detail-on .tech-detail { display: block; }
 footer {
     border-top: 1px solid var(--border);
     background: var(--surface);
-    padding: 1.5rem 2rem;
+    padding: 1.75rem 2rem 4.5rem;
     font-size: 0.775rem;
     color: var(--muted);
+    transition: padding-bottom 0.18s ease;
+}
+
+.footer-inner {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+    max-width: 720px;
+    margin: 0 auto;
 }
 
 footer a {
@@ -1312,23 +1436,25 @@ body.light-mode .lim-badge--design {
 /* ---- Responsive ---- */
 @media (max-width: 640px) {
     header          { padding: 0.75rem 1rem; }
-    nav.section-nav { padding: 0 0.75rem; top: 56px; }
     main            { padding: 1.25rem 1rem 3rem; }
 
-    .nav-tab        { padding: 0.625rem 0.75rem; font-size: 0.675rem; }
-    .tab-num        { display: none; }
+    .sidebar        { width: 200px; top: 56px; height: calc(100vh - 56px); padding: 0.875rem 0.5rem; }
+    body:not(.sidebar-open) .sidebar { padding: 0.875rem 0; }
+
+    .nav-tab        { padding: 0.625rem 0.6rem; font-size: 0.675rem; }
 
     .funnel-step    { grid-template-columns: 7rem 1fr 3.5rem; }
     .variance-row   { grid-template-columns: 8rem 1fr 3.5rem; }
 
     .header-logo    { height: 26px; }
-    .header-title h1 { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .header-title p  { display: none; }
+    .header-title   { display: none; }
 
     .section-header h2 { font-size: 1.625rem; }
 
     .lim-grid    { grid-template-columns: 1fr; }
     .future-dirs { grid-template-columns: 1fr 1fr; }
+
+    .about-card  { flex-direction: column; align-items: flex-start; text-align: left; }
 
     .explain-panel { right: 0.75rem; left: 0.75rem; width: auto; }
     .explain-fab   { right: 0.75rem; }
